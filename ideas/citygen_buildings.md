@@ -40,7 +40,7 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | Branch | `worldengine`. ⚠️ **Hannes 2026-08-26: EVERY agent works on `worldengine` from now on** — this supersedes any per-tool branch (`cityGen`, `polychain`) named in a sibling doc's resume pointer. ⚠️ **Mechanical constraint that follows:** git refuses to check out one branch in two worktrees at once. This shared checkout `F:/projects/polyfactory` holds `worldengine`; polyfactory-f2's worktree `F:/projects/polyfactory-citygen` cannot also check it out. Whoever moves second must merge/rebase their branch into `worldengine` from here, or take the checkout over — **not** `--ignore-other-worktrees`. Raised with f2 and Hannes 2026-08-26. |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
-| Last completed | ⭐ **B0 + B1 BUILT, 2026-08-27 — the first B-stages, and they are *implemented, verified only by their own suite*.** Full account **§12.10d**; ⛔ **no agent may write "done" for either — Rule 0, and no independent agent has looked at this build.** **B0 ships as an ADAPTER** (`buildings.site()`, three nodes): ingests today's planar S8 lot — **a bare closed polygon with no attributes at all is a legal input** — and stamps §12.4's schema in its degenerate planar form, accepting `pf_site_id`/`pf_style_template` on prim **or detail** and `pf_face_role` on vertex **or prim**. ⭐ **The sentinel cannot be omitted:** `pf_site.vfl`'s write loop has **no branch that can leave an edge unwritten**, and the read is a SEPARATE node because a wrangle that writes an attribute has already created it by the time `has*attrib` is asked — so one file could not tell an authored 0.0 from one it manufactured. ✅ **`R4-2`, `R4-3`, `R4-6` all closed with mutations RED for the right reason** (the table in §12.10d says which clause each reddens and why). ⚠️ **`R4-2`'s residual is named, not hidden: a stream that SKIPS B0 still fails unsafe**, and that is why **§0.0g row 9 now carries a RECOMMENDATION to take the `pf_setback_set` mask — recommended, NOT implemented, and still Hannes'.** **B1's vocabulary is complete**: `identity`/`offset` are the table emptied with a different fallback, `shapeL`/`shapeU` are `pf_shape.vfl` (notch out of the plan bbox, CityEngine's own definition; the prim is REWIRED, not rebuilt, so every attribute `stamp()` wrote survives), `shapeO` routes to the `ring` rails §12.6 B1 already names. ⭐ **B1's non-convex output passes G2's headline check UNCHANGED** — `corner_closure_b1` cuts the gate's own L out of a rectangle and reports `[5118, 0, 0.000, 0, 0]`, corner module at the reflex corner included. ⚠️ **FOUR OF THIS CYCLE'S OWN REGISTRY ROWS WERE UNFAILABLE OR MISAPPLIED and the sweep is the only reason anyone knows** (`build_retrospective.md` §2a rows 39–42). **Both sweeps: G1 20 checks / 38 clauses / 45 mutations all RED, G2 6 / 13 / 14 all RED, 0 failing, baseline 0 moved on either.** Budget **2 044 / 947 = 2.16×**, down from 2.3015× — **+224 production, +380 test, marginal 1.70×: the first fall in five cycles**, and no new rule was invented (§0.0g row 4 unchanged). ⛔ **NOT built and named rather than implied:** the envelope caps (`pf_warn_coverage_exceeded`/`pf_warn_far_exceeded`), a negative `offsetM`, and `shapeL`/`shapeU` on a rotated or non-rectangular lot. **No viewport image was rendered for either stage.** |
+| Last completed | ⭐ **B0 + B1 BUILT, 2026-08-27 — the first B-stages, and they are *implemented, verified only by their own suite*.** Full account **§12.10d**; ⛔ **no agent may write "done" for either — Rule 0, and no independent agent has looked at this build.** **B0 ships as an ADAPTER** (`buildings.site()`, three nodes): ingests today's planar S8 lot — **a bare closed polygon with no attributes at all is a legal input** — and stamps §12.4's schema in its degenerate planar form, accepting `pf_site_id`/`pf_style_template` on prim **or detail** and `pf_face_role` on vertex **or prim**. ⭐ **The sentinel cannot be omitted:** `pf_site.vfl`'s write loop has **no branch that can leave an edge unwritten**, and the read is a SEPARATE node because a wrangle that writes an attribute has already created it by the time `has*attrib` is asked — so one file could not tell an authored 0.0 from one it manufactured. ✅ **`R4-2`, `R4-3`, `R4-6` all closed with mutations RED for the right reason** (the table in §12.10d says which clause each reddens and why). ⚠️ **`R4-2`'s residual is named, not hidden: a stream that SKIPS B0 still fails unsafe**, and that is why **§0.0g row 9 now carries a RECOMMENDATION to take the `pf_setback_set` mask — recommended, NOT implemented, and still Hannes'.** **B1's vocabulary is complete**: `identity`/`offset` are the table emptied with a different fallback, `shapeL`/`shapeU` are `pf_shape.vfl` (notch out of the plan bbox, CityEngine's own definition; the prim is REWIRED, not rebuilt, so every attribute `stamp()` wrote survives), `shapeO` routes to the `ring` rails §12.6 B1 already names. ⭐ **B1's non-convex output passes G2's headline check UNCHANGED** — `corner_closure_b1` cuts the gate's own L out of a rectangle and reports `[5118, 0, 0.000, 0, 0]`, corner module at the reflex corner included. ⚠️ **FOUR OF THIS CYCLE'S OWN REGISTRY ROWS WERE UNFAILABLE OR MISAPPLIED and the sweep is the only reason anyone knows** (`build_retrospective.md` §2a rows 39–42). **Both sweeps: G1 20 checks / 38 clauses / 45 mutations all RED, G2 6 / 13 / 14 all RED, 0 failing, baseline 0 moved on either.** Budget **2 044 / 947 = 2.16×**, down from 2.3015× — **+224 production, +380 test, marginal 1.70×: the first fall in five cycles**, and no new rule was invented (§0.0g row 4 unchanged). ⛔ **NOT built and named rather than implied:** the envelope caps (`pf_warn_coverage_exceeded`/`pf_warn_far_exceeded`), a negative `offsetM`, and `shapeL`/`shapeU` on a rotated or non-rectangular lot. **No viewport image was rendered for either stage.** ⛔⛔ **AUDITED 2026-08-27 BY AN INDEPENDENT, INSPECT-ONLY AGENT (§12.10d "Round 1", HEAD `42755fc`) — VERDICT: B0 NO, B1 NO. Read that block before touching either stage.** Both sweeps reproduced exactly (G1 20/38/45 RED, G2 6/13/14 RED, 0 failing, baseline 0 moved) and the budget reproduces to the line (2 044 / 947 = 2.1584×; 1 664 / 723 = 2.3015× at `5f5319e`; marginal 1.70×), so **the coverage does discriminate and the ratio fell because production grew.** ⛔ **B1 is blocked by two PRODUCTION defects, both silent and invisible to every current check:** `A1` — `shapeL`/`shapeU` cut the notch out of the **axis-aligned** plan bbox, so on a rotated or non-rectangular lot the building lands **up to 11.5 m OUTSIDE its own lot with all four `pf_warn_*` at 0**, and `pf_collapse`'s containment cannot see it because `_p0` is captured **after** `pf_shape` discarded the lot — this re-opens §0.0f item 1 / `R2-1`, the only defect ever called gate-blocking, and `masses_inside_lots` catches it by hand (−9.39 m at 30°) but is never called on a shaped site; `A2` — **`reverse()` is a pure VEX function and the statement form is a no-op**, so `pf_shape.vfl`'s winding line is dead code and on a **clockwise** lot every `pf_face_role` (and therefore every setback) lands on the **opposite** edge. ⛔ **B0's code is sound but its account of itself is not:** the unconditional write loop is real ✅, but *"the read must be a SEPARATE NODE because a wrangle that writes an attribute has already created it"* is **measured FALSE on 22.0.398** (`hasvertexattrib` returns 0 before the write, after the write, and under the `@`-binding form; control returns 1) — and it is stated in six places; and **the residual is mis-located**: a lot carrying a hand-created vertex `pf_setback` goes **THROUGH** B0 and still builds at `[0.0, 5.0, 30.0, 24.0]`, hard on the lot line, warnings 0 — so the guarantee is *"every stream whose lot carries no vertex `pf_setback`"*, **not** *"every stream through B0"*, which **confirms §0.0g row 9's recommendation from an agent that did not write it**. ⚠️ **`pf_site_id`'s fallback IS generation order and it is reachable** — reordering two bare lots moves the id of the lot at x=0 from 0 to 1, and `elem_ids_structural` cannot see it because it compares the id SET; **this document contradicts itself** on whether an S8 lot carries one, and that is Hannes'/streets' to settle before B3. ⚠️ **`corner_closure_b1` still PASSES on all three clauses when `pf_shape` is neutered and the footprint stays a 4-corner rectangle** — it counts the build against itself, §2a's recurring shape. |
 | Previously | ⭐ **G3 DECIDED + THE ROUND-N+1 QUEUE CLOSED**, 2026-08-27, implementer pass on `HEAD` `7359256`. ⭐ **G3 — APEX vs VEX/SOP for rule fragments: NO. THE RULE LAYER STAYS VEX/SOP** (§12.10c). Decided on **expressiveness, not cost**: `plinth`, `rails` and `zip` all run as verified APEX graphs, and **`prism` — the rule that BUILDS the mass — cannot be written in APEX at all** on 22.0.398 (`geo::` has **77 callables, 0 that create a point/vertex/polygon**; the live build says *"The given function 'addPoint' does not exist for the variable 'geo' of type 'Geometry'"*). Cost **~3×, a wash** against the 2.66× miter penalty G2 accepted. §4b's *"thin examples and rough edges"* confirmed as a number: **40 of 44 APEX SOPs are rigging; all 11 prose docs are under `character/kinefx/`.** Nothing was ported and no production file was touched. ✅ **All four queued fixes done** (§12.10b "Round-N+1 FIX PASS"): `N+1-5` `every_corner` now counts against `LOTS` — **mutation seen RED by hand**, control 22/22 PASS → **18 of 22 FAIL** → **13 of 22 FAIL** with the reflex crop absent, and `unpacked`/`corner_is_subject` unmoved; `N+1-7` `roof_closed` welds vertices at a declared 1e-3 m — **PASS at 0/5/7.3/15/30/45°** where 5° and 15° used to FAIL, **and all four paired mutations stay RED at 5° and 45°**, so the clause was not weakened; `N+1-1` `KIT_ROWS`' comment corrected to the measured reason and scoped to this kit+template (the literal stays — deriving it would rebuild the coupling `G2-1` removed); `N+1-4` `gate_images` → **`drawn_geometry`**, a rename only, **with the underlying image gap explicitly NOT claimed as fixed**. ⚠️ `N+1-1` and `N+1-4` are documentation — **no mutation exists for either** and none is claimed. **Both sweeps re-run after the shared `checks_buildings.py` edit: G2 11/11 RED, G1 33/33 RED, 0 failing, baseline 0 moved on both.** Budget **1664 / 723 = 2.3015×** (from 2.2918×): **+7 test lines, 0 production**, and **G3 added zero test code** by design. |
 | Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** ✅ **0. G1, G2 AND G3 ARE ALL ANSWERED — DO NOT RE-AUDIT G1 OR G2** (§12.10a "Round 4", §12.10b "Round N+1"; both decided by INDEPENDENT audit). ⭐ **G3 is answered by an IMPLEMENTER pass (§12.10c), not an independent one** — the verdict is **NO, the rule layer stays VEX/SOP**, and it rests on a structural fact that is one tool call to re-check: **APEX's `geo::` namespace cannot create a point, vertex or polygon on 22.0.398.** If it is audited, that single question settles it. ⭐ **THE GATES ARE DONE AND SO ARE B0 + B1** (2026-08-27, §12.10d — *implemented, verified only by their own suite*). **THE NEXT THING IS `B3` MINIMAL TABLES**, then B4 → B5 → B6 hardening throughout → finalize/instancing; B2 arrived from G1. ⚠️ **Correct one planning assumption before starting B3:** *"B0+B1, thin — most of it exists in the S8 interface"* was half right. B0 really was thin (~45 code lines) — but **none of the three defects it had to close was in the interface**, and closing them was the work; B1 was **not** thin, because `shapeL`/`shapeU` needed a topology change nothing in the S8 interface anticipated. ⭐ **B3 has one load-bearing fact waiting for it, already measured (`R4-5`/round 4 finding 5): a per-storey height TABLE is authorable today** — `{"storeyHeightsM": [{"n": 1, "hM": 4.5}, …]}` round-trips intact through the `.geo` detail-dict format and `assert_storable()` accepts it. ⛔ **The first thing an independent audit should attack in B0/B1 is `site_contract/published` and `shape_ops/ring`** — the two clauses that assert a set is COMPLETE and a cycle is EXACT, which is where a check of this shape usually turns out to be weaker than its name. ⛔ **Two things "decided" still does NOT include, and no agent may record either:** Hannes' **human viewport pass on G1 AND G2** — and `N+1-4` measured that the image check (now `drawn_geometry`) **cannot fail on a wrong image**, so his look is G2's only image evidence — and the **gable** half of "eave/gable seam", still unbuilt. ⭐ **The queue is otherwise EMPTY:** all four round-N+1 items are closed with their proofs in §12.10b "Round-N+1 FIX PASS". ⚠️ **One wording change wants a second pair of eyes:** §12.10b's decided scope word may widen from **axis-aligned** to **"rectilinear, any orientation"** — measured here (control green at six angles, four mutations still RED at 5° and 45°) but **by the implementer, on a DECIDED gate**, so it is recorded as evidence and not applied to the verdict paragraph. What now bounds it is **`elements()`' axis-aligned `bounds` read**, not `roof_closed`; non-right-angled and curved lots stay untested. ⚠️ **`build_retrospective.md` §2a is still owed entries for `N+1-1`, `N+1-4` and `N+1-5`** — round N+1 was scoped to one file, and this pass fixed the code without writing them. ⛔ **RUN BOTH SWEEPS AFTER ANY PRODUCTION EDIT, ALWAYS** (`run_g2_checks.py --mutations` AND `run_building_checks.py --mutations`): the suites share `pf_collapse.vfl` and `checks_buildings.py` and are not independent. ⭐ **The §35.6 miter evidence is final and is Hannes' to decide** — wall-clock **2.6–2.7×** at 64 buildings. ~~**Still open and NOT a gate's:** `R4-2`/`R4-3` (B0 and the sentinel)~~ ✅ **`R4-2`, `R4-3` and `R4-6` are CLOSED by the B0 build with mutations RED** (§12.10d); **§0.0g rows 1–9 are all still Hannes'**, and row 9 now carries a recommendation to take the `pf_setback_set` mask — recommended, not implemented. |
 | Gates | ✅ **G1 IS DECIDED, 2026-08-26, by the round-4 INDEPENDENT audit** (§12.10a "Round 4", HEAD `756a787`). Round 3's four conditions — `R3-2`, `R3-3`, `R3-4` closed and `R3-1`'s clause given a mutation that discriminates — were each verified by an agent that wrote none of the fixes. ⛔ **Do not record it in stronger words than the block quoted at the end of §12.10a "Round 4".** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (still owed, see below); ratification of the `pf_setback` sentinel (§0.0g row 9, still his — deciding G1 does not ratify a schema); and anything beyond **topology** — §12.10a's own "what G1 did NOT test" still binds. Round 4 found six further defects, `R4-1`…`R4-6`, **none of which bears on the gate**; they are queued work in §12.10a "Round 4". The gate's *own question* — is `volumeTopology` data? — was confirmed three times and **is not disputed**. **Do not re-litigate it.** G3 APEX-vs-VEX ⭐ **ANSWERED 2026-08-27 — NO, THE RULE LAYER STAYS VEX/SOP** (§12.10c). ⚠️ **By the IMPLEMENTER, not an independent audit** — the word is *answered*, not *decided*, and no agent may upgrade it without one. It is decisive **on measurement, not on judgement**: `plinth`, `rails` and `zip` all run as verified APEX graphs, and **`prism`, the rule that builds the mass, cannot be written in APEX at all** — `geo::` has **77 callables and 0 that create a point, vertex or polygon**, and the live build says *"The given function 'addPoint' does not exist for the variable 'geo' of type 'Geometry'."* **Cost is NOT the reason** (~3×, against the 2.66× miter penalty G2 accepted). ⚠️ **What it does NOT rule out:** APEX for **B4 packed placement** (`geo::AddPacked` exists), and APEX for **traffic/crowds**, where `citygen.md` §4b and `citygen_simulation.md` §7b put it — this gate does not touch either. ⭐ **The one-question re-test on a future build: does `geo::` gain a point/prim constructor?** · G1 topology-as-data ✅ **DECIDED** · ✅ **G2 CORNER CLOSURE ON AN L — DECIDED 2026-08-27 by the round-N+1 INDEPENDENT audit** (§12.10b "Round N+1", HEAD `ea1a31d`, inspect-only, wrote no fix and spawned no sub-auditor). It reproduced both suites first (G2 5 checks / 10 clauses / **11 registry mutations all RED**, 0 failing, baseline 0 moved, `[22266, 0, 0.000, 0, 0]`; G1 **33 mutations all RED**, 0 failing, baseline 0 moved) and recounted the budget to the line with a third counter. **The decided claim is the narrowed one below, with one word changed: AXIS-ALIGNED, not merely rectilinear** — a merely ROTATED rectilinear L false-fails `cap_seam/roof_closed` at 5°, diagnosed to the clause's exact-tuple edge pairing on 6-dp-rounded floats and therefore a false FAILURE that hides nothing (`N+1-7`). ⛔ **Do not record it in stronger words than §12.10b "Round N+1"'s verdict paragraph.** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (owed on G1 AND G2, still, and `N+1-4` measured that `gate_images` **cannot fail on a wrong image** — 32 of 32 PNGs can be 74-byte black squares, or pictures of a different scene, with the check green — so his look is G2's only image evidence); the **gable** half of "eave/gable seam", still unbuilt, so what is decided is §12.10's criterion **as amended in its own bullet**; and anything beyond a **single-volume** building (`G2-9` verified: all four sites `mass_volumes: 1`, so the two-array corner §5 Theme 4 is about was never built — B6's). Eight further findings `N+1-1`…`N+1-8`, **none bearing on corner closure**, are queued in that block; the sharpest are that **`KIT_ROWS`'s stated rationale is false** (the row count is the WALL's — 6 storeys give 6 rows, 1 gives 1 — though the constant is right for this fixture and every drift is a loud FAIL, so the fix is sound and the comment is not) and that **`gate_images/every_corner` counts the build against itself** (12 corner PNGs for 22 lot corners reports *"12 of 12"* and PASSES). **Do not re-litigate the gate's own question.** *The round-N record below still describes the build it was taken on (`9ba64c4`).* What that suite said: **6 checks / 13 clauses / 11 registry mutations + 3 by-hand all RED, 0 failing, baseline 0 moved**, and the three clauses the audit found asserting less than their names claimed now assert what they claim — an absent storey row is caught, the vertical axis is measured, and the roof's pitch has an oracle. **The next step is a FRESH independent audit of this build**, and two of the audit's reasons for withholding remain untouched by any of it: *"viewport-verified"* is Hannes' and the gable half is not built. Below is the round-N record, which still describes the build it was taken on (`9ba64c4`). It reproduced the suite exactly (5/8/8 all RED, 0 failing, baseline 0 moved; G1 at 17/28/33, 0 failing, baseline 0 moved — which is the independent confirmation the new crossing test does NOT false-positive) and recounted the budget to the line with its own counter. **What IS established, in the only words the evidence supports:** *on a single-volume, axis-aligned, fully-hipped L, the facade closes IN PLAN at all five convex corners and at the reflex corner, a kit-tagged corner element stands at every corner, and the roof surface contains the wall-top line at every corner and edge midpoint.* Two of the reasons the gate is withheld are **not defects and not an agent's to waive**: §12.10's criterion ends *"viewport-verified"* and no human has looked, and the criterion says *"eave/gable seam"* while the gable half is not built. ⚠️ **G2's OWN human viewport pass is owed exactly as G1's is** — sixteen per-corner images in `tests/citygen/gate_images_g2/` (untracked), `g2_1_corner3_reflex.png` first — and it matters MORE here than on G1: `run_g2_checks.py` carries **no image assertion of any kind**, so unlike G1 (whose `image_contains_subject` at least measures bytes, `R3-6`) there is **no automated image evidence whatsoever**. Nine findings `G2-1`…`G2-10`, none of which falsifies the narrowed claim above · G3 APEX-vs-VEX ⬜ (only after G1+G2). ⚠️ **G1's HUMAN viewport pass is still OWED and no agent may record it as satisfied** — three agents have now looked at `tests/citygen/gate_images_buildings/`; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. The image check no longer compares a number with itself (§12.10a R2-2) but it still cannot see framing or subject identity, so **the human pass remains G1's real image evidence.** |
@@ -3845,6 +3845,167 @@ not closed, and §0.0g row 4 is unchanged and still Hannes'. **No new rule was i
 - **A stream that skips B0.** By definition; see the residual above.
 - **Any Houdini build other than 22.0.398**, including the measured fact that a conditional
   `setvertexattrib` does not create its attribute.
+
+#### Round 1 (independent, inspect-only, 2026-08-27, HEAD `42755fc`) — ⛔ **B0 NO, B1 NO**
+
+Inspect-only, no sub-auditors, **no production file edited** — every probe was an in-process
+monkeypatch of `B.vex` / `B.CLEAN` / `B.site`, reverted in a `finally`, and the tree was verified
+clean before and after. **Both sweeps reproduced first, then again at the end:** G1 **20 checks /
+38 clauses / 45 mutations all RED, 0 failing, baseline 0 moved**; G2 **6 / 13 / 14 all RED,
+0 failing, baseline 0 moved**. G2's snapshot was not touched and `--update-baseline` was never run.
+⛔ **No image was rendered and none was opened. Hannes' viewport pass is owed on G1, on G2 and now
+on a `shapeU`, and this audit does not touch that.**
+
+**⛔ B1 IS THE BLOCKER, AND IT IS TWO PRODUCTION DEFECTS, NOT A COVERAGE GAP.**
+
+**`A1` — `shapeL`/`shapeU` build OUTSIDE the lot, silently, on any lot that is not an axis-aligned
+rectangle.** Measured on a 30 × 24 rectangle rotated about its own centre, `shapeL` 14 × 12 at
+corner 2: at **15°** three footprint corners land outside the lot, worst **4.084 m**; at **30°**,
+four corners, worst **9.392 m**; at **45°**, four corners, worst **11.465 m** — and **all four
+`pf_warn_*` are 0** in every case. A trapezoid lot `(0,0)(30,0)(22,24)(8,24)` puts two corners out,
+worst **3.953 m**, warnings 0. Control at 0°: zero corners outside.
+**Mechanism, and it is why no guard fires:** `pf_shape.vfl` replaces the ring with the **axis-aligned
+plan bbox** minus a notch, and `pf_collapse.vfl` measures containment against `_p0` — which
+`pf_inset.vfl` writes **after** `pf_shape` has already discarded the lot. The guard therefore
+compares the footprint against the box-L, never against the lot. **This re-opens the only defect
+this build ever classed as gate-blocking** (§0.0f item 1 / `R2-1`: *"a building outside its lot
+unwarned at cook time"*).
+⭐ **The check that catches it already exists and is simply never called on a shaped site**: run by
+hand on the 30° build, `C.masses_inside_lots` **FAILS** at `-9.39 m` on `81:B2:v0:{floor,cap,s0}`,
+and **PASSES** on the 0° build. Neither runner calls it on a site B1 shaped.
+⚠️ **And the stated defence is wrong on its own terms.** §12.10d says the box-L *"is CityEngine's
+behaviour too"*. CityEngine's `shapeL` is defined on the **scope**, which is an **oriented** box; ours
+is the **axis-aligned** one. On a rotated parcel CityEngine's notch stays inside the parcel and ours
+does not, so the provenance argument does not cover this case. §12.6 B1 asks for a footprint *inside
+the setback envelope* and §2.2 asks for a warning, never a refusal; this is neither.
+
+**`A2` — on a CLOCKWISE-wound lot every face role lands on the OPPOSITE edge, and the cause is dead
+code.** ⭐ **`reverse()` is a pure VEX function and the statement form is a no-op** — measured
+directly: `int a[] = array(1,2,3,4); reverse(a);` leaves `a[0] == 1`, while `b = reverse(b)` gives
+`b[0] == 4`. So `pf_shape.vfl`'s `if (sgn < 0.0) reverse(ring);` does nothing, the ring stays in
+CCW box order, and the final role loop then multiplies that ring's normals by the **input's** `sgn`
+of −1 — matching every output edge to the input edge facing the **opposite** way. Measured with a
+role-vs-outward-normal table derived independently of production, same lot both windings, same
+physical lines given the same roles: CCW → shaped `-z:front(3.0)`, `+z:rear(4.0)` ✅; CW → shaped
+**`-z:rear(4.0)`, `+z:front(3.0)`** ❌, and both x edges swapped as well. **A wrong role is a wrong
+setback and a legal-looking footprint** — §12.4's contract, broken silently. Every fixture in both
+suites is CCW, so no clause can see it. ⚠️ Its sibling defect is the comment: `pf_shape.vfl` says a
+silently reversed footprint *"would hand `pf_inset.vfl` the wrong side"* — the build survives only
+because `pf_area0` recomputes the sign, which is offered in the same comment as the reason the dead
+line is needed.
+⚠️ **Reachability not established here:** the code treats a CW lot as legal throughout, but whether
+S8 emits one was not measured.
+
+**What a fix pass owes B1** (named, not written): capture `_p0` from the **lot** before `pf_shape`
+so containment sees the escape — or test the lot for axis-alignment and degrade with
+`pf_warn_footprint_collapsed`; assign `ring = reverse(ring)`; add **one rotated and one
+non-rectangular** fixture and a **containment clause** to `shape_ops`; add a **clockwise** fixture.
+
+**⛔ B0 — NO, and the code is in better shape than its account of itself.**
+
+**`B1-a` The unconditional write loop is REAL.** `pf_site.vfl`'s loop has no branch that can leave
+an edge unwritten, `-1.0` is written rather than defaulted, and the `max(sb, 0.0)` mutation reddens
+`site_contract/sentinel` and `plan_follows_data_b0/footprint` for two different reasons. ✅ Verified.
+
+**`B1-b` The second half — "the read must be a SEPARATE NODE" — is FALSE AS STATED.** Measured three
+ways with a positive control: `hasvertexattrib(0, "pf_setback")` returns **0** inside a wrangle that
+writes `pf_setback` — asked **before** the write, asked **after** the write, and with the
+`f@pf_setback` binding form — while the control (the attribute genuinely present on the input)
+returns **1**. So *"a wrangle that WRITES an attribute has already created it by the time
+`has*attrib` is asked"* does not hold on 22.0.398. The split is harmless and the guarantee does not
+depend on it, but the sentence is B0's headline structural argument and it stands in **six** places:
+§0.0 *Last completed*, §12.10d, `pf_site_in.vfl`'s header, `pf_site.vfl`'s header by reference,
+`buildings.site()`'s docstring, and commit `9562676`'s message.
+
+**`B1-c` THE RESIDUAL IS MIS-LOCATED, AND THE TRUE BOUNDARY IS WORSE.** §12.10d says the omission is
+closed *"for every stream that passes THROUGH B0"* and that the residual is *"a stream that SKIPS
+B0"*. Measured: a lot arriving with a **hand-created vertex `pf_setback`**, one edge authored 5.0 and
+the rest at the attribute's 0.0 default, **passes through B0** and comes out `[5.0, 0.0, 0.0, 0.0]`;
+the building lands at plan box **`[0.0, 5.0, 30.0, 24.0]`** — hard on the lot line on three of four
+edges — with **all four `pf_warn_*` at 0** and `pf_setback` swept from the output. Controls: no
+attribute → `[2.5, 3.0, 28.0, 20.0]`; sentinel authored by hand → `[2.5, 5.0, 28.0, 20.0]`. **The
+guarantee is "every stream whose lot carries NO vertex `pf_setback`", not "every stream through
+B0"** — and hand-authoring is exactly the cascade level-5 workflow the attribute exists for.
+⭐ **§0.0g row 9's recommendation argument is therefore CONFIRMED by an agent that did not write it,
+and it is stronger than the recommendation states: the failing case does not have to skip B0.**
+⭐ **And yes, a lot-line building can be built by routing AROUND B0:** the same hand-authored lot fed
+straight into `B.build()` gives the identical `[0.0, 5.0, 30.0, 24.0]`, and a lot with no
+`pf_setback` at all fed straight into `B.build()` builds correctly — B0 is not on the critical path,
+it supplies defaults, and nothing downstream asks whether it ran.
+
+**`B1-d` THE `pf_site_id` FALLBACK IS GENERATION ORDER AND IT IS REACHABLE.** Measured: the same two
+lots cooked in **opposite order** with no `pf_site_id` on the input — the lot anchored at x = 0 is
+site **0** in one order and site **1** in the other, and its whole downstream address moves with it.
+⚠️ **`elem_ids_structural` is structurally unable to see this**: it compares the id **set**, and the
+set is identical (`0:B2:v0`, `1:B2:v0`) — only the mapping to geometry moved. Control: with
+`pf_site_id` present the mapping is stable in both orders.
+⛔ **Not called a blocker here, and the reason is a contradiction inside this document that only
+Hannes and the streets owner can settle.** §12.10d says *"Every lot streets produces carries one"*;
+§0.0's own B0 row says a bare polygon *"is what an S8 lot is today"*. Both cannot be true. Nothing
+anywhere in the repo writes `pf_site_id`, and the streets lot allowlist
+(`tests/citygen/checks.py:2261`) publishes **`lot_id`**, not `pf_site_id`. **If the second sentence
+is the true one, the fallback is the NORMAL path today and §12.7's rule is already broken for every
+building** — it costs nothing yet only because no override layer exists to survive a recook.
+**Settle this before B3**, and if a stable lot id exists upstream, B0 should read it by name.
+
+**`C` `corner_closure_b1` — the fixture is right, the clause discriminates, and its headline
+sentence is not what it measures.** ✅ `B1_LOT` + `shapeL(14, 12, at=2)` produces exactly
+`[(300,0),(330,0),(330,12),(316,12),(316,24),(300,24)]` = **`ell(300, 0)`** to the unit, and the
+doc's caveat that the roles — and so the inset footprint — differ from G2's site 1 is correct.
+`[5118, 0, 0.000, 0, 0]` reproduces, and 1 706 plan positions is only reachable from a six-corner
+inset L with edges 25.5 / 5 / 14 / 12 / 11.5 / 17. ⛔ **But with `pf_shape.vfl` neutered so B1 does
+NOTHING, the footprint stays a plain 4-corner rectangle and `corner_closure_b1` still PASSES on all
+three clauses** — `[5112, 0, 0.000, 0, 0]`, cap ring 4 corners. `corner_module` walks the ring of the
+**mass it was handed**, so *"a corner module at every corner including the reflex one `shapeL`
+manufactured"* is carried entirely by `shape_ops/ring` in the **other** runner and by nothing in
+G2's. **This is `build_retrospective.md` §2a's "counts the build against itself" shape again** — the
+one that bit `every_corner` — inside the clause advertised as B1's headline evidence.
+
+**`D` The two clauses the implementer named — its guess was half right, and inverted.**
+`site_contract/published` is **stronger** than advertised: it reddens on a stray published
+`pf_bogus`, on `pf_site_id` shipped as **Float** (D223), and on an unswept detail
+`pf_site_id`/`pf_style_template`. ⚠️ Three of its terms are unfailable on the shipped fixture: the
+`_*` **group** term (B0 makes no groups — removing the `groupdelete` stays GREEN), the **point-class**
+`_*` sweep (B0 writes no point scratch — removing it stays GREEN), and any leak whose name starts
+with neither `pf_` nor `_` (a bare `bogus` prim attribute ships GREEN). Its completeness is against
+`SITE_STORAGE`'s five names — the code's list, not §12.4's eight.
+`shape_ops/ring` **is** a real ordered-cycle comparison: notch depth off by **4 mm** → RED, by 20 mm
+→ RED, `at` forced to corner 0 → RED on `ring` **and** `roles_and_inset`. Its true resolution is
+**1 mm** (the 3-dp rounding): **0.4 mm passes**. A winding mutation stays GREEN — which is how `A2`
+was found: the line it mutates does nothing to begin with.
+
+**`E` The named-but-unbuilt items, measured rather than passed on.**
+**A negative `offsetM`** does what `stamp()`'s comment claims: `−2.5` on a 30 × 24 lot gives
+`pf_warn_footprint_collapsed = 1`, `pf_warn_topology_arity = 1`, and the mass is built on the **lot**
+(`[0, 0, 30, 24]`), inside it. Safe, warned, and now verified rather than named.
+**`shapeU`'s own fit guard** works both ways (40 m wide and 40 m deep on a 30 × 24 lot each degrade
+to the 4-point footprint with the collapse warning) — but the suite's only degraded fixture is
+`shapeL`'s, so `degrades` is proven through one op.
+**The envelope caps** are confirmed absent from production (`pf_warn_coverage_exceeded` /
+`pf_far_max` appear only in docstrings): §12.6 B1's spec is under-delivered, as the doc says.
+✅ **Not stamping `pf_coverage_max` / `pf_far_max` / `pf_height_max` is SOUND** — a published name no
+stage reads is §12.10a defect 5's shape. ⚠️ But note the cost precisely: `site_contract/published`
+cannot see a §12.4 row that **fails to ship**, so nothing but the prose keeps the promise alive.
+✅ **`R4-3`'s second half re-verified independently:** the `mixed` stream's B2 output publishes 18
+prim names and **no `pf_setback` on any class** — the `CLEAN` sweep holds.
+
+**Does the new coverage discriminate? YES.** Eleven new clauses, fourteen new registry rows, all RED
+and each for a reason re-derived here; no unfailable registry row was found. What was found is three
+unfailable **terms inside** `published`, one blind spot in `corner_closure_b1`, and — the one that
+matters — **no clause anywhere asserting that a shaped footprint stays inside its lot**, which is
+where `A1` lives. **The ratio fell because production grew, not because the tests got weaker.**
+
+**Budget, recounted with a third counter:** production **947** (`buildings.py` 324 + thirteen `.vfl`
+623), test **2 044** (`checks_buildings.py` 737 + `run_building_checks.py` 751 + `run_g2_checks.py`
+535 + `TestStorableGuard` 21) = **2.1584× → 2.16×**. At `5f5319e` the same counter gives
+**1 664 / 723 = 2.3015×**. Marginal **380 / 224 = 1.696 → 1.70×**. **All four numbers reproduce to
+the line** and the denominator is unchanged. §0.0g row 4 is untouched and still Hannes'.
+
+**What this audit could NOT verify:** whether S8 lots carry any stable per-lot id (read the
+allowlist and grepped the repo; did **not** cook the streets city — another session's suite);
+whether S8 emits clockwise lots, i.e. `A2`'s reachability; **anything in a viewport**; cook cost;
+any Houdini build other than 22.0.398; and whether a merged single-node B0 would be *correct* —
+`B1-b` disproves the stated **reason** for the split, not the split's safety.
 
 ### 12.11 v1 acceptance
 
