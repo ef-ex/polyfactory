@@ -290,6 +290,26 @@ guard's blind spot. None of them is a missing assertion; all four assert somethi
 wrong thing. That is §2a's *"state what you measured against"* (from the count errors earlier the
 same night) arriving in geometry rather than in prose.
 
+**⚠️ TWO MORE, FROM B1's ROUND-3 AUDIT (2026-08-27) — the auditor was scoped to one file; placed here on its report.**
+
+| # | Incident | Ref |
+|---|---|---|
+| 56 | ⛔ **"ONE MUTATION PROVES BOTH ENDS" — MEASURED FALSE, and the check-side half CANNOT FAIL.** A guard and its verifier were both widened from corners-only to edge-walking, and one registry row was claimed to prove both. **Reverting the CHECK to corners-only, with production untouched, leaves all 22 checks / 41 clauses GREEN.** The row only ever proved the *guard*. Why it looked proven: with guard **and** check corners-only the clause still reddens — but on the *mass's* corners inside the slot, i.e. **for a different reason than the one claimed.** Closing it needs a fixture where **only an edge** escapes; every non-convex lot in both suites reports through a corner. ⚠️ The production guard is separately sound and proven (`−3.000 m` where corners-only reads `+0.000 m`) — **the defect is entirely in the belief about the mutation's reach** | B1 `P2` |
+| 57 | ⚠️ **A CLAIM UNDERSTATED IN THE SAFE DIRECTION, AND ITS ARGUMENT DID NOT FOLLOW.** Two halves. (i) *"18 of 181 refused at 20 km"* re-measured as **29 refused**, and of the 152 built the worst error is **2.310 mm** (median 1.064 mm, none above 5 cm) — **no frame is wrong at 20 km at all**; a 1e-3 m verdict there measures float32 *storage*, not the frame. **The substance was stronger than the claim** — recorded because understatement is still a frame error, and the next reader would have believed a ceiling that is not there. (ii) The residue was called *"the shape's own symmetry group"*; its true reach is **every rectangular lot**, and while *"no geometry-only rule can resolve it"* is true, the conclusion does not follow — **`pf_face_role` is read twelve lines above the frame loop, is lot-intrinsic, rotates with the lot, and distinguishes `front` from `rear`.** Pinning the frame to `front` resolves it without asking the world | B1 `P1` |
+
+**⭐ WHY 56 IS THE MOST INSTRUCTIVE ENTRY IN THIS LOG.** Everything above it is a check that could not
+fail. **This is a check that CAN fail, does fail, and was believed to prove twice what it proves** —
+the mutation reddened, the reasoning was written down, and the reach was never measured. **A mutation
+seen RED proves the clause it reddens and nothing adjacent to it.** The discipline that catches this
+is not "see it red" but **"revert each half separately and confirm each half goes red alone"** —
+which is what §2a's per-clause sweep does for clauses and nobody had been doing for the *ends of a
+single clause*.
+
+⚠️ **And the audit corrected a correction:** the previous pass reported that round 2's *"2 of 3"* was
+a truncated print (`bad_degrade[:2]`). The truncation was real — **but the true count at that commit
+was genuinely 2**, so the earlier auditor had not mis-counted. **A correction is a claim like any
+other and inherits the same duty to be measured.**
+
 ### 2b. Wrong conclusions that propagated
 
 | # | Incident | Cost |
