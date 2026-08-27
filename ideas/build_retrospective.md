@@ -215,6 +215,25 @@ not write them; they are placed here on its report.**
 | 37 | **`gate_images` CANNOT FAIL ON A WRONG IMAGE.** Replace all 32 PNGs with **74-byte black squares**, or with pictures of an entirely different scene, and the check returns **byte-identical PASS**. It is the project's **third** attempt at this one assertion (`R2-2` counted a number against itself; `R3-6` repaired it to a byte ratio that passes 1 of 97 prims). Its docstring is honest; **its name is not** | G2 `N+1-4` |
 | 38 | **A check's stated RATIONALE was false while the check itself was sound.** `KIT_ROWS`' comment insists the row count *"belongs to the KIT, not to the template"*. Measured on one kit: 6 storeys → 6 rows, 12 → 12, 1 → 1, and `GROUND_Y` 4.0 → 0.1 → 5. It is `f(wall height, kit Y sizes)`. **The fixture cannot tell the two oracles apart because both equal 3 there.** The fix stands — a hand-typed literal drifts **loud**, never silently, which is the inverse of G1's methodology trap — but a future reader would have trusted the reason and generalised it wrongly | G2 `N+1-1` |
 
+**⚠️ FOUR MORE, ALL FROM ONE CYCLE (B0 + B1, 2026-08-27), ALL IN THAT CYCLE'S OWN NEW MUTATION
+ROWS, AND ALL FOUND BY THE SWEEP RATHER THAN BY THE AGENT THAT WROTE THEM.** They are logged
+together because the pattern across them is sharper than any one of them: **the check was fine
+every time; the MUTATION was the defective artefact.** A registry row is code, and it is code
+nobody reviews.
+
+| # | Incident | Ref |
+|---|---|---|
+| 39 | **THE MUTATION TESTED A DIFFERENT, LOUDER DEFECT THAN THE ONE IT NAMED.** `R4-2` is *"`pf_setback` is PRESENT and reads 0.0"*. The row made the write CONDITIONAL — and, measured on 22.0.398, VEX then does not create the attribute **at all**, so the run was exercising *attribute absent*, which the pipeline notices in other ways. It surfaced as `MUTATION DID NOT APPLY: The attempted operation failed`, i.e. a cook error, which hid the real cause behind a stack trace. The row is now `max(sb, 0.0)` — literally the value a freshly created float attribute gives you | citygen buildings, B0 |
+| 40 | **THE ORACLE AND THE THING IT JUDGED WERE THE SAME STRING — `R4-1`'s shape, third occurrence.** The fixture set the site's template on the DETAIL class **and** passed the same id as B0's level-2 default parameter, so the mutation that removes the detail read changed nothing observable and `site_contract/identity` reported PASS. Fixed by making the two deliberately different. ⚠️ **`R4-1` was itself logged as row 26 and read during this very cycle**; knowing the shape did not prevent writing it, which is exactly what rows 36–38 say | citygen buildings, B0 |
+| 41 | **THE MUTATION REDDENED TWO OTHER CLAUSES AND LEFT ITS OWN GREEN — and the per-clause sweep is the only reason that was visible.** `shape_ops/degrades` was paired with *"remove the fit guard"*; removing it lets the bad notch be cut, `pf_collapse` then catches the result by CONTAINMENT, and the degradation is still reported — so `ring` and `roles_and_inset` went red and `degrades` did not. Under the pre-round-2 sweep (one mutation per check NAME) this would have counted as proving the check. The row now drops the shape op's REPORT and leaves the guard intact | citygen buildings, B1 |
+| 42 | **A HARNESS MATCHED BY PREFIX, so a row aimed at one file fired on another where its anchor does not exist.** `patch_vex` used `name.startswith(want)` — needed because `B.vex` is called both as `"pf_mass"` and `"pf_mass.vfl"` — and a new row for `pf_site` therefore also fired on `pf_site_in`, reporting `MUTATION DID NOT APPLY` about a file it was never about. ⭐ **The anchor assert caught it loudly, which is instance 35's control earning its keep a second time.** Now matched exactly (`name in (want, want + ".vfl")`) in **both** runners | citygen buildings, B0 |
+
+**The rule that falls out, and it is new:** *a mutation must be checked for the same three things a
+check is — that it applies, that it reddens the clause it NAMES, and that it reproduces the defect
+it claims to reproduce, not a louder neighbour of it.* Rows 39 and 41 both passed "it applies" and
+failed the third. **The cheapest instrument is the one already in the runner**: print the failing
+check's own message under every GREEN row, and read it — row 41 was diagnosed from that line alone.
+
 **What 36 and 37 say together, and it is not comfortable:** the image assertion has now been written
 **three times by three different agents**, each aware of the previous failure, and **all three could
 pass on an absent or wrong subject.** Instance 36 was written by the pass that had just fixed the
