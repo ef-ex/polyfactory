@@ -410,8 +410,15 @@ def rot(pts, cx, cz, deg, nd=6):
 #       bbox, so on this lot at 15° three footprint corners landed outside it
 #       (worst 4.084 m), at 30° four (9.392 m) and at 45° four (11.465 m), with
 #       all four `pf_warn_*` at 0.  The scope is the lot's own ORIENTED box
-#       now, so the answer here is site 31's answer rotated - exactly, because
-#       a rectangle at any angle IS its own scope box.
+#       now, so the answer here is site 31's answer rotated - exactly.
+#       ⛔ AND "A RECTANGLE AT ANY ANGLE IS ITS OWN SCOPE BOX" IS ONLY HALF
+#       TRUE, which is what this comment used to say and how `P1` survived a
+#       round: it is true of the BOX and false of the CORNER INDEXING, which
+#       `at` and every role read off.  A rectangle has four candidate
+#       directions naming the same box with its corners numbered four ways.
+#       This site pins ONE angle, and one angle cannot discriminate that -
+#       30° is in the passing set of a build that got 68 of 181 orientations
+#       wrong.  `SWEEP_LOTS` is what pins the rest.
 #   38  A TRAPEZOID.  A lot that is not a rectangle has a scope box LARGER than
 #       itself, so the notch can still escape (measured: 2 corners out, worst
 #       3.953 m, warnings 0).  There is no oriented box that fixes that, so
@@ -428,13 +435,51 @@ def rot(pts, cx, cz, deg, nd=6):
 #       code treats one as legal throughout, which is enough to test it.
 ROT_DEG = 30.0
 ROT_C = (215.0, 12.0)
+#   41  AN ORDINARY SLOTTED PARCEL, and it is `P2`: a 30 x 24 lot with a 6 x 5
+#       slot bitten out of its +z edge.  Every corner of the box-L tests
+#       inside-or-on and its top EDGE runs outside the lot across the slot -
+#       measured at 3.000 m before the fix, with `_shapebad` 0, all four
+#       `pf_warn_*` 0, and `masses_inside_lots` reporting PASS.  The guard and
+#       the check both tested CORNERS ONLY; the guard now splits each edge at
+#       every lot crossing and tests the pieces, and `C._escapes` walks them.
+SLOT_LOT = [(500.0, 0.0), (530.0, 0.0), (530.0, 24.0), (508.0, 24.0),
+            (508.0, 19.0), (502.0, 19.0), (502.0, 24.0), (500.0, 24.0)]
+ROLES_SLOT = ["front", "sideStreet", "rear", "alley", "alley", "alley",
+              "rear", "alley"]
 L_LOTS = [(31, rect(0.0, 0.0, 30.0, 24.0)), (32, rect(100.0, 0.0, 10.0, 10.0)),
           (37, rot(rect(200.0, 0.0, 30.0, 24.0), ROT_C[0], ROT_C[1], ROT_DEG)),
           (38, [(300.0, 0.0), (330.0, 0.0), (322.0, 24.0), (308.0, 24.0)]),
-          (39, list(reversed(rect(400.0, 0.0, 30.0, 24.0))))]
+          (39, list(reversed(rect(400.0, 0.0, 30.0, 24.0)))),
+          (41, SLOT_LOT)]
+# ⛔ `P1`'s STANDING FIXTURE, AND IT IS A SWEEP BECAUSE ONE ANGLE CANNOT
+# DISCRIMINATE A PROPERTY THAT VARIES WITH THE ANGLE.  Site 37 tests exactly
+# one orientation, 30°, and 30° is in the PASSING set of a build that got 68 of
+# 181 half-degree orientations wrong - a fixture property load-bearing without
+# saying so, the third time in this build.  Each angle is one prim in ONE cook,
+# so 37 of them cost one build and no extra node.
+# 0-180° rather than 0-90°: the tie-break this replaced folded every direction
+# into the +x half-plane, which is DISCONTINUOUS at 90° - measured on the old
+# build, 493 of 721 orientations wrong over the full circle against 68 of 181
+# over the first quadrant.  5° steps because a 5° sweep of the old build is
+# wrong at 5, 10, 25, 35, 40, 50, 55, 65, 75 and 80°.
+SWEEP_DEG = [i * 5.0 for i in range(37)]
+SWEEP_C = (215.0, 12.0)
+SWEEP_LOTS = [(100 + i, rot(rect(200.0, 0.0, 30.0, 24.0),
+                            SWEEP_C[0], SWEEP_C[1], d))
+              for i, d in enumerate(SWEEP_DEG)]
 # Site 40 is `shapeU`'s OWN degraded case.  Before it, `degrades` was proven
 # through `shapeL` alone - one op standing in for a clause that names two.
-U_LOTS = [(33, rect(0.0, 0.0, 30.0, 24.0)), (40, rect(100.0, 0.0, 6.0, 6.0))]
+# ⛔ AND SITE 40 WAS NOT ENOUGH, WHICH IS `P4`.  Its 6 x 6 lot is refused by
+# `shapeU` AND then inset by front 3.0 + rear 4.0 on a 6 m span, so
+# `pf_collapse` flags it by its OWN terms and the `_shapebad` -> warning path
+# is not what the site proves: the `degrades` mutation reddens on sites 32 and
+# 38 and NOT on 40, so "proven through both ops" was not what the measurement
+# supported.  Site 42's 8 x 20 lot refuses the same 10 x 8 notch (the notch is
+# 8 m deep on an 8 m span) and then survives its setbacks with room to spare -
+# 20 - 3.0 - 4.0 = 13 m by 8 - 2.0 - 2.5 = 3.5 m - so its warning has exactly
+# one possible source.
+U_LOTS = [(33, rect(0.0, 0.0, 30.0, 24.0)), (40, rect(100.0, 0.0, 6.0, 6.0)),
+          (42, rect(200.0, 0.0, 8.0, 20.0))]
 O_LOTS = [(34, rect(0.0, 0.0, 60.0, 48.0))]
 # Site 39 walks its lot the other way round, so the SAME PHYSICAL LINES have to
 # be given the same roles a different way round or the two sites are not
@@ -443,7 +488,7 @@ ROLES_CW = ["rear", "sideStreet", "front", "alley"]
 SHAPE_HEAD = (
     "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
     "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
-    "roles = %r\n" % ({39: ROLES_CW},))
+    "roles = %r\n" % ({39: ROLES_CW, 41: ROLES_SLOT},))
 SHAPE_BODY = (
     "    p.setAttribValue('pf_site_id', site)\n"
     "    rl = roles.get(site, %r)\n"
@@ -475,9 +520,11 @@ WANT_L_BAD = {"site": 32, "degraded": True, "lot": rect(100.0, 0.0, 10.0, 10.0),
                        (100.0, 10.0)],
               "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
 # ⭐ SITE 31's ANSWER, RIGIDLY ROTATED - not a second run of the op's own
-# arithmetic.  A rectangle at any angle IS its own scope box, so the oriented
+# arithmetic.  A rectangle at any angle IS its own scope BOX, so the oriented
 # notch is the axis-aligned notch rotated, exactly; with the axis-aligned box
-# it is a completely different polygon and `ring` fails loudly.
+# it is a completely different polygon and `ring` fails loudly.  ⛔ The box is
+# not the whole op: which CORNER of it `at` names is decided by the tie-break,
+# and this oracle at ONE angle cannot see that (`P1`) - `SWEEP_WANT` can.
 WANT_ROT = {"site": 37, "degraded": False,
             "lot": rot(rect(200.0, 0.0, 30.0, 24.0),
                        ROT_C[0], ROT_C[1], ROT_DEG),
@@ -511,6 +558,23 @@ WANT_U = {"site": 33, "degraded": False, "lot": rect(0.0, 0.0, 30.0, 24.0),
 WANT_U_BAD = {"site": 40, "degraded": True, "lot": rect(100.0, 0.0, 6.0, 6.0),
               "ring": rect(100.0, 0.0, 6.0, 6.0),
               "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
+# `shapeU`'s refusal with NOTHING else able to raise the warning - `P4`.
+WANT_U_REFUSE = {"site": 42, "degraded": True,
+                 "lot": rect(200.0, 0.0, 8.0, 20.0),
+                 "ring": rect(200.0, 0.0, 8.0, 20.0),
+                 "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
+# The slotted parcel: the notch escapes through the slot between two corners
+# that are both on the lot line, so the guard refuses it and the LOT ships.
+WANT_SLOT = {"site": 41, "degraded": True, "lot": SLOT_LOT, "ring": SLOT_LOT,
+             "roles": ROLES_SLOT,
+             "inset": [3.0, 2.0, 4.0, 2.5, 2.5, 2.5, 4.0, 2.5]}
+# ⭐ SITE 31's ANSWER AT 37 ORIENTATIONS, each one rigidly rotated - the same
+# derivation site 37 uses, swept.  Roles do not move with the angle: they are
+# per-vertex on the input and the vertex order is what a rotation preserves.
+SWEEP_WANT = dict((100 + i,
+                   (rot([(200.0 + x, z) for x, z in WANT_L["ring"]],
+                        SWEEP_C[0], SWEEP_C[1], d), WANT_L["roles"]))
+                  for i, d in enumerate(SWEEP_DEG))
 WANT_O = {"site": 34, "degraded": False, "volumes": 4,
           "lot": rect(0.0, 0.0, 60.0, 48.0),
           "ring": [(0.0, 0.0), (60.0, 0.0), (60.0, 48.0), (0.0, 48.0)],
@@ -603,8 +667,10 @@ def extras():
     # and a B2 build would be cost with no clause behind it.
     for nm, ov, lots, wants, full in (
             ("b1_l", SHAPE_L, L_LOTS,
-             (WANT_L, WANT_L_BAD, WANT_ROT, WANT_TRAP, WANT_CW), True),
-            ("b1_u", SHAPE_U, U_LOTS, (WANT_U, WANT_U_BAD), True),
+             (WANT_L, WANT_L_BAD, WANT_ROT, WANT_TRAP, WANT_CW, WANT_SLOT),
+             True),
+            ("b1_u", SHAPE_U, U_LOTS,
+             (WANT_U, WANT_U_BAD, WANT_U_REFUSE), True),
             ("b1_o", SHAPE_O, O_LOTS, (WANT_O,), True),
             ("b1_ident", SHAPE_IDENT, IDENT_LOTS, (WANT_IDENT,), False),
             ("b1_off", SHAPE_OFF, OFF_LOTS, (WANT_OFF,), False)):
@@ -614,6 +680,13 @@ def extras():
         for want in wants:
             builds.append(("%s/%d" % (nm, want["site"]), shape.geometry(),
                            out.geometry() if out else None, want))
+
+    # ⛔ `P1`'s SWEEP.  One cook, 37 prims, cooked only as far as the shape node
+    # - the frame is decided there and a mass would be cost with no clause
+    # behind it.
+    p, _b, swept, _o = cook_extra("b1_sweep", SHAPE_HEAD, SHAPE_BODY,
+                                  SWEEP_LOTS, overrides=SHAPE_L, build=False)
+    made.append(p)
 
     results = [
         C.site_contract(streams),
@@ -627,6 +700,7 @@ def extras():
             dict(MIXED_LOTS), dict((s, ROLES4) for s in MIXED_WANT),
             tpl, (), MIXED_CASCADE, name="plan_follows_data_b0"),
         C.shape_ops(builds),
+        C.shape_frame_rotates(swept.geometry(), SWEEP_WANT),
     ]
     for parent in made:
         parent.destroy()
@@ -1057,6 +1131,9 @@ MUTATIONS = [
     # footprint comes back a four-corner rectangle - which reddens `degrades`
     # and changes the CORNER COUNT, i.e. the two things this row says it does
     # not touch.  Halving the width moves the reflex corner and nothing else.
+    # ⚠️ It reddens `shape_frame` at all 37 swept angles (worst 7.0 m, half the
+    # notch width): blast radius and not a second proof, because the sweep cuts
+    # the SAME notch, so anything that moves the notch moves it there too.
     ("shape_ops", "ring",
      "`shapeL` cuts the notch to half the width it was given, which moves "
      "the reflex corner and moves NEITHER the plan bounding box nor the "
@@ -1074,8 +1151,28 @@ MUTATIONS = [
      "rectangle at 30° stops getting the notch it asked for - measured before "
      "the fix: three corners outside the lot at 15°, four at 30° (9.392 m), "
      "four at 45° (11.465 m), all four `pf_warn_*` at 0",
-     vx("if (better) { bu = d; bestar = min(bestar, ar); }",
-        "if (0) { bu = d; bestar = min(bestar, ar); }", "pf_shape")),
+     vx("if (better) { bu = d; bestlen = ln; bestar = min(bestar, ar); }",
+        "if (0) { bu = d; bestlen = ln; bestar = min(bestar, ar); }",
+        "pf_shape")),
+    # ⛔ `P1`: THE FRAME'S ORIENTATION, AND THIS IS THE ISOLATING MUTATION THE
+    # SCOPE ROW ABOVE IS NOT.  That row reddens `ring` THROUGH the containment
+    # guard - site 37's box-L escapes the lot and is refused - so no mutation
+    # anywhere proved that a mis-oriented frame which stays INSIDE the lot
+    # could be seen.  This one restores the tie-break as it shipped: fold each
+    # direction into the +x half-plane, take the one nearest +x.  It is correct
+    # at 0° and correct at 30°, so every axis-aligned site and site 37 stay
+    # GREEN and `inside_the_lot` stays green with them - the footprint is the
+    # same box with its corners numbered 90° round, entirely inside the lot,
+    # all four `pf_warn_*` at 0.  Only the swept angles past 45° can see it.
+    ("shape_frame", "rotates_with_the_lot",
+     "the tie-break goes back to a question about the WORLD - nearest +x - "
+     "which flips at 45°, so every lot rotated past 45° gets the notch at "
+     "the wrong corner of its own parcel: a legal six-corner L, +2.0 m inside "
+     "the lot, warnings 0, and every `pf_face_role` and setback on a "
+     "different edge",
+     vx("        better = (ln > bestlen * (1.0 + SCOPE_REL)) ? 1 : 0;",
+        "        better = (abs(d.x) > abs(bu.x) + 1e-9) ? 1 : 0;",
+        "pf_shape")),
     # ⛔ `A1`, HALF TWO: THE GUARD.  No oriented box saves a lot that is not a
     # rectangle, so the escape has to be MEASURED - here, against the lot,
     # because this is the last node that still has it.
@@ -1087,6 +1184,27 @@ MUTATIONS = [
      "instance 21, re-opened in B1",
      vx("if (escaped) { i@_shapebad = 1; return; }", "if (0) { return; }",
         "pf_shape")),
+    # ⛔ `P2`, AND IT PROVES BOTH ENDS AT ONCE.  This restores the guard as it
+    # shipped - CORNERS ONLY - by refusing every crossing parameter and
+    # collapsing each edge's piece list to its start.  Site 38 still degrades
+    # (its escape IS at corners), so the only thing left is site 41's slotted
+    # lot, where every corner is inside-or-on and the top EDGE runs 3.000 m
+    # outside across the slot.  If `C._escapes` still measured face POINTS -
+    # the hole the check SHARED with the guard - this row would come back
+    # GREEN, so one mutation reddens only when both ends see edges.
+    # ⚠️ Blast radius, declared and not credited: site 41 was expected to
+    # degrade, so `ring`, `roles_and_inset` and `degrades` all redden on it too.
+    ("shape_ops", "inside_the_lot",
+     "the containment guard goes back to testing CORNERS ONLY, so site 41's "
+     "box-L ships with its +z edge 3.000 m outside an ordinary slotted "
+     "parcel, between two corners that are both ON the lot line, with all "
+     "four `pf_warn_*` at 0",
+     lambda: patch_vex([
+         ("pf_shape",
+          "if (t > 0.0 && t < 1.0 && u > -1e-9 && u < 1.0 + 1e-9) push(cut, t);",
+          "if (0) push(cut, t);"),
+         ("pf_shape", "float cut[] = array(0.0, 1.0);",
+          "float cut[] = array(0.0, 0.0);")])),
     ("shape_ops", "roles_and_inset",
      "every manufactured edge inherits the role of the FIRST input edge "
      "instead of the one whose outward normal it shares, so the L is inset by "

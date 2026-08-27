@@ -20,9 +20,16 @@
 // (worst 4.084 m), four at 30° (9.392 m) and four at 45° (11.465 m), with all
 // four `pf_warn_*` at 0.  On a rotated lot CityEngine's notch stays inside the
 // parcel and that one did not.  The box below is the minimum-area plan box
-// over the lot's OWN EDGE DIRECTIONS, which for any rectangle - at any angle -
-// is the lot itself, and which on an axis-aligned lot is bit-identical to the
-// box this file used to build.
+// over the lot's OWN EDGE DIRECTIONS, and on an axis-aligned lot it is
+// bit-identical to the box this file used to build.
+// ⛔ AND "WHICH FOR A RECTANGLE AT ANY ANGLE IS THE LOT ITSELF" IS ONLY HALF
+// TRUE, WHICH IS HOW THE SECOND DEFECT SURVIVED A ROUND.  It is true of the
+// BOX - the four corners as a SET - and false of the CORNER INDEXING, which is
+// what `at`, the four axes and every `pf_face_role` are read off.  A rectangle
+// has four min-area candidate directions and they name the SAME box with its
+// corners numbered four different ways, so an op that agrees on the box can
+// still cut the notch at the wrong corner.  What decides the indexing is the
+// tie-break, and that is the block below.
 //
 // ⛔ AND THE FOOTPRINT MAY NOT LEAVE THE LOT, WHICH IS A GUARD AND NOT A
 // COMMENT.  A lot that is not a rectangle has a scope box LARGER than itself,
@@ -38,10 +45,10 @@
 // the building comes out on its lot carrying
 // `pf_warn_footprint_collapsed`.
 //
-// ⚠️ WHAT THE GUARD CANNOT SEE: an EDGE that bulges outside a non-convex lot
-// between two corners that are both inside it.  Corners are what escape here
-// (the box's own corners are the ones outside the lot), and a per-edge test is
-// a different, more expensive claim.
+// THE GUARD TESTS CORNERS AND EDGES, and for one build it tested only corners
+// while SAYING SO - a stated limitation with its magnitude left unmeasured.
+// It is 5.800 m on an ordinary slotted parcel and the standing check shared the
+// hole; the numbers and the crossing test are at the guard itself, below.
 //
 // ⚠️ NON-CONVEX OUTPUT IS THE POINT, not an accident: §12.6 B1 says it is
 // "legal and expected", and G2's whole gate is a reflex corner.  Both ops
@@ -101,43 +108,101 @@ for (int k = 0; k < n; k++) {
     inrole[k] = rl; ininset[k] = in; inback[k] = sb;
 }
 float sgn = (a > 0.0) ? 1.0 : -1.0;
+// THE LOT'S OWN ORIGIN.  Everything that decides the frame below is measured
+// from it, and `SCOPE_REL` is the band two candidate boxes have to differ by
+// before one is called smaller - both are answered in the block that follows.
+vector org = set(lot[0].x, y, lot[0].z);
+float SCOPE_REL = 1e-3;
 
 // THE SCOPE.  A minimum-area enclosing rectangle of a convex polygon always
 // has a side collinear with one of its edges, so trying every edge direction
 // finds it; on a non-convex lot it finds the smallest box over the same
 // candidate set, which is a bound and is stated as one.
-// ⚠️ THE TIE-BREAK IS LOAD-BEARING, not tidiness.  Every edge of a rectangle
-// gives the SAME area, so the winner is decided by the tie-break alone: each
-// direction is first folded into the +x half-plane, and the one closest to +x
-// wins.  On an axis-aligned lot that is +x, which reproduces the axis-aligned
-// box - and therefore every ring, role and inset this file produced before -
-// exactly rather than approximately.
+//
+// ⛔ EVERY EDGE OF A RECTANGLE GIVES THE SAME BOX, SO THE COMPARISON AND THE
+// TIE-BREAK - NOT THE AREA - DECIDE WHICH CORNER `at` NAMES.  For one build
+// the band was an ABSOLUTE `1e-6` while the float32 spread over geometrically
+// identical candidate directions is 3.05e-04 m² at the origin and 9.77e-04 m²
+// at x = 200 on a 720 m² lot, so the band was NEVER REACHED and rounding error
+// picked the frame: 68 of 181 half-degree orientations cut the notch at the
+// WRONG CORNER of the lot - a legal six-corner L, entirely inside the parcel,
+// +2.0 m clearance, all four `pf_warn_*` at 0, and every `pf_face_role` and
+// therefore every setback on a different edge.  ⛔ AND WIDENING THE BAND ALONE
+// MAKES IT WORSE, MEASURED (68 -> 90 of 181): the old tie-break folded each
+// direction into the +x half-plane and took the one nearest +x, which is a
+// question about the WORLD and flips at 45°, so under a band that is actually
+// reached every lot past 45° comes out wrong by construction.  Three changes,
+// each measured rather than argued:
+//   (1) THE CANDIDATE AREAS ARE MEASURED FROM `org`, the lot's own first
+//       point, which takes the world offset out of the dot products.  Measured
+//       relative spread over the 181-angle sweep, WITHOUT it -> WITH it:
+//       x = 0      4.24e-07 -> 3.39e-07
+//       x = 200    1.36e-06 -> 5.09e-07
+//       x = 5 000  3.46e-05 -> 7.63e-06
+//       x = 20 000 1.47e-04 -> 2.89e-05
+//       ⚠️ IT DOES NOT MAKE THE NOISE FLAT AND THE FIRST DRAFT OF THIS COMMENT
+//       CLAIMED IT DID.  `P` is float32, so a lot 20 km out is ALREADY
+//       quantised to ~2 mm before this file sees it and its candidate boxes
+//       genuinely differ; the subtraction removes the cancellation, worth ~5x
+//       there, and nothing removes the input's own resolution.
+//   (2) THE BAND IS RELATIVE, `SCOPE_REL` of the area, so it does not decay
+//       with distance the way an absolute one does: measured margin over the
+//       noise above is 2 950x at x = 0, 1 965x at x = 200, 131x at x = 5 000
+//       and 35x at x = 20 000.  Every edge of a rectangle therefore ties and
+//       the tie-break below is consulted.  ⚠️ THE CEILING IS REAL AND IS
+//       float32 `P`'s, not this band's: the margin falls ~linearly with the
+//       distance from the world origin, so a lot some hundreds of km out would
+//       need a double-precision `P` and not a wider band.
+//   (3) THE TIE IS BROKEN ON THE LOT AND NEVER ON THE WORLD: the LONGEST edge
+//       wins, and edges of equal length go to the first in the lot's own RING
+//       ORDER.  Both rotate with the lot, so the frame rotates with the lot -
+//       which is the whole property "nearest +x" could not have.  There is no
+//       fold into a half-plane any more, deliberately: `lot[e] -> lot[e+1]` is
+//       a direction the lot itself supplies, and folding it discarded exactly
+//       the information that makes the frame equivariant past 90°.
+// ⚠️ WHAT THE RING ORDER STILL DECIDES, AND IT IS THE SHAPE'S OWN SYMMETRY
+// RATHER THAN A LEAK.  A rectangle is unchanged by a 180° rotation about its
+// centre and a square by a 90° one, so NO rule reading only the lot's geometry
+// can name one corner of either: the two long edges are antiparallel and
+// identical, and there is nothing to prefer one to the other.  The longest-edge
+// rule resolves everything geometry CAN resolve - the u axis, and therefore
+// what `widthM` and `depthM` mean - and the ring's starting vertex resolves
+// exactly the residue.  Measured on a 30 x 24 lot: rotating its VERTEX LIST by
+// 1 or 2 places gives the 180°-rotated frame at all 181 angles, by 3 places the
+// same frame; on a trapezoid, whose longest edge is unique, every rotation of
+// the vertex list gives the same frame.  It is deterministic and it rotates
+// with the lot, and it is the price of equivariance: the rule that pinned the
+// sign against the WORLD instead is the one that put 68 of 181 orientations at
+// the wrong corner - and 493 of 721 over the full circle, where folding into
+// the +x half-plane is discontinuous at 90°.
 vector bu = set(1.0, 0.0, 0.0);
-float bestar = 1e30;
+float bestar = 1e30, bestlen = -1.0;
 for (int e = 0; e < n; e++) {
     vector d = lot[(e + 1) % n] - lot[e];
     d.y = 0.0;
-    if (length(d) < 1e-9) continue;
-    d = normalize(d);
-    if (d.x < -1e-9 || (abs(d.x) <= 1e-9 && d.z < 0.0)) d = -d;
+    float ln = length(d);
+    if (ln < 1e-9) continue;
+    d /= ln;
     vector wv = set(-d.z, 0.0, d.x);
     float d0 = 1e18, d1 = -1e18, w0 = 1e18, w1 = -1e18;
     for (int k = 0; k < n; k++) {
-        float dd = dot(lot[k], d), ww = dot(lot[k], wv);
+        vector q = lot[k] - org;
+        float dd = dot(q, d), ww = dot(q, wv);
         d0 = min(d0, dd); d1 = max(d1, dd);
         w0 = min(w0, ww); w1 = max(w1, ww);
     }
     float ar = (d1 - d0) * (w1 - w0);
-    int better = (ar < bestar - 1e-6) ? 1 : 0;
-    if (!better && ar < bestar + 1e-6)
-        better = (abs(d.x) > abs(bu.x) + 1e-9
-                  || (abs(d.x) > abs(bu.x) - 1e-9 && d.z > bu.z + 1e-9)) ? 1 : 0;
-    if (better) { bu = d; bestar = min(bestar, ar); }
+    float band = bestar * SCOPE_REL;
+    int better = (ar < bestar - band) ? 1 : 0;
+    if (!better && ar < bestar + band)
+        better = (ln > bestlen * (1.0 + SCOPE_REL)) ? 1 : 0;
+    if (better) { bu = d; bestlen = ln; bestar = min(bestar, ar); }
 }
 vector uax = bu, vax = set(-bu.z, 0.0, bu.x);
 float umin = 1e18, umax = -1e18, vmin = 1e18, vmax = -1e18;
 for (int k = 0; k < n; k++) {
-    float du = dot(lot[k], uax), dv = dot(lot[k], vax);
+    vector q = lot[k] - org;
+    float du = dot(q, uax), dv = dot(q, vax);
     umin = min(umin, du); umax = max(umax, du);
     vmin = min(vmin, dv); vmax = max(vmax, dv);
 }
@@ -167,10 +232,10 @@ for (int e = 0; e < n; e++) {
 // outward normal is axis i.  Edges 0 and 2 run `ex`, edges 1 and 3 run `ez`,
 // which is what the parity below reads - the first build tested `eout.x` and
 // so asked a world question about a scope quantity.
-vector box[] = array(uax * umin + vax * vmin + set(0.0, y, 0.0),
-                     uax * umax + vax * vmin + set(0.0, y, 0.0),
-                     uax * umax + vax * vmax + set(0.0, y, 0.0),
-                     uax * umin + vax * vmax + set(0.0, y, 0.0));
+vector box[] = array(uax * umin + vax * vmin + org,
+                     uax * umax + vax * vmin + org,
+                     uax * umax + vax * vmax + org,
+                     uax * umin + vax * vmax + org);
 float extout = (at % 2 == 0) ? ex : ez;
 float extin = (at % 2 == 0) ? ez : ex;
 vector ring[];
@@ -213,29 +278,72 @@ if (op == 1) {
     }
 }
 
-// ⛔ THE CONTAINMENT GUARD.  Crossing count for in/out, segment distance for
-// the magnitude - the same pair `pf_collapse.vfl` uses, and INSIDE OR ON for
-// the same reason: on a rectangle every box corner lies exactly ON the lot
-// line, where a crossing count is a coin toss.  1e-3 m is two orders above
-// float32 `P` at this domain and three below anything architectural.
+// ⛔ THE CONTAINMENT GUARD, OVER THE WHOLE OUTLINE AND NOT JUST ITS CORNERS.
+// For one build it tested CORNERS ONLY and said so - a stated limitation whose
+// MAGNITUDE nobody had measured, and the standing check shared the hole.
+// Measured on an ORDINARY slotted parcel (a 30 x 24 lot with a 12 m slot bitten
+// out of its +z edge) under `shapeL(6, 3, at = 2)`: all six footprint corners
+// test inside-or-on, the guard passed, and the shipped footprint's +z edge ran
+// 5.800 m OUTSIDE the lot for 12 m of its length with all four `pf_warn_*`
+// at 0 - and `C.masses_inside_lots`, the standing check written for
+// `build_retrospective.md` §2a instance 21, reported PASS on it too.
+//
+// ⛔ AND A PROPER-CROSSING TEST IS NOT THE FIX, MEASURED BEFORE IT SHIPPED.
+// The first draft here asked whether a footprint edge properly CROSSES a lot
+// edge, both segments straddling the other's line.  It reports the slotted lot
+// above as contained: the footprint edge runs along z = 24 and the slot's two
+// sides meet it exactly AT their endpoints (8, 24) and (2, 24), so it crosses
+// nothing - it passes through two lot VERTICES.  That is not a degenerate
+// corner case, it is what a slot bitten out of an edge the footprint runs along
+// looks like every time.
+//
+// SO THE EDGE IS SPLIT AT EVERY PARAMETER WHERE IT MEETS THE LOT AT ALL, and
+// each piece is tested at its MIDPOINT.  Between two consecutive meetings an
+// edge is wholly inside or wholly outside, so the midpoints decide it exactly -
+// no sample step, so no bulge and no slot is too narrow to see.  This subsumes
+// the corner test: a corner outside the lot makes the piece next to it outside
+// too, which is why there is one loop here and not two.
+// INSIDE OR ON, for the reason the corner test had it: on a rectangle every box
+// corner and every box edge lies exactly ON the lot line, which is legal and is
+// what `setback(0)` asks for.  1e-3 m is two orders above float32 `P` at this
+// domain and three below anything architectural.
+// ⚠️ WHAT IS STILL NOT SEEN: a lot that is not a SIMPLE polygon - one that
+// crosses itself, or arrives as two loops in one prim.  The in/out test is a
+// crossing count, which answers a different question there.
 int escaped = 0;
 for (int k = 0; k < len(ring) && !escaped; k++) {
-    vector q = ring[k];
-    int inside = 0;
-    float best = 1e18;
+    vector a = ring[k], b = ring[(k + 1) % len(ring)];
+    vector ab = set(b.x - a.x, 0.0, b.z - a.z);
+    if (length(ab) < 1e-9) continue;
+    float cut[] = array(0.0, 1.0);
     for (int e = 0; e < n; e++) {
         vector p = lot[e], r = lot[(e + 1) % n];
-        if ((p.z > q.z) != (r.z > q.z)
-            && q.x < p.x + (q.z - p.z) * (r.x - p.x) / (r.z - p.z))
-            inside = !inside;
-        vector d = r - p;
-        float l2 = d.x * d.x + d.z * d.z;
-        float t = (l2 < 1e-18) ? 0.0
-            : clamp(((q.x - p.x) * d.x + (q.z - p.z) * d.z) / l2, 0.0, 1.0);
-        best = min(best, length(set(q.x - p.x - d.x * t, 0.0,
-                                    q.z - p.z - d.z * t)));
+        vector pr = set(r.x - p.x, 0.0, r.z - p.z);
+        float den = ab.x * pr.z - ab.z * pr.x;
+        if (abs(den) < 1e-12) continue;
+        float t = ((p.x - a.x) * pr.z - (p.z - a.z) * pr.x) / den;
+        float u = ((p.x - a.x) * ab.z - (p.z - a.z) * ab.x) / den;
+        if (t > 0.0 && t < 1.0 && u > -1e-9 && u < 1.0 + 1e-9) push(cut, t);
     }
-    if (!inside && best > 1e-3) escaped = 1;
+    cut = sort(cut);
+    for (int c = 0; c + 1 < len(cut) && !escaped; c++) {
+        vector q = a + ab * ((cut[c] + cut[c + 1]) * 0.5);
+        int inside = 0;
+        float best = 1e18;
+        for (int e = 0; e < n; e++) {
+            vector p = lot[e], r = lot[(e + 1) % n];
+            if ((p.z > q.z) != (r.z > q.z)
+                && q.x < p.x + (q.z - p.z) * (r.x - p.x) / (r.z - p.z))
+                inside = !inside;
+            vector d = r - p;
+            float l2 = d.x * d.x + d.z * d.z;
+            float tt = (l2 < 1e-18) ? 0.0
+                : clamp(((q.x - p.x) * d.x + (q.z - p.z) * d.z) / l2, 0.0, 1.0);
+            best = min(best, length(set(q.x - p.x - d.x * tt, 0.0,
+                                        q.z - p.z - d.z * tt)));
+        }
+        if (!inside && best > 1e-3) escaped = 1;
+    }
 }
 if (escaped) { i@_shapebad = 1; return; }
 

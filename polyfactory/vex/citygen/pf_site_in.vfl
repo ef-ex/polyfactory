@@ -57,7 +57,28 @@ int n = len(pts);
 // ⚠️ WHAT IT CANNOT DO: survive the lot MOVING, which is the exposure §0.0a
 // already records against `elem_id` upstream, and it is not this fallback's to
 // fix.  What it fixes is generation order, which is the one thing §12.7 names.
-// Nor can it separate two lots sharing a centroid to the centimetre.
+//
+// ⛔ AND ITS RESIDUAL IS A COLLISION CEILING, NOT "TWO LOTS SHARING A
+// CENTROID".  That is what this file used to say, and two non-overlapping lots
+// cannot share a plan centroid to the centimetre - so the stated residual was
+// one that cannot happen while the one that can went unstated.  The id lives in
+// 31 bits (`& 2147483647`, the sign bit masked off so an id is never negative),
+// so the birthday point is ~46 000 lots.  Measured on a Python model of this
+// arithmetic: 0 collisions on a realistic 9 600-lot 20 x 30 m grid, 0 at 46 225
+// lots on a 5 m grid, and 18 at 160 000 lots on a 5 m grid - and they arrive in
+// STRUCTURED PAIRS, because `h(x1)^h(z1) == h(x2)^h(z2)` forces
+// `h(x1)^h(z2) == h(x2)^h(z1)`, an aliasing property of XOR over a lattice, and
+// city lots are on a lattice.  A collision gives two parcels the same
+// `pf_site_id`, hence identical `pf_elem_id` addresses, hence one lot's
+// overrides on another - SILENTLY, because nothing in production detects it
+// (`site_contract/identity`'s duplicate-prim term catches it in the test only).
+// ⚠️ AND THE CEILING IS RECORDED RATHER THAN RAISED, deliberately.  The id is
+// an INT attribute, so 31 bits is one bit off everything there is; and the
+// pairing is inherent to any `f(x) op g(z)` scheme - a bijective avalanche
+// after the XOR cannot remove it, because it maps equal inputs to equal
+// outputs.  Escaping it means a wider id, which is a §12.4 SCHEMA decision and
+// Hannes' (§0.0g row 1), or - the step already named - reading the streets
+// `lot_id` by name and never minting at all.
 //
 // ⚠️ EVERY READ BELOW IS ASSIGNED TO A TYPED LOCAL FIRST.  `prim()`, `vertex()`
 // and `detail()` return an untyped value, so passing one straight into

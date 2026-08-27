@@ -244,6 +244,36 @@ def _inside(ring, q):
     return best if inside else -best
 
 
+def _escapes(ring, loop, step=0.25):
+    """Worst signed clearance of a closed `loop` from `ring`, in metres:
+    negative means outside, and it is measured at every corner AND at every
+    `step` along the edges between them.
+
+    ⛔ CORNERS ALONE WAS A HOLE THE GUARD AND THIS SIDE SHARED, and it is
+    `build_retrospective.md` §2a's shape - a limitation stated for one end and
+    never measured at either.  On an ordinary slotted parcel (a 30 x 24 lot
+    with a 12 m slot bitten out of its +z edge) under `shapeL(6, 3, at = 2)`
+    every footprint corner tests inside-or-on and the +z EDGE runs 5.800 m
+    outside the lot for 12 m of its length; `masses_inside_lots` reported PASS
+    on two of the three notch sizes tried.
+
+    ⚠️ SAMPLED, WHERE `pf_shape.vfl`'s guard is EXACT - deliberately two
+    mechanisms, because a check that repeats the code it audits agrees with it
+    on the mistake too.  CANNOT SEE: an excursion narrower than `step`
+    (0.25 m); the guard's own blind spot - a lot that is not a simple polygon -
+    is a different one, so neither side can hide behind the other.
+    """
+    worst = 0.0
+    for i in range(len(loop)):
+        a, b = loop[i], loop[(i + 1) % len(loop)]
+        n = max(1, int(math.ceil(math.hypot(b[0] - a[0], b[1] - a[1]) / step)))
+        for k in range(n + 1):
+            t = k / float(n)
+            worst = min(worst, _inside(ring, (a[0] + (b[0] - a[0]) * t,
+                                              a[1] + (b[1] - a[1]) * t)))
+    return worst
+
+
 def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
     """The perimeter-block claim: the volumes close a RING around a void.
 
@@ -1244,15 +1274,22 @@ def masses_inside_lots(geo, lots, name="inside_the_lot"):
     what both Viennese templates ask for on every edge, and the degraded path
     deliberately rebuilds on the lot polygon itself.
 
+    ⛔ IT USED TO MEASURE FACE *POINTS* ONLY, which is the hole
+    `pf_shape.vfl`'s guard had - stated there, never here, and never measured
+    at either end: a footprint EDGE 5.800 m outside a slotted lot between two
+    corners both inside it, with this check reporting PASS.  `_escapes` walks
+    the edges too, and its blind spot is stated there.
+
     CANNOT SEE: a mass in the right lot in plan and at the wrong height; a
     mass inside a lot that is not its own but overlaps it; nor anything about
-    lots this fixture does not build (every one is a rectangle).
+    lots this fixture does not build (every one is convex, so the edge walk
+    cannot change a verdict here - the case that needs it is `b1_l/41`).
     """
     bad, seen = [], 0
     for site, ring in sorted(lots.items()):
         for f in faces(geo, site):
             seen += 1
-            gap = min(_inside(ring, (p[0], p[2])) for p in f["pts"])
+            gap = _escapes(ring, [(p[0], p[2]) for p in f["pts"]])
             if gap < -TOL:
                 bad.append((f["pf_elem_id"], round(gap, 2)))
     return Result(name, seen > 0 and not bad, [seen, len(bad)],
@@ -1523,9 +1560,12 @@ def shape_ops(builds, name="shape_ops"):
     every corner of the footprint that leaves `pf_shape.vfl`, AND every point
     of every face of the mass built from it, lies inside or on its own lot.
 
-    CANNOT SEE: whether the notch is architecturally sensible; an EDGE that
-    leaves a non-convex lot between two corners that are both inside it; nor
-    anything about the facade or the roof over a shaped footprint -
+    CANNOT SEE: whether the notch is architecturally sensible; an excursion
+    narrower than `_escapes`' 0.25 m step (it used to be unable to see an EDGE
+    outside the lot at all, at any width - `P2`); the frame's ORIENTATION at
+    any angle but the ones its fixtures carry, which is `shape_frame`'s
+    question and is why that check sweeps; nor anything about the facade or the
+    roof over a shaped footprint -
     `corner_closure_b1` in the G2 runner carries that, because a reflex corner
     is G2's question and not B1's.
     """
@@ -1563,16 +1603,18 @@ def shape_ops(builds, name="shape_ops"):
         lot = want.get("lot")
         if lot:
             lot_seen += 1
-            for q in got:
-                if _inside(lot, q) < -TOL:
-                    bad_out.append((label, "footprint", q,
-                                    round(_inside(lot, q), 3)))
+            # ⛔ THE WHOLE OUTLINE, NOT ITS CORNERS.  This read face POINTS
+            # until `P2`: on site 41's slotted lot every corner is inside-or-on
+            # and an EDGE runs 5.800 m outside.  `_escapes` states its step.
+            gap = _escapes(lot, got)
+            if gap < -TOL:
+                bad_out.append((label, "footprint", got[:2], round(gap, 3)))
             for f in ([] if mgeo is None else faces(mgeo, want["site"])):
-                for p in f["pts"]:
-                    if _inside(lot, (p[0], p[2])) < -TOL:
-                        bad_out.append((label, f["pf_elem_id"],
-                                        (p[0], p[2]),
-                                        round(_inside(lot, (p[0], p[2])), 3)))
+                gap = _escapes(lot, [(p[0], p[2]) for p in f["pts"]])
+                if gap < -TOL:
+                    bad_out.append((label, f["pf_elem_id"],
+                                    (f["pts"][0][0], f["pts"][0][2]),
+                                    round(gap, 3)))
         if mgeo is None:
             continue
         warn = sorted(set(p.attribValue("pf_warn_footprint_collapsed")
@@ -1599,6 +1641,67 @@ def shape_ops(builds, name="shape_ops"):
                              len(bad_degrade), len(bad_yard), len(bad_out)],
                   "%d shape(s), %d against their lot; ring %s; roles %s; "
                   "degrade %s; courtyard %s; outside the lot %s"
+                  # ⚠️ `degrade` PRINTS THE WHOLE LIST, and the reason is that a
+                  # `[:2]` slice here was read as the whole of it: the round-2
+                  # audit recorded "the clause's mutation reddens on TWO of the
+                  # three degraded sites" from a message that could not print a
+                  # third.  The `value` array carried the true count all along.
                   % (seen, lot_seen, bad_ring[:1] or "ok",
-                     bad_role[:1] or "ok", bad_degrade[:2] or "ok",
+                     bad_role[:1] or "ok", bad_degrade or "ok",
                      bad_yard[:2] or "ok", bad_out[:2] or "none"))
+
+
+def shape_frame_rotates(fgeo, want, name="shape_frame", tol=1e-3):
+    """⭐ THE SCOPE FRAME ROTATES WITH THE LOT - SWEPT, BECAUSE ONE SAMPLE
+    CANNOT DISCRIMINATE A PROPERTY THAT VARIES WITH THE SAMPLE.
+
+    `want` is {site: (ring, roles)} where the ring is site 31's HAND-TYPED
+    answer rigidly rotated by that site's angle - the same oracle site 37 uses,
+    swept.  It is not a second run of the op's arithmetic: the implementation
+    is "find the lot's scope box and cut a notch out of it", the oracle is "the
+    axis-aligned answer, rotated", so the two cannot drift together.
+
+    ⛔ WHY THIS EXISTS AND WHY ONE ANGLE WAS NOT ENOUGH.  `shapeL`/`shapeU`
+    cut the notch out of the lot's minimum-area ORIENTED box, and on a
+    rectangle every candidate direction gives the SAME box with its corners
+    numbered four different ways - so the comparison band and the tie-break,
+    not the area, decide which corner `at` names.  With an absolute `1e-6` band
+    against a float32 spread of 3.05e-04 to 9.77e-04 m² the band was never
+    reached and rounding error picked the frame: 68 of 181 half-degree
+    orientations came out at the WRONG CORNER - a legal six-corner L, entirely
+    INSIDE the lot, +2.0 m clearance, all four `pf_warn_*` at 0, and every
+    `pf_face_role` and setback on a different edge.  The fixture sampled
+    exactly one angle, 30°, and 30° is in the passing set: a fixture property
+    load-bearing without saying so, the third time in this build.
+
+    ⚠️ COMPARED WITH A TOLERANCE, NOT AFTER ROUNDING, and the difference is
+    measured: exact 3-dp equality fails on 4 of 181 angles on a CORRECT build,
+    purely on rounding boundaries at a ~230 m magnitude where float32 `P`
+    resolves ~1.5e-05 m.  `tol` is 1e-3 m - 65x that floor, and 14 000x below
+    the 14.1 m corner error a wrong frame produces, so nothing separates a pass
+    from a fail here.
+
+    CANNOT SEE: a wrong frame that happens to agree with the rotated answer at
+    every angle swept (it would have to be the identity); anything about the
+    MASS, which `shape_ops/inside_the_lot` carries; whether a rotated lot is
+    something S8 ever emits.
+    """
+    got = dict((p.attribValue("pf_site_id"),
+                ([(v.point().position()[0], v.point().position()[2])
+                  for v in p.vertices()],
+                 [v.attribValue("pf_face_role") for v in p.vertices()]))
+               for p in fgeo.prims())
+    bad = []
+    for site in sorted(want):
+        ring, roles = want[site]
+        have, hrole = got.get(site, ([], []))
+        err = (1e9 if len(have) != len(ring) else
+               max(math.hypot(a[0] - b[0], a[1] - b[1])
+                   for a, b in zip(have, ring)))
+        if err > tol or hrole != roles:
+            bad.append((site, round(err, 3), hrole))
+    return Result(name, {"rotates_with_the_lot": len(want) > 0 and not bad},
+                  [len(want), len(bad)],
+                  "%d orientations swept, %d wrong (worst %s); %s"
+                  % (len(want), len(bad),
+                     max([b[1] for b in bad] or [0.0]), bad[:2] or "none"))
