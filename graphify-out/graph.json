@@ -4810,7 +4810,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 242,
+      "community": 42,
       "norm_label": "node"
     },
     {
@@ -4820,7 +4820,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 242,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -12090,7 +12090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 34,
+      "community": 310,
       "norm_label": "__init__.py"
     },
     {
@@ -12100,7 +12100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 34,
+      "community": 310,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -14990,7 +14990,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 242,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -15130,7 +15130,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 242,
+      "community": 42,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15520,7 +15520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 242,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15530,7 +15530,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 242,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15540,7 +15540,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 242,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15550,7 +15550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 242,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15560,7 +15560,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 242,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15570,7 +15570,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 242,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -17300,7 +17300,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 55,
       "norm_label": "parmstring"
     },
     {
@@ -17320,7 +17320,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 55,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17330,7 +17330,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 55,
       "norm_label": "._on_changed()"
     },
     {
@@ -17340,7 +17340,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 48,
+      "community": 242,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17350,7 +17350,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 55,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17390,7 +17390,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 48,
+      "community": 242,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 48,
+      "community": 242,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17500,7 +17500,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 35,
+      "community": 242,
       "norm_label": "parmcolor"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 242,
       "norm_label": ".__init__()"
     },
     {
@@ -17520,7 +17520,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 242,
       "norm_label": "parmtuple"
     },
     {
@@ -17530,7 +17530,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 35,
+      "community": 242,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17540,7 +17540,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 35,
+      "community": 242,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 48,
+      "community": 242,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 48,
+      "community": 242,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 35,
+      "community": 242,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17610,7 +17610,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 55,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17620,7 +17620,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 55,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17630,7 +17630,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 55,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17710,7 +17710,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 35,
+      "community": 242,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17720,7 +17720,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 35,
+      "community": 242,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 48,
+      "community": 242,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 48,
+      "community": 242,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 35,
+      "community": 242,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -21517,7 +21517,7 @@
       "label": "diff()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L686",
+      "source_location": "L696",
       "_origin": "ast",
       "id": "citygen_run_building_checks_diff",
       "community": 139,
@@ -21527,7 +21527,7 @@
       "label": "images()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L703",
+      "source_location": "L713",
       "_origin": "ast",
       "id": "citygen_run_building_checks_images",
       "community": 139,
@@ -21537,7 +21537,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L763",
+      "source_location": "L773",
       "_origin": "ast",
       "id": "citygen_run_building_checks_main",
       "community": 139,
@@ -21627,9 +21627,9 @@
       "label": "A gate is judged on the picture.  Colour by `pf_wall_role`, so the     party wal",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L704",
+      "source_location": "L714",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_704",
+      "id": "citygen_run_building_checks_rationale_714",
       "community": 139,
       "norm_label": "a gate is judged on the picture.  colour by `pf_wall_role`, so the     party wal"
     },
@@ -21777,7 +21777,7 @@
       "label": "diff()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L603",
+      "source_location": "L613",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_diff",
       "community": 145,
@@ -21787,7 +21787,7 @@
       "label": "images()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L618",
+      "source_location": "L628",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_images",
       "community": 145,
@@ -21797,7 +21797,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L763",
+      "source_location": "L773",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_main",
       "community": 145,
@@ -21887,9 +21887,9 @@
       "label": "\u26a0\ufe0f UNPACKED FIRST.  A packed prim has ONE VERTEX     (houdini-procedural-modelin",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L619",
+      "source_location": "L629",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_619",
+      "id": "citygen_run_g2_checks_rationale_629",
       "community": 145,
       "norm_label": "\u26a0\ufe0f unpacked first.  a packed prim has one vertex     (houdini-procedural-modelin"
     },
@@ -47925,7 +47925,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 34,
+      "community": 310,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -48105,7 +48105,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 55,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -89055,11 +89055,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L704",
+      "source_location": "L714",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_704",
-      "target": "citygen_run_building_checks_images"
+      "source": "citygen_run_building_checks_rationale_714",
+      "target": "citygen_run_building_checks_images",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -89260,9 +89260,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L748",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_images",
-      "target": "citygen_run_g2_checks_show",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_show"
     },
     {
       "relation": "calls",
@@ -89492,11 +89492,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L619",
+      "source_location": "L629",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_g2_checks_rationale_619",
-      "target": "citygen_run_g2_checks_images"
+      "source": "citygen_run_g2_checks_rationale_629",
+      "target": "citygen_run_g2_checks_images",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -123016,5 +123016,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "45319151d08608d694ab1e0ab6bb01971de59ba9"
+  "built_at_commit": "500ebe3befbeb3ea1d14c686280243254cd167f6"
 }

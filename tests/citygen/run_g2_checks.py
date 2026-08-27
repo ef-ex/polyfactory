@@ -577,23 +577,33 @@ def budget():
     line.  Denominator unchanged from G1's rule: `buildings.py` plus every
     shipped `.vfl`, non-blank, non-comment, non-docstring.
     """
-    def lines(path, mark):
+    def lines(path, mark, scope=None):
         src = io.open(path, encoding="utf-8").read()
-        doc = set()
+        doc, lo, hi = set(), 1, len(src.splitlines())
         for n in (ast.walk(ast.parse(src)) if mark == "#" else ()):
             b = getattr(n, "body", None)
             if (isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef))
                     and b and isinstance(b[0], ast.Expr)
                     and isinstance(b[0].value, ast.Constant)):
                 doc.update(range(b[0].lineno, b[0].end_lineno + 1))
+            if scope and isinstance(n, ast.ClassDef) and n.name == scope:
+                lo, hi = n.lineno, n.end_lineno
         return sum(1 for i, l in enumerate(src.splitlines(), 1)
-                   if l.strip() and i not in doc
+                   if l.strip() and i not in doc and lo <= i <= hi
                    and not l.strip().startswith(mark))
     prod = lines(os.path.join(os.path.dirname(os.path.abspath(B.__file__)),
                               "buildings.py"), "#")
     prod += sum(lines(os.path.join(B.VEX_DIR, f), "//")
                 for f in os.listdir(B.VEX_DIR) if f.endswith(".vfl"))
     test = sum(lines(os.path.join(HERE, f), "#") for f in TEST_FILES)
+    # ⚠️ AND THE 23 LINES THAT LIVE IN ANOTHER SUITE'S FILE.  The round-N audit
+    # corrected the numerator here: `TestStorableGuard` is buildings test code
+    # - G2 wrote it for `R4-5` and it tests `buildings.assert_storable` - and
+    # sitting under `tests/unit/` did not stop it being ours.  It is the same
+    # argument the docstring above makes about a second RUNNER, applied to a
+    # file, and it moves the honest ratio by ~0.03x.
+    test += lines(os.path.join(REPO, "tests", "unit", "test_citygen.py"), "#",
+                  "TestStorableGuard")
     print("\nsize budget: %d test / %d production code lines = %.2fx  %s"
           % (test, prod, test / float(prod),
              "OVER (target 1.00x)" if test > prod else "ok"))
