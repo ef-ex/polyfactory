@@ -606,8 +606,15 @@ def structure(parent, mass, overrides=None, name="b3"):
     clean = parent.createNode("attribdelete", name + "_clean")
     clean.setFirstInput(node)
     # conventions.md §2 on all four classes.  B3's scratch is DETAIL, which is
-    # the one class B2's own sweep had nothing to remove from - so this line
+    # the one class B2's own sweep had nothing to remove from - so that class
     # is the first in the subsystem that can actually fail.
+    # ⛔ MEASURED 2026-08-27, one term at a time with every clause diffed:
+    # the POINT, VERTEX and PRIM classes here redden NOTHING when removed, and
+    # neither does the `groupdelete` below - B3 writes no scratch on those
+    # classes and no `_*` group survives B0.  Kept anyway, because
+    # conventions.md §2 asks for all four and the day B3 writes point scratch
+    # is the day the term earns itself.  Said here rather than left to be
+    # rediscovered; the coverage claim is four terms wide and one term deep.
     for do, pat in (("doptdel", "ptdel"), ("dovtxdel", "vtxdel"),
                     ("doprimdel", "primdel"), ("dodtldel", "dtldel")):
         clean.parm(do).set(1)

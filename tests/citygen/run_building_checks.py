@@ -155,13 +155,18 @@ DEGRADED = {5: True, 6: True, 7: False, 9: True}
 # the check counts the build against itself.  A volume's clear span here is the
 # cell's plan area over its longest plan edge, which for these rectangular
 # cells is the short side.
-#   1  einhof   5.0 m cells against maxSpanM 5.0  -> NOT exceeded
-#   2  vienna   ~9.6 m ring tract against 6.0     -> exceeded
-#   3  vierkant  system states no span            -> never warns
-#   4  zinshaus 12.01 / 13.99 m cells against 6.0 -> exceeded
+#   1  einhof   5.0 / 5.0 / 5.0 against maxSpanM 5.0   -> NOT exceeded
+#   2  vienna   9.0 / 9.0 / 9.6 / 9.6 against 6.0      -> exceeded
+#   3  vierkant 6.3 / 6.3 / 7.5 / 7.5, system states no span -> never warns
+#   4  zinshaus 12.012 / 13.988 against 6.0            -> exceeded
 #   5,6,7,9     degraded, so the cell IS the lot: 6.0 / 10.0 / 10.0 / 10.0
-#   8  zinshaus 7.39 / 8.61 m cells against 6.0   -> exceeded
-#   10 einhof   10.0 m cells (setback 0) against 5.0 -> exceeded
+#   8  zinshaus 16.0 / 16.0 against 6.0                -> exceeded
+#   10 einhof   10.0 / 10.0 / 10.0 (setback 0) against 5.0 -> exceeded
+# ⚠️ RE-MEASURED 2026-08-27 AND TWO OF THESE LINES WERE WRONG IN THE SAFE
+# DIRECTION (§2a row 57(i)'s shape): site 8 was written as "7.39 / 8.61",
+# which is a HALF-tract, and the doc summarised the Gruenderzeit tract as a
+# "9.6-14.0 m clear span" when it runs 9.000 (site 2 v1) to 16.000 (site 8).
+# The claim was understating its own case; the site SET was right either way.
 # ⚠️ SITE 1 SITS EXACTLY ON ITS LIMIT AND THAT IS LOAD-BEARING, so it is said
 # rather than left in the numbers: `at_lehm_massiv`'s 5.0 m span is DERIVED
 # from the sourced 5 m house width, so the Einhof spans precisely what its
@@ -1024,13 +1029,27 @@ MUTATIONS = [
      "B2's prim-class `_*` sweep is removed, so the marshalling attributes "
      "`stamp()` wrote survive `removeprim` as definitions and ship on B2's "
      "own output - the stream `plan_follows_data_b0` and every shape-op "
-     "check reads",
+     "check reads.  ⚠️ Reddens `attribute_storage` too (the surviving "
+     "definitions are the wrong storage), declared 2026-08-27.  ⭐ And row "
+     "58's fix GENERALISES, measured rather than hoped: removing ANY of B2's "
+     "four CLEAN classes reddens this clause, not just the prim one it was "
+     "written about",
      lambda: setattr(B, "CLEAN", tuple(r for r in B.CLEAN
                                        if r[1] != "primdel"))),
     ("no_scratch", "no_scratch",
      "B3's DETAIL sweep is removed, so the `_cs_*` construction-system arrays "
      "ship on every building.  The detail class is the one B2 had nothing to "
-     "remove from, so this line could not fail until B3 wrote to it",
+     "remove from, so this line could not fail until B3 wrote to it.  "
+     "⛔ AND IT IS THE ONLY ONE OF B3's FIVE CLEANING TERMS THAT CAN FAIL - "
+     "measured 2026-08-27, one term at a time, with every clause diffed: "
+     "removing B3's point, vertex or prim class reddens NOTHING, and neither "
+     "does B3's or B2's `groupdelete` (no `_*` group exists at either point - "
+     "B0 already swept the fixture's one).  §2a instance 1's shape, one and "
+     "two stages downstream of where it was last fixed.  ⚠️ NOT A "
+     "CORRECTNESS DEFECT AND NOT DELETED: `conventions.md` §2 asks for all "
+     "four classes and a term that cannot fail today catches the day B3 "
+     "starts writing point scratch.  It is a coverage claim four terms wide "
+     "and one term deep, and it is now said out loud instead of implied",
      lambda: patch_pysrc('("doprimdel", "primdel"), ("dodtldel", "dtldel")',
                          '("doprimdel", "primdel")', "structure")),
     ("cap_group_split_warns", "cap_group_split_warns",
@@ -1373,7 +1392,9 @@ MUTATIONS = [
      "the MASS stops reading B3's per-storey table while B3 keeps publishing "
      "it - the Viennese wall goes back to 5 x 3.5 = 17.5 m while the splits "
      "still say 18.2, which is the template saying a thing the building does "
-     "not do.  ⚠️ Reddens `heights_follow_data` too, for the same reason",
+     "not do.  ⚠️ Reddens `heights_follow_data` AND `limits_advisory/"
+     "fiction_is_coherent` too, for the same reason - the second was measured "
+     "and added 2026-08-27, where the row had declared only the first",
      vx("ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh);",
         "ytop[i] = hiall + (vh > 1e9 ? vh : float(st) * sh);")),
     ("structure", "splits_follow_the_table",
@@ -1385,7 +1406,11 @@ MUTATIONS = [
         "if (int(htab[q]) == si && int(htab[q + 1]) == -1) h = htab[q + 2];")),
     ("structure", "thickness_follows_the_table",
      "the per-storey WALL THICKNESS override never matches, so the Viennese "
-     "wall is 0.45 m from the ground up and the two 0.60 m storeys vanish",
+     "wall is 0.45 m from the ground up and the 0.75 / 0.60 / 0.60 "
+     "Bauordnung ladder vanishes.  ⚠️ Reddens `limits_advisory/"
+     "fiction_is_coherent` too - the invented block has a table of its own - "
+     "declared here 2026-08-27 after an audit measured a row that declared "
+     "nothing",
      sx("if (int(ttab[q]) == si && int(ttab[q + 1]) == k) t = ttab[q + 2];",
         "if (int(ttab[q]) == si && int(ttab[q + 1]) == -1) t = ttab[q + 2];")),
     # ⭐ TWO ROWS FOR ONE CLAUSE, ONE PER TERM.  §2a row 46: a clause with a
@@ -1393,17 +1418,19 @@ MUTATIONS = [
     # needs an input that reaches it.  `floor` makes the bay too WIDE; `+ 1`
     # makes it narrow enough and the COUNT larger than the fewest that fit.
     ("structure", "bay_respects_the_span",
-     "one bay fewer than the span allows, so the 48 m Viennese wall is cut "
-     "into 7 bays of 6.857 m against a 6.0 m span limit - the chain's cap "
-     "silently exceeded",
-     sx("bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;",
-        "bayu = (hi > 0.0 && lng > 1e-6) ? int(floor(lng / hi - 1e-6)) : 1;")),
+     "one bay fewer than the cap allows, so the 60 m Viennese wall is cut "
+     "into 19 bays of 3.158 m against a 3.0 m SOURCED Fensterachse cap - the "
+     "chain's cap silently exceeded.  ⚠️ Reddens `limits_advisory/"
+     "bay_cap_binds` too: the count expression is one line and the fiction "
+     "runs through it.  Measured 2026-08-27",
+     sx("int(ceil((lng - BAY_EPS_M) / hi))",
+        "int(floor((lng - BAY_EPS_M) / hi))")),
     ("structure", "bay_respects_the_span",
-     "one bay MORE than the span requires - every width still respects the "
-     "cap, so only the `fewest` term can see it",
-     sx("bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;",
-        "bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) + 1 "
-        ": 1;")),
+     "one bay MORE than the cap requires - every width still respects the "
+     "cap, so only the `fewest` term can see it.  ⚠️ Reddens `limits_advisory/"
+     "bay_cap_binds` too, same shared line.  Measured 2026-08-27",
+     sx("int(ceil((lng - BAY_EPS_M) / hi))",
+        "int(ceil((lng - BAY_EPS_M) / hi)) + 1")),
     ("structure", "grid_only_on_walls",
      "the CAP gets a bay grid, so a facade splitter handed the volume's plan "
      "would build a storey of windows across the roof",
@@ -1425,7 +1452,10 @@ MUTATIONS = [
     ("limits_advisory", "others_silent",
      "the storeys warning fires wherever a system states a limit at all, so "
      "every legal building in the fixture reports itself impossible - the "
-     "shape a check asserting only `warns == 1` cannot see",
+     "shape a check asserting only `warns == 1` cannot see.  ⚠️ Reddens "
+     "`fiction_is_silent` too, necessarily: the fiction states a limit, so a "
+     "warning keyed on 'a limit exists' fires there as well.  Declared "
+     "2026-08-27; the row said nothing before",
      sx("(stcap > 0 && storeys > stcap) ? 1 : 0);", "(stcap > 0) ? 1 : 0);")),
     ("limits_advisory", "babel_builds",
      "the mass CLAMPS a volume to two storeys - the refusal §2.2 forbids - "
@@ -1448,9 +1478,14 @@ MUTATIONS = [
      csys("coruscant_spire", "storeyHeightsM", [])),
     ("limits_advisory", "bay_cap_binds",
      "the bay cap is ignored and the SPAN alone decides, so the fiction's "
-     "80 m wall becomes one 80 m bay against its own 60 m cap.  ⚠️ Every real "
-     "system in the library states no bay cap, so this row moves the fiction "
-     "and NOTHING else - which is why the two arms are two statements",
+     "80 m wall becomes one 80 m bay against its own 60 m cap.  ⛔ BLAST "
+     "RADIUS RE-MEASURED 2026-08-27 AND IT GREW: it used to move the fiction "
+     "and nothing else *because every real system stated no bay cap*, and "
+     "`at_ziegel_gruenderzeit` now states a SOURCED 3.0 m one below its 6.0 m "
+     "span - so this row also reddens `structure/bay_respects_the_span`, "
+     "where the Gruenderzeit walls go back to 6 m bays against a 3 m cap.  "
+     "⭐ That extra clause is the culture-side arm binding on a sourced "
+     "system, asserted; both clauses keep their own isolating rows",
      sx("float hi = bcap;", "float hi = span;")),
 ]
 

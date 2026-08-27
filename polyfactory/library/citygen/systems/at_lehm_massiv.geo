@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-27 07:56:15",
+		"date":"2026-08-27 09:05:57",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -79,7 +79,7 @@
 								"value":["TYPE: massive earth construction (Stampflehm / Lehmziegel) on a stone or brick footing - the traditional Nordburgenland Streckhof material. SOURCED: 'Die traditionellen Streckhoefe wurden haeufig in Lehmbauweise errichtet' - https://de.wikipedia.org/wiki/Streckhof",
 									"maxSpanM 5.0: DERIVED, not measured as a limit. Zsabetich sources the house WIDTH at 5 m ('Die Haeuser sind 20 Meter lang und 5 Meter breit'), and the ceiling and roof timbers cross the house, so 5 m is the span these buildings actually spanned. \u26a0\ufe0f That is the span USED, not the maximum the material permits; no vernacular span table was found (\u00a79c's own flag). Zsabetich, Streckhoefe des Nordburgenlandes, TU Wien 2019 - https://repositum.tuwien.at/bitstream/20.500.12708/10488/2/Zsabetich%20Julia%20-%202019%20-%20Streckhoefe%20des%20Nordburgenlandes%20eine%20gefaehrdete...pdf",
 									"maxStoreys 2: SOURCED, and MODERN. Lehmbau-Regeln (1990s), as quoted by two independent 2023 reports on their replacement DIN 18940 - 'Tragende Lehmmauern waren nach den Lehmbau-Regeln aus den 1990er Jahren nur bei Gebaeuden bis maximal zwei Stockwerken gestattet' / 'Zuvor mussten tragende Lehmsteine eine Wandstaerke von 36,5 Zentimeter aufweisen' - https://www.gebaeudeforum.de/service/newsletter/ausgabe-05/2023/neue-lehm-norm/ and 'So duerfen etwa Lehmsteine nur bei Gebaeuden mit maximal zwei Geschossen verwendet werden. Vorgeschrieben ist dann zusaetzlich eine Wandstaerke von mindestens 36,5 Zentimetern' - https://www.bba-online.de/news/neue-din-norm-lehmsteine/ \u26a0\ufe0f It is a 1990s code number, not a backdated vernacular measurement - the same objection this library raises against backdating the 2.50 m Raumhoehe minimum. It is used because it is a codification of the MATERIAL's limit rather than of a room, and because \u00a79g's Babel case needs a real limit to exceed. Flagged, not hidden.",
-									"wallThicknessM 0.365: SOURCED, and MODERN, same source and same caveat as maxStoreys.","bayMaxM 0.0: NOT STATED. No source for a Streckhof opening rhythm was found, so the span alone decides the bay here - which is \u00a79c's chain with nothing else in the way."]
+									"wallThicknessM 0.365: SOURCED, and MODERN, same source and same caveat as maxStoreys.","bayMaxM 0.0: NOT STATED, AND RE-TESTED 2026-08-27 against every document this project holds rather than against the memory of a search (the rule `build_retrospective.md` \u00a72a row 60 exists for). No Streckhof document is held here at all - Zsabetich was read online and not kept - so there is nothing to re-read, and this line stays what it says: no opening rhythm was found. The span alone decides the bay here, which is \u00a79c's chain with nothing else in the way."]
 							},
 							"storeyHeightsM":{
 								"type":"intarray",

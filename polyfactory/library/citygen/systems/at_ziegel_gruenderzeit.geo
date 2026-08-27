@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-27 07:56:15",
+		"date":"2026-08-27 09:05:57",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -64,7 +64,7 @@
 						{
 							"bayMaxM":{
 								"type":"float",
-								"value":0
+								"value":3
 							},
 							"maxSpanM":{
 								"type":"float",
@@ -77,11 +77,11 @@
 							"sources":{
 								"type":"stringarray",
 								"value":["TYPE: unreinforced single-shell brick masonry with timber Tramdecken, Vienna, under the Bauordnung fuer Wien 1883. Read by BOTH Gruenderzeit styles - it is the shared layer-1 block \u00a79e's two-layer model predicts.",
-									"maxSpanM 6.0: DERIVED. The Wiener Dachstuhl spans ~12 m (SOURCED, caption 10-14 m), and that 12 m is read as two ~6 m timber-spanned bays either side of a load-bearing Mittelmauer - the same reading `at_vienna_perimeter` already records for its courtyardDepthM. So 6 m is the FLOOR structure's span, which is what sets a bay; the roof truss crosses the full 12 m because a truss is a different jointing system, and this block carries ONE span. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf",
-									"maxStoreys 5: SOURCED - Bauordnung fuer Wien 1883 \u00a742. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
-									"wallThicknessM 0.45 and the per-storey table 0.60 / 0.60: DERIVED, and the derivation is thinner than it looks. What IS sourced: the 1883 brick format 14/29/6,5 cm, which makes wall thicknesses a 15 cm ladder; a 60 cm minimum for Stiegenhaus masonry; and cellar walls up to 1 m. pak-immo, Gruenderzeithaeuser: Konstruktion und Sanierung - brick format '14/29/6,5 cm' (1883), 'Das Mauerwerk eines Stiegenhauses musste eine Mindestdicke von 60 cm aufweisen', 'Kellerwaende konnten bis zu einem Meter dick werden' - https://www.pak-immo.at/gruenderzeithauser-konstruktion-sanierung/ \u26a0\ufe0f What is NOT sourced here is the STEPPING RULE itself - search returned a 'reduced by half a stone every one to two storeys' rule and a 37-74 cm ground/cellar band, and neither was verified in a document I read, so neither is cited. 0.60 at the two lowest storeys (2 Stein) stepping to 0.45 (1.5 Stein) above is the ladder applied once, conservatively.",
+									"maxSpanM 6.0: DERIVED, ON A SOURCED PREMISE - and the premise was under-cited until 2026-08-27. The Wiener Dachstuhl spans ~12 m (SOURCED, caption 10-14 m), and that 12 m is read as two ~6 m timber-spanned bays either side of a load-bearing Mittelmauer. \u2b50 THE MITTELMAUER HALF IS NOT A READING: Fierro states the load path outright for a documented 1890 Gruenderzeit house - 'Die Decken spannen sich jeweils als Einfeldtraeger von der strassenseitigen Aussenmauer zur Mittelmauer und von der Mittelmauer zur hofseitigen Aussenmauer. Alle Geschosslasten werden somit ueber diese drei Mauern abgetragen' - in the same document already cited here for the Dachstuhl. \u26a0\ufe0f It is stated OF a worked example, not as a typology-wide law, but Friedel corroborates the magnitude independently: Hauptmauern are 0.45 m up to a Zimmertiefe of 6.50 m and 0.60 m beyond it, so 6.50 m is where the Bauordnung itself puts the ordinary floor span. 'Anhang I - Historisches Mauerwerk der Wiener Gruenderzeit: Struktur, Einwirkungen, Auslastung und Reserven', Fassung 30.10.2021, quoting Friedel 1900 throughout (\u26a0\ufe0f the document titles itself Anhang I; the URL slug says Anhang-II) - https://nachhaltigwirtschaften.at/resources/sdz_pdf/FFG873475-Anhang-II-historischesMWK-Statik.pdf What stays DERIVED is the NUMBER: halving 12 m is arithmetic on the truss span, not a floor-span table. The roof truss crosses the full 12 m because a truss is a different jointing system, and this block carries ONE span. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf",
+									"maxStoreys 5: SOURCED - Bauordnung fuer Wien 1883 \u00a742. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742, \u00a737 and \u00a736, and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
+									"wallThicknessM 0.45 and the per-storey table 0.75 / 0.60 / 0.60: SOURCED - THE STEPPING RULE IS IN THE BAUORDNUNG AND IT WAS IN A DOCUMENT ALREADY CITED HERE THREE TIMES. Braun states Bauordnung fuer Wien 1883 \u00a737 verbatim: 'So muessen die Hauptmauern bei Tramdecken im obersten Stockwerk 45 cm dick sein und nach unten alle zwei Stockwerke um 15 cm dicker werden. Daraus folgt, dass vierstoeckige Gebaeude im Erdgeschoss Wandstaerken von 75 cm haben.' Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742, \u00a737 and \u00a736, and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf Friedel says the same thing in the appendix, from the other side: 'Bis zu einer Zimmertiefe von 6.50 m (\u2026) sind Hauptmauern im hoechsten Geschosse 1 1/2 Ziegel (0.45 m) stark' and 'Sind (\u2026) Tramdecken angeordnet, so koennen die Hauptmauern durch je zwei Geschosse in gleicher Staerke durchreichen, worauf sie erst um 0.15 m zu verstaerken sind'. 'Anhang I - Historisches Mauerwerk der Wiener Gruenderzeit: Struktur, Einwirkungen, Auslastung und Reserven', Fassung 30.10.2021, quoting Friedel 1900 throughout (\u26a0\ufe0f the document titles itself Anhang I; the URL slug says Anhang-II) - https://nachhaltigwirtschaften.at/resources/sdz_pdf/FFG873475-Anhang-II-historischesMWK-Statik.pdf So a five-Geschoss house (Bauordnung \u00a742's maximum) runs 0.75 / 0.60 / 0.60 / 0.45 / 0.45 from the ground up, which is the shipped table over a 0.45 default. \u26d4 THE 0.60 WAS PREVIOUSLY ATTRIBUTED TO A '60 cm Stiegenhaus' MINIMUM FROM A PROPERTY BLOG, AND THAT IS THE WRONG WALL: Friedel gives Stiegenmauern as 0.30 m (up to two Stockwerke, non-freitragend) and 0.45 m otherwise; 60 cm is the MITTELMAUER, 'im obersten Geschosse 2 Ziegel (0.60 m)', rising to 0.75 m in the ground floor of a five-Geschoss house. The blog's brick format and its 1 m cellar wall still stand. pak-immo, Gruenderzeithaeuser: Konstruktion und Sanierung - brick format '14/29/6,5 cm' (1883), 'Das Mauerwerk eines Stiegenhauses musste eine Mindestdicke von 60 cm aufweisen', 'Kellerwaende konnten bis zu einem Meter dick werden' - https://www.pak-immo.at/gruenderzeithauser-konstruktion-sanierung/ \u26a0\ufe0f ONE LIMITATION OF THE FIELD SHAPE, STATED RATHER THAN LET READ AS EXACT: the Bauordnung's ladder is anchored at the TOP storey and `wallThicknessesM` is indexed from the GROUND, so this table is exact for a five-Geschoss volume and too thick for a shorter one - the three-storey rear tract gets 0.75 / 0.60 / 0.60 where the same rule read from the top gives 0.60 / 0.45 / 0.45. A top-anchored index is a new field semantic and therefore Hannes' (\u00a70.0g row 6's precedent); nothing consumes the number as geometry yet, so it costs nothing today.",
 									"storeyHeightsM: the GROUND STOREY at 4.2 m: DERIVED, and this is the field \u00a712.12 was open on. SOURCED is the band and the direction - Raumhoehe 3.2-4.0 m, 'in der Erdgeschosszone oft auch darueber'. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf 4.2 m is one step above the band's top, so the ground floor is taller by 0.7 m than the 3.5 m the styles carry. \u26a0\ufe0f AND AN IMPRECISION INHERITED RATHER THAN INTRODUCED: 3.5 m is sourced as a ROOM height (Raumhoehe) and used as a STOREY height, which is short by the floor build-up. Recorded here rather than silently corrected - moving it is a change to a G1 fixture value and is not B3's to take.",
-									"bayMaxM 0.0: NOT STATED. No source for a Gruenderzeit Fensterachse spacing was found. \u26a0\ufe0f Consequence, stated because it bounds what this build proves: the culture-side arm of \u00a79c's chain is unsourced on EVERY real system here, so the span alone decides every bay in the shipped data."]
+									"bayMaxM 3.0: SOURCED. \u26d4 THIS FIELD SHIPPED AS 'NOT STATED, no source found' AND THAT WAS FALSE: the source was downloaded and text-extracted into this project's scratchpad the evening before B3 ran, and nobody re-read it. Friedel 1900, quoted in \u00a72.2 'Fassade: Oeffnungen und Pfeiler': 'In gewoehnlichen Wohnhaeusern betraegt die fensterachsen-Distanz 2.50 bis 3.00 m' (lower-case 'f' is the extraction's, not a second spelling) - and on the next page the author's OWN table 'Recherchen aus mehr als 20 Einreichprojekten des Verfassers' gives Achsen-Distanz a [m] 2,50 / 3,00 against Fensterbreite 1,20-1,50 m and Pfeilerbreite 1,00-1,80 m. 3.0 is the top of the band, which is what a MAX is. 'Anhang I - Historisches Mauerwerk der Wiener Gruenderzeit: Struktur, Einwirkungen, Auslastung und Reserven', Fassung 30.10.2021, quoting Friedel 1900 throughout (\u26a0\ufe0f the document titles itself Anhang I; the URL slug says Anhang-II) - https://nachhaltigwirtschaften.at/resources/sdz_pdf/FFG873475-Anhang-II-historischesMWK-Statik.pdf \u2b50 CONSEQUENCE, AND IT IS A RESULT ABOUT \u00a79c RATHER THAN A DATA TIDY-UP: 3.0 sits BELOW this system's 6.0 m span, so the culture-side arm of the chain BINDS on a sourced system - it is no longer exercised only by the invented Coruscant block. \u26a0\ufe0f Palais and Monumentalbauten are given 4.00-5.00 m by the same sentence and are a different building type; this block is 'gewoehnliche Wohnhaeuser'."]
 							},
 							"storeyHeightsM":{
 								"type":"dictarray",
@@ -120,13 +120,23 @@
 										},
 										"tM":{
 											"type":"float",
-											"value":0.599999999999999978
+											"value":0.75
 										}
 									},
 									{
 										"n":{
 											"type":"int",
 											"value":2
+										},
+										"tM":{
+											"type":"float",
+											"value":0.599999999999999978
+										}
+									},
+									{
+										"n":{
+											"type":"int",
+											"value":3
 										},
 										"tM":{
 											"type":"float",

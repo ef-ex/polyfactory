@@ -130,12 +130,34 @@ for (int pr = 0; pr < np; pr++) {
         float hi = bcap;
         if (span > 0.0 && (bcap <= 0.0 || span < bcap)) hi = span;
         // The FEWEST bays whose width still respects the cap, hence the
-        // WIDEST bay the cap allows.  ⚠️ The epsilon is relative to the cap,
-        // not to a metre: a face longer than an exact multiple of `hi` by
-        // less than 1e-6 of one bay - 6 um at a 6 m cap - does not buy an
-        // extra bay.  Absolute float32 noise on a 100 m face is ~7.6e-6 m, so
-        // this band sits just above it and three orders below a brick.
-        bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;
+        // WIDEST bay the cap allows.  A face longer than an exact multiple
+        // of `hi` by less than the band does not buy an extra bay.
+        //
+        // ⛔ THE BAND WAS 1e-6 RELATIVE TO THE CAP AND ITS STATED JUSTIFICATION
+        // WAS THE WRONG WAY ROUND - corrected 2026-08-27, and this comment is
+        // now the measurement rather than the reassurance
+        // (`build_retrospective.md` §2a row 61).  It said the band "sits just
+        // above" float32 noise.  MEASURED: 1e-6 of a 6 m cap is 6e-6 m, and
+        // one float32 ulp is 3.81e-6 m at 48 m, 7.63e-6 m at 100 m and
+        // 3.05e-5 m at 500 m - so at this fixture's own ~500 m domain the old
+        // band sat an ORDER OF MAGNITUDE BELOW the noise, not above it, and
+        // the sourced 3.0 m bay cap would have halved it again.
+        // ⚠️ It is not academic any more: 20 of the 73 capped wall faces in
+        // the G1 fixture sit EXACTLY on an integer multiple of their cap, so
+        // a length error of one ulp on the wrong side is the difference
+        // between 20 bays and 21.
+        // The band is now a LENGTH, one millimetre - the same number
+        // `pf_warn_span_exceeded` uses below and for the same reason: ~16x
+        // the coordinate noise at 500 m, and three orders under a brick.
+        // ⚠️ WHAT NO CHECK CAN SEE: no fixture face lands INSIDE the band on
+        // the wrong side (all 20 exact multiples are exact in float32 here),
+        // so the band itself has no isolating mutation - reaching it needs a
+        // lot placed where float32 rounds a face length up, and the two
+        // `bay_respects_the_span` rows anchor the count expression, not this
+        // number.  Stated rather than implied.
+        float BAY_EPS_M = 1e-3;
+        bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil((lng - BAY_EPS_M) / hi))
+                                        : 1;
         bayu = max(bayu, 1);
         bayv = storeys;
         bayw = lng / float(bayu);

@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-27 07:56:15",
+		"date":"2026-08-27 09:05:57",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -77,8 +77,8 @@
 							"sources":{
 								"type":"stringarray",
 								"value":["TYPE: rural mass masonry, Traun-/Mostviertel farm. \u26a0\ufe0f USED BY ONE STYLE, which is the shape G1's `rule_reuse` calls a style's data wearing a shared name. Kept anyway, and said out loud: a Vierkanthof is neither Lehm nor Gruenderzeit brick, and folding it into either would be a worse lie than a lonely block.",
-									"maxStoreys 2: SOURCED - 'meist 2 Stockwerke, seltener 1'. Wikipedia Vierkanthof - https://de.wikipedia.org/wiki/Vierkanthof","wallThicknessM 0.45: UNSOURCED. No wall thickness was found for this type; 0.45 is 1.5 Stein in the Austrian brick ladder and is a placeholder the cascade overrides.",
-									"maxSpanM 0.0 and bayMaxM 0.0: NOT STATED. No tract span and no opening rhythm was found for a Vierkanthof. \u26a0\ufe0f The visible consequence is in the output rather than hidden: with no cap from either side, every face of the Vierkanthof gets ONE bay. That is what 'we have no number' looks like in the geometry, and it is preferred to a plausible invention."]
+									"maxStoreys 2: SOURCED - 'meist 2 Stockwerke, seltener 1'. Wikipedia Vierkanthof - https://de.wikipedia.org/wiki/Vierkanthof","wallThicknessM 0.70: SOURCED, and it REPLACES an admitted placeholder. It shipped as 0.45 UNSOURCED - 1.5 Stein borrowed off the VIENNESE BRICK ladder for a rural stone farm, which is the wrong material's number as well as an unsourced one, and it broke this library's own rule that 0.0 is preferred to a plausible placeholder. Huber, on the massive trakte of old Vierkanthoefe: 'Die massiven Trakte alter Vierkanthoefe weisen meist eine sehr dicke Mauerstaerke auf (\u2026) Als Richtwerte wird zuerst eine 70 Zentimeter starke Sandsteinwand herangenommen'. Huber, Umnutzung und Sanierung von Vierkanthoefen, TU Wien 2021 - https://repositum.tuwien.at/bitstream/20.500.12708/17863/1/Huber%20Johanna%20-%202021%20-%20Umnutzung%20und%20Sanierung%20von%20Vierkanthoefen.pdf \u26a0\ufe0f IT IS A RICHTWERT TAKEN FOR A U-VALUE CALCULATION, not a structural table and not a code minimum - flagged in the data, exactly as the Lehmbau-Regeln's modernity is. Sandstein is the right family: Ruecklinger has these walls 'aus Stein oder Ziegel bzw. einer Mischbauweise'. Ruecklinger, Die baeuerliche Hofform des Vierkanters, TU Wien 2017 (50 measured Mostviertel Vierkanter) - https://repositum.tuwien.at/bitstream/20.500.12708/5511/2/Ruecklinger%20Elisabeth%20-%202017%20-%20Die%20baeuerliche%20Hofform%20des%20Vierkanters...pdf",
+									"maxSpanM 0.0 and bayMaxM 0.0: NOT STATED - AND THE TWO DOCUMENTS THIS PROJECT HOLDS WERE RE-READ 2026-08-27 BEFORE THAT WORD WAS LEFT STANDING (`build_retrospective.md` \u00a72a row 60). \u26a0\ufe0f THE PREVIOUS TEXT SAID 'no tract span and no opening rhythm was found', AND BOTH HELD DOCUMENTS DO CARRY NEIGHBOURING NUMBERS - they are named here so the next reader does not have to re-run the search: Ruecklinger gives the STALL VAULTS' span ('das Kugelgewoelbe (\u2026) konnte sechs- bis acht Meter ueberspannen, die Spannweite des Gurtengewoelbes kann bis zu sechs Meter betragen') and Huber gives an axis COUNT band per front length (Kleinvierkanter under 30 m with six to ten Fensterachsen; Grossvierkanter 40-60 m with fifteen to twenty). Ruecklinger, Die baeuerliche Hofform des Vierkanters, TU Wien 2017 (50 measured Mostviertel Vierkanter) - https://repositum.tuwien.at/bitstream/20.500.12708/5511/2/Ruecklinger%20Elisabeth%20-%202017%20-%20Die%20baeuerliche%20Hofform%20des%20Vierkanters...pdf Huber, Umnutzung und Sanierung von Vierkanthoefen, TU Wien 2021 - https://repositum.tuwien.at/bitstream/20.500.12708/17863/1/Huber%20Johanna%20-%202021%20-%20Umnutzung%20und%20Sanierung%20von%20Vierkanthoefen.pdf \u26d4 NEITHER IS THE FIELD: a vault span is not the timber Deckenbalken span that sets a bay in the dwelling trakt, and an axis count over a front length is a DIVISION away from an axis distance - deriving 2.0-5.0 m from it is an authoring decision that would end the Vierkanthof's one-bay output, and it is not this pass's to take. \u26a0\ufe0f The visible consequence stays in the output rather than hidden: with no cap from either side, every face of the Vierkanthof gets ONE bay. That is what 'we have no number' looks like in the geometry, and it is preferred to a plausible invention."]
 							},
 							"storeyHeightsM":{
 								"type":"intarray",
@@ -94,7 +94,7 @@
 							},
 							"wallThicknessM":{
 								"type":"float",
-								"value":0.450000000000000011
+								"value":0.699999999999999956
 							},
 							"wallThicknessesM":{
 								"type":"intarray",
