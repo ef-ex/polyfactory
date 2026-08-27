@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets",
-      "community": 78,
+      "community": 23,
       "norm_label": "asset_browser_widgets.py"
     },
     {
@@ -480,7 +480,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider",
-      "community": 8,
+      "community": 23,
       "norm_label": "hoverslider"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 106,
+      "community": 23,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 8,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 8,
+      "community": 23,
       "norm_label": "hovercombobox"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 8,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 8,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_1",
-      "community": 78,
+      "community": 23,
       "norm_label": "asset browser widgets - low-level widget classes extracted from browser_ui.py."
     },
     {
@@ -820,7 +820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_49",
-      "community": 8,
+      "community": 23,
       "norm_label": "qslider with animated hover outline"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 8,
+      "community": 23,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 8,
+      "community": 78,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui",
-      "community": 92,
+      "community": 203,
       "norm_label": "batch_ui.py"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow",
-      "community": 92,
+      "community": 203,
       "norm_label": "assetgrouprow"
     },
     {
@@ -1710,7 +1710,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_init",
-      "community": 92,
+      "community": 203,
       "norm_label": ".__init__()"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_setup_ui",
-      "community": 92,
+      "community": 203,
       "norm_label": "._setup_ui()"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_name",
-      "community": 92,
+      "community": 203,
       "norm_label": ".get_name()"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_category",
-      "community": 92,
+      "community": 203,
       "norm_label": ".get_category()"
     },
     {
@@ -1750,7 +1750,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_tags",
-      "community": 92,
+      "community": 203,
       "norm_label": ".get_tags()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_is_checked",
-      "community": 92,
+      "community": 203,
       "norm_label": ".is_checked()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_apply_defaults",
-      "community": 92,
+      "community": 203,
       "norm_label": ".apply_defaults()"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_set_export_status",
-      "community": 92,
+      "community": 203,
       "norm_label": ".set_export_status()"
     },
     {
@@ -1790,7 +1790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_1",
-      "community": 92,
+      "community": 203,
       "norm_label": "asset group row widget used by the inline batch mode in assetexportdialog."
     },
     {
@@ -1800,7 +1800,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_14",
-      "community": 92,
+      "community": 203,
       "norm_label": "one row in the detected-assets list.      displays a checkbox, sequential inde"
     },
     {
@@ -1810,7 +1810,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_103",
-      "community": 92,
+      "community": 203,
       "norm_label": "returns the per-row name, or empty string if blank (caller applies dialog-level"
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_116",
-      "community": 92,
+      "community": 203,
       "norm_label": "fill in category/tags only if the prim had no attributes for them."
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_123",
-      "community": 92,
+      "community": 203,
       "norm_label": "update the status dot to reflect export progress.          args:"
     },
     {
@@ -1850,7 +1850,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget",
-      "community": 20,
+      "community": 23,
       "norm_label": "assetbrowserwidget"
     },
     {
@@ -1860,7 +1860,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_init",
-      "community": 8,
+      "community": 23,
       "norm_label": ".__init__()"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_setup_ui",
-      "community": 8,
+      "community": 23,
       "norm_label": "._setup_ui()"
     },
     {
@@ -1880,7 +1880,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_load_assets",
-      "community": 20,
+      "community": 23,
       "norm_label": "._load_assets()"
     },
     {
@@ -1890,7 +1890,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_filter_assets",
-      "community": 20,
+      "community": 23,
       "norm_label": "._filter_assets()"
     },
     {
@@ -1900,7 +1900,7 @@
       "source_location": "L303",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_update_grid",
-      "community": 20,
+      "community": 23,
       "norm_label": "._update_grid()"
     },
     {
@@ -1910,7 +1910,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_asset_clicked",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_asset_clicked()"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 20,
+      "community": 8,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 20,
+      "community": 8,
       "norm_label": "qpoint"
     },
     {
@@ -1940,7 +1940,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_asset_double_clicked",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_asset_double_clicked()"
     },
     {
@@ -1950,7 +1950,7 @@
       "source_location": "L390",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_get_db_path",
-      "community": 20,
+      "community": 23,
       "norm_label": "._get_db_path()"
     },
     {
@@ -1960,7 +1960,7 @@
       "source_location": "L400",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_delete_selected_assets",
-      "community": 20,
+      "community": 23,
       "norm_label": "._delete_selected_assets()"
     },
     {
@@ -1970,7 +1970,7 @@
       "source_location": "L470",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_asset_right_clicked",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_asset_right_clicked()"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L525",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_open_manage_tags_dialog",
-      "community": 20,
+      "community": 23,
       "norm_label": "._open_manage_tags_dialog()"
     },
     {
@@ -1990,7 +1990,7 @@
       "source_location": "L623",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_delete_asset_files",
-      "community": 20,
+      "community": 23,
       "norm_label": "._delete_asset_files()"
     },
     {
@@ -2000,7 +2000,7 @@
       "source_location": "L637",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_asset_category_changed",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_asset_category_changed()"
     },
     {
@@ -2010,7 +2010,7 @@
       "source_location": "L652",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_asset_tags_changed",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_asset_tags_changed()"
     },
     {
@@ -2020,7 +2020,7 @@
       "source_location": "L667",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_size_changed",
-      "community": 20,
+      "community": 23,
       "norm_label": "._on_size_changed()"
     },
     {
@@ -2030,7 +2030,7 @@
       "source_location": "L672",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_apply_size_change",
-      "community": 20,
+      "community": 23,
       "norm_label": "._apply_size_change()"
     },
     {
@@ -2040,7 +2040,7 @@
       "source_location": "L683",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_resizeevent",
-      "community": 20,
+      "community": 23,
       "norm_label": ".resizeevent()"
     },
     {
@@ -2170,7 +2170,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_22",
-      "community": 20,
+      "community": 23,
       "norm_label": "asset browser with grid view, search, and filters"
     },
     {
@@ -2180,7 +2180,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_242",
-      "community": 20,
+      "community": 23,
       "norm_label": "load assets from database"
     },
     {
@@ -2190,7 +2190,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_278",
-      "community": 20,
+      "community": 23,
       "norm_label": "filter assets based on search, category, and tags"
     },
     {
@@ -2200,7 +2200,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_304",
-      "community": 20,
+      "community": 23,
       "norm_label": "update grid with filtered assets"
     },
     {
@@ -2210,7 +2210,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_335",
-      "community": 20,
+      "community": 23,
       "norm_label": "handle asset single-click.  ctrl+click toggles, shift+click selects range."
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 20,
+      "community": 8,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2230,7 +2230,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_387",
-      "community": 20,
+      "community": 23,
       "norm_label": "handle asset double-click - trigger placement"
     },
     {
@@ -2240,7 +2240,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_391",
-      "community": 20,
+      "community": 23,
       "norm_label": "return the resolved path to the asset database."
     },
     {
@@ -2250,7 +2250,7 @@
       "source_location": "L401",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_401",
-      "community": 20,
+      "community": 23,
       "norm_label": "delete all selected assets from the library database (delete key)."
     },
     {
@@ -2260,7 +2260,7 @@
       "source_location": "L471",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_471",
-      "community": 20,
+      "community": 23,
       "norm_label": "show a context menu on right-click.  if the clicked asset is not already"
     },
     {
@@ -2270,7 +2270,7 @@
       "source_location": "L526",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_526",
-      "community": 20,
+      "community": 23,
       "norm_label": "open a dialog to bulk-add or bulk-remove tags on the current selection."
     },
     {
@@ -2280,7 +2280,7 @@
       "source_location": "L624",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_624",
-      "community": 20,
+      "community": 23,
       "norm_label": "delete usd file, static thumbnail, and turntable folder for an asset."
     },
     {
@@ -2290,7 +2290,7 @@
       "source_location": "L638",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_638",
-      "community": 20,
+      "community": 23,
       "norm_label": "handle category change from info panel"
     },
     {
@@ -2300,7 +2300,7 @@
       "source_location": "L653",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_653",
-      "community": 20,
+      "community": 23,
       "norm_label": "handle tags change from info panel"
     },
     {
@@ -2310,7 +2310,7 @@
       "source_location": "L668",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_668",
-      "community": 20,
+      "community": 23,
       "norm_label": "update size label immediately; schedule the actual resize with debounce"
     },
     {
@@ -2320,7 +2320,7 @@
       "source_location": "L673",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_673",
-      "community": 20,
+      "community": 23,
       "norm_label": "resize all thumbnails \u2014 called once after the slider stops moving"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_684",
-      "community": 20,
+      "community": 23,
       "norm_label": "handle resize - flow layout will automatically reflow"
     },
     {
@@ -12090,7 +12090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 203,
+      "community": 34,
       "norm_label": "__init__.py"
     },
     {
@@ -12100,7 +12100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 203,
+      "community": 34,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -12310,7 +12310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 6,
+      "community": 22,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -12320,7 +12320,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 6,
+      "community": 22,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -12330,7 +12330,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 6,
+      "community": 22,
       "norm_label": ".setupui()"
     },
     {
@@ -12340,7 +12340,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 6,
+      "community": 22,
       "norm_label": ".retranslateui()"
     },
     {
@@ -12350,7 +12350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 22,
+      "community": 6,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -12360,7 +12360,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 22,
+      "community": 6,
       "norm_label": "ui_mainpages"
     },
     {
@@ -12370,7 +12370,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 22,
+      "community": 6,
       "norm_label": ".setupui()"
     },
     {
@@ -12380,7 +12380,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 22,
+      "community": 6,
       "norm_label": ".retranslateui()"
     },
     {
@@ -12620,7 +12620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 24,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -12930,7 +12930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpushbutton",
-      "community": 108,
+      "community": 100,
       "norm_label": "qpushbutton"
     },
     {
@@ -13820,7 +13820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 24,
+      "community": 137,
       "norm_label": "__init__.py"
     },
     {
@@ -13830,7 +13830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 24,
+      "community": 137,
       "norm_label": "py_push_button.py"
     },
     {
@@ -13860,7 +13860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 24,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -13870,7 +13870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 24,
+      "community": 76,
       "norm_label": "py_slider.py"
     },
     {
@@ -13880,7 +13880,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 24,
+      "community": 76,
       "norm_label": "pyslider"
     },
     {
@@ -13890,7 +13890,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 24,
+      "community": 76,
       "norm_label": "qslider"
     },
     {
@@ -13900,7 +13900,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 24,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -14110,7 +14110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 34,
+      "community": 108,
       "norm_label": "py_title_button.py"
     },
     {
@@ -14130,7 +14130,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_pytitlebutton_init",
-      "community": 54,
+      "community": 108,
       "norm_label": ".__init__()"
     },
     {
@@ -14250,7 +14250,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip",
-      "community": 54,
+      "community": 108,
       "norm_label": "_tooltip"
     },
     {
@@ -14260,7 +14260,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip_init",
-      "community": 54,
+      "community": 108,
       "norm_label": ".__init__()"
     },
     {
@@ -14340,7 +14340,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 20,
+      "community": 8,
       "norm_label": ".hitbutton()"
     },
     {
@@ -14690,7 +14690,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -14700,7 +14700,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14720,7 +14720,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -14730,7 +14730,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -21730,7 +21730,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_drop_row",
-      "community": 145,
+      "community": 298,
       "norm_label": "drop_row()"
     },
     {
@@ -21797,7 +21797,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L691",
+      "source_location": "L763",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_main",
       "community": 145,
@@ -21850,7 +21850,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_rationale_288",
-      "community": 145,
+      "community": 298,
       "norm_label": "\u2b50 the audit's own injected defect, turned into a standing mutation.      round-n"
     },
     {
@@ -36860,7 +36860,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_artist_ui_6b_the_study_applied_across_every_polyfactory_tool_audit_of_the_other_studies",
-      "community": 143,
+      "community": 270,
       "norm_label": "6b. the study applied across every polyfactory tool \u2014 audit of the other studies"
     },
     {
@@ -36870,7 +36870,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "ideas_artist_ui_streets_citygen_streets_md_citygen_streets_md_in_build",
-      "community": 143,
+      "community": 270,
       "norm_label": "streets \u2014 [`citygen_streets.md`](citygen_streets.md), in build"
     },
     {
@@ -36880,7 +36880,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "ideas_artist_ui_buildings_citygen_buildings_md_citygen_buildings_md_research_only",
-      "community": 143,
+      "community": 270,
       "norm_label": "buildings \u2014 [`citygen_buildings.md`](citygen_buildings.md), research only"
     },
     {
@@ -36890,7 +36890,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "ideas_artist_ui_traffic_crowds_citygen_simulation_md_citygen_simulation_md_design_spec_v0",
-      "community": 143,
+      "community": 270,
       "norm_label": "traffic / crowds \u2014 [`citygen_simulation.md`](citygen_simulation.md), design spec v0"
     },
     {
@@ -36900,7 +36900,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "ideas_artist_ui_terrain_presets_terrain_presets_md_terrain_presets_md_parked",
-      "community": 143,
+      "community": 270,
       "norm_label": "terrain presets \u2014 [`terrain_presets.md`](terrain_presets.md), parked"
     },
     {
@@ -36910,7 +36910,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_artist_ui_foliage_foliage_md_foliage_md_design_complete_parked",
-      "community": 143,
+      "community": 270,
       "norm_label": "foliage \u2014 [`foliage.md`](foliage.md), design complete, parked"
     },
     {
@@ -36920,7 +36920,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "ideas_artist_ui_fabric_polyknit_fabric_md_fabric_md_design_complete_parked",
-      "community": 143,
+      "community": 270,
       "norm_label": "fabric / polyknit \u2014 [`fabric.md`](fabric.md), design complete, parked"
     },
     {
@@ -36930,7 +36930,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "ideas_artist_ui_hair_grooming_hair_grooming_md_hair_grooming_md_research_parked",
-      "community": 143,
+      "community": 270,
       "norm_label": "hair grooming \u2014 [`hair_grooming.md`](hair_grooming.md), research, parked"
     },
     {
@@ -36940,7 +36940,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_artist_ui_asset_library_kitbash_asset_library_redesign_md_asset_library_redesign_md_planning",
-      "community": 143,
+      "community": 270,
       "norm_label": "asset library / kitbash \u2014 [`asset_library_redesign.md`](asset_library_redesign.md), planning"
     },
     {
@@ -36950,7 +36950,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_artist_ui_the_cross_study_observation",
-      "community": 143,
+      "community": 270,
       "norm_label": "the cross-study observation"
     },
     {
@@ -41080,7 +41080,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "ideas_fabric_4_milestones",
-      "community": 270,
+      "community": 67,
       "norm_label": "4. milestones"
     },
     {
@@ -41090,7 +41090,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "ideas_fabric_m0_look_test_go_no_go_gate",
-      "community": 270,
+      "community": 67,
       "norm_label": "m0 \u2014 look test (go/no-go gate)"
     },
     {
@@ -41100,7 +41100,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "ideas_fabric_m1_swatch_generator_flat_no_shaping",
-      "community": 270,
+      "community": 67,
       "norm_label": "m1 \u2014 swatch generator (flat, no shaping)"
     },
     {
@@ -41110,7 +41110,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "ideas_fabric_m2_templates_fitted_rest_shape_relaxation",
-      "community": 270,
+      "community": 67,
       "norm_label": "m2 \u2014 templates fitted + rest-shape relaxation"
     },
     {
@@ -41120,7 +41120,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "ideas_fabric_m3_panels_shaping",
-      "community": 270,
+      "community": 67,
       "norm_label": "m3 \u2014 panels + shaping"
     },
     {
@@ -41130,7 +41130,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ideas_fabric_m4_seams",
-      "community": 270,
+      "community": 67,
       "norm_label": "m4 \u2014 seams"
     },
     {
@@ -41140,7 +41140,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_fabric_m5_pattern_language",
-      "community": 270,
+      "community": 67,
       "norm_label": "m5 \u2014 pattern language"
     },
     {
@@ -41150,7 +41150,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "ideas_fabric_m6_hydra_generative_procedural",
-      "community": 270,
+      "community": 67,
       "norm_label": "m6 \u2014 hydra generative procedural"
     },
     {
@@ -41160,7 +41160,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "ideas_fabric_m7_hero_garment_demo",
-      "community": 270,
+      "community": 67,
       "norm_label": "m7 \u2014 hero garment demo"
     },
     {
@@ -47540,7 +47540,7 @@
       "source_location": "L329",
       "_origin": "ast",
       "id": "ideas_terrain_presets_8_verification_ledger",
-      "community": 298,
+      "community": 116,
       "norm_label": "8. verification ledger"
     },
     {
@@ -47550,7 +47550,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_terrain_presets_verified_probed_live_in_houdini_22_0_398_or_parsed_from_the_downloaded_files",
-      "community": 298,
+      "community": 116,
       "norm_label": "\u2705 verified \u2014 probed live in houdini 22.0.398 or parsed from the downloaded files"
     },
     {
@@ -47560,7 +47560,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "ideas_terrain_presets_computed_derived_by_me_correct_method_not_vendor_stated",
-      "community": 298,
+      "community": 116,
       "norm_label": "\ud83e\uddee computed \u2014 derived by me, correct method, not vendor-stated"
     },
     {
@@ -47570,7 +47570,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "ideas_terrain_presets_snippet_level_read_from_docs_not_exercised",
-      "community": 298,
+      "community": 116,
       "norm_label": "\ud83d\udcc4 snippet-level \u2014 read from docs, not exercised"
     },
     {
@@ -47580,7 +47580,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "ideas_terrain_presets_known_gaps_do_not_assume",
-      "community": 298,
+      "community": 116,
       "norm_label": "\u26a0\ufe0f known gaps \u2014 do not assume"
     },
     {
@@ -47680,7 +47680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme",
-      "community": 164,
+      "community": 62,
       "norm_label": "readme.md"
     },
     {
@@ -47690,7 +47690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 164,
+      "community": 62,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -47700,7 +47700,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 164,
+      "community": 62,
       "norm_label": "the five pieces"
     },
     {
@@ -47710,7 +47710,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 164,
+      "community": 62,
       "norm_label": "what stays from v1"
     },
     {
@@ -47720,7 +47720,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 164,
+      "community": 62,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -47730,7 +47730,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 164,
+      "community": 62,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -47740,7 +47740,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 164,
+      "community": 62,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -47750,7 +47750,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 164,
+      "community": 62,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -47760,7 +47760,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 164,
+      "community": 62,
       "norm_label": "the v2 commands"
     },
     {
@@ -47770,7 +47770,7 @@
       "source_location": "L326",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
-      "community": 164,
+      "community": 62,
       "norm_label": "the v1 history"
     },
     {
@@ -47925,7 +47925,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 203,
+      "community": 34,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -48024,7 +48024,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 24,
+      "community": 137,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -48033,7 +48033,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 24,
+      "community": 76,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -89258,6 +89258,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L748",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_images",
+      "target": "citygen_run_g2_checks_show",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L583",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -89271,9 +89282,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L504",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_cost",
-      "target": "citygen_run_g2_checks_kit_geometry",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_kit_geometry"
     },
     {
       "relation": "calls",
@@ -89292,9 +89303,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_195",
-      "target": "citygen_run_g2_checks_kit_geometry",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_kit_geometry"
     },
     {
       "relation": "calls",
@@ -89313,9 +89324,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_224",
-      "target": "citygen_run_g2_checks_scene",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_scene"
     },
     {
       "relation": "calls",
@@ -89356,9 +89367,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L236",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_236",
-      "target": "citygen_run_g2_checks_cook",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_cook"
     },
     {
       "relation": "calls",
@@ -89377,9 +89388,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L288",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_288",
-      "target": "citygen_run_g2_checks_drop_row",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_drop_row"
     },
     {
       "relation": "calls",
@@ -89409,9 +89420,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L440",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_440",
-      "target": "citygen_run_g2_checks_record",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_record"
     },
     {
       "relation": "calls",
@@ -89430,9 +89441,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L465",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_465",
-      "target": "citygen_run_g2_checks_cost",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_cost"
     },
     {
       "relation": "calls",
@@ -89451,9 +89462,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L573",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_573",
-      "target": "citygen_run_g2_checks_budget",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_budget"
     },
     {
       "relation": "calls",
@@ -89483,9 +89494,9 @@
       "source_file": "tests/citygen/run_g2_checks.py",
       "source_location": "L619",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_g2_checks_rationale_619",
-      "target": "citygen_run_g2_checks_images",
-      "confidence_score": 1.0
+      "target": "citygen_run_g2_checks_images"
     },
     {
       "relation": "calls",
@@ -123005,5 +123016,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b9becb1edbfe2117e7f4be1bf12c03013a7e8f0b"
+  "built_at_commit": "45319151d08608d694ab1e0ab6bb01971de59ba9"
 }

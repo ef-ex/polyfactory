@@ -620,16 +620,61 @@ def images(shell, mass, outdir):
     (houdini-procedural-modeling §6), so a wireframe drawn off the facade
     stream contains the module COUNT in dots and none of the modules - the
     exact failure dev-loop §8 records ("a gate image that showed a 3 388
-    -segment fence contained 188 segments").  Every count printed below is of
-    the UNPACKED geometry and is checked against it before the picture is
-    judged."""
+    -segment fence contained 188 segments").
+
+    ⛔ AND UNTIL THE ROUND-N FIX PASS NOTHING HERE COULD FAIL.  This function
+    wrote 24 PNGs and returned; G1 at least had `image_contains_subject`, and
+    `R3-6` measured even that as seeing CANVAS rather than subject (it passes
+    on 1 of 97 prims and on a different scene entirely).  So G2's only image
+    evidence was Hannes' look, and `gate_images` is the check that now stands
+    between the two.  Three clauses, each aimed at a failure this pipeline has
+    actually had:
+
+      `unpacked`      the geometry handed to the rasteriser has MORE prims
+                      than the shell it came from - unpacking a packed module
+                      turns one prim into its whole box - and every render
+                      drew a positive number of segments.  Neither half is
+                      `R2-2`'s count-against-itself: the first compares two
+                      different streams and the second guards the failure
+                      §6e(i) of the retrospective records, where `rasterise`
+                      returns early on empty input and a 145-line emitter
+                      wrote zero PNGs and exited 0.  ⚠️ A segments-per-prim
+                      floor was tried first and REJECTED on measurement: the
+                      `corner*` shards are raw polygons (`G2-8`), so a packed
+                      draw still clears 3 per prim and the clause could not
+                      have failed.
+      `every_corner`  one PNG per footprint corner, counted against the
+                      fixture's own rings.  The per-corner loop `continue`s on
+                      an empty crop, so a corner that framed nothing used to
+                      leave no file and no trace - shape 1 again, one directory
+                      listing away from the gate's subject.
+      `corner_is_subject`  each corner crop contains a `corner*` element AND
+                      every kit row.  This is what makes it a picture OF the
+                      corner rather than a picture near it.
+
+    ⚠️ WHAT IT STILL CANNOT SEE, and the list is longer than the list above:
+    framing, scale, occlusion, colour, whether the pixels form a building at
+    all, and whether any of it is CORRECT.  It proves the drawn geometry is the
+    subject; it proves nothing about the picture.
+    ⛔ AND IT IS NOT A SUBSTITUTE FOR THE HUMAN PASS.  §12.10's criterion ends
+    "viewport-verified", that is Hannes', and an agent looking is not Hannes
+    looking (§0.0g row 3).
+    ⚠️ Outside the per-clause mutation sweep, like G1's, and for a stated
+    reason: `--mutations` re-cooks the scene per row and rasterising 24 PNGs on
+    each would multiply the sweep by the slowest thing in the runner.  The
+    clauses above were each seen red by hand instead, recorded in §12.10b.
+    """
     import gate_images as G
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
     unpack = shell.parent().createNode("unpack", "img_unpack")
     unpack.setFirstInput(shell)
+    # `pc_cell` and `pc_row` ride along because `corner_is_subject` asks what
+    # a crop CONTAINS, and an unpacked module that dropped its cell tag is
+    # indistinguishable from a wall.
     unpack.parm("transfer_attributes").set("pf_wall_role pf_site_id "
-                                           "pf_elem_id pc_array")
+                                           "pf_elem_id pc_array pc_cell "
+                                           "pc_row")
     unpack.cook(force=True)
     geo = unpack.geometry()
 
@@ -640,14 +685,19 @@ def images(shell, mass, outdir):
             role = ""
         return COLOUR.get(role or "facade", (150, 165, 190))
 
+    nprims = len(geo.prims())
+    packed = len(shell.geometry().prims())
     edges = sum(len(p.vertices()) for p in geo.prims())
-    print("    unpacked: %d prims, %d polygon edges" % (len(geo.prims()),
-                                                        edges))
+    print("    unpacked: %d prims (from %d), %d polygon edges"
+          % (nprims, packed, edges))
+    flat, want_corners, drew, empty, blind = [], 0, 0, [], []
     for tag, axes, w, h in (("iso", "iso", 1500, 700),
                             ("plan", ("x", "z"), 1500, 700)):
         drawn = G.rasterise(os.path.join(outdir, "g2_all_%s.png" % tag), geo,
                             axes=axes, w=w, h=h, colour_of=colour_of)
         print("    g2_all_%s.png  %d segments drawn" % (tag, drawn))
+        if drawn <= 0:
+            flat.append((tag, "nothing drawn"))
     for site, _style, _ring, _roles in LOTS:
         keep = hou.Geometry()
         keep.merge(geo)
@@ -665,6 +715,7 @@ def images(shell, mass, outdir):
     # nothing in this project had ever built.
     for site, _st, ring, _ro in LOTS:
         fp = C._cap_ring(list(C.volumes(mass.geometry(), site).values())[0])
+        want_corners += len(fp)
         for j, q in enumerate(fp):
             a, b = fp[j - 1], fp[(j + 1) % len(fp)]
             turn = ((q[0] - a[0]) * (b[1] - q[1])
@@ -678,12 +729,33 @@ def images(shell, mass, outdir):
                         abs(p.intrinsicValue("bounds")[4] - q[1])) > 2.0],
                 True)
             if not keep.prims():
+                empty.append((site, j))
                 continue
+            near = C.elements(keep)
+            cells = set(str(e["pc_cell"]) for e in near)
+            rows = set(e["pc_row"] for e in near if e["kind"] == "facade")
+            if not any(c.startswith("corner") for c in cells):
+                blind.append((site, j, "no corner* element in frame"))
+            elif len(rows) != KIT_ROWS:
+                blind.append((site, j, "%d of %d kit rows in frame"
+                              % (len(rows), KIT_ROWS)))
+            drew += 1
             G.rasterise(os.path.join(
                 outdir, "g2_%d_corner%d_%s.png"
                 % (site, j, "convex" if turn > 0 else "reflex")),
                 keep, axes="iso", w=900, h=900, colour_of=colour_of)
     unpack.destroy()
+    show(C.Result("gate_images",
+                  {"unpacked": nprims > packed > 0 and not flat,
+                   "every_corner": drew == want_corners > 0 and not empty,
+                   "corner_is_subject": drew > 0 and not blind},
+                  [nprims, packed, drew, want_corners, len(blind)],
+                  "%d prims drawn from a %d-prim shell, empty renders %s; "
+                  "%d of %d corner images written%s; frames missing their "
+                  "subject: %s"
+                  % (nprims, packed, flat or "none", drew, want_corners,
+                     (", framed nothing: %s" % (empty[:3],)) if empty else "",
+                     blind[:3] or "none")))
 
 
 # --- main -------------------------------------------------------------------
