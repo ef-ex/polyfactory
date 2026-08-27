@@ -473,9 +473,13 @@ MUTATIONS = [
     # all three area tests silent - which is exactly what happened.
     ("inside_the_lot", "inside_the_lot",
      "the collapse test goes back to measuring area only",
-     # anchor updated when G2 added the crossing term; the mutation still
-     # removes ONLY containment, so what it proves is unchanged.
-     vx("(outside || crosses || a * was <= 0.0", "(crosses || a * was <= 0.0",
+     # ⚠️ ANCHOR NARROWED so it survives a new TERM being added to this
+     # expression.  The fix pass's lobe test broke the old full-expression
+     # anchor and this sweep caught it as MUTATION DID NOT APPLY - the loud
+     # failure a drifted `.replace` should be, rather than a silent no-op
+     # that "proves" the check.  The mutation still removes ONLY containment,
+     # so what it proves is unchanged.
+     vx("outside || crosses", "crosses",
         "pf_collapse")),
     # `degrades_never_refuses` is GONE, not lost: §2.2's "advisory, never a
     # wall" is asserted by `volume_count_matches`, which requires every
@@ -501,11 +505,14 @@ MUTATIONS = [
      "the collapse test keeps containment and drops its three area terms, so "
      "site 9's SINGLE inversion - x 6..4, still inside 0..10 - ships two "
      "volumes on a 2 m footprint that `inside_the_lot` calls fine",
-     # anchor updated when G2 added the crossing term; containment AND the
-     # crossing test are kept, so this still isolates the three area terms.
-     vx("(outside || crosses || a * was <= 0.0\n"
+     # ⚠️ THE ANCHOR IS THE THREE AREA TERMS THEMSELVES, not the whole
+     # expression, so a term added BESIDE them cannot silently unmoor it -
+     # which is exactly what the fix pass's lobe test did to the old anchor.
+     # Containment, the crossing test and the lobe test are all KEPT, so this
+     # still isolates the area terms and nothing else.
+     vx("|| a * was <= 0.0\n"
         "     || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6\n"
-        "     || abs(a) < 1e-4) ? 1 : 0;", "(outside || crosses) ? 1 : 0;",
+        "     || abs(a) < 1e-4) ? 1 : 0;", ") ? 1 : 0;",
         "pf_collapse")),
     # R3-4, and it takes THREE edits because two of them are the legal input
     # that reaches the hole and only the third is the defect. No shipped
