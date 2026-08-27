@@ -310,9 +310,16 @@ def rect(ox, oz, sx, sz):
 # Stream 1 - THE BAREST LOT S8 CAN HAND US: a closed polygon and nothing else.
 # Every field of §12.4 is B0's to supply here, and `pf_setback` has to come out
 # NEGATIVE on all eight edges or `R4-2` ships.
+# ⛔ ITS WANT IS KEYED BY `"*"`, NOT BY AN ID, AND THAT IS THE POINT OF THE
+# STREAM.  These lots carry no `pf_site_id`, so B0 MINTS one - and a fixture
+# that names the expected id asserts whatever B0 happened to mint.  For one
+# build that was the PRIMITIVE NUMBER, i.e. generation order, and this fixture
+# spelled it out as `{0: ..., 1: ...}`: §12.7's own prohibition, written into
+# the oracle as the right answer.  What the ids must satisfy is asserted by
+# `site_ids_structural` instead, against a reordered cook.
 BARE_LOTS = [(0, rect(0.0, 0.0, 30.0, 24.0)), (1, rect(60.0, 0.0, 20.0, 16.0))]
-BARE_WANT = dict((s, {"roles": [""] * 4, "setback": [-1.0] * 4, "seed": None,
-                      "style": B0_STYLE}) for s in (0, 1))
+BARE_WANT = {"*": {"roles": [""] * 4, "setback": [-1.0] * 4, "seed": None,
+                   "style": B0_STYLE}}
 
 # Stream 2 - THE PLANAR FORM with cascade level 5 authored per EDGE, including
 # an authored ZERO: `setback(0)` is §12.6 B1's identity op, it is what the
@@ -324,6 +331,15 @@ MIXED_VTX = {21: [5.0, -1.0, -1.0, 0.0], 22: [-1.0] * 4}
 MIXED_PRIM = {21: -1.0, 22: 6.0}
 MIXED_LOTS = [(21, rect(0.0, 0.0, 30.0, 24.0)),
               (22, rect(60.0, 0.0, 20.0, 16.0))]
+# ⚠️ AND IT CARRIES SCRATCH ON THE TWO CLASSES `published` COULD NOT FAIL ON.
+# The round-1 audit measured three unfailable TERMS inside that clause: the
+# `_*` GROUP sweep (B0 made no groups, so deleting the `groupdelete` stayed
+# green), the POINT-class `_*` sweep (B0 writes no point scratch, same), and a
+# leak whose name starts with neither `pf_` nor `_`.  A term nothing can reach
+# is not coverage.  So the input contributes a point `_junk` and a `_scratch`
+# prim group that B0 must sweep, and the third term is closed by widening the
+# rule itself (any published name that is not declared and not the input's,
+# `P` excepted) with a registry row that publishes a bare `bogus`.
 MIXED_HEAD = (
     "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
     "g.addAttrib(hou.attribType.Prim, 'pf_seed', 0)\n"
@@ -331,12 +347,15 @@ MIXED_HEAD = (
     "g.addAttrib(hou.attribType.Prim, 'pf_setback', -1.0)\n"
     "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
     "g.addAttrib(hou.attribType.Vertex, 'pf_setback', -1.0)\n"
+    "g.addAttrib(hou.attribType.Point, '_junk', 0.0)\n"
+    "grp = g.createPrimGroup('_scratch')\n"
     "vtx, pback, roles = %r, %r, %r\n" % (MIXED_VTX, MIXED_PRIM, ROLES4))
 MIXED_BODY = (
     "    p.setAttribValue('pf_site_id', site)\n"
     "    p.setAttribValue('pf_seed', site * 10)\n"
     "    p.setAttribValue('pf_style_template', %r)\n"
     "    p.setAttribValue('pf_setback', pback[site])\n"
+    "    grp.add(p)\n"
     "    for i, v in enumerate(p.vertices()):\n"
     "        v.setAttribValue('pf_face_role', roles[i])\n"
     "        v.setAttribValue('pf_setback', vtx[site][i])\n" % B0_STYLE)
@@ -363,22 +382,73 @@ VOLUME_BODY = "    p.setAttribValue('pf_face_role', 'rear')\n"
 VOLUME_WANT = {77: {"roles": ["rear"] * 4, "setback": [-1.0] * 4,
                     "seed": None, "style": B0_STYLE}}
 
+def rot(pts, cx, cz, deg, nd=6):
+    """A plan ring rotated rigidly about (cx, cz).
+
+    ⭐ USED FOR BOTH THE ROTATED LOT AND ITS EXPECTED FOOTPRINT, and that is
+    what makes site 37's oracle honest.  The op's implementation is "find the
+    lot's scope box and cut a notch out of it"; the oracle is "the answer is
+    the axis-aligned answer already typed out below, rigidly rotated".  Those
+    are two different derivations, so the oracle cannot drift with the defect -
+    which is the trap §0.0f's methodology note names."""
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    return [(round(cx + (x - cx) * c - (z - cz) * s, nd),
+             round(cz + (x - cx) * s + (z - cz) * c, nd)) for x, z in pts]
+
+
 # B1's shape ops.  Site 31 is THE G2 L, reached the other way round: a 30 x 24
 # rectangle with a 14 x 12 notch at the +x/+z corner is exactly the lot
 # §12.10b's gate is cut from, so `corner_closure_b1` in the G2 runner can put a
 # facade and a roof on it and compare like with like.  Site 32 is the notch
 # that does not FIT - §2.2, advisory and never a wall.
-L_LOTS = [(31, rect(0.0, 0.0, 30.0, 24.0)), (32, rect(100.0, 0.0, 10.0, 10.0))]
-U_LOTS = [(33, rect(0.0, 0.0, 30.0, 24.0))]
+#
+# ⛔ SITES 37, 38 AND 39 ARE THE ROUND-1 AUDIT's TWO PRODUCTION DEFECTS, KEPT
+# AS FIXTURES SO THEY CANNOT COME BACK QUIETLY.  All three ride the SAME cook
+# as site 31 - one `overrides` dict is one stream - so they cost no extra
+# build.
+#   37  A ROTATED LOT.  `shapeL` cut its notch out of the AXIS-ALIGNED plan
+#       bbox, so on this lot at 15° three footprint corners landed outside it
+#       (worst 4.084 m), at 30° four (9.392 m) and at 45° four (11.465 m), with
+#       all four `pf_warn_*` at 0.  The scope is the lot's own ORIENTED box
+#       now, so the answer here is site 31's answer rotated - exactly, because
+#       a rectangle at any angle IS its own scope box.
+#   38  A TRAPEZOID.  A lot that is not a rectangle has a scope box LARGER than
+#       itself, so the notch can still escape (measured: 2 corners out, worst
+#       3.953 m, warnings 0).  There is no oriented box that fixes that, so
+#       `pf_shape.vfl`'s containment guard degrades it instead: the footprint
+#       is left alone and the collapse warning is raised.  §2.2, advisory.
+#   39  THE SAME LOT WOUND CLOCKWISE.  `pf_shape.vfl` carried
+#       `if (sgn < 0.0) reverse(ring);` - and `reverse()` is a PURE VEX
+#       function, so the statement form is a no-op.  The ring stayed positively
+#       wound while the role loop multiplied its normals by the input's `sgn`
+#       of -1, and every role - and therefore every setback - landed on the
+#       OPPOSITE edge, producing a perfectly legal, perfectly wrong L.  Every
+#       fixture in both suites was CCW, so no clause could see it.
+#       ⚠️ Whether S8 ever EMITS a clockwise lot is NOT established here; the
+#       code treats one as legal throughout, which is enough to test it.
+ROT_DEG = 30.0
+ROT_C = (215.0, 12.0)
+L_LOTS = [(31, rect(0.0, 0.0, 30.0, 24.0)), (32, rect(100.0, 0.0, 10.0, 10.0)),
+          (37, rot(rect(200.0, 0.0, 30.0, 24.0), ROT_C[0], ROT_C[1], ROT_DEG)),
+          (38, [(300.0, 0.0), (330.0, 0.0), (322.0, 24.0), (308.0, 24.0)]),
+          (39, list(reversed(rect(400.0, 0.0, 30.0, 24.0))))]
+# Site 40 is `shapeU`'s OWN degraded case.  Before it, `degrades` was proven
+# through `shapeL` alone - one op standing in for a clause that names two.
+U_LOTS = [(33, rect(0.0, 0.0, 30.0, 24.0)), (40, rect(100.0, 0.0, 6.0, 6.0))]
 O_LOTS = [(34, rect(0.0, 0.0, 60.0, 48.0))]
+# Site 39 walks its lot the other way round, so the SAME PHYSICAL LINES have to
+# be given the same roles a different way round or the two sites are not
+# comparable: +z is `rear` on both, -z is `front` on both.
+ROLES_CW = ["rear", "sideStreet", "front", "alley"]
 SHAPE_HEAD = (
     "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
     "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
-    "roles = %r\n" % (ROLES4,))
+    "roles = %r\n" % ({39: ROLES_CW},))
 SHAPE_BODY = (
     "    p.setAttribValue('pf_site_id', site)\n"
+    "    rl = roles.get(site, %r)\n"
     "    for i, v in enumerate(p.vertices()):\n"
-    "        v.setAttribValue('pf_face_role', roles[i])\n")
+    "        v.setAttribValue('pf_face_role', rl[i])\n" % (ROLES4,))
 SHAPE_L = {"lotToFootprint": {"op": "shapeL",
                               "shape": {"widthM": 14.0, "depthM": 12.0,
                                         "at": 2}}}
@@ -394,23 +464,55 @@ SHAPE_O = {"lotToFootprint": {"op": "shapeO"},
 # `inset` is `g2_lshape`'s own table read through those roles - front 3.0,
 # sideStreet 2.0, rear 4.0, alley 2.5 - and it is what makes a wrong role
 # visible: a differently-roled L is still a legal L.
-WANT_L = {"site": 31, "degraded": False,
+WANT_L = {"site": 31, "degraded": False, "lot": rect(0.0, 0.0, 30.0, 24.0),
           "ring": [(0.0, 0.0), (30.0, 0.0), (30.0, 12.0), (16.0, 12.0),
                    (16.0, 24.0), (0.0, 24.0)],
           "roles": ["front", "sideStreet", "rear", "sideStreet", "rear",
                     "alley"],
           "inset": [3.0, 2.0, 4.0, 2.0, 4.0, 2.5]}
-WANT_L_BAD = {"site": 32, "degraded": True,
+WANT_L_BAD = {"site": 32, "degraded": True, "lot": rect(100.0, 0.0, 10.0, 10.0),
               "ring": [(100.0, 0.0), (110.0, 0.0), (110.0, 10.0),
                        (100.0, 10.0)],
               "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
-WANT_U = {"site": 33, "degraded": False,
+# ⭐ SITE 31's ANSWER, RIGIDLY ROTATED - not a second run of the op's own
+# arithmetic.  A rectangle at any angle IS its own scope box, so the oriented
+# notch is the axis-aligned notch rotated, exactly; with the axis-aligned box
+# it is a completely different polygon and `ring` fails loudly.
+WANT_ROT = {"site": 37, "degraded": False,
+            "lot": rot(rect(200.0, 0.0, 30.0, 24.0),
+                       ROT_C[0], ROT_C[1], ROT_DEG),
+            "ring": rot([(200.0 + x, z) for x, z in WANT_L["ring"]],
+                        ROT_C[0], ROT_C[1], ROT_DEG, 3),
+            "roles": WANT_L["roles"], "inset": WANT_L["inset"]}
+# A trapezoid's scope box is bigger than the trapezoid, so the notch escapes
+# and NO oriented box fixes it: the guard degrades instead, and the footprint
+# that ships is the lot.
+WANT_TRAP = {"site": 38, "degraded": True,
+             "lot": [(300.0, 0.0), (330.0, 0.0), (322.0, 24.0), (308.0, 24.0)],
+             "ring": [(300.0, 0.0), (330.0, 0.0), (322.0, 24.0),
+                      (308.0, 24.0)],
+             "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
+# The same L on a CLOCKWISE lot: the ring keeps the lot's winding, so it is
+# site 31's cycle walked backwards, and every role sits on the same physical
+# line it sits on there (+z `rear`, -z `front`).
+WANT_CW = {"site": 39, "degraded": False,
+           "lot": list(reversed(rect(400.0, 0.0, 30.0, 24.0))),
+           "ring": [(400.0, 24.0), (416.0, 24.0), (416.0, 12.0),
+                    (430.0, 12.0), (430.0, 0.0), (400.0, 0.0)],
+           "roles": ["rear", "sideStreet", "rear", "sideStreet", "front",
+                     "alley"],
+           "inset": [4.0, 2.0, 4.0, 2.0, 3.0, 2.5]}
+WANT_U = {"site": 33, "degraded": False, "lot": rect(0.0, 0.0, 30.0, 24.0),
           "ring": [(0.0, 0.0), (10.0, 0.0), (10.0, 8.0), (20.0, 8.0),
                    (20.0, 0.0), (30.0, 0.0), (30.0, 24.0), (0.0, 24.0)],
           "roles": ["front", "sideStreet", "front", "alley", "front",
                     "sideStreet", "rear", "alley"],
           "inset": [3.0, 2.0, 3.0, 2.5, 3.0, 2.0, 4.0, 2.5]}
+WANT_U_BAD = {"site": 40, "degraded": True, "lot": rect(100.0, 0.0, 6.0, 6.0),
+              "ring": rect(100.0, 0.0, 6.0, 6.0),
+              "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
 WANT_O = {"site": 34, "degraded": False, "volumes": 4,
+          "lot": rect(0.0, 0.0, 60.0, 48.0),
           "ring": [(0.0, 0.0), (60.0, 0.0), (60.0, 48.0), (0.0, 48.0)],
           "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
 # The three ops that leave the RING alone and differ only in the number every
@@ -423,8 +525,10 @@ SHAPE_OFF = {"lotToFootprint": {"op": "offset", "offsetM": 2.5}}
 IDENT_LOTS = [(35, rect(0.0, 0.0, 30.0, 24.0))]
 OFF_LOTS = [(36, rect(0.0, 0.0, 30.0, 24.0))]
 WANT_IDENT = {"site": 35, "ring": rect(0.0, 0.0, 30.0, 24.0),
+              "lot": rect(0.0, 0.0, 30.0, 24.0),
               "roles": ROLES4, "inset": [0.0] * 4}
 WANT_OFF = {"site": 36, "ring": rect(0.0, 0.0, 30.0, 24.0),
+            "lot": rect(0.0, 0.0, 30.0, 24.0),
             "roles": ROLES4, "inset": [2.5] * 4}
 
 
@@ -470,6 +574,12 @@ def extras():
     p, bare, _s, _o = cook_extra("b0_bare", "", "", BARE_LOTS, build=False)
     made.append(p)
     streams.append(("bare", bare.geometry(), BARE_WANT, ()))
+    # ⭐ THE SAME UNIDENTIFIED LOTS, COOKED IN THE OPPOSITE ORDER.  `pf_site_id`
+    # is B0's to mint here, and §12.7 says an address is structural and never
+    # generation order - which is exactly what the primitive number is.
+    p, bare2, _s, _o = cook_extra("b0_bare_rev", "", "",
+                                  list(reversed(BARE_LOTS)), build=False)
+    made.append(p)
 
     p, mixed, _s, mout = cook_extra("b0_mixed", MIXED_HEAD, MIXED_BODY,
                                     MIXED_LOTS)
@@ -492,8 +602,9 @@ def extras():
     # leave the ring alone, so there is nothing about a MASS for them to say
     # and a B2 build would be cost with no clause behind it.
     for nm, ov, lots, wants, full in (
-            ("b1_l", SHAPE_L, L_LOTS, (WANT_L, WANT_L_BAD), True),
-            ("b1_u", SHAPE_U, U_LOTS, (WANT_U,), True),
+            ("b1_l", SHAPE_L, L_LOTS,
+             (WANT_L, WANT_L_BAD, WANT_ROT, WANT_TRAP, WANT_CW), True),
+            ("b1_u", SHAPE_U, U_LOTS, (WANT_U, WANT_U_BAD), True),
             ("b1_o", SHAPE_O, O_LOTS, (WANT_O,), True),
             ("b1_ident", SHAPE_IDENT, IDENT_LOTS, (WANT_IDENT,), False),
             ("b1_off", SHAPE_OFF, OFF_LOTS, (WANT_OFF,), False)):
@@ -506,6 +617,7 @@ def extras():
 
     results = [
         C.site_contract(streams),
+        C.site_ids_structural([("bare", bare.geometry(), bare2.geometry())]),
         # ⭐ THE SENTINEL'S CONSEQUENCE, which is what `R4-2` actually
         # measured: a B0 that omits it puts the building on its lot line with
         # all four warnings at 0.  The oracle models the whole cascade off the
@@ -896,19 +1008,103 @@ MUTATIONS = [
      lambda: patch_pysrc("(\"dovtxdel\", \"vtxdel\", \"_*\"),",
                          "(\"dovtxdel\", \"vtxdel\", \"nothing\"),",
                          "site")),
+    # ⛔ THE THREE TERMS INSIDE `published` THAT COULD NOT FAIL.  The round-1
+    # audit measured all three: B0 makes no groups and writes no point scratch,
+    # so the `groupdelete` and the point-class sweep could both be REMOVED and
+    # stay green, and a leak named neither `pf_*` nor `_*` shipped green
+    # because the rule only looked at those two prefixes.  A term nothing can
+    # reach is not coverage - it is the shape of `build_retrospective.md` §2a
+    # instance 1, one clause down.
+    ("site_contract", "published",
+     "B0 stops deleting `_*` GROUPS, so the `_scratch` group the lot arrived "
+     "carrying ships on the site contract",
+     lambda: patch_pysrc("why nothing could make this line fail until the "
+                         "fixture brought one in.\n"
+                         "    groups.parm(\"group1\").set(\"_*\")",
+                         "why nothing could make this line fail until the "
+                         "fixture brought one in.\n"
+                         "    groups.parm(\"group1\").set(\"nothing\")",
+                         "site")),
+    ("site_contract", "published",
+     "B0 stops sweeping the POINT class, so the `_junk` point attribute the "
+     "lot arrived carrying ships on the site contract",
+     lambda: patch_pysrc("in ((\"doptdel\", \"ptdel\", \"_*\"),",
+                         "in ((\"doptdel\", \"ptdel\", \"nothing\"),",
+                         "site")),
+    ("site_contract", "published",
+     "B0 publishes an undeclared prim attribute whose name starts with "
+     "neither `pf_` nor `_` - green on every check before the completeness "
+     "rule was widened past those two prefixes",
+     vx("setprimattrib(0, \"pf_site_id\", @primnum, i@_site);",
+        "setprimattrib(0, \"pf_site_id\", @primnum, i@_site);\n"
+        "setprimattrib(0, \"bogus\", @primnum, 1);", "pf_site")),
+    # ⛔ `pf_site_id`'s FALLBACK WAS GENERATION ORDER AND IT IS THE NORMAL PATH:
+    # streets publishes `block_id` / `lot_id` and nothing in this repo writes
+    # `pf_site_id`, so §12.7 was broken for every building built from a real
+    # lot.  `elem_ids_structural` cannot see it - it compares the id SET.
+    ("site_ids_structural", "site_ids_structural",
+     "the id an unidentified lot mints goes back to its own primitive number, "
+     "so reordering two bare lots moves the lot at x = 0 from site 0 to site 1 "
+     "and every address built on it moves too",
+     vx("int site = ((int(rint(centroid.x * 100.0)) * 73856093)",
+        "int site = @primnum; int unused = "
+        "((int(rint(centroid.x * 100.0)) * 73856093)", "pf_site_in")),
 
     # ---- B1, the shape ops -----------------------------------------------
+    # ⚠️ THE WIDTH, NOT THE DEPTH, AND THE DIFFERENCE IS THE ROW'S OWN CLAIM.
+    # Halving `dep` at `p1` only moves the FIRST notch corner, so the third one
+    # overshoots the lot, the containment guard refuses the notch and the
+    # footprint comes back a four-corner rectangle - which reddens `degrades`
+    # and changes the CORNER COUNT, i.e. the two things this row says it does
+    # not touch.  Halving the width moves the reflex corner and nothing else.
     ("shape_ops", "ring",
-     "`shapeL` cuts the notch to half the depth it was given, which moves "
+     "`shapeL` cuts the notch to half the width it was given, which moves "
      "the reflex corner and moves NEITHER the plan bounding box nor the "
      "corner count - the two things a box comparison would have looked at",
-     vx("vector p1 = box[at] - ein * dep;",
-        "vector p1 = box[at] - ein * dep * 0.5;", "pf_shape")),
+     vx("vector p2 = p1 + eout * w;",
+        "vector p2 = p1 + eout * w * 0.5;", "pf_shape")),
+    # ⛔ `A1`, HALF ONE: THE SCOPE.  Refusing every candidate direction leaves
+    # the frame at +x, which is the AXIS-ALIGNED box this file used to cut its
+    # notch out of - and site 37's answer is then a completely different
+    # polygon.  ⚠️ It reddens `degrades` too (site 37's box-L escapes the lot
+    # and is correctly refused), which is blast radius: credit is the named
+    # clause's only (dev-loop §9).
+    ("shape_ops", "ring",
+     "the scope goes back to the AXIS-ALIGNED plan box, so a lot that is a "
+     "rectangle at 30° stops getting the notch it asked for - measured before "
+     "the fix: three corners outside the lot at 15°, four at 30° (9.392 m), "
+     "four at 45° (11.465 m), all four `pf_warn_*` at 0",
+     vx("if (better) { bu = d; bestar = min(bestar, ar); }",
+        "if (0) { bu = d; bestar = min(bestar, ar); }", "pf_shape")),
+    # ⛔ `A1`, HALF TWO: THE GUARD.  No oriented box saves a lot that is not a
+    # rectangle, so the escape has to be MEASURED - here, against the lot,
+    # because this is the last node that still has it.
+    ("shape_ops", "inside_the_lot",
+     "`pf_shape` stops checking that the notch it cut is still inside the "
+     "lot, so site 38's box-L escapes its trapezoid by 3.795 m at one corner "
+     "and 7.589 m at another and the building is massed outside its own "
+     "parcel with all four `pf_warn_*` at 0 - `build_retrospective.md` §2a "
+     "instance 21, re-opened in B1",
+     vx("if (escaped) { i@_shapebad = 1; return; }", "if (0) { return; }",
+        "pf_shape")),
     ("shape_ops", "roles_and_inset",
      "every manufactured edge inherits the role of the FIRST input edge "
      "instead of the one whose outward normal it shares, so the L is inset by "
      "the wrong number on four of its six edges and is still a legal L",
      vx("int e = src[ax];", "int e = 0;", "pf_shape")),
+    # ⛔ `A2`.  `reverse()` is a PURE VEX function: `reverse(ring);` as a
+    # statement is a no-op, measured directly (`int a[] = array(1,2,3,4);
+    # reverse(a);` leaves `a[0] == 1`).  The ring then keeps the box's positive
+    # winding while the role loop multiplies its normals by the input's `sgn`
+    # of -1, and every role lands on the OPPOSITE edge.  ⚠️ `ring` reddens too,
+    # for the same one line, and is not credited.
+    ("shape_ops", "roles_and_inset",
+     "the winding line goes back to the STATEMENT form of `reverse()`, which "
+     "is a no-op - so on a clockwise lot every `pf_face_role`, and therefore "
+     "every setback, lands on the opposite edge and the result is a perfectly "
+     "legal, perfectly wrong L",
+     vx("ring = (sgn < 0.0) ? reverse(ring) : ring;",
+        "if (sgn < 0.0) reverse(ring);", "pf_shape")),
     # ⚠️ NOT "remove the fit guard".  Measured: that lets the notch be cut,
     # the ring turns inside out, `pf_collapse` catches it by CONTAINMENT and
     # the degradation is reported anyway - so it reddens `ring` and

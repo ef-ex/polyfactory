@@ -371,7 +371,21 @@ def _in_box(box, q, grow=0.0):
             and box[1] - grow <= q[1] <= box[3] + grow)
 
 
-def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
+def _same_cycle(got, want):
+    """Two closed rings in (x, z) are the SAME cycle if one is a rotation of
+    the other, in either direction.  Winding and start vertex are `pf_mass`'s
+    to choose and are not part of any claim here; the sequence of corners is."""
+    if len(got) != len(want) or not got:
+        return False
+    for src in (got, got[::-1]):
+        for i in range(len(src)):
+            if src[i:] + src[:i] == want:
+                return True
+    return False
+
+
+def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None,
+                   want_ring=None):
     """⭐ THE GATE'S OWN QUESTION: does the facade close at a corner?
 
     §5 Theme 4 is unusually concrete - the one failure where independent
@@ -412,6 +426,21 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
     itself is the one the data asked for; running the two together is the
     claim, and neither alone is.
 
+    ⛔ `footprint_asked_for` EXISTS BECAUSE THAT LIMIT BECAME A HOLE THE MOMENT
+    THIS CHECK WAS REUSED FOR B1.  `corner_closure_b1` was advertised as the
+    evidence that a footprint `shapeL` MANUFACTURED closes its corners - and
+    with `pf_shape.vfl` neutered so B1 did nothing at all, the footprint stayed
+    a plain four-corner rectangle and all three clauses above still PASSED
+    (`[5112, 0, 0.000, 0, 0]`).  Every clause above walks the ring of the mass
+    it was HANDED, so the L's very existence was asserted by nothing:
+    `build_retrospective.md` §2a shape 1, inside a headline clause, for the
+    fourth time.  When `ring` is given, the cap ring must BE that ring - the
+    plan the fixture derived from the notch numbers, by hand, and never from
+    the geometry - compared as an ordered cycle at 3 dp before any property of
+    it is measured.  ⚠️ It is deliberately not defaulted on: G2's own gate
+    fixture builds four masses whose insets are proven by `plan_follows_data`
+    in the same run, and a second oracle there would be a copy, not a check.
+
     `corner_module` is §12.6 B6's PRIMARY strategy stated as an assertion:
     in `miter` the corner is filled by a module from the kit, so every corner
     point must lie inside some `corner*` cell's box.  Its discriminating
@@ -436,10 +465,16 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
     module at every corner" is stronger than what is measured.
     """
     gaps, missing, stack, worst, sampled = [], [], [], 0.0, 0
+    wrong_plan, plan_seen = [], 0
     for vid, fs in volumes(mass).items():
         ring = _cap_ring(fs)
         el = [e for e in elements(geo)
               if e["pf_volume_id"] == vid and e["kind"] == "facade"]
+        if want_ring is not None:
+            plan_seen += 1
+            got = [(round(q[0], 3), round(q[1], 3)) for q in ring]
+            if not _same_cycle(got, want_ring):
+                wrong_plan.append((vid, got, want_ring))
         if not ring or not el:
             gaps.append((vid, "nothing built"))
             stack.append((vid, "nothing built"))
@@ -489,6 +524,8 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
     ok = {"no_gaps": sampled > 0 and not gaps,
           "corner_module": sampled > 0 and not missing,
           "rows_tile": sampled > 0 and not stack}
+    if want_ring is not None:
+        ok["footprint_asked_for"] = plan_seen > 0 and not wrong_plan
     # ⚠️ `sampled` IS NOT A COUNT OF DISTINCT MEASUREMENTS AND SAYING SO IS
     # HONEST ACCOUNTING (round-N `G2-6`).  The rows' plan-box sets are
     # bit-identical - 80/80/80 on site 1 - because one array, one row solve and
@@ -497,13 +534,15 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
     # ("a gap on one row only") is real but cannot be exercised on this
     # pipeline, and the headline number was inflated by the row count.
     return Result(name, ok, [sampled, len(gaps), round(worst, 3),
-                             len(missing), len(stack)],
+                             len(missing), len(stack), len(wrong_plan)],
                   "%d perimeter samples = %d plan positions x %d rows; "
                   "uncovered runs %s (worst %.3f m); corners with no corner "
-                  "module: %s; row stack: %s"
+                  "module: %s; row stack: %s; plan asked for: %s"
                   % (sampled, sampled // max(rows or 1, 1), rows or 1,
                      gaps[:3] or "none", worst, missing[:4] or "none",
-                     stack[:2] or "tiles the wall"))
+                     stack[:2] or "tiles the wall",
+                     "not asserted" if want_ring is None
+                     else (wrong_plan[:1] or "as asked")))
 
 
 def _plane_y(face, q):
@@ -1275,6 +1314,15 @@ def site_contract(streams, name="site_contract"):
     the FIXTURE put in, never anything read back out of B0 - and `allow` names
     what the INPUT contributed that is not B0's to publish.
 
+    ⚠️ A STREAM WHOSE LOTS CARRY NO ID KEYS ITS WANT UNDER `"*"`, and that is
+    an honesty fix rather than a convenience.  B0 MINTS the id for such a lot,
+    so a fixture that names the expected id is asserting whatever B0 happened
+    to mint - which for one build was the primitive number, i.e. generation
+    order, i.e. the very thing §12.7 forbids, asserted as correct.  What can
+    honestly be said about those lots is said elsewhere: the fields are
+    identical (here), the ids are distinct and one prim each (here), and the
+    id -> lot mapping survives a reordering (`site_ids_structural`).
+
     'sentinel' IS THE CLAUSE THIS CHECK EXISTS FOR, and its oracle is written
     to fail on ABSENCE rather than on a wrong number.  §12.4 reads `pf_setback`
     `>= 0` authored, negative absent, and a float attribute has no absent
@@ -1288,12 +1336,25 @@ def site_contract(streams, name="site_contract"):
     NEGATIVE everywhere else.  0.0 fails.  No tolerance, because both sides
     are the same float that went in.
 
-    CANNOT SEE: a stream that never went through B0 at all - nothing in the
-    contract says whether B0 ran, which is the residual `pf_setback_set` would
-    close and which is Hannes' (§0.0g row 9).  Nor whether the roles B0 was
-    handed are the RIGHT roles; a role is not derivable from geometry.  Nor
-    anything about geometry: `plan_follows_data_b0` is what carries the
-    sentinel's consequence through to a built mass.
+    CANNOT SEE: a lot that arrives carrying a HAND-CREATED vertex
+    `pf_setback`.  ⚠️ THAT IS THE RESIDUAL, AND IT IS NOT "a stream that skips
+    B0", which is where this docstring used to put it: measured, one edge
+    authored 5.0 and the rest at the attribute's 0.0 default passes THROUGH B0
+    and builds at [0.0, 5.0, 30.0, 24.0] - the lot line on three of four edges,
+    all four `pf_warn_*` at 0 - so the guarantee is "every stream whose lot
+    carries no vertex `pf_setback`".  `pf_setback_set` is what would close it
+    and it is Hannes' (§0.0g row 9).  Nor whether the roles B0 was handed are
+    the RIGHT roles; a role is not derivable from geometry.  Nor anything about
+    geometry: `plan_follows_data_b0` is what carries the sentinel's consequence
+    through to a built mass.
+
+    ⚠️ `published` IS COMPLETE AGAINST `SITE_STORAGE`'s five names, which are
+    the CODE's list and not §12.4's eight rows - the three envelope caps are
+    deliberately not stamped (§12.10d) and nothing here would notice a §12.4
+    row that failed to ship.  In the other direction it flags any published
+    name that is neither in that table nor contributed by the input, `P`
+    excepted; the first build scoped that term to `pf_*` and `_*` prefixes, so
+    a bare `bogus` shipped green.
     """
     bad_back, bad_role, bad_id, bad_seed = [], [], [], []
     wrong, extra, leaked = [], [], []
@@ -1316,7 +1377,7 @@ def site_contract(streams, name="site_contract"):
         # look at, which is the half `attribute_storage` learned late.
         extra += sorted("%s: %s %s" % (label, c, n) for (c, n) in have
                         if (c, n) not in SITE_STORAGE and (c, n) not in allow
-                        and (n.startswith("pf_") or n.startswith("_")))
+                        and (c, n) != ("point", "P"))
         leaked += sorted(
             "%s: group %s" % (label, g.name())
             for g in (list(geo.primGroups()) + list(geo.pointGroups())
@@ -1326,7 +1387,7 @@ def site_contract(streams, name="site_contract"):
         for prim in geo.prims():
             sid = prim.attribValue("pf_site_id")
             count[sid] = count.get(sid, 0) + 1
-            want = sites.get(sid)
+            want = sites.get(sid, sites.get("*"))
             if want is None:
                 bad_id.append((label, prim.number(), sid, "no such site"))
                 continue
@@ -1352,7 +1413,8 @@ def site_contract(streams, name="site_contract"):
             if prim.attribValue("pf_seed") != ws:
                 bad_seed.append((label, sid, prim.attribValue("pf_seed"), ws))
         bad_id += [(label, s, "missing")
-                   for s in sorted(set(sites) - set(count))]
+                   for s in sorted(set(sites) - set(count) - set(["*"]),
+                                   key=str)]
         bad_id += [(label, s, "%d prims" % c) for s, c in sorted(count.items())
                    if c > 1]
     live = seen_streams > 0 and seen_sites > 0
@@ -1372,6 +1434,55 @@ def site_contract(streams, name="site_contract"):
                      bad_role[:1] or "ok", bad_id[:2] or "ok",
                      bad_seed[:2] or "ok",
                      (wrong + extra + leaked)[:2] or "ok"))
+
+
+def _by_site(geo):
+    """{site id: [each of its lots' min plan corner]} - the id's MAPPING to
+    geometry, which is the thing generation order moves and an id SET does
+    not."""
+    out = {}
+    for prim in geo.prims():
+        pts = [v.point().position() for v in prim.vertices()]
+        out.setdefault(prim.attribValue("pf_site_id"), []).append(
+            (round(min(p[0] for p in pts), 3),
+             round(min(p[2] for p in pts), 3)))
+    return dict((k, sorted(v)) for k, v in out.items())
+
+
+def site_ids_structural(streams, name="site_ids_structural"):
+    """§12.7: an id is a STRUCTURAL address and NEVER generation order.
+
+    `streams` is `(label, geo_a, geo_b)` where the two geometries are the same
+    lots cooked in the OPPOSITE order and none of them carries a `pf_site_id`
+    of its own - so what is measured is the id B0 mints, which is the only case
+    where B0 gets to decide.
+
+    ⛔ WHY `elem_ids_structural` IS STRUCTURALLY UNABLE TO COVER THIS.  It
+    compares the id SET across the two orders.  With the id set to the
+    primitive number the set is IDENTICAL in both orders (`0:B2:v0`,
+    `1:B2:v0`) while the MAPPING swapped: measured, the lot anchored at x = 0
+    was site 0 in one order and site 1 in the other, and its whole downstream
+    address - and therefore every override keyed on it - moved with it.  So
+    this compares id -> the lot's own plan corner, which is what moved.
+
+    ⚠️ AND THIS IS THE NORMAL PATH, not an exotic one: streets publishes
+    `block_id` / `lot_id` and nothing in this repo writes `pf_site_id`, so
+    every building built from a real S8 lot reaches the minted id.
+
+    CANNOT SEE: an id that is stable under reordering and still useless - a
+    constant, say, which `site_contract/identity`'s duplicate-prim term is what
+    catches.  Nor stability under the lot MOVING, which no id in this build
+    has (§0.0a); nor two lots sharing a plan centroid to the centimetre.
+    """
+    bad, seen = [], 0
+    for label, ga, gb in streams:
+        a, b = _by_site(ga), _by_site(gb)
+        seen += len(a)
+        if a != b:
+            bad.append((label, sorted(a.items()), sorted(b.items())))
+    return Result(name, seen > 0 and not bad, [seen, len(bad)],
+                  "%d minted id(s); id -> lot under a reordered cook: %s"
+                  % (seen, bad[:1] or "unmoved"))
 
 
 # --- B1: the shape ops -------------------------------------------------------
@@ -1398,14 +1509,28 @@ def shape_ops(builds, name="shape_ops"):
     wrong role is inset by the wrong number and every downstream check still
     passes - the footprint is simply a different, legal L.
 
-    CANNOT SEE: whether the notch is architecturally sensible; whether a
-    rotated or non-rectangular lot gets a sensible box-L (`pf_shape.vfl` states
-    that limit and this fixture does not reach it); nor anything about the
-    facade or the roof over a shaped footprint - `corner_closure_b1` in the G2
-    runner carries that, because a reflex corner is G2's question and not B1's.
+    ⛔ `inside_the_lot` IS THE CLAUSE THIS CHECK DID NOT HAVE, AND ITS ABSENCE
+    WAS `build_retrospective.md` §2a INSTANCE 21 RE-OPENED IN A NEW STAGE.  A
+    30 x 24 lot ROTATED about its own centre, `shapeL(14, 12, at = 2)`: three
+    footprint corners outside the lot at 15° (worst 4.084 m), four at 30°
+    (9.392 m), four at 45° (11.465 m); a trapezoid lot, two corners out at
+    3.953 m - and all four `pf_warn_*` at 0 in every case, because
+    `pf_shape.vfl` substituted the axis-aligned plan bbox for the ring and
+    `pf_collapse.vfl` measures containment against `_p0`, which `pf_inset.vfl`
+    writes AFTER the lot has been discarded.  `masses_inside_lots` would have
+    caught it (run by hand on the 30° build it FAILS at -9.39 m) and was called
+    on no shaped site.  So this asserts, against the ring the FIXTURE built:
+    every corner of the footprint that leaves `pf_shape.vfl`, AND every point
+    of every face of the mass built from it, lies inside or on its own lot.
+
+    CANNOT SEE: whether the notch is architecturally sensible; an EDGE that
+    leaves a non-convex lot between two corners that are both inside it; nor
+    anything about the facade or the roof over a shaped footprint -
+    `corner_closure_b1` in the G2 runner carries that, because a reflex corner
+    is G2's question and not B1's.
     """
-    bad_ring, bad_role, bad_degrade, bad_yard = [], [], [], []
-    seen, degraded_seen, yard_seen = 0, 0, 0
+    bad_ring, bad_role, bad_degrade, bad_yard, bad_out = [], [], [], [], []
+    seen, degraded_seen, yard_seen, lot_seen = 0, 0, 0, 0
     for label, fgeo, mgeo, want in builds:
         seen += 1
         # BY SITE, never by stream: a cook carries the notch that fits AND the
@@ -1433,6 +1558,21 @@ def shape_ops(builds, name="shape_ops"):
         if role != want["roles"] or inset != want["inset"]:
             bad_role.append((label, role, want["roles"], inset,
                              want["inset"]))
+        # THE LOT IS THE FIXTURE'S, never the geometry's - the ring `pf_shape`
+        # was handed, before it replaced it.
+        lot = want.get("lot")
+        if lot:
+            lot_seen += 1
+            for q in got:
+                if _inside(lot, q) < -TOL:
+                    bad_out.append((label, "footprint", q,
+                                    round(_inside(lot, q), 3)))
+            for f in ([] if mgeo is None else faces(mgeo, want["site"])):
+                for p in f["pts"]:
+                    if _inside(lot, (p[0], p[2])) < -TOL:
+                        bad_out.append((label, f["pf_elem_id"],
+                                        (p[0], p[2]),
+                                        round(_inside(lot, (p[0], p[2])), 3)))
         if mgeo is None:
             continue
         warn = sorted(set(p.attribValue("pf_warn_footprint_collapsed")
@@ -1453,9 +1593,12 @@ def shape_ops(builds, name="shape_ops"):
     ok = {"ring": seen > 0 and not bad_ring,
           "roles_and_inset": seen > 0 and not bad_role,
           "degrades": degraded_seen > 0 and not bad_degrade,
-          "courtyard": yard_seen > 0 and not bad_yard}
+          "courtyard": yard_seen > 0 and not bad_yard,
+          "inside_the_lot": lot_seen > 0 and not bad_out}
     return Result(name, ok, [seen, len(bad_ring), len(bad_role),
-                             len(bad_degrade), len(bad_yard)],
-                  "%d shape(s); ring %s; roles %s; degrade %s; courtyard %s"
-                  % (seen, bad_ring[:1] or "ok", bad_role[:1] or "ok",
-                     bad_degrade[:2] or "ok", bad_yard[:2] or "ok"))
+                             len(bad_degrade), len(bad_yard), len(bad_out)],
+                  "%d shape(s), %d against their lot; ring %s; roles %s; "
+                  "degrade %s; courtyard %s; outside the lot %s"
+                  % (seen, lot_seen, bad_ring[:1] or "ok",
+                     bad_role[:1] or "ok", bad_degrade[:2] or "ok",
+                     bad_yard[:2] or "ok", bad_out[:2] or "none"))

@@ -23,13 +23,26 @@
 // has NO branch that can leave an edge unwritten: -1.0 is what an edge gets
 // when nothing authored it, and it is written, not defaulted.
 //
-// ⚠️ WHAT THIS CANNOT DO, STATED BECAUSE IT IS THE RESIDUAL RISK.  It closes
-// the omission for every stream that passes THROUGH B0.  A stream that skips
-// B0 - an artist creating `pf_setback` by hand on a lot, a producer written
-// against the old meaning of 0.0 - still lands on the lot line with no
-// warning, because nothing in the contract says whether B0 ran.  The cure for
-// that is a companion mask (`pf_setback_set`), which is a schema change and
-// is Hannes' (§0.0g row 9); it is recommended there and deliberately not
+// ⛔ WHAT THIS CANNOT DO, AND THE FIRST BUILD PUT THE BOUNDARY IN THE WRONG
+// PLACE.  It said the omission was closed "for every stream that passes
+// THROUGH B0" and that the residual was a stream that SKIPS B0.  Measured by
+// an independent audit: a lot arriving with a HAND-CREATED vertex
+// `pf_setback` - one edge authored 5.0 and the rest left at the 0.0 a fresh
+// float attribute gives them - passes straight THROUGH this node and comes out
+// [5.0, 0.0, 0.0, 0.0], and the building lands at plan box
+// [0.0, 5.0, 30.0, 24.0]: hard on the lot line on three of its four edges,
+// with all four `pf_warn_*` at 0 and `pf_setback` swept from the output by
+// `CLEAN`.  Controls: no attribute -> [2.5, 3.0, 28.0, 20.0]; the sentinel
+// authored by hand -> [2.5, 5.0, 28.0, 20.0].
+// ⛔ SO THE GUARANTEE IS "EVERY STREAM WHOSE LOT CARRIES NO VERTEX
+// `pf_setback`", NOT "every stream through B0" - and hand-authoring is exactly
+// the cascade level-5 workflow the attribute exists for.  ⚠️ B0 is not on the
+// critical path either: the same hand-authored lot fed straight into
+// `build()`, skipping B0 altogether, gives the identical lot-line building,
+// and a lot with no `pf_setback` at all builds correctly without B0.  This
+// node supplies defaults; nothing downstream asks whether it ran.
+// The cure is a companion mask (`pf_setback_set`), which is a schema change
+// and is Hannes' (§0.0g row 9); it is recommended there and deliberately not
 // taken here.
 
 int pts[] = primpoints(0, @primnum);

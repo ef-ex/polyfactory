@@ -564,8 +564,15 @@ def site(parent, lots, style="", name="b0"):
     class (§12.4 says B0 owns that conversion), `pf_seed` on the prim,
     `pf_style_template` on the prim OR the detail class, `pf_face_role` on the
     vertex OR the prim class, and `pf_setback` on the vertex class.  A bare
-    closed polygon with none of them is a legal input and is what an S8 lot is
-    today.
+    closed polygon with none of them is a legal input.
+    ⚠️ AND THAT IS WHAT AN S8 LOT IS TODAY as far as IDENTITY goes: streets
+    publishes `block_id` / `lot_id` (`tests/citygen/checks.py`'s lot
+    allowlist) and nothing in this repo writes `pf_site_id`, so an unidentified
+    lot is the normal path and not an edge case.  `pf_site_in.vfl` gives it an
+    order-independent id derived from its own plan position; it used to give it
+    the primitive number, which is generation order and which §12.7 forbids.
+    Teaching B0 to read the streets lot identity by name needs that attribute's
+    storage settled with the streets owner (D223) and is the named next step.
 
     WHAT IT STAMPS: prim `pf_site_id`, prim `pf_seed`, prim
     `pf_style_template`, vertex `pf_face_role`, vertex `pf_setback`.  §12.4's
@@ -575,13 +582,22 @@ def site(parent, lots, style="", name="b0"):
     arrive with the caps check that raises `pf_warn_coverage_exceeded`.
 
     ⛔ THE ONE THING B0 EXISTS TO MAKE IMPOSSIBLE is a missing `pf_setback`
-    sentinel; the reasoning and the measurement are in `pf_site.vfl`'s header,
-    and the residual - a stream that skips B0 entirely - is stated there too.
+    sentinel; the reasoning and the measurement are in `pf_site.vfl`'s header.
+    ⚠️ THE RESIDUAL IS NOT "a stream that skips B0", which is what this
+    docstring used to say.  Measured: a lot carrying a HAND-CREATED vertex
+    `pf_setback` passes THROUGH B0 and still builds on its lot line with all
+    four `pf_warn_*` at 0, so the guarantee is "every stream whose lot carries
+    no vertex `pf_setback`".  `pf_site.vfl`'s header carries the numbers.
 
-    THREE NODES, and the split between the first two is load-bearing rather
-    than tidy: a wrangle that WRITES an attribute has already created it by the
-    time `has*attrib` is asked, so the read side must be a different node from
-    the write side or B0 cannot tell an authored 0.0 from one it manufactured.
+    THREE NODES, and the split between the first two is NOT load-bearing -
+    this docstring claimed it was, on a premise measured false.  The claim was
+    that a wrangle which WRITES an attribute has already created it by the time
+    `has*attrib` is asked; on 22.0.398 `hasvertexattrib` returns 0 inside a
+    wrangle that writes the attribute, before the write, after it, and under
+    the `@`-binding form, while a positive control returns 1.  The split is
+    kept because it is harmless and because everything the read node writes
+    lands on `_*` scratch - so its tests are demonstrably asked of the input -
+    but the guarantee does not depend on it and no argument should rest on it.
     """
     import hou
 
@@ -617,6 +633,9 @@ def site(parent, lots, style="", name="b0"):
         clean.parm(pat).set(value)
     groups = parent.createNode("groupdelete", name + "_clean_groups")
     groups.setFirstInput(clean)
+    # GROUPS ARE THE FOURTH CLASS conventions.md §2 names, and B0 sweeps them
+    # because a LOT can arrive carrying one - B0 itself makes none, which is
+    # why nothing could make this line fail until the fixture brought one in.
     groups.parm("group1").set("_*")
 
     out = parent.createNode("null", name + "_OUT")

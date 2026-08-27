@@ -282,11 +282,29 @@ def cook(corners="miter", name="g2", lots=None, overrides=None):
 # where the lot-shaped L has `rear` against `interiorSide`.  Same topology,
 # different numbers - which is the honest comparison and not a claim that the
 # two footprints are identical.
+#
+# ⛔ AND THE HEADLINE SENTENCE WAS NOT WHAT THIS CHECK MEASURED.  With
+# `pf_shape.vfl` neutered so B1 did nothing at all, the footprint stayed a
+# plain four-corner rectangle and `corner_closure_b1` still PASSED on all three
+# of its clauses - `[5112, 0, 0.000, 0, 0]`, cap ring four corners.  Every
+# clause in `corner_closure` walks the ring of the mass it was HANDED, so "a
+# corner module at every corner INCLUDING THE REFLEX ONE `shapeL` manufactured"
+# was carried by nothing here at all.  `B1_PLAN` is the fix: the plan the
+# fixture derives BY HAND from the notch numbers and the template's four
+# setbacks, asserted before any property of the ring is measured.
+#   lot L   (300,0) (330,0) (330,12) (316,12) (316,24) (300,24)
+#   roles   front 3.0 / sideStreet 2.0 / rear 4.0 / sideStreet 2.0 /
+#           rear 4.0 / alley 2.5, each edge moved inward by its own number and
+#           the corners solved where the two offset lines meet
+# - six corners with edges 25.5 / 5 / 14 / 12 / 11.5 / 17 m, which is the only
+# ring from which `corner_closure`'s 1 706 plan positions can be reached.
 B1_LOT = [(9, STYLE, [(300.0, 0.0), (330.0, 0.0), (330.0, 24.0),
                       (300.0, 24.0)], ROLES_R)]
 B1_SHAPE = {"lotToFootprint": {"op": "shapeL",
                                "shape": {"widthM": 14.0, "depthM": 12.0,
                                          "at": 2}}}
+B1_PLAN = [(302.5, 3.0), (328.0, 3.0), (328.0, 8.0), (314.0, 8.0),
+           (314.0, 20.0), (302.5, 20.0)]
 
 
 # --- mutation registry ------------------------------------------------------
@@ -478,6 +496,14 @@ MUTATIONS = [
      "the cascade drops `miter` for B1's manufactured L too, so no corner "
      "module is placed at the reflex corner `shapeL` created",
      bend()),
+    # ⛔ THE MUTATION THIS CHECK SHIPPED WITHOUT, AND IT IS THE ONE THAT
+    # MATTERS: B1 does NOTHING.  Measured on the unfixed check, all three
+    # clauses above stayed green on a plain rectangle.
+    ("corner_closure_b1", "footprint_asked_for",
+     "`pf_shape.vfl` returns on its first line, so B1 does nothing at all and "
+     "the L this check is named for is never cut - the mass stays the "
+     "rectangle's four-corner inset and the other three clauses cannot tell",
+     vx("int op = i@_shape;", "int op = 0;", "pf_shape")),
 ]
 
 
@@ -503,7 +529,7 @@ def run_checks(mass, shell, corners="miter"):
         # template-side edit.
         C.cap_seam(geo, mgeo, pitch=tpl[STYLE]["capFamily"]["pitchDeg"]),
         C.corner_closure(bshell.geometry(), bmass.geometry(), rows=KIT_ROWS,
-                         name="corner_closure_b1"),
+                         name="corner_closure_b1", want_ring=B1_PLAN),
     ]
     bparent.destroy()
     return out

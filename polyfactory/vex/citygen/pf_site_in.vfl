@@ -8,14 +8,20 @@
 // work stays reversible.  ⚠️ The schema is Hannes' to ratify (§0.0g row 1) and
 // nothing here records it as ratified.
 //
-// ⛔ WHY THE READ IS A SEPARATE NODE FROM THE WRITE, AND IT IS NOT TIDINESS.
-// A wrangle that WRITES an attribute has already created it by the time
-// `has*attrib` is asked in the same file, so one file that both TESTS for
-// `pf_setback` and STAMPS it cannot tell an authored value from the 0.0
-// default it just manufactured - and 0.0 is exactly the value `R4-2` measured
-// as failing unsafe, silently and tracelessly.  Everything written here lands
-// on `_*` scratch, so every test below is asked of the INPUT and of nothing
-// this file has touched.
+// ⛔ WHY THE READ IS A SEPARATE NODE FROM THE WRITE - AND THE REASON THIS FILE
+// USED TO GIVE WAS MEASURED FALSE.  It said "a wrangle that WRITES an
+// attribute has already created it by the time `has*attrib` is asked in the
+// same file".  Measured three ways on 22.0.398 by an independent audit, with a
+// positive control: `hasvertexattrib(0, "pf_setback")` returns 0 inside a
+// wrangle that writes `pf_setback` - asked BEFORE the write, asked AFTER it,
+// and under the `f@pf_setback` binding form - while the control (the attribute
+// genuinely present on the input) returns 1.  So a single node COULD have
+// tested the input.  ⚠️ The split is kept anyway and nothing here depends on
+// it: everything written by this file lands on `_*` scratch, so every test
+// below is asked of the INPUT and of nothing this file has touched, and that
+// property is checkable by reading the file rather than by trusting a claim
+// about the compiler.  The disproved sentence was B0's headline structural
+// argument and it stood in six places; this is one of them.
 //
 // WHAT THIS CANNOT SEE: whether the roles it was handed are the RIGHT roles.
 // A role comes from which lot line touches a street (§10a) and is not
@@ -29,16 +35,39 @@ int n = len(pts);
 
 // §12.4: `pf_site_id` is DETAIL on a single-site stream and PRIM once a stream
 // carries several, "and B0 owns that conversion".  Both forms in, prim out,
-// because prim is what B2 cooks.  A lot that carries NEITHER falls back to its
-// own primitive number - stated rather than hidden, because §12.7 forbids
-// deriving an ELEMENT id from generation order and this is the one place a
-// SITE id for an untagged lot has nothing else to be.  Every lot streets
-// produces carries one.
+// because prim is what B2 cooks.
+//
+// ⛔ A LOT THAT CARRIES NEITHER DOES NOT GET ITS PRIMITIVE NUMBER, AND THE
+// FIRST BUILD SAID IT DID.  §12.7 forbids deriving an id from generation
+// order, and the primitive number IS generation order: measured, the same two
+// unidentified lots cooked in the opposite order swap ids, and every
+// downstream `<site>:B2:v<k>:<slot>` address moves with them - which
+// `elem_ids_structural` is structurally unable to see, because it compares the
+// id SET and the set is identical.
+// ⚠️ AND THAT IS THE NORMAL PATH RATHER THAN AN EDGE CASE.  The first build
+// also claimed "every lot streets produces carries one".  It does not:
+// `tests/citygen/checks.py`'s lot allowlist publishes `block_id` / `lot_id`
+// and NOTHING in this repo writes `pf_site_id`, so until B0 is taught to read
+// the streets lot identity by its own name - which needs that attribute's
+// STORAGE settled with the streets owner (D223) and is the named next step -
+// every building built from a real S8 lot reaches this line.
+// What an unidentified lot gets instead is its own PLAN POSITION, quantised to
+// the centimetre and hashed: deterministic, independent of the order the prims
+// arrive in, and distinct for lots that do not sit on top of one another.
+// ⚠️ WHAT IT CANNOT DO: survive the lot MOVING, which is the exposure §0.0a
+// already records against `elem_id` upstream, and it is not this fallback's to
+// fix.  What it fixes is generation order, which is the one thing §12.7 names.
+// Nor can it separate two lots sharing a centroid to the centimetre.
+//
 // ⚠️ EVERY READ BELOW IS ASSIGNED TO A TYPED LOCAL FIRST.  `prim()`, `vertex()`
 // and `detail()` return an untyped value, so passing one straight into
 // `setvertexattrib()` - or into a ternary - is ambiguous and the compiler says
 // so (dev-loop trap list; it cost a cook here before it cost a comment).
-int site = @primnum;
+vector centroid = set(0.0, 0.0, 0.0);
+for (int k = 0; k < n; k++) centroid += point(0, "P", pts[k]);
+centroid /= max(float(n), 1.0);
+int site = ((int(rint(centroid.x * 100.0)) * 73856093)
+            ^ (int(rint(centroid.z * 100.0)) * 19349663)) & 2147483647;
 if (hasprimattrib(0, "pf_site_id")) {
     int v = prim(0, "pf_site_id", @primnum);
     site = v;
