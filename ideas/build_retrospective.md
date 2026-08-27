@@ -269,6 +269,23 @@ lot away, and `corner_closure_b1` could not see the missing L because `pf_mass` 
 footprint away. ⚠️ **And 46 is where the mechanised sweep's floor now sits:** per-clause was the fix
 for per-check-name, and per-clause is still one level above the terms that actually decide.
 
+**⚠️ FOUR MORE, FROM B1's ROUND-2 AUDIT (2026-08-27) — the auditor was scoped to one file and could
+not write them; placed here on its report.**
+
+| # | Incident | Ref |
+|---|---|---|
+| 48 | ⛔ **A GEOMETRIC FRAME DECIDED BY FLOAT32 NOISE, and the doc describes a tolerance the code never had.** The oriented-scope tie-break ships an **absolute `1e-6`** band; the measured float32 spread across geometrically identical candidate directions on a 720 m² lot is **6.1e-05 – 9.77e-04** — *three orders larger*, so **the tie-break is never consulted and rounding error picks the frame.** Swept 0–90° in 0.5° steps: **68 of 181 orientations cut the notch at the wrong corner** — a legal six-corner L, **entirely inside the lot** (+2.0 m clearance), **all four `pf_warn_*` at 0**, and every `pf_face_role` and setback landing on a different edge. `shapeU` identical at 69/181. Deterministic per build, not a fixture artefact | B1 `P1` |
+| 49 | ⭐ **§2a instance 13 INVERTED — the record claimed a tolerance the file does not contain.** §12.10d *and* commit `7b08c05` both state the band is *"relative (1e-4 of the area)"*. **It is absolute `1e-6`; the relative band is not in the file and never was.** Instance 13 was a check advertising exactness while comparing after rounding; this is its mirror — **a fix reported as implemented that was not written.** ⚠️ And the claimed value would not have fixed it either: a correct relative band takes the failure from **68 → 90 of 181**, because the tie-break *rule* ("nearest +x") flips at 45°, so **every lot rotated past 45° is wrong by construction** | B1 `P1` |
+| 50 | **A FIXTURE PROPERTY LOAD-BEARING WITHOUT SAYING SO — the third time this build.** The new rotated-lot fixture samples **one angle, 30°** — and 30° is in the passing set. The oracle was excellent (a hand-typed ring rigidly rotated, two genuinely independent derivations) and still proved nothing about the 68 failing orientations, because **one sample cannot discriminate a property that varies with the sample.** Compounding it, one half of the fix has **no isolating mutation**: the scope row reddens its clause *through the containment guard*, never through a mis-oriented frame that stays inside the lot | B1 `P1` |
+| 51 | **A GUARD AND THE CHECK THAT VERIFIES IT SHARED THE SAME HOLE.** Both test corners only, at both ends of the pipeline. On an ordinary slotted lot a footprint **edge** runs **5.800 m outside the lot** between two corners that are both inside it — warnings 0, and `masses_inside_lots` reports **PASS** on 2 of 3 notch sizes. The limitation was stated for the guard and **not** for the check, so nothing recorded that the verifier could not see what the guard missed | B1 `P2` |
+
+**⭐ WHAT 48–51 SAY TOGETHER, AND IT IS THE NIGHT'S LAST LESSON:** every one of these is a
+*correct-looking* artefact whose **frame** was wrong — a band measured against the wrong magnitude, a
+doc describing an unwritten value, a fixture sampling the one passing case, a check inheriting the
+guard's blind spot. None of them is a missing assertion; all four assert something true about the
+wrong thing. That is §2a's *"state what you measured against"* (from the count errors earlier the
+same night) arriving in geometry rather than in prose.
+
 ### 2b. Wrong conclusions that propagated
 
 | # | Incident | Cost |

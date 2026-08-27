@@ -4830,7 +4830,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 42,
+      "community": 158,
       "norm_label": "node"
     },
     {
@@ -4840,7 +4840,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 42,
+      "community": 158,
       "norm_label": ".__init__()"
     },
     {
@@ -6160,7 +6160,7 @@
       "source_location": "L577",
       "_origin": "ast",
       "id": "polychain_array2d_canonical_loop",
-      "community": 128,
+      "community": 109,
       "norm_label": "canonical_loop()"
     },
     {
@@ -6410,7 +6410,7 @@
       "source_location": "L992",
       "_origin": "ast",
       "id": "polychain_array2d_array_members",
-      "community": 242,
+      "community": 128,
       "norm_label": "array_members()"
     },
     {
@@ -6520,7 +6520,7 @@
       "source_location": "L1191",
       "_origin": "ast",
       "id": "polychain_array2d_area_rows",
-      "community": 242,
+      "community": 128,
       "norm_label": "area_rows()"
     },
     {
@@ -6530,7 +6530,7 @@
       "source_location": "L1242",
       "_origin": "ast",
       "id": "polychain_array2d_cliphook",
-      "community": 242,
+      "community": 128,
       "norm_label": "cliphook"
     },
     {
@@ -6540,7 +6540,7 @@
       "source_location": "L1262",
       "_origin": "ast",
       "id": "polychain_array2d_cliphook_init",
-      "community": 242,
+      "community": 128,
       "norm_label": ".__init__()"
     },
     {
@@ -6550,7 +6550,7 @@
       "source_location": "L1267",
       "_origin": "ast",
       "id": "polychain_array2d_cliphook_add",
-      "community": 242,
+      "community": 128,
       "norm_label": ".add()"
     },
     {
@@ -6720,7 +6720,7 @@
       "source_location": "L578",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_578",
-      "community": 128,
+      "community": 109,
       "norm_label": "d124 - a closed footprint, emitted so its ids survive re-authoring.      phase 1"
     },
     {
@@ -6880,7 +6880,7 @@
       "source_location": "L993",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_993",
-      "community": 242,
+      "community": 128,
       "norm_label": "{root loop index: [every loop in that root's tree]} - d125's \"each     closed su"
     },
     {
@@ -6960,7 +6960,7 @@
       "source_location": "L1193",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1193",
-      "community": 242,
+      "community": 128,
       "norm_label": "[(points, closed, attrs)] - the row curves of a clipped area.      each row is a"
     },
     {
@@ -6970,7 +6970,7 @@
       "source_location": "L1243",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1243",
-      "community": 242,
+      "community": 128,
       "norm_label": "`place.build`'s clip callable: (curve_id, s0, s1, module) -> verdict.      7.6 s"
     },
     {
@@ -15010,7 +15010,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 42,
+      "community": 158,
       "norm_label": ".__init__()"
     },
     {
@@ -15150,7 +15150,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 42,
+      "community": 158,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15540,7 +15540,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 35,
+      "community": 158,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15550,7 +15550,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 35,
+      "community": 158,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15560,7 +15560,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 35,
+      "community": 158,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15570,7 +15570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 35,
+      "community": 158,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15580,7 +15580,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 35,
+      "community": 158,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15590,7 +15590,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 35,
+      "community": 158,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -17320,7 +17320,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 55,
+      "community": 35,
       "norm_label": "parmstring"
     },
     {
@@ -17340,7 +17340,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 55,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17350,7 +17350,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 55,
+      "community": 35,
       "norm_label": "._on_changed()"
     },
     {
@@ -17360,7 +17360,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 180,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17370,7 +17370,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 55,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17410,7 +17410,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 180,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17480,7 +17480,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 180,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17520,7 +17520,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 180,
+      "community": 35,
       "norm_label": "parmcolor"
     },
     {
@@ -17530,7 +17530,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 180,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -17540,7 +17540,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 180,
+      "community": 51,
       "norm_label": "parmtuple"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 180,
+      "community": 35,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 180,
+      "community": 35,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 180,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17580,7 +17580,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 180,
+      "community": 48,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17590,7 +17590,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 180,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17630,7 +17630,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 55,
+      "community": 35,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17640,7 +17640,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 55,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17650,7 +17650,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 55,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 180,
+      "community": 35,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 180,
+      "community": 35,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 180,
+      "community": 48,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17760,7 +17760,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 180,
+      "community": 48,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17770,7 +17770,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 180,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -33260,7 +33260,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 163,
+      "community": 172,
       "norm_label": "section()"
     },
     {
@@ -33300,7 +33300,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 158,
+      "community": 163,
       "norm_label": ".style()"
     },
     {
@@ -33330,7 +33330,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -33340,7 +33340,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -33350,7 +33350,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -33450,7 +33450,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 216,
+      "community": 172,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -33590,7 +33590,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -33600,7 +33600,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -33620,7 +33620,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -33630,7 +33630,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 158,
+      "community": 163,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -33750,7 +33750,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 247,
+      "community": 172,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -33820,7 +33820,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 158,
+      "community": 163,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -33830,7 +33830,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 158,
+      "community": 163,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -33840,7 +33840,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 158,
+      "community": 163,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -33900,7 +33900,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 216,
+      "community": 172,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -33980,7 +33980,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 247,
+      "community": 172,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -37407,7 +37407,7 @@
       "label": "2b. Wrong conclusions that propagated",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L272",
+      "source_location": "L289",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
       "community": 306,
@@ -37417,7 +37417,7 @@
       "label": "2c. Harness and infrastructure",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L293",
+      "source_location": "L310",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2c_harness_and_infrastructure",
       "community": 306,
@@ -37427,7 +37427,7 @@
       "label": "2d. My own spec and briefing failures",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L315",
+      "source_location": "L332",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
       "community": 306,
@@ -37437,7 +37437,7 @@
       "label": "3. The patterns",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L326",
+      "source_location": "L343",
       "_origin": "ast",
       "id": "ideas_build_retrospective_3_the_patterns",
       "community": 149,
@@ -37447,7 +37447,7 @@
       "label": "4. What should become a skill, an instruction, or code",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L359",
+      "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
       "community": 149,
@@ -37457,7 +37457,7 @@
       "label": "4a. HIGHEST VALUE \u2014 a verification-integrity discipline (P1, P2, P3; ~20 incidents)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L361",
+      "source_location": "L378",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents",
       "community": 149,
@@ -37467,7 +37467,7 @@
       "label": "4b. Houdini domain gotchas \u2192 extend `houdini-procedural-modeling`",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L383",
+      "source_location": "L400",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling",
       "community": 149,
@@ -37477,7 +37477,7 @@
       "label": "4c. Multi-agent operations \u2192 workflow-brief boilerplate (or a skill)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L402",
+      "source_location": "L419",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill",
       "community": 149,
@@ -37487,7 +37487,7 @@
       "label": "4d. Spec-level rules for this project",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L414",
+      "source_location": "L431",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4d_spec_level_rules_for_this_project",
       "community": 149,
@@ -37497,7 +37497,7 @@
       "label": "5. What worked and must not be lost",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L424",
+      "source_location": "L441",
       "_origin": "ast",
       "id": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost",
       "community": 149,
@@ -37507,7 +37507,7 @@
       "label": "6. Status \u2014 what of \u00a74 is ENFORCED IN CODE, what is IN SKILLS, what is still prose",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L440",
+      "source_location": "L457",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6_status_what_of_4_is_enforced_in_code_what_is_in_skills_what_is_still_prose",
       "community": 149,
@@ -37517,7 +37517,7 @@
       "label": "6a. \u00a74a \u2014 verification integrity",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L448",
+      "source_location": "L465",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6a_4a_verification_integrity",
       "community": 149,
@@ -37527,7 +37527,7 @@
       "label": "6b. \u00a74b \u2014 Houdini domain gotchas",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L473",
+      "source_location": "L490",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6b_4b_houdini_domain_gotchas",
       "community": 149,
@@ -37537,7 +37537,7 @@
       "label": "6c. \u00a74c \u2014 multi-agent operations",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L482",
+      "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6c_4c_multi_agent_operations",
       "community": 149,
@@ -37547,7 +37547,7 @@
       "label": "6d. \u00a74d \u2014 spec-level rules",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L490",
+      "source_location": "L507",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6d_4d_spec_level_rules",
       "community": 149,
@@ -37557,7 +37557,7 @@
       "label": "6e. \u00a71 and \u00a75, MEASURED: what the v2 regime did to v1 (2026-08-25, cycle V4, verified independently on HEAD `7fabfff`)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L497",
+      "source_location": "L514",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6e_1_and_5_measured_what_the_v2_regime_did_to_v1_2026_08_25_cycle_v4_verified_independently_on_head_7fabfff",
       "community": 149,
@@ -47420,7 +47420,7 @@
       "source_location": "L14772",
       "_origin": "ast",
       "id": "ideas_polychain_32_native_network_build_log_cycle_c5v_the_c5_audit_worked_through",
-      "community": 269,
+      "community": 144,
       "norm_label": "32. native network build log \u2014 cycle c5v (the c5 audit, worked through)"
     },
     {
@@ -47430,7 +47430,7 @@
       "source_location": "L14782",
       "_origin": "ast",
       "id": "ideas_polychain_32_1_d336_a_bend_weld_renumbered_every_section_after_it_the_audit_s_finding_1",
-      "community": 269,
+      "community": 144,
       "norm_label": "32.1 d336 \u2014 a bend weld renumbered every section after it (the audit's finding 1)"
     },
     {
@@ -47440,7 +47440,7 @@
       "source_location": "L14850",
       "_origin": "ast",
       "id": "ideas_polychain_32_2_the_two_guard_holes_findings_2_and_3",
-      "community": 269,
+      "community": 144,
       "norm_label": "32.2 the two guard holes (findings 2 and 3)"
     },
     {
@@ -47450,7 +47450,7 @@
       "source_location": "L14880",
       "_origin": "ast",
       "id": "ideas_polychain_32_3_d337_the_budget_is_at_1_0000x_with_zero_headroom_and_that_is_a_standing_cost",
-      "community": 269,
+      "community": 144,
       "norm_label": "32.3 d337 \u2014 the budget is at 1.0000x with zero headroom, and that is a standing cost"
     },
     {
@@ -47460,7 +47460,7 @@
       "source_location": "L14903",
       "_origin": "ast",
       "id": "ideas_polychain_32_4_the_python_share_per_build_class_the_number_that_closes_the_language_law",
-      "community": 269,
+      "community": 144,
       "norm_label": "32.4 the python share, per build class \u2014 the number that closes the language law"
     },
     {
@@ -47470,7 +47470,7 @@
       "source_location": "L14936",
       "_origin": "ast",
       "id": "ideas_polychain_32_5_what_the_c5v_gate_reads",
-      "community": 269,
+      "community": 144,
       "norm_label": "32.5 what the c5v gate reads"
     },
     {
@@ -48675,7 +48675,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 55,
+      "community": 35,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -114749,9 +114749,9 @@
       "source_file": "ideas/citygen_buildings.md",
       "source_location": "L3499",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_buildings_round_n_1_independent_inspect_only_2026_08_27_head_ea1a31d_g2_is_decided",
-      "target": "ideas_citygen_buildings_what_this_audit_could_not_verify_3499",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_buildings_what_this_audit_could_not_verify_3499"
     },
     {
       "relation": "contains",
@@ -114879,9 +114879,9 @@
       "source_file": "ideas/citygen_buildings.md",
       "source_location": "L4234",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_buildings_12_10d_b0_b1_result_the_site_contract_and_the_footprint_ops_implementer_s_own_account",
-      "target": "ideas_citygen_buildings_round_2_independent_inspect_only_2026_08_27_head_19785b0_b0_yes_b1_no",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_buildings_round_2_independent_inspect_only_2026_08_27_head_19785b0_b0_yes_b1_no"
     },
     {
       "relation": "contains",
@@ -124278,5 +124278,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "19785b082e5b58779b4e47461066385fc7494ce4"
+  "built_at_commit": "b173c7c2a84bf9f8fd7f726f9d21b3f8cc4eca8c"
 }
