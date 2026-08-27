@@ -267,6 +267,260 @@ def cook(lots=None, name="g1"):
     return parent, src, out
 
 
+# --- B0 + B1 fixture --------------------------------------------------------
+#
+# SEPARATE COOKS, and the reason is the adapter's whole job: an attribute's
+# CLASS belongs to a whole STREAM, so "this lot carries a prim role and that
+# one a vertex role" cannot be said inside one geometry.  Each stream below is
+# one shape of input B0 has to ingest, and the last three are B1's shape ops,
+# which are per-stream because `overrides` is cascade level 6.
+#
+# ⚠️ EVERY EXPECTED VALUE HERE IS A HAND-TYPED LITERAL, never a second
+# implementation of the op.  A ring re-derived by the formula the VEX uses
+# drifts WITH the defect and passes; a literal moves with nothing, so every
+# drift is a loud FAIL - §12.10b `N+1-1`'s ruling, applied on purpose.
+#
+# ⚠️ LEVEL-6 OVERRIDES RATHER THAN NEW STYLE TEMPLATES, also on purpose: a
+# shipped template that only one style used would make `rule_reuse` report
+# `lotToFootprint` lonely, which is a true finding about the shipped library
+# and would be a false one about this fixture.
+
+B0_STYLE = "g2_lshape"      # per-role setbacks, all four different, no cuts
+ROLES4 = ["front", "sideStreet", "rear", "alley"]
+
+B0_CODE = """
+import hou
+g = hou.pwd().geometry()
+%s
+for site, ring in %r:
+    p = g.createPolygon()
+    p.setIsClosed(True)
+    for x, z in ring:
+        pt = g.createPoint()
+        pt.setPosition(hou.Vector3((x, 0.0, z)))
+        p.addVertex(pt)
+%s
+"""
+
+
+def rect(ox, oz, sx, sz):
+    return [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)]
+
+
+# Stream 1 - THE BAREST LOT S8 CAN HAND US: a closed polygon and nothing else.
+# Every field of §12.4 is B0's to supply here, and `pf_setback` has to come out
+# NEGATIVE on all eight edges or `R4-2` ships.
+BARE_LOTS = [(0, rect(0.0, 0.0, 30.0, 24.0)), (1, rect(60.0, 0.0, 20.0, 16.0))]
+BARE_WANT = dict((s, {"roles": [""] * 4, "setback": [-1.0] * 4, "seed": None,
+                      "style": B0_STYLE}) for s in (0, 1))
+
+# Stream 2 - THE PLANAR FORM with cascade level 5 authored per EDGE, including
+# an authored ZERO: `setback(0)` is §12.6 B1's identity op, it is what the
+# Viennese block's street edges are, and it is the one value the first build
+# could not express at all (`R3-3`).  Site 22 authors a PRIM `pf_setback`
+# instead - the class §12.4 declares legal and `R4-3` measured as silently
+# ignored and then leaked onto every face as a dead value.
+MIXED_VTX = {21: [5.0, -1.0, -1.0, 0.0], 22: [-1.0] * 4}
+MIXED_PRIM = {21: -1.0, 22: 6.0}
+MIXED_LOTS = [(21, rect(0.0, 0.0, 30.0, 24.0)),
+              (22, rect(60.0, 0.0, 20.0, 16.0))]
+MIXED_HEAD = (
+    "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
+    "g.addAttrib(hou.attribType.Prim, 'pf_seed', 0)\n"
+    "g.addAttrib(hou.attribType.Prim, 'pf_style_template', '')\n"
+    "g.addAttrib(hou.attribType.Prim, 'pf_setback', -1.0)\n"
+    "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
+    "g.addAttrib(hou.attribType.Vertex, 'pf_setback', -1.0)\n"
+    "vtx, pback, roles = %r, %r, %r\n" % (MIXED_VTX, MIXED_PRIM, ROLES4))
+MIXED_BODY = (
+    "    p.setAttribValue('pf_site_id', site)\n"
+    "    p.setAttribValue('pf_seed', site * 10)\n"
+    "    p.setAttribValue('pf_style_template', %r)\n"
+    "    p.setAttribValue('pf_setback', pback[site])\n"
+    "    for i, v in enumerate(p.vertices()):\n"
+    "        v.setAttribValue('pf_face_role', roles[i])\n"
+    "        v.setAttribValue('pf_setback', vtx[site][i])\n" % B0_STYLE)
+MIXED_WANT = dict((s, {"roles": ROLES4, "setback": MIXED_VTX[s],
+                       "seed": s * 10, "style": B0_STYLE})
+                  for s in (21, 22))
+# What the CASCADE says each edge is inset by, spelled per edge for the
+# `plan_follows_data_b0` oracle: an authored vertex value wins, a negative one
+# falls through to the prim class, and a negative there falls through to the
+# template.  Site 21's fourth edge is the authored ZERO.
+MIXED_CASCADE = {21: [5.0, -1.0, -1.0, 0.0], 22: [6.0] * 4}
+
+# Stream 3 - THE VOLUME FORM's classes on a planar lot: the site id and the
+# template arrive on the DETAIL (§12.4 says B0 owns that conversion), the role
+# arrives on the PRIM, and no seed arrives at all (`R4-6`).
+VOLUME_LOTS = [(77, rect(0.0, 0.0, 30.0, 24.0))]
+VOLUME_HEAD = (
+    "g.addAttrib(hou.attribType.Global, 'pf_site_id', 0)\n"
+    "g.addAttrib(hou.attribType.Global, 'pf_style_template', '')\n"
+    "g.addAttrib(hou.attribType.Prim, 'pf_face_role', '')\n"
+    "g.setGlobalAttribValue('pf_site_id', 77)\n"
+    "g.setGlobalAttribValue('pf_style_template', %r)\n" % B0_STYLE)
+VOLUME_BODY = "    p.setAttribValue('pf_face_role', 'rear')\n"
+VOLUME_WANT = {77: {"roles": ["rear"] * 4, "setback": [-1.0] * 4,
+                    "seed": None, "style": B0_STYLE}}
+
+# B1's shape ops.  Site 31 is THE G2 L, reached the other way round: a 30 x 24
+# rectangle with a 14 x 12 notch at the +x/+z corner is exactly the lot
+# §12.10b's gate is cut from, so `corner_closure_b1` in the G2 runner can put a
+# facade and a roof on it and compare like with like.  Site 32 is the notch
+# that does not FIT - §2.2, advisory and never a wall.
+L_LOTS = [(31, rect(0.0, 0.0, 30.0, 24.0)), (32, rect(100.0, 0.0, 10.0, 10.0))]
+U_LOTS = [(33, rect(0.0, 0.0, 30.0, 24.0))]
+O_LOTS = [(34, rect(0.0, 0.0, 60.0, 48.0))]
+SHAPE_HEAD = (
+    "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
+    "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
+    "roles = %r\n" % (ROLES4,))
+SHAPE_BODY = (
+    "    p.setAttribValue('pf_site_id', site)\n"
+    "    for i, v in enumerate(p.vertices()):\n"
+    "        v.setAttribValue('pf_face_role', roles[i])\n")
+SHAPE_L = {"lotToFootprint": {"op": "shapeL",
+                              "shape": {"widthM": 14.0, "depthM": 12.0,
+                                        "at": 2}}}
+SHAPE_U = {"lotToFootprint": {"op": "shapeU",
+                              "shape": {"widthM": 10.0, "depthM": 8.0,
+                                        "at": 0}}}
+SHAPE_O = {"lotToFootprint": {"op": "shapeO"},
+           "volumeTopology": {"courtyardDepthM": 8.0}}
+# The rings and the roles the ops must produce, typed out.  The role of every
+# manufactured edge is the role of the box edge whose OUTWARD NORMAL it shares,
+# which is why the L's two notch edges read `sideStreet` and `rear` again and
+# the U's slot ceiling reads `front`: it faces -z, down into the slot.
+# `inset` is `g2_lshape`'s own table read through those roles - front 3.0,
+# sideStreet 2.0, rear 4.0, alley 2.5 - and it is what makes a wrong role
+# visible: a differently-roled L is still a legal L.
+WANT_L = {"site": 31, "degraded": False,
+          "ring": [(0.0, 0.0), (30.0, 0.0), (30.0, 12.0), (16.0, 12.0),
+                   (16.0, 24.0), (0.0, 24.0)],
+          "roles": ["front", "sideStreet", "rear", "sideStreet", "rear",
+                    "alley"],
+          "inset": [3.0, 2.0, 4.0, 2.0, 4.0, 2.5]}
+WANT_L_BAD = {"site": 32, "degraded": True,
+              "ring": [(100.0, 0.0), (110.0, 0.0), (110.0, 10.0),
+                       (100.0, 10.0)],
+              "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
+WANT_U = {"site": 33, "degraded": False,
+          "ring": [(0.0, 0.0), (10.0, 0.0), (10.0, 8.0), (20.0, 8.0),
+                   (20.0, 0.0), (30.0, 0.0), (30.0, 24.0), (0.0, 24.0)],
+          "roles": ["front", "sideStreet", "front", "alley", "front",
+                    "sideStreet", "rear", "alley"],
+          "inset": [3.0, 2.0, 3.0, 2.5, 3.0, 2.0, 4.0, 2.5]}
+WANT_O = {"site": 34, "degraded": False, "volumes": 4,
+          "ring": [(0.0, 0.0), (60.0, 0.0), (60.0, 48.0), (0.0, 48.0)],
+          "roles": ROLES4, "inset": [3.0, 2.0, 4.0, 2.5]}
+# The three ops that leave the RING alone and differ only in the number every
+# edge is inset by.  `identity` is `setback(0)` (§12.6 B1) and `offset` is one
+# uniform distance regardless of role (§7); without an `_inset` oracle neither
+# is distinguishable from `setback` on any fixture whose table happens to be
+# uniform, which is how `at_vienna_perimeter` hid the sentinel for a round.
+SHAPE_IDENT = {"lotToFootprint": {"op": "identity"}}
+SHAPE_OFF = {"lotToFootprint": {"op": "offset", "offsetM": 2.5}}
+IDENT_LOTS = [(35, rect(0.0, 0.0, 30.0, 24.0))]
+OFF_LOTS = [(36, rect(0.0, 0.0, 30.0, 24.0))]
+WANT_IDENT = {"site": 35, "ring": rect(0.0, 0.0, 30.0, 24.0),
+              "roles": ROLES4, "inset": [0.0] * 4}
+WANT_OFF = {"site": 36, "ring": rect(0.0, 0.0, 30.0, 24.0),
+            "roles": ROLES4, "inset": [2.5] * 4}
+
+
+def cook_extra(name, head, body, lots, overrides=None, build=True,
+               style=B0_STYLE):
+    """One B0 stream, optionally carried on through B1+B2.
+
+    -> (parent, B0 output, shape node or None, B2 output or None).  A fresh
+    /obj subtree per call, destroyed by `extras()` once the values are read.
+    """
+    parent = hou.node("/obj").createNode("geo", name)
+    src = parent.createNode("python", "lots")
+    src.parm("python").set(B0_CODE % (head, lots, body))
+    b0 = B.site(parent, src, style=style)
+    if overrides is None and not build:
+        b0.cook(force=True)
+        tail = [b0]
+        shape = out = None
+    else:
+        out = B.build(parent, b0, overrides=overrides, name=name + "_b2")
+        shape = parent.node(name + "_b2_shape")
+        (out if build else shape).cook(force=True)
+        if not build:
+            out = None
+        tail = [n for n in (out, shape, b0) if n]
+    errs = [n.errors() for n in tail if n.errors()]
+    if errs:
+        raise RuntimeError(str(errs)[:400])
+    return parent, b0, shape, out
+
+
+def extras():
+    """B0's three input shapes and B1's three shape ops, in one pass.
+
+    Cooked HERE rather than in `main()` because the mutation sweep re-runs
+    `run_checks` and everything a clause reads must come from the MUTATED
+    build - the same reason the sweep re-resolves the templates and re-cooks
+    both lot orders.
+    """
+    tpl = {B0_STYLE: B.resolve(B.load(B0_STYLE))}
+    made, streams, builds = [], [], []
+
+    p, bare, _s, _o = cook_extra("b0_bare", "", "", BARE_LOTS, build=False)
+    made.append(p)
+    streams.append(("bare", bare.geometry(), BARE_WANT, ()))
+
+    p, mixed, _s, mout = cook_extra("b0_mixed", MIXED_HEAD, MIXED_BODY,
+                                    MIXED_LOTS)
+    made.append(p)
+    # The prim `pf_setback` is the INPUT's, not B0's to publish - B0 leaves it
+    # for `stamp()` to read (`R4-3`) and `CLEAN` sweeps it at B2's output.
+    streams.append(("mixed", mixed.geometry(), MIXED_WANT,
+                    (("prim", "pf_setback"),)))
+
+    # ⚠️ THE NODE'S LEVEL-2 DEFAULT IS A DIFFERENT TEMPLATE FROM THE ONE ON
+    # THE DETAIL, deliberately.  With both set to the same string, dropping
+    # B0's detail read changed nothing and `identity` could not fail on it -
+    # `R4-1`'s exact shape, two oracles that happen to be one number.
+    p, vol, _s, _o = cook_extra("b0_volume", VOLUME_HEAD, VOLUME_BODY,
+                                VOLUME_LOTS, build=False, style="at_einhof")
+    made.append(p)
+    streams.append(("volume", vol.geometry(), VOLUME_WANT, ()))
+
+    # `identity` and `offset` are cooked only as far as B1's shape node: they
+    # leave the ring alone, so there is nothing about a MASS for them to say
+    # and a B2 build would be cost with no clause behind it.
+    for nm, ov, lots, wants, full in (
+            ("b1_l", SHAPE_L, L_LOTS, (WANT_L, WANT_L_BAD), True),
+            ("b1_u", SHAPE_U, U_LOTS, (WANT_U,), True),
+            ("b1_o", SHAPE_O, O_LOTS, (WANT_O,), True),
+            ("b1_ident", SHAPE_IDENT, IDENT_LOTS, (WANT_IDENT,), False),
+            ("b1_off", SHAPE_OFF, OFF_LOTS, (WANT_OFF,), False)):
+        p, _b, shape, out = cook_extra(nm, SHAPE_HEAD, SHAPE_BODY, lots,
+                                       overrides=ov, build=full)
+        made.append(p)
+        for want in wants:
+            builds.append(("%s/%d" % (nm, want["site"]), shape.geometry(),
+                           out.geometry() if out else None, want))
+
+    results = [
+        C.site_contract(streams),
+        # ⭐ THE SENTINEL'S CONSEQUENCE, which is what `R4-2` actually
+        # measured: a B0 that omits it puts the building on its lot line with
+        # all four warnings at 0.  The oracle models the whole cascade off the
+        # FIXTURE's numbers and never off the geometry.
+        C.plan_follows_data(
+            mout.geometry(), dict((s, B0_STYLE) for s in MIXED_WANT),
+            dict(MIXED_LOTS), dict((s, ROLES4) for s in MIXED_WANT),
+            tpl, (), MIXED_CASCADE, name="plan_follows_data_b0"),
+        C.shape_ops(builds),
+    ]
+    for parent in made:
+        parent.destroy()
+    return results
+
+
 # --- mutation registry ------------------------------------------------------
 #
 # A check is not written until its mutation has been seen RED.  Each row names
@@ -280,7 +534,14 @@ def patch_vex(rows):
     def patched(name):
         text = original(name)
         for want, old, new in rows:
-            if name.startswith(want):
+            # ⚠️ EXACT, NOT `startswith`.  `B.vex` is called both as
+            # "pf_mass" (from `build()`) and as "pf_mass.vfl" (from
+            # `sources_now()`), which is why this ever matched loosely - but a
+            # prefix match also makes a row for `pf_site` fire on
+            # `pf_site_in`, where its anchor does not exist, and the row then
+            # reports MUTATION DID NOT APPLY on a file it was never about.
+            # Found by writing exactly that row.
+            if name in (want, want + ".vfl"):
                 if old not in text:
                     raise AssertionError("mutation anchor gone from %s: %r"
                                          % (name, old[:60]))
@@ -290,7 +551,7 @@ def patch_vex(rows):
     return original
 
 
-def patch_pysrc(old, new):
+def patch_pysrc(old, new, fn="stamp"):
     """A PYTHON-SOURCE door for the registry, and `R4-1` is why it exists.
 
     The registry could patch `B.vex` and `B.load` and nothing else, so a
@@ -307,7 +568,7 @@ def patch_pysrc(old, new):
     exactly that.  Nothing here touches the filesystem, so the trap cannot
     apply.
     """
-    original = B.stamp
+    original = getattr(B, fn)
     path = os.path.join(os.path.dirname(os.path.abspath(B.__file__)),
                         "buildings.py")
     with io.open(path, "r", encoding="utf-8") as handle:
@@ -317,7 +578,7 @@ def patch_pysrc(old, new):
                              % old[:70])
     ns = dict(vars(B))
     exec(compile(src.replace(old, new, 1), "buildings_mutated", "exec"), ns)
-    B.stamp = ns["stamp"]
+    setattr(B, fn, ns[fn])
     return original
 
 
@@ -552,10 +813,120 @@ MUTATIONS = [
      "the setback sentinel reverts to `> 0.0`, so `setback(0)` - §12.6 B1's "
      "identity op - becomes unauthorable again and site 10 quietly builds "
      "the template's setbacks instead of the zero it was given",
-     lambda: patch_pysrc('if authored and vtx.attribValue("pf_setback") '
-                         '>= 0.0:',
-                         'if authored and vtx.attribValue("pf_setback") '
-                         '> 0.0:')),
+     lambda: patch_pysrc('sb = vtx.attribValue("pf_setback") if authored '
+                         'else -1.0',
+                         'sb = vtx.attribValue("pf_setback") if authored '
+                         'and vtx.attribValue("pf_setback") > 0.0 '
+                         'else -1.0')),
+
+    # ---- B0, the site contract -------------------------------------------
+    #
+    # ⛔ `R4-2`, AND IT IS THE MOST DANGEROUS THING IN B0's SCOPE.  This is the
+    # B0 a careless hand writes: create `pf_setback`, write the edges you
+    # authored, leave the rest at the default a float attribute gives you -
+    # which is 0.0, and 0.0 now MEANS "build to the lot line".  Two clauses
+    # redden and they are two different facts: the contract itself at B0's
+    # output, and the BUILDING that comes out of it.
+    ("site_contract", "sentinel",
+     "B0 writes `pf_setback` only where something authored one, so every "
+     "other edge ships at the 0.0 a fresh float attribute gives it - the "
+     "value that used to mean ABSENT and now means the lot line",
+     # ⚠️ `max(sb, 0.0)`, NOT a conditional write.  Making the write
+     # conditional was the first draft and it was WRONG: measured, VEX then
+     # does not create `pf_setback` at all, so the attribute is ABSENT - which
+     # is a different, louder defect.  `R4-2` is the attribute PRESENT and
+     # reading 0.0, which is the value a freshly created float attribute
+     # gives you, so writing 0.0 is the B0 that omits the sentinel.
+     vx("setvertexattrib(0, \"pf_setback\", @primnum, k, sb);",
+        "setvertexattrib(0, \"pf_setback\", @primnum, k, max(sb, 0.0));",
+        "pf_site")),
+    ("plan_follows_data_b0", "footprint",
+     "the same omitted sentinel, followed through to the MASS: the template "
+     "asks 3.0 / 2.0 / 4.0 / 2.5 and the building comes out hard on its lot "
+     "line, with all four `pf_warn_*` at 0 and `pf_setback` swept from the "
+     "output so the shipped geometry carries no trace of the request",
+     # ⚠️ `max(sb, 0.0)`, NOT a conditional write.  Making the write
+     # conditional was the first draft and it was WRONG: measured, VEX then
+     # does not create `pf_setback` at all, so the attribute is ABSENT - which
+     # is a different, louder defect.  `R4-2` is the attribute PRESENT and
+     # reading 0.0, which is the value a freshly created float attribute
+     # gives you, so writing 0.0 is the B0 that omits the sentinel.
+     vx("setvertexattrib(0, \"pf_setback\", @primnum, k, sb);",
+        "setvertexattrib(0, \"pf_setback\", @primnum, k, max(sb, 0.0));",
+        "pf_site")),
+    # `R4-3`. §12.4 declares the prim class legal and only the vertex class
+    # was read, so site 22's authored 6.0 was discarded in silence.
+    ("plan_follows_data_b0", "footprint",
+     "`stamp()` stops reading a PRIM `pf_setback`, so the class §12.4 "
+     "declares legal is silently ignored and site 22 quietly builds the "
+     "template's numbers instead of the 6 m it asked for",
+     lambda: patch_pysrc("pfb = (prim.attribValue(\"pf_setback\")"
+                         " if authored_prim else -1.0)",
+                         "pfb = -1.0")),
+    ("site_contract", "roles",
+     "B0 stops promoting a PRIM `pf_face_role` - the volume form's class - so "
+     "a lot tagged per FACE arrives at B1 with no roles at all and every edge "
+     "silently takes the template's `defaultSetbackM`",
+     vx("string v = prim(0, \"pf_face_role\", @primnum);\n    pr = v;",
+        "pr = pr;", "pf_site_in")),
+    ("site_contract", "identity",
+     "B0 stops resolving `pf_site_id` off the DETAIL class, so a "
+     "single-site stream's id becomes the primitive number - generation "
+     "order, which §12.7 forbids as an address",
+     vx("} else if (hasdetailattrib(0, \"pf_site_id\")) {\n"
+        "    int v = detail(0, \"pf_site_id\");\n    site = v;\n}",
+        "}", "pf_site_in")),
+    ("site_contract", "identity",
+     "B0 stops resolving `pf_style_template` off the DETAIL class, so a "
+     "stream that named its template once falls through to the node's "
+     "level-2 default and the cascade loses a level",
+     vx("} else if (hasdetailattrib(0, \"pf_style_template\")) {\n"
+        "    string v = detail(0, \"pf_style_template\");\n    st = v;\n}",
+        "}", "pf_site_in")),
+    # `R4-6`. The un-seeded branch was dead and its failure mode was silent:
+    # every site in the stream got the same seed, 0.
+    ("site_contract", "seed",
+     "a lot arriving with no `pf_seed` goes back to getting 0 - the same 0 as "
+     "every other site in the stream, so §12.4's per-site determinism row is "
+     "unimplemented rather than missing",
+     vx("int seed = site;", "int seed = 0;", "pf_site_in")),
+    ("site_contract", "published",
+     "B0 stops sweeping its own `_*` scratch, so the marshalling attributes "
+     "the read node writes ship on the site contract",
+     lambda: patch_pysrc("(\"dovtxdel\", \"vtxdel\", \"_*\"),",
+                         "(\"dovtxdel\", \"vtxdel\", \"nothing\"),",
+                         "site")),
+
+    # ---- B1, the shape ops -----------------------------------------------
+    ("shape_ops", "ring",
+     "`shapeL` cuts the notch to half the depth it was given, which moves "
+     "the reflex corner and moves NEITHER the plan bounding box nor the "
+     "corner count - the two things a box comparison would have looked at",
+     vx("vector p1 = box[at] - ein * dep;",
+        "vector p1 = box[at] - ein * dep * 0.5;", "pf_shape")),
+    ("shape_ops", "roles_and_inset",
+     "every manufactured edge inherits the role of the FIRST input edge "
+     "instead of the one whose outward normal it shares, so the L is inset by "
+     "the wrong number on four of its six edges and is still a legal L",
+     vx("int e = src[ax];", "int e = 0;", "pf_shape")),
+    # ⚠️ NOT "remove the fit guard".  Measured: that lets the notch be cut,
+    # the ring turns inside out, `pf_collapse` catches it by CONTAINMENT and
+    # the degradation is reported anyway - so it reddens `ring` and
+    # `roles_and_inset` and leaves THIS clause green.  The clause's own
+    # mutation drops the shape op's REPORT and leaves the guard intact: the
+    # footprint is then correctly left alone and nothing says so, which is
+    # the silence §2.2 forbids.
+    ("shape_ops", "degrades",
+     "a notch that does not fit stops being reported - `pf_collapse` drops "
+     "the shape term - so the artist gets a lot-sized building where they "
+     "asked for an L, with all four `pf_warn_*` at 0",
+     vx("(shapebad || outside", "(outside", "pf_collapse")),
+    ("shape_ops", "courtyard",
+     "`shapeO` stops meaning a ring, so a template that asks for a courtyard "
+     "gets one solid block and no warning - §12.6 B1's `shapeO` silently "
+     "becomes `setback`",
+     lambda: patch_pysrc("\"ring\" if op == \"shapeO\" else topo[\"rails\"]",
+                         "topo[\"rails\"]")),
 ]
 
 
@@ -595,7 +966,7 @@ def run_checks(out, mirror, templates, sources):
         C.plan_follows_data(geo, STYLE_OF, RINGS, ROLES_OF, by_id,
                             DEGRADED, SETBACKS),
         C.warns_on_unknown_rule(geo),
-    ]
+    ] + extras()
 
 
 def sources_now():
@@ -833,7 +1204,7 @@ def main():
         names = [r.name for r in results]
         proven = set()
         for paired, clause, why, apply in MUTATIONS:
-            keep = (B.vex, B.load, B.CLEAN, B.stamp)
+            keep = (B.vex, B.load, B.CLEAN, B.stamp, B.site)
             note = ""
             try:
                 apply()
@@ -857,7 +1228,7 @@ def main():
                 ok = False
                 note = "MUTATION DID NOT APPLY: %s" % str(exc)[:140]
             finally:
-                B.vex, B.load, B.CLEAN, B.stamp = keep
+                B.vex, B.load, B.CLEAN, B.stamp, B.site = keep
             if ok:
                 proven.add((paired, clause))
             else:

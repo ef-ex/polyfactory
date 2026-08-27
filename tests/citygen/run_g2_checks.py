@@ -242,7 +242,7 @@ def kit_geometry(corner_modules=True, attr="PF_G2_KIT"):
     return geo
 
 
-def scene(parent, corners="miter", lots=None):
+def scene(parent, corners="miter", lots=None, overrides=None):
     """Lots -> B2 mass -> B4 facade + B5 cap + B6 seam.  -> (mass, shell)."""
     src = parent.createNode("python", "lots")
     src.parm("python").set(LOT_CODE % (SETBACKS, lots or LOTS))
@@ -250,20 +250,43 @@ def scene(parent, corners="miter", lots=None):
     kit.parm("python").set(
         "import hou\n"
         "hou.pwd().geometry().merge(hou.session.PF_G2_KIT)\n")
-    mass = B.build(parent, src)
+    mass = B.build(parent, src, overrides=overrides)
     return mass, B.build_shell(parent, mass, kit, corners=corners)
 
 
-def cook(corners="miter", name="g2", lots=None):
+def cook(corners="miter", name="g2", lots=None, overrides=None):
     """A fresh /obj subtree per build, so no cook is served a stale cache."""
     parent = hou.node("/obj").createNode("geo", name)
-    mass, shell = scene(parent, corners, lots)
+    mass, shell = scene(parent, corners, lots, overrides)
     shell.cook(force=True)
     errs = [(n.name(), n.errors()) for n in (shell, shell.inputs()[0])
             if n.errors()]
     if errs:
         raise RuntimeError(str(errs)[:500])
     return parent, mass, shell
+
+
+# ⭐ THE SAME L, REACHED THE OTHER WAY ROUND -- B1's `shapeL` op cutting a
+# 14 x 12 notch out of a 30 x 24 RECTANGLE, which is exactly `ell()`.
+# §12.10's G2 bullet records the departure the gate had to make: "`shapeL` is
+# a B1 op and B1 has only `setback`, so the L arrives as a LOT".  B1 has
+# `shapeL` now, so this is the case that bullet was describing, and the
+# question it answers is narrow and stated: does a non-convex footprint
+# MANUFACTURED by B1 close its corners under the gate's own headline check?
+# ⛔ IT IS NOT IN `record()` AND MOVES NO BASELINE VALUE.  G2 is a DECIDED gate
+# (§12.10b "Round N+1") and adding a site to the recorded snapshot would move
+# the evidence that decision rests on.  This is an assertion BESIDE it.
+# ⚠️ The roles differ from `ROLES_L` and so therefore does the footprint: a
+# rectangle carries four roles and the L's manufactured edges inherit by
+# outward normal, so the reflex corner here is `rear` against `sideStreet`
+# where the lot-shaped L has `rear` against `interiorSide`.  Same topology,
+# different numbers - which is the honest comparison and not a claim that the
+# two footprints are identical.
+B1_LOT = [(9, STYLE, [(300.0, 0.0), (330.0, 0.0), (330.0, 24.0),
+                      (300.0, 24.0)], ROLES_R)]
+B1_SHAPE = {"lotToFootprint": {"op": "shapeL",
+                               "shape": {"widthM": 14.0, "depthM": 12.0,
+                                         "at": 2}}}
 
 
 # --- mutation registry ------------------------------------------------------
@@ -274,7 +297,14 @@ def patch_vex(rows):
     def patched(name):
         text = original(name)
         for want, old, new in rows:
-            if name.startswith(want):
+            # ⚠️ EXACT, NOT `startswith`.  `B.vex` is called both as
+            # "pf_mass" (from `build()`) and as "pf_mass.vfl" (from
+            # `sources_now()`), which is why this ever matched loosely - but a
+            # prefix match also makes a row for `pf_site` fire on
+            # `pf_site_in`, where its anchor does not exist, and the row then
+            # reports MUTATION DID NOT APPLY on a file it was never about.
+            # Found by writing exactly that row.
+            if name in (want, want + ".vfl"):
                 if old not in text:
                     raise AssertionError("mutation anchor gone from %s: %r"
                                          % (name, old[:60]))
@@ -432,16 +462,33 @@ MUTATIONS = [
      "collinear points give d = 0 - stops being flagged and a building ships "
      "on a self-touching ring with all four `pf_warn_*` at 0",
      vx("crosses || pinched ||", "crosses ||", "pf_collapse")),
+    # ---- the same three edits, against B1's MANUFACTURED L ----------------
+    # Same defects, different provenance for the footprint.  They prove the
+    # new check can fail and that its clauses are the gate's own clauses
+    # rather than softer copies of them.
+    ("corner_closure_b1", "no_gaps",
+     "B1's manufactured L arrives OPEN, so the facade run does not wrap",
+     vx("s@pc_array = s@pf_volume_id;",
+        "s@pc_array = s@pf_volume_id;\n"
+        "setprimintrinsic(0, \"closed\", @primnum, 0);", "pf_facade_in")),
+    ("corner_closure_b1", "rows_tile",
+     "B1's manufactured L comes out with its GROUND ROW MISSING",
+     drop_row(0)),
+    ("corner_closure_b1", "corner_module",
+     "the cascade drops `miter` for B1's manufactured L too, so no corner "
+     "module is placed at the reflex corner `shapeL` created",
+     bend()),
 ]
 
 
 # --- one full pass over the checks ------------------------------------------
 
-def run_checks(mass, shell):
+def run_checks(mass, shell, corners="miter"):
     geo = shell.geometry()
     mgeo = mass.geometry()
     tpl = {STYLE: B.resolve(B.load(STYLE))}
-    return [
+    bparent, bmass, bshell = cook(corners, "g2_b1", B1_LOT, B1_SHAPE)
+    out = [
         C.plan_follows_data(mgeo, STYLE_OF, RINGS, ROLES, tpl,
                             DEGRADED, SETBACKS),
         C.masses_inside_lots(mgeo, RINGS),
@@ -455,7 +502,11 @@ def run_checks(mass, shell):
         # oracle, and it is safe because no registry row below is a
         # template-side edit.
         C.cap_seam(geo, mgeo, pitch=tpl[STYLE]["capFamily"]["pitchDeg"]),
+        C.corner_closure(bshell.geometry(), bmass.geometry(), rows=KIT_ROWS,
+                         name="corner_closure_b1"),
     ]
+    bparent.destroy()
+    return out
 
 
 def record(shell, mass):
@@ -848,7 +899,7 @@ def main():
     parent, mass, shell = cook(corners)
 
     print("\nG2 checks")
-    results = run_checks(mass, shell)
+    results = run_checks(mass, shell, corners)
     for res in results:
         show(res)
 
@@ -894,7 +945,9 @@ def main():
                 apply()
                 _p, m2, s2 = cook(FORCED["corners"] or corners,
                                   "mut_%s_%s" % (paired, clause))
-                got = dict((r.name, r) for r in run_checks(m2, s2))
+                got = dict((r.name, r)
+                           for r in run_checks(m2, s2,
+                                               FORCED["corners"] or corners))
                 hit = got.get(paired)
                 ok = (hit is not None and not hit.skipped
                       and not hit.clauses.get(clause, True))

@@ -1249,3 +1249,213 @@ def warns_on_cap_group_split(geo, name="cap_group_split_warns"):
     return Result(name, not hot, len(set(hot)),
                   "volumes warned for a split cap group: %s"
                   % (sorted(set(hot))[:4] or "none"))
+
+
+# --- B0: the site contract ---------------------------------------------------
+
+# §12.4's schema in its degenerate planar form, as a CLASS + STORAGE table.
+# D223: an attribute's storage is part of its contract, and that lesson's
+# second half is that the table must be asserted COMPLETE against what ships -
+# so `site_contract/published` reads this in BOTH directions.
+SITE_STORAGE = {("prim", "pf_site_id"): "Int",
+                ("prim", "pf_seed"): "Int",
+                ("prim", "pf_style_template"): "String",
+                ("vertex", "pf_face_role"): "String",
+                ("vertex", "pf_setback"): "Float"}
+
+
+def site_contract(streams, name="site_contract"):
+    """B0's output IS the contract, so this measures it directly.
+
+    `streams` is a list of `(label, geo, sites, allow)`, one per B0 cook,
+    because an attribute CLASS belongs to a whole stream: "this lot carries a
+    prim role and that one a vertex role" cannot be said inside one geometry,
+    and the class conversion is the adapter's whole job.  `sites` is
+    {site id: {"roles": [...], "setback": [...], "seed": int or None}} - what
+    the FIXTURE put in, never anything read back out of B0 - and `allow` names
+    what the INPUT contributed that is not B0's to publish.
+
+    'sentinel' IS THE CLAUSE THIS CHECK EXISTS FOR, and its oracle is written
+    to fail on ABSENCE rather than on a wrong number.  §12.4 reads `pf_setback`
+    `>= 0` authored, negative absent, and a float attribute has no absent
+    value: a B0 that merely creates the attribute and writes only the edges it
+    authors leaves the rest at 0.0, which now MEANS "build to the lot line".
+    `R4-2` measured the consequence on a 10 x 90 farmstead lot - plan box
+    [0, 0, 10, 90] against a template asking [2.5, 2.0, 7.5, 47.0], all four
+    `pf_warn_*` at 0, and `pf_setback` swept from the output so the shipped
+    geometry carries no trace of the request.  So this asserts, per VERTEX: the
+    authored value exactly where the fixture authored one, and STRICTLY
+    NEGATIVE everywhere else.  0.0 fails.  No tolerance, because both sides
+    are the same float that went in.
+
+    CANNOT SEE: a stream that never went through B0 at all - nothing in the
+    contract says whether B0 ran, which is the residual `pf_setback_set` would
+    close and which is Hannes' (§0.0g row 9).  Nor whether the roles B0 was
+    handed are the RIGHT roles; a role is not derivable from geometry.  Nor
+    anything about geometry: `plan_follows_data_b0` is what carries the
+    sentinel's consequence through to a built mass.
+    """
+    bad_back, bad_role, bad_id, bad_seed = [], [], [], []
+    wrong, extra, leaked = [], [], []
+    seen_streams, seen_sites = 0, 0
+    for label, geo, sites, allow in streams:
+        seen_streams += 1
+        have = {}
+        for cls, attrs in (("point", geo.pointAttribs()),
+                           ("prim", geo.primAttribs()),
+                           ("vertex", geo.vertexAttribs()),
+                           ("detail", geo.globalAttribs())):
+            for a in attrs:
+                have[(cls, a.name())] = str(a.dataType()).split(".")[-1]
+        wrong += ["%s: %s %s=%s want %s" % (label, c, n,
+                                            have.get((c, n), "MISSING"), v)
+                  for (c, n), v in sorted(SITE_STORAGE.items())
+                  if have.get((c, n)) != v]
+        # Complete in the other direction: a `pf_*` or `_*` name B0 did not
+        # declare and the input did not contribute is a leak a human has to
+        # look at, which is the half `attribute_storage` learned late.
+        extra += sorted("%s: %s %s" % (label, c, n) for (c, n) in have
+                        if (c, n) not in SITE_STORAGE and (c, n) not in allow
+                        and (n.startswith("pf_") or n.startswith("_")))
+        leaked += sorted(
+            "%s: group %s" % (label, g.name())
+            for g in (list(geo.primGroups()) + list(geo.pointGroups())
+                      + list(geo.vertexGroups()) + list(geo.edgeGroups()))
+            if g.name().startswith("_"))
+        count = {}
+        for prim in geo.prims():
+            sid = prim.attribValue("pf_site_id")
+            count[sid] = count.get(sid, 0) + 1
+            want = sites.get(sid)
+            if want is None:
+                bad_id.append((label, prim.number(), sid, "no such site"))
+                continue
+            seen_sites += 1
+            got = [v.attribValue("pf_setback") for v in prim.vertices()]
+            for i, g in enumerate(got):
+                w = want["setback"][i] if i < len(want["setback"]) else -1.0
+                if (g != w) if w >= 0.0 else not (g < 0.0):
+                    bad_back.append((label, sid, i, g, w))
+            role = [v.attribValue("pf_face_role") for v in prim.vertices()]
+            if role != want["roles"]:
+                bad_role.append((label, sid, role, want["roles"]))
+            # The template id is identity too - §12.4 makes it prim OR detail
+            # and "resolvable through the cascade", and the node's own
+            # parameter is the level-2 default that loses to both.
+            if prim.attribValue("pf_style_template") != want["style"]:
+                bad_id.append((label, sid, "style",
+                               prim.attribValue("pf_style_template"),
+                               want["style"]))
+            # `R4-6`: a lot arriving WITHOUT a seed used to give every site in
+            # the stream the same seed, 0.  The site id is what it gets now.
+            ws = sid if want["seed"] is None else want["seed"]
+            if prim.attribValue("pf_seed") != ws:
+                bad_seed.append((label, sid, prim.attribValue("pf_seed"), ws))
+        bad_id += [(label, s, "missing")
+                   for s in sorted(set(sites) - set(count))]
+        bad_id += [(label, s, "%d prims" % c) for s, c in sorted(count.items())
+                   if c > 1]
+    live = seen_streams > 0 and seen_sites > 0
+    ok = {"sentinel": live and not bad_back,
+          "roles": live and not bad_role
+          and not [e for e in extra if e.endswith("prim pf_face_role")],
+          "identity": live and not bad_id,
+          "seed": live and not bad_seed,
+          "published": live and not wrong and not extra and not leaked}
+    return Result(name, ok,
+                  [seen_streams, seen_sites, len(bad_back), len(bad_role),
+                   len(bad_id), len(bad_seed),
+                   len(wrong) + len(extra) + len(leaked)],
+                  "%d stream(s), %d site(s); setback %s; role %s; id %s; "
+                  "seed %s; published %s"
+                  % (seen_streams, seen_sites, bad_back[:2] or "ok",
+                     bad_role[:1] or "ok", bad_id[:2] or "ok",
+                     bad_seed[:2] or "ok",
+                     (wrong + extra + leaked)[:2] or "ok"))
+
+
+# --- B1: the shape ops -------------------------------------------------------
+
+def shape_ops(builds, name="shape_ops"):
+    """§12.6 B1's `shapeL` / `shapeU` / `shapeO`, measured on the footprint
+    that leaves `pf_shape.vfl` and on the mass built from it.
+
+    `builds` is a list of `(label, footprint geo, mass geo, want)` where `want`
+    holds the ring and the per-edge roles the FIXTURE derived from the notch
+    numbers - independently of `pf_shape.vfl`, which is what makes this a
+    differential oracle rather than the code agreeing with itself - plus
+    `degraded` (is this the notch that does not fit) and `volumes`.
+
+    THE RING IS COMPARED AS AN ORDERED CYCLE, not as a bounding box and not as
+    a set.  `plan_follows_data`'s `footprint` clause was a bounding-box
+    comparison until G2 and was VACUOUS on exactly the shape that matters: on
+    an L the built mass's plan box IS the lot's plan box.  A notch cut at the
+    wrong corner, at the wrong depth, or wound the other way all move the
+    cycle and none of them need move the box.
+
+    ROLES ARE PART OF THE CLAIM, not decoration: the setback each manufactured
+    edge receives comes from its role, so an L whose reflex edges inherit the
+    wrong role is inset by the wrong number and every downstream check still
+    passes - the footprint is simply a different, legal L.
+
+    CANNOT SEE: whether the notch is architecturally sensible; whether a
+    rotated or non-rectangular lot gets a sensible box-L (`pf_shape.vfl` states
+    that limit and this fixture does not reach it); nor anything about the
+    facade or the roof over a shaped footprint - `corner_closure_b1` in the G2
+    runner carries that, because a reflex corner is G2's question and not B1's.
+    """
+    bad_ring, bad_role, bad_degrade, bad_yard = [], [], [], []
+    seen, degraded_seen, yard_seen = 0, 0, 0
+    for label, fgeo, mgeo, want in builds:
+        seen += 1
+        # BY SITE, never by stream: a cook carries the notch that fits AND the
+        # one that does not, and a `sorted(set(...))` over the whole stream
+        # would report [0, 1] and call both of them right.
+        prims = [p for p in fgeo.prims()
+                 if p.attribValue("pf_site_id") == want["site"]]
+        mprims = ([] if mgeo is None else
+                  [p for p in mgeo.prims()
+                   if p.attribValue("pf_site_id") == want["site"]])
+        got = [(round(v.point().position()[0], 3),
+                round(v.point().position()[2], 3))
+               for p in prims for v in p.vertices()]
+        role = [v.attribValue("pf_face_role")
+                for p in prims for v in p.vertices()]
+        # `_inset` is the ROLE's consequence and the whole reason the role
+        # matters: an L whose reflex edges inherit the wrong role is inset by
+        # the wrong number and every downstream check still passes.  It is also
+        # where `setback` / `offset` / `identity` differ from each other, which
+        # is otherwise invisible - all three leave the ring alone.
+        inset = [round(v.attribValue("_inset"), 6)
+                 for p in prims for v in p.vertices()]
+        if got != want["ring"]:
+            bad_ring.append((label, got, want["ring"]))
+        if role != want["roles"] or inset != want["inset"]:
+            bad_role.append((label, role, want["roles"], inset,
+                             want["inset"]))
+        if mgeo is None:
+            continue
+        warn = sorted(set(p.attribValue("pf_warn_footprint_collapsed")
+                          for p in mprims))
+        vols = len(set(p.attribValue("pf_volume_id") for p in mprims))
+        if want.get("degraded"):
+            degraded_seen += 1
+            # §2.2: advisory, never a wall.  A notch that does not fit still
+            # builds - on the footprint it was handed - and says so.
+            if warn != [1] or vols != 1:
+                bad_degrade.append((label, warn, vols))
+        elif warn != [0]:
+            bad_degrade.append((label, warn, vols))
+        if want.get("volumes"):
+            yard_seen += 1
+            if vols != want["volumes"]:
+                bad_yard.append((label, vols, want["volumes"]))
+    ok = {"ring": seen > 0 and not bad_ring,
+          "roles_and_inset": seen > 0 and not bad_role,
+          "degrades": degraded_seen > 0 and not bad_degrade,
+          "courtyard": yard_seen > 0 and not bad_yard}
+    return Result(name, ok, [seen, len(bad_ring), len(bad_role),
+                             len(bad_degrade), len(bad_yard)],
+                  "%d shape(s); ring %s; roles %s; degrade %s; courtyard %s"
+                  % (seen, bad_ring[:1] or "ok", bad_role[:1] or "ok",
+                     bad_degrade[:2] or "ok", bad_yard[:2] or "ok"))
