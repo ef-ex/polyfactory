@@ -585,7 +585,11 @@ def cap_seam(geo, mass, pitch=None, name="cap_seam"):
 
     CANNOT SEE: a roof correct at the sampled points and wrong between them
     (it samples corners and midpoints, not the whole surface); a roof that is
-    closed and inside out; gables, which this cap family does not build; and
+    closed and inside out; a crack narrower than the 1e-3 m `roof_closed`
+    welds its vertices at - the tolerance is now DECLARED and uniform instead
+    of being the 6-dp rounding of `pts` (`N+1-7`), and a real hole under 1 mm
+    would fuse shut in the pairing; gables, which this cap family does not
+    build; and
     whether the eave OVERHANG is the depth the template asked for - only that
     the surface meets the wall.  Nor a pitch that is wrong in the TEMPLATE:
     the template is the oracle, so this asserts the roof obeys the data, never
@@ -633,17 +637,42 @@ def cap_seam(geo, mass, pitch=None, name="cap_seam"):
         # edges" on a roof that is closed; the seventh was the apex touching
         # itself.  The repeated vertices are a stated limit of the B5
         # prototype (§12.10b), not a hole.
+        # ⛔ AND VERTEX IDENTITY IS A TOLERANCE, NOT AN EQUALITY.  Pairing on
+        # `pts` DIRECTLY made this clause FALSE-FAIL on a merely ROTATED lot
+        # (`N+1-7`): `pts` are rounded to 6 dp by `elements`, so `a != b` was
+        # an UNDECLARED ~5e-7 m tolerance dressed as exactness - §2a instance
+        # 13's shape, in the comment above that calls the skip "accounting".
+        # Axis-aligned, the collapsed wavefront vertices round identically and
+        # it works; off axis they do not.  MEASURED at 5 deg, ordinary
+        # setback, every `pf_warn_*` at 0: 9 border edges for 6 footprint
+        # edges - one of length 1.0e-06 that the skip missed, and a duplicate
+        # pair 3e-06 m apart, all three AT THE APEX where the wavefront
+        # collapses.  A false FAILURE, so it hid nothing; it is why G2's
+        # decided scope had to say axis-aligned.
+        # So WELD FIRST, at the same 1e-3 m every other distance here uses,
+        # and pair on weld ids.  Clustering, not grid snapping, because a grid
+        # line can still split a 1e-6 m pair; O(n^2) over the ~40 roof
+        # vertices of one volume, which is nothing.
+        weld = []
+
+        def _weld_id(p):
+            for i, q in enumerate(weld):
+                if all(abs(p[k] - q[k]) <= TOL for k in (0, 1, 2)):
+                    return i
+            weld.append(p)
+            return len(weld) - 1
+
         edges = collections.Counter()
         for f in roof:
-            pts = f["pts"]
-            for j in range(len(pts)):
-                a, b = pts[j], pts[(j + 1) % len(pts)]
+            ids = [_weld_id(p) for p in f["pts"]]
+            for j in range(len(ids)):
+                a, b = ids[j], ids[(j + 1) % len(ids)]
                 if a != b:
-                    edges[tuple(sorted((a, b)))] += 1
+                    edges[(min(a, b), max(a, b))] += 1
         border = [e for e, c in edges.items() if c == 1]
         low = min(p[1] for f in roof for p in f["pts"])
         if (len(border) != len(ring)
-                or any(abs(p[1] - low) > TOL for e in border for p in e)):
+                or any(abs(weld[i][1] - low) > TOL for e in border for i in e)):
             cracked.append((vid, "%d boundary edges for %d footprint edges"
                             % (len(border), len(ring))))
     ok = {"eave_meets_wall": seen > 0 and not floats,

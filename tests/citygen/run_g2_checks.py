@@ -181,13 +181,35 @@ GROUND_Y, CORNICE_Y = 4.0, 1.0
 # ⭐ HOW MANY ROWS THE FACADE MUST HAVE, STATED HERE AND NEVER READ OFF THE
 # OUTPUT.  `corner_closure` used to take the row set from the geometry it was
 # measuring, so a row with no modules was not a row and its absence was
-# invisible (round-N `G2-1`, `build_retrospective.md` §2a shape 1).  The number
-# belongs to the KIT, not to the template: the six modules below carry three
-# VERTICAL families (`*_start`, plain, `*_end`) and polyChain's row solve turns
-# exactly those into rows.  ⚠️ It is NOT the template's `storeys` and the two
-# must not be confused - measured, the bands are 4.0 / 4.6 / 1.0 m over a 9.6 m
-# wall while the template asks for 3 x 3.2, so `pc_row` is a kit row and the
-# check's own docstring used to call it a storey row.
+# invisible (round-N `G2-1`, `build_retrospective.md` §2a shape 1).
+#
+# ⛔ THE REASON THIS COMMENT USED TO GIVE WAS FALSE, AND A FALSE REASON IS
+# WORSE THAN NO REASON.  It said "the number belongs to the KIT, not to the
+# template ... it is NOT the template's `storeys`".  MEASURED (`N+1-1`), same
+# six-module kit, only the template's `storeys` moved:
+#
+#     storeys  3 -> wall  9.6 m -> 3 rows      storeys 12 -> 38.4 m -> 12 rows
+#     storeys  6 -> wall 19.2 m -> 6 rows      storeys  1 ->  3.2 m ->  1 row
+#     storeys  3, kit `GROUND_Y` 4.0 -> 0.1    -> 5 rows
+#
+# `array2d.plan_rows` runs a 1D placement solve along the wall's height
+# profile - `*_start` and `*_end` are caps, the plain family REPEATS - so the
+# row count is `f(wall height, kit Y sizes)` and the wall height is the
+# TEMPLATE's `storeys x storeyHeight`.  It moves with BOTH, and on this
+# fixture it happens to equal `storeys` in all four rows above, which is
+# exactly the confusion the old comment forbade while being an instance of it.
+# ⚠️ A kit row is still not a storey - the bands here are 4.0 / 4.6 / 1.0 m
+# over a 9.6 m wall while the template asks for 3 x 3.2 - so `pc_row` is a KIT
+# row whose COUNT the template also moves.
+#
+# ⭐ THE LITERAL STAYS, AND STATING IT IS FIXTURE-SCOPED IS THE FIX.  Deriving
+# it from the wall and the kit would rebuild the very coupling `G2-1` removed:
+# an oracle computed from the geometry's own inputs drifts WITH the defect and
+# passes.  A hand-typed 3 moves with nothing, so every drift above is a loud
+# FAIL and never a silent pass - fail-safe, which is the direction that
+# matters.  ⛔ IT IS VALID FOR THIS KIT AND THIS TEMPLATE ONLY: change either
+# and RE-MEASURE this number, do not "fix" the geometry to match it.  B3's
+# per-storey heights are the change that will come for it first.
 KIT_ROWS = 3
 
 
@@ -636,9 +658,27 @@ def images(shell, mass, outdir):
     wrote 24 PNGs and returned; G1 at least had `image_contains_subject`, and
     `R3-6` measured even that as seeing CANVAS rather than subject (it passes
     on 1 of 97 prims and on a different scene entirely).  So G2's only image
-    evidence was Hannes' look, and `gate_images` is the check that now stands
-    between the two.  Three clauses, each aimed at a failure this pipeline has
-    actually had:
+    evidence was Hannes' look, and `drawn_geometry` is the check that now
+    stands between the two.
+
+    ⛔ AND IT IS CALLED `drawn_geometry` BECAUSE IT WAS CALLED `gate_images`
+    AND THAT NAME ASSERTED SOMETHING NO CLAUSE OF IT MEASURES.  Measured three
+    ways (`N+1-4`), each leaving the geometry stream untouched and corrupting
+    only the picture: every PNG replaced by a 74-byte 8x8 near-black square,
+    every PNG full size but blank, and every PNG a render of a completely
+    different scene - **all three PASS, with byte-identical values**.  The
+    root cause is structural rather than a bug: `rasterise` returns
+    `len(segs)`, computed one line ABOVE `png(path, ...)`, so every clause
+    below asserts a property of the geometry HANDED TO the rasteriser and not
+    one byte of any file on disk.  The docstring was already honest about
+    this; the NAME was not, and the rename is the whole fix.
+    ⛔ THE GAP ITSELF IS NOT FIXED AND MUST NOT BE CLAIMED AS FIXED.  Three
+    agents have now written an image assertion here (`R2-2`, `R3-6`,
+    `N+1-4`'s subject) and all three could pass on an absent or wrong subject.
+    A real content assertion is only worth writing by someone who has first
+    watched it go RED on a picture of a different scene.
+
+    Three clauses, each aimed at a failure this pipeline has actually had:
 
       `unpacked`      the geometry handed to the rasteriser has MORE prims
                       than the shell it came from - unpacking a packed module
@@ -654,10 +694,32 @@ def images(shell, mass, outdir):
                       draw still clears 3 per prim and the clause could not
                       have failed.
       `every_corner`  one PNG per footprint corner, counted against the
-                      fixture's own rings.  The per-corner loop `continue`s on
-                      an empty crop, so a corner that framed nothing used to
-                      leave no file and no trace - shape 1 again, one directory
-                      listing away from the gate's subject.
+                      fixture's own rings in `LOTS`.  The per-corner loop
+                      `continue`s on an empty crop, so a corner that framed
+                      nothing used to leave no file and no trace - shape 1
+                      again, one directory listing away from the gate's
+                      subject.
+                      ⛔ AND UNTIL `N+1-5` THE COUNT IT WAS COMPARED AGAINST
+                      CAME OFF THE MASS'S OWN CAP RING, i.e. the geometry
+                      under test - `ring` was bound from `LOTS` on the loop
+                      line above and never read.  Shape 1 AGAIN, in a check
+                      written by the pass whose job was removing it, two
+                      functions from `rows_tile` which exists to fix exactly
+                      this.  MEASURED with the fixture's 22 lot corners
+                      untouched: a mass showing one corner fewer per volume
+                      wrote 18 pictures and reported "18 of 18" PASS; three
+                      corners per volume wrote 12 and reported "12 of 12"
+                      PASS - twelve pictures for twenty-two corners, green,
+                      WITH THE REFLEX CROP SIMPLY ABSENT FROM THE SET.
+                      ⚠️ WHAT IT GUARDS IS THE IMAGE INVENTORY, NOT THE BUILD:
+                      a mass that lost a corner is caught by
+                      `plan_follows_data` and `corner_closure` on their own
+                      account.  ⚠️ Blind spot of the new oracle, stated: an
+                      inset that LEGITIMATELY merges two lot corners into one
+                      would false-FAIL here.  It cannot on this fixture (six
+                      lot corners inset to six mass corners on every L, four
+                      on the rectangle) and the direction is the safe one -
+                      loud, never silent.
       `corner_is_subject`  each corner crop contains a `corner*` element AND
                       every kit row.  This is what makes it a picture OF the
                       corner rather than a picture near it.
@@ -724,8 +786,12 @@ def images(shell, mass, outdir):
     # human can actually check it against, and the reflex one is the corner
     # nothing in this project had ever built.
     for site, _st, ring, _ro in LOTS:
+        # ⭐ THE ORACLE IS THE LOT (`N+1-5`).  `want_corners` used to be
+        # `len(fp)`, so both sides of `drew == want_corners` came off the cap
+        # ring of the geometry under test.  `ring` is the fixture's own,
+        # authored above and read by nothing in the pipeline.
+        want_corners += len(ring)
         fp = C._cap_ring(list(C.volumes(mass.geometry(), site).values())[0])
-        want_corners += len(fp)
         for j, q in enumerate(fp):
             a, b = fp[j - 1], fp[(j + 1) % len(fp)]
             turn = ((q[0] - a[0]) * (b[1] - q[1])
@@ -755,7 +821,7 @@ def images(shell, mass, outdir):
                 % (site, j, "convex" if turn > 0 else "reflex")),
                 keep, axes="iso", w=900, h=900, colour_of=colour_of)
     unpack.destroy()
-    show(C.Result("gate_images",
+    show(C.Result("drawn_geometry",
                   {"unpacked": nprims > packed > 0 and not flat,
                    "every_corner": drew == want_corners > 0 and not empty,
                    "corner_is_subject": drew > 0 and not blind},
