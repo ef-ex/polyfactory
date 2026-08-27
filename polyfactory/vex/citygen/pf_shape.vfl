@@ -10,18 +10,38 @@
 // routes it there and this file is not asked.  §7's finding is that lot ->
 // footprint is ONE pluggable stage; this is the pluggable part of it.
 //
-// ⚠️ DEFINED ON THE PLAN BOUNDING BOX, AND THAT IS THE OPERATION'S OWN
-// DEFINITION rather than a shortcut.  CityEngine's `shapeL`/`shapeU` are
-// defined on the shape's SCOPE - its oriented bounding box - not on its
-// outline (§7's table: "derive an L, U or O footprint by setting back a
-// selected subset of edges").  So the notch here is cut from the footprint's
-// AXIS-ALIGNED plan bounds, which is exact when the footprint is an
-// axis-aligned rectangle - the S8 lot's ordinary case, and the scope §12.10b
-// decided G2's corner closure in ("axis-aligned, not merely rectilinear").
-// ⛔ ON A ROTATED OR NON-RECTANGULAR LOT THE RESULT IS THE BOX-L, NOT A NOTCH
-// IN THE LOT.  That is CityEngine's behaviour too, and it is the honest limit:
-// an oriented scope is a §12.4 schema question (which axes a site HAS) and is
-// not one to invent here.
+// ⭐ THE SCOPE IS THE LOT'S OWN ORIENTED PLAN BOX.  CityEngine's
+// `shapeL`/`shapeU` are defined on the shape's SCOPE, and a scope is an
+// ORIENTED box - so an AXIS-ALIGNED box is not "CityEngine's behaviour too",
+// it is a different operation that happens to agree on an axis-aligned lot.
+// ⛔ THE FIRST BUILD MADE THAT CLAIM AND IT WAS FALSE, MEASURED: on a 30 x 24
+// lot rotated about its own centre with `shapeL(14, 12, at = 2)`, the
+// axis-aligned box-L put three footprint corners outside the lot at 15°
+// (worst 4.084 m), four at 30° (9.392 m) and four at 45° (11.465 m), with all
+// four `pf_warn_*` at 0.  On a rotated lot CityEngine's notch stays inside the
+// parcel and that one did not.  The box below is the minimum-area plan box
+// over the lot's OWN EDGE DIRECTIONS, which for any rectangle - at any angle -
+// is the lot itself, and which on an axis-aligned lot is bit-identical to the
+// box this file used to build.
+//
+// ⛔ AND THE FOOTPRINT MAY NOT LEAVE THE LOT, WHICH IS A GUARD AND NOT A
+// COMMENT.  A lot that is not a rectangle has a scope box LARGER than itself,
+// so a notch cut out of that box can still escape.  The escape is measured
+// HERE, against the lot, because this is the last node that still HAS the lot:
+// `pf_collapse.vfl` measures containment against `_p0`, which `pf_inset.vfl`
+// writes AFTER this file has already replaced the outline, so downstream the
+// only thing left to compare against is the box-L itself.  ⚠️ Measuring it
+// downstream would also be too late to repair: `pf_mass.vfl`'s degraded
+// fallback rebuilds on `_p0`, i.e. on the escaped footprint.  A notch that
+// escapes therefore sets `_shapebad` and LEAVES THE FOOTPRINT ALONE, exactly
+// as a notch that does not fit does - §2.2, advisory and never a refusal, and
+// the building comes out on its lot carrying
+// `pf_warn_footprint_collapsed`.
+//
+// ⚠️ WHAT THE GUARD CANNOT SEE: an EDGE that bulges outside a non-convex lot
+// between two corners that are both inside it.  Corners are what escape here
+// (the box's own corners are the ones outside the lot), and a per-edge test is
+// a different, more expensive claim.
 //
 // ⚠️ NON-CONVEX OUTPUT IS THE POINT, not an accident: §12.6 B1 says it is
 // "legal and expected", and G2's whole gate is a reflex corner.  Both ops
@@ -31,21 +51,22 @@
 // FACE ROLES ARE INHERITED BY OUTWARD NORMAL, and it is one rule for every
 // manufactured edge including the reflex ones: an output edge takes the role -
 // and therefore the setback - of the INPUT edge whose outward normal is
-// closest to its own.  On an axis-aligned rectangle that is exact and unique
-// (four edges, four normals).  On anything else it is a nearest-normal match
-// and can hand two output edges the same input edge's role; stated, not fixed,
-// because the input class that would fix it is a per-edge role on a shape B0
-// has not been asked to produce.
+// closest to its own.  The four axes it matches against are the SCOPE's, not
+// the world's, so the rule rotates with the lot.  On a rectangle at any angle
+// that is exact and unique (four edges, four normals).  On anything else it is
+// a nearest-normal match and can hand two output edges the same input edge's
+// role; stated, not fixed, because the input class that would fix it is a
+// per-edge role on a shape B0 has not been asked to produce.
 //
 // ⚠️ ONE PRIM PER POINT, the same assumption `pf_inset.vfl` states: the ring's
 // points are moved in place, so a point shared with another lot would move for
 // both.  Lots are separate loops, not a shared planar graph.
 //
 // WHAT THIS CANNOT SEE: whether the notch it was asked for is the notch the
-// artist meant.  It can only see that the notch FITS, which is the guard
-// below, and a notch that does not fit sets `_shapebad` - which
-// `pf_collapse.vfl` folds into `pf_warn_footprint_collapsed`, §2.2's advisory
-// and never a refusal - and leaves the footprint alone.
+// artist meant.  It can only see that the notch FITS and that it stays inside
+// the lot, which are the two guards below; either one sets `_shapebad` -
+// which `pf_collapse.vfl` folds into `pf_warn_footprint_collapsed`, §2.2's
+// advisory and never a refusal - and leaves the footprint alone.
 
 i@_shapebad = 0;
 int op = i@_shape;
@@ -58,18 +79,18 @@ if (n < 3) { i@_shapebad = 1; return; }
 float w = f@_shape_w, dep = f@_shape_d;
 int at = ((i@_shape_at % 4) + 4) % 4;
 
-// Winding, plan bounds, and the incoming per-edge data - all read BEFORE
+// Winding, the lot outline and the incoming per-edge data - all read BEFORE
 // anything moves.
-float a = 0.0, xmin = 1e18, xmax = -1e18, zmin = 1e18, zmax = -1e18, y = 0.0;
+float a = 0.0, y = 0.0;
+vector lot[];
 string inrole[];
 float ininset[], inback[];
-resize(inrole, n); resize(ininset, n); resize(inback, n);
+resize(lot, n); resize(inrole, n); resize(ininset, n); resize(inback, n);
 for (int k = 0; k < n; k++) {
     vector p = point(0, "P", pts[k]);
     vector r = point(0, "P", pts[(k + 1) % n]);
     a += p.x * r.z - r.x * p.z;
-    xmin = min(xmin, p.x); xmax = max(xmax, p.x);
-    zmin = min(zmin, p.z); zmax = max(zmax, p.z);
+    lot[k] = p;
     y = p.y;
     // Typed locals: `vertex()` is untyped and the assignments below are
     // otherwise ambiguous (dev-loop trap list).
@@ -80,32 +101,78 @@ for (int k = 0; k < n; k++) {
     inrole[k] = rl; ininset[k] = in; inback[k] = sb;
 }
 float sgn = (a > 0.0) ? 1.0 : -1.0;
-float ex = xmax - xmin, ez = zmax - zmin;
 
-// Axis 0 = -z, 1 = +x, 2 = +z, 3 = -x.  `src[ax]` is the input edge whose
-// outward normal best matches that axis, and it is what carries roles across.
+// THE SCOPE.  A minimum-area enclosing rectangle of a convex polygon always
+// has a side collinear with one of its edges, so trying every edge direction
+// finds it; on a non-convex lot it finds the smallest box over the same
+// candidate set, which is a bound and is stated as one.
+// ⚠️ THE TIE-BREAK IS LOAD-BEARING, not tidiness.  Every edge of a rectangle
+// gives the SAME area, so the winner is decided by the tie-break alone: each
+// direction is first folded into the +x half-plane, and the one closest to +x
+// wins.  On an axis-aligned lot that is +x, which reproduces the axis-aligned
+// box - and therefore every ring, role and inset this file produced before -
+// exactly rather than approximately.
+vector bu = set(1.0, 0.0, 0.0);
+float bestar = 1e30;
+for (int e = 0; e < n; e++) {
+    vector d = lot[(e + 1) % n] - lot[e];
+    d.y = 0.0;
+    if (length(d) < 1e-9) continue;
+    d = normalize(d);
+    if (d.x < -1e-9 || (abs(d.x) <= 1e-9 && d.z < 0.0)) d = -d;
+    vector wv = set(-d.z, 0.0, d.x);
+    float d0 = 1e18, d1 = -1e18, w0 = 1e18, w1 = -1e18;
+    for (int k = 0; k < n; k++) {
+        float dd = dot(lot[k], d), ww = dot(lot[k], wv);
+        d0 = min(d0, dd); d1 = max(d1, dd);
+        w0 = min(w0, ww); w1 = max(w1, ww);
+    }
+    float ar = (d1 - d0) * (w1 - w0);
+    int better = (ar < bestar - 1e-6) ? 1 : 0;
+    if (!better && ar < bestar + 1e-6)
+        better = (abs(d.x) > abs(bu.x) + 1e-9
+                  || (abs(d.x) > abs(bu.x) - 1e-9 && d.z > bu.z + 1e-9)) ? 1 : 0;
+    if (better) { bu = d; bestar = min(bestar, ar); }
+}
+vector uax = bu, vax = set(-bu.z, 0.0, bu.x);
+float umin = 1e18, umax = -1e18, vmin = 1e18, vmax = -1e18;
+for (int k = 0; k < n; k++) {
+    float du = dot(lot[k], uax), dv = dot(lot[k], vax);
+    umin = min(umin, du); umax = max(umax, du);
+    vmin = min(vmin, dv); vmax = max(vmax, dv);
+}
+float ex = umax - umin, ez = vmax - vmin;
+
+// Axis 0 = -v, 1 = +u, 2 = +v, 3 = -u - the scope's four outward directions,
+// which on an axis-aligned lot are -z, +x, +z, -x.  `src[ax]` is the input
+// edge whose outward normal best matches that axis, and it is what carries
+// roles across.
+vector axis[] = array(-vax, uax, vax, -uax);
 int src[];
 float bestdot[];
 resize(src, 4); resize(bestdot, 4);
 for (int q = 0; q < 4; q++) { src[q] = 0; bestdot[q] = -2.0; }
 for (int e = 0; e < n; e++) {
-    vector p = point(0, "P", pts[e]);
-    vector r = point(0, "P", pts[(e + 1) % n]);
-    vector d = set(r.x - p.x, 0.0, r.z - p.z);
+    vector d = set(lot[(e + 1) % n].x - lot[e].x, 0.0,
+                   lot[(e + 1) % n].z - lot[e].z);
     if (length(d) < 1e-9) continue;
     vector no = normalize(set(d.z, 0.0, -d.x)) * sgn;
     for (int q = 0; q < 4; q++) {
-        vector av = set((q == 1) ? 1.0 : ((q == 3) ? -1.0 : 0.0), 0.0,
-                        (q == 0) ? -1.0 : ((q == 2) ? 1.0 : 0.0));
-        float dt = dot(no, av);
+        float dt = dot(no, axis[q]);
         if (dt > bestdot[q]) { bestdot[q] = dt; src[q] = e; }
     }
 }
 
-// The box, CCW in (x,z): corner i starts edge i, and edge i's outward normal
-// is axis i.
-vector box[] = array(set(xmin, y, zmin), set(xmax, y, zmin),
-                     set(xmax, y, zmax), set(xmin, y, zmax));
+// The box, positively wound in (x, z): corner i starts edge i, and edge i's
+// outward normal is axis i.  Edges 0 and 2 run `ex`, edges 1 and 3 run `ez`,
+// which is what the parity below reads - the first build tested `eout.x` and
+// so asked a world question about a scope quantity.
+vector box[] = array(uax * umin + vax * vmin + set(0.0, y, 0.0),
+                     uax * umax + vax * vmin + set(0.0, y, 0.0),
+                     uax * umax + vax * vmax + set(0.0, y, 0.0),
+                     uax * umin + vax * vmax + set(0.0, y, 0.0));
+float extout = (at % 2 == 0) ? ex : ez;
+float extin = (at % 2 == 0) ? ez : ex;
 vector ring[];
 
 if (op == 1) {
@@ -115,8 +182,6 @@ if (op == 1) {
     // they read as the notch's x and z extents.
     vector ein = normalize(box[at] - box[(at + 3) % 4]);
     vector eout = normalize(box[(at + 1) % 4] - box[at]);
-    float extout = (abs(eout.x) > 0.5) ? ex : ez;
-    float extin = (abs(ein.x) > 0.5) ? ex : ez;
     if (!(w > 1e-3 && dep > 1e-3 && w < extout - 1e-3 && dep < extin - 1e-3)) {
         i@_shapebad = 1;
         return;
@@ -132,9 +197,7 @@ if (op == 1) {
     // `at`, cutting inward - two reflex corners instead of one.
     vector e = normalize(box[(at + 1) % 4] - box[at]);
     vector no = normalize(set(e.z, 0.0, -e.x));
-    float extalong = (abs(e.x) > 0.5) ? ex : ez;
-    float extin = (abs(e.x) > 0.5) ? ez : ex;
-    if (!(w > 1e-3 && dep > 1e-3 && w < extalong - 1e-3
+    if (!(w > 1e-3 && dep > 1e-3 && w < extout - 1e-3
           && dep < extin - 1e-3)) {
         i@_shapebad = 1;
         return;
@@ -150,10 +213,44 @@ if (op == 1) {
     }
 }
 
-// The box above is CCW-positive; a lot that arrived wound the other way keeps
-// its winding, because `pf_area0` recomputes the sign downstream and a
+// ⛔ THE CONTAINMENT GUARD.  Crossing count for in/out, segment distance for
+// the magnitude - the same pair `pf_collapse.vfl` uses, and INSIDE OR ON for
+// the same reason: on a rectangle every box corner lies exactly ON the lot
+// line, where a crossing count is a coin toss.  1e-3 m is two orders above
+// float32 `P` at this domain and three below anything architectural.
+int escaped = 0;
+for (int k = 0; k < len(ring) && !escaped; k++) {
+    vector q = ring[k];
+    int inside = 0;
+    float best = 1e18;
+    for (int e = 0; e < n; e++) {
+        vector p = lot[e], r = lot[(e + 1) % n];
+        if ((p.z > q.z) != (r.z > q.z)
+            && q.x < p.x + (q.z - p.z) * (r.x - p.x) / (r.z - p.z))
+            inside = !inside;
+        vector d = r - p;
+        float l2 = d.x * d.x + d.z * d.z;
+        float t = (l2 < 1e-18) ? 0.0
+            : clamp(((q.x - p.x) * d.x + (q.z - p.z) * d.z) / l2, 0.0, 1.0);
+        best = min(best, length(set(q.x - p.x - d.x * t, 0.0,
+                                    q.z - p.z - d.z * t)));
+    }
+    if (!inside && best > 1e-3) escaped = 1;
+}
+if (escaped) { i@_shapebad = 1; return; }
+
+// The box above is positively wound; a lot that arrived wound the other way
+// keeps its winding, because `pf_area0` recomputes the sign downstream and a
 // footprint that silently reversed would hand `pf_inset.vfl` the wrong side.
-if (sgn < 0.0) reverse(ring);
+// ⛔ `reverse()` IS A PURE FUNCTION AND THE STATEMENT FORM IS A NO-OP.
+// Measured on 22.0.398: `int a[] = array(1,2,3,4); reverse(a);` leaves
+// `a[0] == 1`, while `b = reverse(b)` gives `b[0] == 4`.  For one build this
+// line was `reverse(ring);` and did nothing, so a CLOCKWISE lot kept the
+// positively-wound box while the role loop below multiplied its normals by the
+// input's `sgn` of -1 - matching every output edge to the input edge facing the
+// OPPOSITE way.  Every role, and therefore every setback, landed on the wrong
+// edge and the result was still a perfectly legal L.
+ring = (sgn < 0.0) ? reverse(ring) : ring;
 
 int m = len(ring);
 int npt[];
@@ -181,9 +278,7 @@ for (int k = 0; k < m; k++) {
     int ax = 0;
     float best = -2.0;
     for (int q = 0; q < 4; q++) {
-        vector av = set((q == 1) ? 1.0 : ((q == 3) ? -1.0 : 0.0), 0.0,
-                        (q == 0) ? -1.0 : ((q == 2) ? 1.0 : 0.0));
-        float dt = dot(no, av);
+        float dt = dot(no, axis[q]);
         if (dt > best) { best = dt; ax = q; }
     }
     int e = src[ax];
