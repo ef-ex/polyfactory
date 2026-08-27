@@ -206,6 +206,30 @@ executing it. *"The rule wasn't the control and neither was writing it down; bei
 way by someone else was."* — **an independent reader is a control that self-review is not**, which
 is Rule 0's argument arriving from a second direction.
 
+**⚠️ THREE MORE, FROM G2's SECOND AUDIT (2026-08-27) — the auditor was scoped to one file and could
+not write them; they are placed here on its report.**
+
+| # | Incident | Ref |
+|---|---|---|
+| 36 | **`every_corner` COUNTS THE BUILD AGAINST ITSELF.** The lot's `ring` is bound and never used, so both sides of `drew == want_corners` come from the mass's own ring. Measured: **12 corner PNGs for 22 lot corners reported "12 of 12", PASS — with the reflex crop absent.** ⚠️ **This is §2a shape 1 appearing inside the check written by the very pass that had just removed that shape from `rows_tile`** — the fix and the new instance of the defect shipped in one commit | G2 `N+1-5` |
+| 37 | **`gate_images` CANNOT FAIL ON A WRONG IMAGE.** Replace all 32 PNGs with **74-byte black squares**, or with pictures of an entirely different scene, and the check returns **byte-identical PASS**. It is the project's **third** attempt at this one assertion (`R2-2` counted a number against itself; `R3-6` repaired it to a byte ratio that passes 1 of 97 prims). Its docstring is honest; **its name is not** | G2 `N+1-4` |
+| 38 | **A check's stated RATIONALE was false while the check itself was sound.** `KIT_ROWS`' comment insists the row count *"belongs to the KIT, not to the template"*. Measured on one kit: 6 storeys → 6 rows, 12 → 12, 1 → 1, and `GROUND_Y` 4.0 → 0.1 → 5. It is `f(wall height, kit Y sizes)`. **The fixture cannot tell the two oracles apart because both equal 3 there.** The fix stands — a hand-typed literal drifts **loud**, never silently, which is the inverse of G1's methodology trap — but a future reader would have trusted the reason and generalised it wrongly | G2 `N+1-1` |
+
+**What 36 and 37 say together, and it is not comfortable:** the image assertion has now been written
+**three times by three different agents**, each aware of the previous failure, and **all three could
+pass on an absent or wrong subject.** Instance 36 was written by the pass that had just fixed the
+same shape elsewhere. **Knowing the shape is not sufficient to avoid writing it** — which is the
+strongest argument in this document for independent audit as a *standing* control rather than a
+phase, and the reason the honest words for a self-verified fix are always *"fixed, verified only by
+its own suite"*.
+
+⚠️ **And the counterexample, recorded because a rule with no counterexample is a superstition:** the
+same audit **reversed** a queued item. `front` 7.99 was recorded as a silent residue; swept, it
+builds correctly with every clause green and the threshold sits exactly where it was declared. The
+*"too thin is not collapsed"* punt was **sound** — unlike G1's `R3-8` deferral, which an audit
+correctly called a dodge. **Punts are not all dodges, and the way to tell is to sweep the parameter,
+not to reason about it.**
+
 ### 2b. Wrong conclusions that propagated
 
 | # | Incident | Cost |
