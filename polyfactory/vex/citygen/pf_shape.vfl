@@ -1,0 +1,193 @@
+// pf_shape.vfl - PRIM wrangle, between `stamp()` and the setback inset.
+//
+// §12.6 B1's SHAPE ops - `shapeL` and `shapeU` - the half of the lot ->
+// footprint vocabulary that changes the footprint's TOPOLOGY rather than its
+// dimensions.  `setback`, `identity` and `offset` are all the same per-edge
+// inset with different numbers and are `pf_inset.vfl`'s; `shapeO` is a ring,
+// which `pf_mass.vfl` already builds from `volumeTopology.courtyardDepthM`
+// (§12.6 B1: "the courtyard that `shapeO` would cut is produced in B2 by
+// insetting the footprint a second time with the same rule"), so `stamp()`
+// routes it there and this file is not asked.  §7's finding is that lot ->
+// footprint is ONE pluggable stage; this is the pluggable part of it.
+//
+// ⚠️ DEFINED ON THE PLAN BOUNDING BOX, AND THAT IS THE OPERATION'S OWN
+// DEFINITION rather than a shortcut.  CityEngine's `shapeL`/`shapeU` are
+// defined on the shape's SCOPE - its oriented bounding box - not on its
+// outline (§7's table: "derive an L, U or O footprint by setting back a
+// selected subset of edges").  So the notch here is cut from the footprint's
+// AXIS-ALIGNED plan bounds, which is exact when the footprint is an
+// axis-aligned rectangle - the S8 lot's ordinary case, and the scope §12.10b
+// decided G2's corner closure in ("axis-aligned, not merely rectilinear").
+// ⛔ ON A ROTATED OR NON-RECTANGULAR LOT THE RESULT IS THE BOX-L, NOT A NOTCH
+// IN THE LOT.  That is CityEngine's behaviour too, and it is the honest limit:
+// an oriented scope is a §12.4 schema question (which axes a site HAS) and is
+// not one to invent here.
+//
+// ⚠️ NON-CONVEX OUTPUT IS THE POINT, not an accident: §12.6 B1 says it is
+// "legal and expected", and G2's whole gate is a reflex corner.  Both ops
+// manufacture exactly the reflex corners §5 Theme 4 says every surveyed
+// generator fails at - one for `shapeL`, two for `shapeU`.
+//
+// FACE ROLES ARE INHERITED BY OUTWARD NORMAL, and it is one rule for every
+// manufactured edge including the reflex ones: an output edge takes the role -
+// and therefore the setback - of the INPUT edge whose outward normal is
+// closest to its own.  On an axis-aligned rectangle that is exact and unique
+// (four edges, four normals).  On anything else it is a nearest-normal match
+// and can hand two output edges the same input edge's role; stated, not fixed,
+// because the input class that would fix it is a per-edge role on a shape B0
+// has not been asked to produce.
+//
+// ⚠️ ONE PRIM PER POINT, the same assumption `pf_inset.vfl` states: the ring's
+// points are moved in place, so a point shared with another lot would move for
+// both.  Lots are separate loops, not a shared planar graph.
+//
+// WHAT THIS CANNOT SEE: whether the notch it was asked for is the notch the
+// artist meant.  It can only see that the notch FITS, which is the guard
+// below, and a notch that does not fit sets `_shapebad` - which
+// `pf_collapse.vfl` folds into `pf_warn_footprint_collapsed`, §2.2's advisory
+// and never a refusal - and leaves the footprint alone.
+
+i@_shapebad = 0;
+int op = i@_shape;
+if (op == 0) return;
+
+int pts[] = primpoints(0, @primnum);
+int n = len(pts);
+if (n < 3) { i@_shapebad = 1; return; }
+
+float w = f@_shape_w, dep = f@_shape_d;
+int at = ((i@_shape_at % 4) + 4) % 4;
+
+// Winding, plan bounds, and the incoming per-edge data - all read BEFORE
+// anything moves.
+float a = 0.0, xmin = 1e18, xmax = -1e18, zmin = 1e18, zmax = -1e18, y = 0.0;
+string inrole[];
+float ininset[], inback[];
+resize(inrole, n); resize(ininset, n); resize(inback, n);
+for (int k = 0; k < n; k++) {
+    vector p = point(0, "P", pts[k]);
+    vector r = point(0, "P", pts[(k + 1) % n]);
+    a += p.x * r.z - r.x * p.z;
+    xmin = min(xmin, p.x); xmax = max(xmax, p.x);
+    zmin = min(zmin, p.z); zmax = max(zmax, p.z);
+    y = p.y;
+    // Typed locals: `vertex()` is untyped and the assignments below are
+    // otherwise ambiguous (dev-loop trap list).
+    int vi = vertexindex(0, @primnum, k);
+    string rl = vertex(0, "pf_face_role", vi);
+    float in = vertex(0, "_inset", vi);
+    float sb = vertex(0, "pf_setback", vi);
+    inrole[k] = rl; ininset[k] = in; inback[k] = sb;
+}
+float sgn = (a > 0.0) ? 1.0 : -1.0;
+float ex = xmax - xmin, ez = zmax - zmin;
+
+// Axis 0 = -z, 1 = +x, 2 = +z, 3 = -x.  `src[ax]` is the input edge whose
+// outward normal best matches that axis, and it is what carries roles across.
+int src[];
+float bestdot[];
+resize(src, 4); resize(bestdot, 4);
+for (int q = 0; q < 4; q++) { src[q] = 0; bestdot[q] = -2.0; }
+for (int e = 0; e < n; e++) {
+    vector p = point(0, "P", pts[e]);
+    vector r = point(0, "P", pts[(e + 1) % n]);
+    vector d = set(r.x - p.x, 0.0, r.z - p.z);
+    if (length(d) < 1e-9) continue;
+    vector no = normalize(set(d.z, 0.0, -d.x)) * sgn;
+    for (int q = 0; q < 4; q++) {
+        vector av = set((q == 1) ? 1.0 : ((q == 3) ? -1.0 : 0.0), 0.0,
+                        (q == 0) ? -1.0 : ((q == 2) ? 1.0 : 0.0));
+        float dt = dot(no, av);
+        if (dt > bestdot[q]) { bestdot[q] = dt; src[q] = e; }
+    }
+}
+
+// The box, CCW in (x,z): corner i starts edge i, and edge i's outward normal
+// is axis i.
+vector box[] = array(set(xmin, y, zmin), set(xmax, y, zmin),
+                     set(xmax, y, zmax), set(xmin, y, zmax));
+vector ring[];
+
+if (op == 1) {
+    // shapeL: remove a `widthM` x `depthM` rectangle at box corner `at`.
+    // WIDTH is measured along the edge LEAVING the corner, DEPTH back along
+    // the edge ARRIVING at it, so on the near corner of an axis-aligned lot
+    // they read as the notch's x and z extents.
+    vector ein = normalize(box[at] - box[(at + 3) % 4]);
+    vector eout = normalize(box[(at + 1) % 4] - box[at]);
+    float extout = (abs(eout.x) > 0.5) ? ex : ez;
+    float extin = (abs(ein.x) > 0.5) ? ex : ez;
+    if (!(w > 1e-3 && dep > 1e-3 && w < extout - 1e-3 && dep < extin - 1e-3)) {
+        i@_shapebad = 1;
+        return;
+    }
+    vector p1 = box[at] - ein * dep;
+    vector p2 = p1 + eout * w;
+    for (int i = 0; i < 4; i++) {
+        if (i != at) { push(ring, box[i]); continue; }
+        push(ring, p1); push(ring, p2); push(ring, p2 + ein * dep);
+    }
+} else {
+    // shapeU: remove a `widthM` x `depthM` rectangle centred on box side
+    // `at`, cutting inward - two reflex corners instead of one.
+    vector e = normalize(box[(at + 1) % 4] - box[at]);
+    vector no = normalize(set(e.z, 0.0, -e.x));
+    float extalong = (abs(e.x) > 0.5) ? ex : ez;
+    float extin = (abs(e.x) > 0.5) ? ez : ex;
+    if (!(w > 1e-3 && dep > 1e-3 && w < extalong - 1e-3
+          && dep < extin - 1e-3)) {
+        i@_shapebad = 1;
+        return;
+    }
+    vector mid = (box[at] + box[(at + 1) % 4]) * 0.5;
+    vector m1 = mid - e * (w * 0.5);
+    vector m2 = m1 - no * dep;
+    vector m3 = m2 + e * w;
+    for (int i = 0; i < 4; i++) {
+        push(ring, box[i]);
+        if (i == at) { push(ring, m1); push(ring, m2); push(ring, m3);
+                       push(ring, m3 + no * dep); }
+    }
+}
+
+// The box above is CCW-positive; a lot that arrived wound the other way keeps
+// its winding, because `pf_area0` recomputes the sign downstream and a
+// footprint that silently reversed would hand `pf_inset.vfl` the wrong side.
+if (sgn < 0.0) reverse(ring);
+
+int m = len(ring);
+int npt[];
+resize(npt, m);
+for (int k = 0; k < m; k++) {
+    int pt = (k < n) ? pts[k] : addpoint(0, ring[k]);
+    setpointattrib(0, "P", pt, ring[k]);
+    npt[k] = pt;
+}
+// The PRIMITIVE is kept and rewired rather than rebuilt, so every prim
+// attribute `stamp()` wrote survives untouched.  Rebuilding would mean copying
+// a dozen names by hand, and a copy list is a coupling that rots silently the
+// first time a field is added to `stamp()`.
+for (int k = n; k < m; k++) addvertex(0, @primnum, npt[k]);
+for (int k = n - 1; k >= m; k--) {
+    removevertex(0, vertexindex(0, @primnum, k));
+    removepoint(0, pts[k], 0);
+}
+for (int k = 0; k < m; k++) setprimvertex(0, @primnum, k, npt[k]);
+
+for (int k = 0; k < m; k++) {
+    vector v = set(ring[(k + 1) % m].x - ring[k].x, 0.0,
+                   ring[(k + 1) % m].z - ring[k].z);
+    vector no = normalize(set(v.z, 0.0, -v.x)) * sgn;
+    int ax = 0;
+    float best = -2.0;
+    for (int q = 0; q < 4; q++) {
+        vector av = set((q == 1) ? 1.0 : ((q == 3) ? -1.0 : 0.0), 0.0,
+                        (q == 0) ? -1.0 : ((q == 2) ? 1.0 : 0.0));
+        float dt = dot(no, av);
+        if (dt > best) { best = dt; ax = q; }
+    }
+    int e = src[ax];
+    setvertexattrib(0, "pf_face_role", @primnum, k, inrole[e]);
+    setvertexattrib(0, "_inset", @primnum, k, ininset[e]);
+    setvertexattrib(0, "pf_setback", @primnum, k, inback[e]);
+}

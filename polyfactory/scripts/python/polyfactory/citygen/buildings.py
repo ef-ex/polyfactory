@@ -55,8 +55,13 @@ DEFAULTS = {
     "version": 0,
     "sources": [],
     "storeyHeightM": 3.0,
+    # §12.6 B1 / §7: lot -> footprint is ONE pluggable stage and `identity` is
+    # a legal choice, not a separate architecture.  `offsetM` is the uniform
+    # inset `offset` applies to every edge regardless of role; `shape` is the
+    # notch `shapeL`/`shapeU` cut out of the plan bounds (`pf_shape.vfl`).
     "lotToFootprint": {"op": "setback", "setbackM": {},
-                       "defaultSetbackM": 0.0},
+                       "defaultSetbackM": 0.0, "offsetM": 0.0,
+                       "shape": {"widthM": 0.0, "depthM": 0.0, "at": 0}},
     "volumeTopology": {
         "rails": "bar",
         "cutsAt": [],
@@ -82,6 +87,17 @@ PLINTH = {"none": 0, "levelToHighest": 1}
 # §2.2, advisory and never a refusal.
 CAPS = {"flat": 0, "skeletonRoof": 1}
 CORNERS = ("bend", "miter")
+# §12.6 B1's lot -> footprint vocabulary, complete.  Three of the six are the
+# same per-edge inset with different numbers and are `pf_inset.vfl`'s
+# (`setback` per role, `offset` uniform, `identity` = `setback(0)`); two change
+# the footprint's TOPOLOGY and are `pf_shape.vfl`'s; and `shapeO` is a ring,
+# which `pf_mass.vfl` already builds - §12.6 B1 says so in as many words, so
+# `shapeO` routes to the `ring` rails rather than cutting a second courtyard
+# by a second mechanism.  A name that is not here raises `pf_warn_unknown_rule`
+# (§12.8) and gets `setback`; before this table an unknown op fell silently
+# through to the setback table with no warning at all.
+FOOTPRINT = ("setback", "identity", "offset", "shapeL", "shapeU", "shapeO")
+SHAPES = {"shapeL": 1, "shapeU": 2}
 
 # conventions.md §2/§5: `_*` leaves on no class, and neither does the VERTEX
 # `pf_face_role` the lot arrived with - B2 re-emits it per PRIM on the walls
@@ -96,9 +112,15 @@ CORNERS = ("bend", "miter")
 # attribute definition with an empty value on every face, a name in the
 # published-names baseline carrying nothing. B6's per-building DNA point is
 # where the template id belongs (§12.6), not on every wall.
+#
+# ⚠️ `pf_setback` IS SWEPT ON BOTH CLASSES, and the prim one is `R4-3`'s leak
+# half: a lot authoring a PRIM `pf_setback` - a class §12.4 declares legal -
+# shipped it on every face of the building as a dead value, because the sweep
+# named the vertex class only.  Its other half (the value being ignored) is
+# closed in `stamp()`, which now reads both classes.
 CLEAN = (("doptdel", "ptdel", "_*"),
          ("dovtxdel", "vtxdel", "_* pf_face_role pf_setback"),
-         ("doprimdel", "primdel", "_* pf_style_template"),
+         ("doprimdel", "primdel", "_* pf_style_template pf_setback"),
          ("dodtldel", "dtldel", "_*"))
 
 
@@ -225,7 +247,8 @@ def stamp(geo, overrides=None, cache=None):
     """Flatten each lot prim's resolved template onto attributes VEX reads.
 
     Reads   prim `pf_style_template` (string), prim `pf_site_id` (int),
-            vertex `pf_face_role` (string), optional vertex `pf_setback`.
+            vertex `pf_face_role` (string), optional `pf_setback` on the
+            VERTEX or the PRIM class - §12.4 declares both legal (`R4-3`).
     Writes  the `_*` marshalling attributes, `pf_style_id`, `pf_seed`.
 
     The optional authored `pf_setback` is cascade level 5 and it WINS over the
@@ -257,6 +280,14 @@ def stamp(geo, overrides=None, cache=None):
     # overwriting a lot's own `pf_seed` of 4242 with 0 on every prim, which
     # left §12.4's per-site determinism row unimplemented rather than untested.
     seeded = geo.findPrimAttrib("pf_seed") is not None
+    # `R4-6`: the un-seeded branch below used to fall back to a template key no
+    # template defines, so every site in a stream that arrived without a seed
+    # got the SAME seed, 0, and §12.4's per-site determinism row was silently
+    # unimplemented rather than loudly missing.  The site id is deterministic,
+    # distinct per site and structural (§12.7 - never generation order), which
+    # is exactly what a seed has to be; B0 writes the same fallback, so the two
+    # agree whether or not B0 ran.
+    sited = geo.findPrimAttrib("pf_site_id") is not None
 
     for name, kind in (("_roles", hou.attribData.String),
                        ("_storeys", hou.attribData.Int),
@@ -266,10 +297,12 @@ def stamp(geo, overrides=None, cache=None):
         if geo.findPrimAttrib(name) is None:
             geo.addArrayAttrib(hou.attribType.Prim, name, kind)
     for name, default in (("_rails", 0), ("_plinth", 0), ("pf_seed", 0),
-                          ("pf_warn_unknown_rule", 0)):
+                          ("pf_warn_unknown_rule", 0), ("_shape", 0),
+                          ("_shape_at", 0)):
         if geo.findPrimAttrib(name) is None:
             geo.addAttrib(hou.attribType.Prim, name, default)
-    for name, default in (("_courtyard", 0.0), ("_plinthmin", 0.0)):
+    for name, default in (("_courtyard", 0.0), ("_plinthmin", 0.0),
+                          ("_shape_w", 0.0), ("_shape_d", 0.0)):
         if geo.findPrimAttrib(name) is None:
             geo.addAttrib(hou.attribType.Prim, name, default)
     if geo.findPrimAttrib("pf_style_id") is None:
@@ -277,6 +310,7 @@ def stamp(geo, overrides=None, cache=None):
     if geo.findVertexAttrib("_inset") is None:
         geo.addAttrib(hou.attribType.Vertex, "_inset", 0.0)
     authored = geo.findVertexAttrib("pf_setback") is not None
+    authored_prim = geo.findPrimAttrib("pf_setback") is not None
 
     for prim in geo.prims():
         style_id = prim.attribValue("pf_style_template")
@@ -285,13 +319,24 @@ def stamp(geo, overrides=None, cache=None):
         tpl = cache[style_id]
         topo = tpl["volumeTopology"]
         volumes = topo["volumes"] or DEFAULTS["volumeTopology"]["volumes"]
+        fp = tpl["lotToFootprint"]
+        op = (fp["op"] if fp["op"] in FOOTPRINT
+              else DEFAULTS["lotToFootprint"]["op"])
         unknown = int(topo["rails"] not in RAILS
-                      or topo["plinth"]["mode"] not in PLINTH)
+                      or topo["plinth"]["mode"] not in PLINTH
+                      or fp["op"] not in FOOTPRINT)
 
         prim.setAttribValue("pf_style_id", tpl["styleId"] or style_id)
         if not seeded:
-            prim.setAttribValue("pf_seed", int(tpl.get("seed", 0)))
-        prim.setAttribValue("_rails", RAILS.get(topo["rails"], 0))
+            prim.setAttribValue("pf_seed", int(tpl.get(
+                "seed", prim.attribValue("pf_site_id") if sited else 0)))
+        # `shapeO` IS the ring, and routing it here rather than cutting a
+        # courtyard in B1 is §12.6 B1's own instruction ("the courtyard that
+        # `shapeO` would cut is produced in B2 by insetting the footprint a
+        # second time with the same rule").  Two mechanisms for one hole is how
+        # a template ends up able to ask for a courtyard and not get one.
+        prim.setAttribValue("_rails", RAILS.get(
+            "ring" if op == "shapeO" else topo["rails"], 0))
         prim.setAttribValue("_cuts", [float(c) for c in topo["cutsAt"]])
         prim.setAttribValue("_roles", [str(v.get("role", "volume"))
                                        for v in volumes])
@@ -311,13 +356,37 @@ def stamp(geo, overrides=None, cache=None):
         prim.setAttribValue("_plinthmin",
                             float(topo["plinth"].get("minM", 0.0)))
         prim.setAttribValue("pf_warn_unknown_rule", unknown)
+        shape = fp["shape"]
+        prim.setAttribValue("_shape", SHAPES.get(op, 0))
+        prim.setAttribValue("_shape_w", float(shape.get("widthM", 0.0)))
+        prim.setAttribValue("_shape_d", float(shape.get("depthM", 0.0)))
+        prim.setAttribValue("_shape_at", int(shape.get("at", 0)))
 
-        fp = tpl["lotToFootprint"]
-        table = fp["setbackM"] if fp["op"] != "identity" else {}
-        fallback = 0.0 if fp["op"] == "identity" else fp["defaultSetbackM"]
+        # `identity` is `setback(0)` and `offset` is one uniform number on
+        # every edge regardless of role - both are the per-role table emptied,
+        # with a different fallback.  ⚠️ A NEGATIVE `offsetM` (CityEngine's
+        # outward offset, §7) is NOT supported: `pf_collapse.vfl` flags a
+        # footprint whose area GREW, so an outward offset degrades onto the lot
+        # with the collapse warning.  Named rather than half-built - relaxing
+        # that term is proven coverage and not this stage's to spend.
+        table = {} if op in ("identity", "offset") else fp["setbackM"]
+        fallback = (0.0 if op == "identity"
+                    else float(fp["offsetM"]) if op == "offset"
+                    else fp["defaultSetbackM"])
+        # `R4-3`: §12.4 declares vertex AND prim legal for the authored
+        # override, and only vertex was read - so a lot authoring a prim
+        # `pf_setback` on a 10 x 90 einhof lot silently built the template's
+        # numbers with all four warnings at 0.  Vertex wins where it is
+        # authored, because a per-edge override must beat a per-face one or the
+        # cascade stops being a cascade; a negative vertex value is ABSENT and
+        # falls through to the prim class, then to the template.
+        pfb = (prim.attribValue("pf_setback") if authored_prim else -1.0)
         for vtx in prim.vertices():
-            if authored and vtx.attribValue("pf_setback") >= 0.0:
-                vtx.setAttribValue("_inset", vtx.attribValue("pf_setback"))
+            sb = vtx.attribValue("pf_setback") if authored else -1.0
+            if sb < 0.0:
+                sb = pfb
+            if sb >= 0.0:
+                vtx.setAttribValue("_inset", sb)
             else:
                 role = vtx.attribValue("pf_face_role")
                 vtx.setAttribValue("_inset",
@@ -480,6 +549,82 @@ def build_shell(parent, mass, kit, overrides=None, corners="bend",
     return out
 
 
+def site(parent, lots, style="", name="b0"):
+    """B0 - the SITE CONTRACT (§12.4), wired under `parent` downstream of the
+    raw lot SOP.  -> the output node.  `style` is the zone default template id,
+    cascade level 2, used only where the lot itself names none.
+
+    IT SHIPS AS AN ADAPTER (§0.0a) and that is a deliberate, reversible choice:
+    it ingests TODAY's planar S8 lot and stamps §12.4's volume + face-role
+    schema in its degenerate planar form, so streets needs no change and no
+    seam mismatch can arise.  ⚠️ The schema is Hannes' to ratify (§0.0g row 1)
+    and nothing here records it as ratified.
+
+    WHAT IT INGESTS, all optional: `pf_site_id` on the prim OR the detail
+    class (§12.4 says B0 owns that conversion), `pf_seed` on the prim,
+    `pf_style_template` on the prim OR the detail class, `pf_face_role` on the
+    vertex OR the prim class, and `pf_setback` on the vertex class.  A bare
+    closed polygon with none of them is a legal input and is what an S8 lot is
+    today.
+
+    WHAT IT STAMPS: prim `pf_site_id`, prim `pf_seed`, prim
+    `pf_style_template`, vertex `pf_face_role`, vertex `pf_setback`.  §12.4's
+    `pf_coverage_max` / `pf_far_max` / `pf_height_max` are deliberately NOT
+    stamped: nothing consumes them yet, and a published name carrying a value
+    no stage reads is the exact defect shape §12.10a defect 5 names.  They
+    arrive with the caps check that raises `pf_warn_coverage_exceeded`.
+
+    ⛔ THE ONE THING B0 EXISTS TO MAKE IMPOSSIBLE is a missing `pf_setback`
+    sentinel; the reasoning and the measurement are in `pf_site.vfl`'s header,
+    and the residual - a stream that skips B0 entirely - is stated there too.
+
+    THREE NODES, and the split between the first two is load-bearing rather
+    than tidy: a wrangle that WRITES an attribute has already created it by the
+    time `has*attrib` is asked, so the read side must be a different node from
+    the write side or B0 cannot tell an authored 0.0 from one it manufactured.
+    """
+    import hou
+
+    def wrangle(nm, src, cls, src_input):
+        node = parent.createNode("attribwrangle", nm)
+        node.parm("class").set(cls)
+        node.parm("snippet").set(vex(src))
+        node.setFirstInput(src_input)
+        return node
+
+    read = wrangle(name + "_read", "pf_site_in", 1, lots)
+    group = read.parmTemplateGroup()
+    group.append(hou.StringParmTemplate("style", "Default Style Template", 1))
+    read.setParmTemplateGroup(group)
+    read.parm("style").set(style)
+
+    out_w = wrangle(name + "_stamp", "pf_site", 1, read)
+
+    clean = parent.createNode("attribdelete", name + "_clean")
+    clean.setFirstInput(out_w)
+    # The `_*` law (conventions.md §2) on all four classes, plus the two names
+    # B0 NORMALISED off the volume form: a role carried on the prim class has
+    # been re-emitted per vertex, and two classes of one contract name in one
+    # stream is exactly the confusion §1 exists to prevent.  ⚠️ Prim
+    # `pf_setback` is NOT swept here - it is a cascade override `stamp()` still
+    # has to read (`R4-3`), and `CLEAN` sweeps it at B2's output instead.
+    for do, pat, value in (("doptdel", "ptdel", "_*"),
+                           ("dovtxdel", "vtxdel", "_*"),
+                           ("doprimdel", "primdel", "_* pf_face_role"),
+                           ("dodtldel", "dtldel", "_* pf_site_id "
+                            "pf_style_template")):
+        clean.parm(do).set(1)
+        clean.parm(pat).set(value)
+    groups = parent.createNode("groupdelete", name + "_clean_groups")
+    groups.setFirstInput(clean)
+    groups.parm("group1").set("_*")
+
+    out = parent.createNode("null", name + "_OUT")
+    out.setFirstInput(groups)
+    parent.layoutChildren()
+    return out
+
+
 def build(parent, lots, ground=None, overrides=None, name="b2"):
     """Wire B1+B2 under `parent`, downstream of the `lots` SOP.  -> the output
     node.  `lots` emits lot polygons carrying prim `pf_site_id` (int), prim
@@ -505,7 +650,13 @@ def build(parent, lots, ground=None, overrides=None, name="b2"):
         "from polyfactory.citygen import buildings\n"
         "buildings.stamp(hou.pwd().geometry(), %r)\n" % (overrides,))
 
-    area = wrangle(name + "_area", "pf_area0", 1, marshal)
+    # B1's shape ops sit between the cascade and the inset: `shapeL`/`shapeU`
+    # change the footprint's TOPOLOGY, and the per-role setback is then applied
+    # to the shape that came out - which is CityEngine's order too (the parcel
+    # is shaped, then set back).  A template that asks for neither leaves
+    # `_shape` at 0 and the node returns on its first line.
+    shape = wrangle(name + "_shape", "pf_shape", 1, marshal)
+    area = wrangle(name + "_area", "pf_area0", 1, shape)
     inset = wrangle(name + "_setback", "pf_inset", 2, area)
     footprint = wrangle(name + "_footprint", "pf_collapse", 1, inset)
 

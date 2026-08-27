@@ -1,0 +1,50 @@
+// pf_site.vfl - PRIM wrangle.  B0's WRITE side: §12.4's site contract, stamped.
+//
+// Reads only the `_*` scratch `pf_site_in.vfl` captured off the INPUT; writes
+// only the contract.  Splitting the two is what makes the tests in that file
+// honest - see its header.
+//
+// ⛔ EVERY WRITE BELOW IS UNCONDITIONAL, AND THAT IS THE WHOLE POINT OF THIS
+// FILE.  §12.4's `pf_setback` sentinel reads `>= 0` authored, negative absent -
+// and a Houdini float attribute has NO absent value: every vertex carries one
+// the moment the attribute exists.  So a B0 that merely CREATES `pf_setback`
+// and writes only the edges it authors leaves every other edge at the created
+// default of 0.0, and 0.0 now MEANS "build to the lot line".
+//
+// ⚠️ The lot below is named by its SIZE and not by its style, because
+// `no_style_branching` forbids a style id anywhere in production source and it
+// caught this very comment naming one.  It is the 10 x 90 farmstead lot.
+//
+// `R4-2` measured that exact B0 on that lot: plan box
+// [0, 0, 10, 90] where the template asks [2.5, 2.0, 7.5, 47.0] - the building
+// hard on its lot line - with **all four `pf_warn_*` at 0**, and `pf_setback`
+// swept from the output by `CLEAN`, so the shipped geometry carries no trace
+// of the request.  Silent, unwarned and untraceable.  The loop below therefore
+// has NO branch that can leave an edge unwritten: -1.0 is what an edge gets
+// when nothing authored it, and it is written, not defaulted.
+//
+// ⚠️ WHAT THIS CANNOT DO, STATED BECAUSE IT IS THE RESIDUAL RISK.  It closes
+// the omission for every stream that passes THROUGH B0.  A stream that skips
+// B0 - an artist creating `pf_setback` by hand on a lot, a producer written
+// against the old meaning of 0.0 - still lands on the lot line with no
+// warning, because nothing in the contract says whether B0 ran.  The cure for
+// that is a companion mask (`pf_setback_set`), which is a schema change and
+// is Hannes' (§0.0g row 9); it is recommended there and deliberately not
+// taken here.
+
+int pts[] = primpoints(0, @primnum);
+
+setprimattrib(0, "pf_site_id", @primnum, i@_site);
+setprimattrib(0, "pf_seed", @primnum, i@_seed);
+setprimattrib(0, "pf_style_template", @primnum, s@_style);
+
+// ⚠️ Typed locals, not the ternary or the bare call: `vertex()` returns an
+// untyped value and `setvertexattrib()` is overloaded on the last argument
+// (dev-loop trap list).
+for (int k = 0; k < len(pts); k++) {
+    int vi = vertexindex(0, @primnum, k);
+    float sb = vertex(0, "_setback", vi);
+    string rl = vertex(0, "_role", vi);
+    setvertexattrib(0, "pf_setback", @primnum, k, sb);
+    setvertexattrib(0, "pf_face_role", @primnum, k, rl);
+}

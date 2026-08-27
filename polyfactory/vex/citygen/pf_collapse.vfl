@@ -154,8 +154,19 @@ for (int k = 0; k < n && !pinched; k++) {
     if (length(set(p.x - r.x, 0.0, p.z - r.z)) < 1e-3) pinched = 1;
 }
 
+// ⭐ AND THE SIXTH TERM, WHICH IS NOT A MEASUREMENT: B1's shape ops report a
+// notch that does not FIT (`pf_shape.vfl`'s guard) and leave the footprint
+// alone, and "the footprint you asked for could not be built" is what this
+// warning already means.  ⚠️ IT IS READ, NOT ASSUMED - a chain without the
+// shape node has no `_shapebad` - and it is folded in at the FRONT of the
+// expression on purpose: every mutation anchor in both suites spans a term
+// further right, and `build_retrospective.md` §2a instance 35 is one added
+// term unmooring two of another gate's rows.
+int shapebad = hasprimattrib(0, "_shapebad")
+    ? prim(0, "_shapebad", @primnum) : 0;
+
 i@pf_warn_footprint_collapsed =
-    (outside || crosses || pinched || a * was <= 0.0
+    (shapebad || outside || crosses || pinched || a * was <= 0.0
      || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
      || abs(a) < 1e-4) ? 1 : 0;
 f@_area0 = a;

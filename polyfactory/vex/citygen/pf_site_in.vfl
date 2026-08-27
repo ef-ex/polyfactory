@@ -1,0 +1,110 @@
+// pf_site_in.vfl - PRIM wrangle.  B0's READ side.
+//
+// B0 is the SITE CONTRACT (§12.4) and it ships as an ADAPTER (§0.0a): it
+// ingests today's PLANAR S8 lot - one closed polygon per lot - and stamps
+// §12.4's volume + face-role schema in its degenerate planar form, where the
+// role belongs to an EDGE and VERTEX is the only class that can hold one value
+// per edge.  Streets needs no change, so no seam mismatch can arise and the
+// work stays reversible.  ⚠️ The schema is Hannes' to ratify (§0.0g row 1) and
+// nothing here records it as ratified.
+//
+// ⛔ WHY THE READ IS A SEPARATE NODE FROM THE WRITE, AND IT IS NOT TIDINESS.
+// A wrangle that WRITES an attribute has already created it by the time
+// `has*attrib` is asked in the same file, so one file that both TESTS for
+// `pf_setback` and STAMPS it cannot tell an authored value from the 0.0
+// default it just manufactured - and 0.0 is exactly the value `R4-2` measured
+// as failing unsafe, silently and tracelessly.  Everything written here lands
+// on `_*` scratch, so every test below is asked of the INPUT and of nothing
+// this file has touched.
+//
+// WHAT THIS CANNOT SEE: whether the roles it was handed are the RIGHT roles.
+// A role comes from which lot line touches a street (§10a) and is not
+// derivable from geometry, so a lot that arrives untagged gets "" here - which
+// resolves to the template's `defaultSetbackM` through the cascade - and never
+// a guess at `front`.  Nor can it see a lot whose points are SHARED with
+// another prim; like `pf_inset.vfl` it assumes one prim per point.
+
+int pts[] = primpoints(0, @primnum);
+int n = len(pts);
+
+// §12.4: `pf_site_id` is DETAIL on a single-site stream and PRIM once a stream
+// carries several, "and B0 owns that conversion".  Both forms in, prim out,
+// because prim is what B2 cooks.  A lot that carries NEITHER falls back to its
+// own primitive number - stated rather than hidden, because §12.7 forbids
+// deriving an ELEMENT id from generation order and this is the one place a
+// SITE id for an untagged lot has nothing else to be.  Every lot streets
+// produces carries one.
+// ⚠️ EVERY READ BELOW IS ASSIGNED TO A TYPED LOCAL FIRST.  `prim()`, `vertex()`
+// and `detail()` return an untyped value, so passing one straight into
+// `setvertexattrib()` - or into a ternary - is ambiguous and the compiler says
+// so (dev-loop trap list; it cost a cook here before it cost a comment).
+int site = @primnum;
+if (hasprimattrib(0, "pf_site_id")) {
+    int v = prim(0, "pf_site_id", @primnum);
+    site = v;
+} else if (hasdetailattrib(0, "pf_site_id")) {
+    int v = detail(0, "pf_site_id");
+    site = v;
+}
+i@_site = site;
+
+// §12.4: the seed belongs to the SITE - "same seed + template + overrides =>
+// identical geometry".  A lot arriving with one keeps it.  `R4-6`: a lot
+// arriving WITHOUT one used to reach `stamp()`'s un-seeded branch, where a
+// template key no template defines gave every site in the stream the same
+// seed, 0, so §12.4's per-site determinism row was silently unimplemented
+// rather than loudly missing.  The site id is deterministic, distinct per site
+// and structural, so it is what an unseeded lot gets.
+i@_hasseed = hasprimattrib(0, "pf_seed");
+int seed = site;
+if (i@_hasseed) {
+    int v = prim(0, "pf_seed", @primnum);
+    seed = v;
+}
+i@_seed = seed;
+
+// §12.4: `pf_style_template` is prim/detail and "resolvable through the
+// cascade (zone default -> region -> per-site)".  The node's own parameter is
+// cascade level 2 and loses to both.
+string st = "";
+if (hasprimattrib(0, "pf_style_template")) {
+    string v = prim(0, "pf_style_template", @primnum);
+    st = v;
+} else if (hasdetailattrib(0, "pf_style_template")) {
+    string v = detail(0, "pf_style_template");
+    st = v;
+}
+s@_style = (st != "") ? st : chs("style");
+
+// The two per-EDGE fields.  §12.4 declares BOTH classes legal for each: prim
+// on the volume form, vertex on the planar one.
+//
+// The ROLE is normalised here, to VERTEX, because it is STRUCTURAL - it says
+// what the site IS, so it belongs to the site contract, and `pf_mass.vfl`
+// reads exactly one class.  The SETBACK is deliberately NOT normalised here:
+// it is a cascade level-5 OVERRIDE, the cascade is `stamp()`'s job, and
+// `stamp()` reads both classes for `R4-3`.  One mechanism per contract; the
+// prim `pf_setback` (if any) passes through this node untouched and is swept
+// at B2's output by `CLEAN`, which is the other half of `R4-3`.
+//
+// ⚠️ An absent vertex `pf_setback` is written as the SENTINEL, never as 0 -
+// and a vertex sentinel is what lets `stamp()` fall through to a prim-class
+// authoring.  Writing 0 here would silently answer a question the artist had
+// asked of a different class.
+int hasvs = hasvertexattrib(0, "pf_setback");
+int hasvr = hasvertexattrib(0, "pf_face_role");
+string pr = "";
+if (hasprimattrib(0, "pf_face_role")) {
+    string v = prim(0, "pf_face_role", @primnum);
+    pr = v;
+}
+
+for (int k = 0; k < n; k++) {
+    int vi = vertexindex(0, @primnum, k);
+    float sb = -1.0;
+    if (hasvs) { float v = vertex(0, "pf_setback", vi); sb = v; }
+    string rl = pr;
+    if (hasvr) { string v = vertex(0, "pf_face_role", vi); rl = v; }
+    setvertexattrib(0, "_setback", @primnum, k, sb);
+    setvertexattrib(0, "_role", @primnum, k, rl);
+}
