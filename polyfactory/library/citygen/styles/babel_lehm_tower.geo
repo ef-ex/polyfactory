@@ -67,33 +67,28 @@
 								"value":{
 									"eaveDepthM":{
 										"type":"float",
-										"value":0.699999999999999956
+										"value":0
 									},
 									"family":{
 										"type":"string",
-										"value":"skeletonRoof"
+										"value":"flat"
 									},
 									"pitchDeg":{
 										"type":"float",
-										"value":38
+										"value":0
 									}
 								}
 							},
-							"junctions":{
-								"type":"dict",
-								"value":{
-									"cornerMode":{
-										"type":"string",
-										"value":"miter"
-									}
-								}
+							"constructionSystem":{
+								"type":"string",
+								"value":"at_lehm_massiv"
 							},
 							"lotToFootprint":{
 								"type":"dict",
 								"value":{
 									"defaultSetbackM":{
 										"type":"float",
-										"value":2
+										"value":0
 									},
 									"op":{
 										"type":"string",
@@ -102,45 +97,22 @@
 									"setbackM":{
 										"type":"dict",
 										"value":{
-											"alley":{
-												"type":"float",
-												"value":2.5
-											},
-											"front":{
-												"type":"float",
-												"value":3
-											},
-											"interiorSide":{
-												"type":"float",
-												"value":1.5
-											},
-											"rear":{
-												"type":"float",
-												"value":4
-											},
-											"sideStreet":{
-												"type":"float",
-												"value":2
-											}
 										}
 									}
 								}
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["TYPE: none. This is gate G2's acceptance fixture (\u00a712.10), not a surveyed building, and every number below is chosen to exercise a SEAM rather than to describe a place. It is listed here rather than hidden in the test harness because a style is data and the cascade must be able to reach it (\u00a712.5).",
-									"setbackM per role, all four different: UNSOURCED BY DESIGN. The reflex corner of the L is where the `rear` edge meets the `interiorSide` edge, and two edges meeting at a reflex corner with DIFFERENT insets is the case `pf_inset.vfl` solves corner-by-corner and nothing has ever checked.",
-									"rails `solid`: the rule G2 added. One volume over the whole footprint, whatever its corner count - see `pf_mass.vfl`. Without it a non-convex footprint could only become one mass through the DEGRADED fallback, which carries `pf_warn_topology_arity` and would build the gate on a path that declares itself broken.",
-									"storeys 3, storeyHeightM 3.2: UNSOURCED. Enough storeys that the facade has more than one row to misalign, low enough that the gate images frame.","capFamily pitchDeg 38, eaveDepthM 0.7: UNSOURCED. The pitch is any value that makes hips and the valley visible; the eave is non-zero ON PURPOSE, because a zero overhang makes the roof's boundary identical to the wall top and the eave seam then closes by construction rather than by B6 doing anything.",
-									"junctions cornerMode `miter`: this is the treatment \u00a712.6 B6 names as its PRIMARY strategy (a corner module from the kit), and \u00a70.0d records that it is also the one polyChain's native chain refuses per-BUILD. G2 measures both; the template asks for the one the spec prefers."]
+								"value":["TYPE: none. \u00a79g's Babel stress test - a REAL material at an impossible scale. Every number here is a fixture value; the only thing that matters is that the construction system is not a fixture, it is the Einhof's own sourced block.",
+									"storeys 8 against the system's sourced maxStoreys 2: UNSOURCED BY DESIGN, and it is the case under test rather than a claim about a building.","storeyHeightM 4.0 / rails `solid` / cap `flat`: UNSOURCED. One volume over the whole footprint so the storey count has nowhere to hide, and a flat cap so nothing but the warning is at issue."]
 							},
 							"storeyHeightM":{
 								"type":"float",
-								"value":3.20000000000000018
+								"value":4
 							},
 							"styleId":{
 								"type":"string",
-								"value":"g2_lshape"
+								"value":"babel_lehm_tower"
 							},
 							"version":{
 								"type":"int",
@@ -184,11 +156,11 @@
 												},
 												"role":{
 													"type":"string",
-													"value":"dwelling"
+													"value":"tower"
 												},
 												"storeys":{
 													"type":"int",
-													"value":3
+													"value":8
 												}
 											}
 										]

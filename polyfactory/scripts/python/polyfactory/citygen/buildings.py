@@ -46,6 +46,17 @@ _ROOT = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))
 VEX_DIR = os.path.join(_ROOT, "vex", "citygen").replace("\\", "/")
 STYLE_DIR = os.path.join(_ROOT, "library", "citygen",
                          "styles").replace("\\", "/")
+# §12.5 spells `constructionSystem` "ref -> data block", and B3 takes that
+# literally: construction systems are a SECOND library, not a field inside a
+# style.  The reason is §9e's two-layer model - layer 1 (what the material and
+# its jointing permit) is shared BETWEEN styles, layer 2 (what a culture picks
+# inside that space) is the style.  Two Gruenderzeit styles reading one
+# `at_ziegel_gruenderzeit` file is that claim made checkable: change the
+# system's `maxSpanM` and both move.  A system inside a style could not be
+# shared, and a system used by exactly one style is that style's data wearing
+# a system's name - the same test G1 applied to assembly rules.
+SYSTEM_DIR = os.path.join(_ROOT, "library", "citygen",
+                          "systems").replace("\\", "/")
 
 # Cascade level 1: system defaults.  "No constants" (citygen.md §2.1) means
 # every one of these is a default a template or an override may replace, and a
@@ -70,6 +81,25 @@ DEFAULTS = {
         "plinth": {"mode": "none", "minM": 0.0},
     },
     "capFamily": {"family": "flat", "pitchDeg": 0.0, "eaveDepthM": 0.0},
+    # §12.6 B3, the STRUCTURE table.  Zero means "this system states no
+    # limit", never "zero metres": B3 is inert on a template that names no
+    # system, and §12.5 says a template may be sparse.  A style names a
+    # system by ID (a string) and `load()` substitutes the block; an override
+    # may then deep-merge into it, so a single field is reachable through the
+    # cascade without re-authoring the system.
+    #
+    # ⚠️ `bayMaxM`, NOT §12.6's `bayRangeM`, and the deviation is deliberate:
+    # the lower bound of a bay range has NO consumer here.  The count rule
+    # below already yields the LARGEST width that respects the cap, so a
+    # width under the band's minimum means the face itself is short and
+    # nothing can be done about it - and the only honest response, a warning,
+    # would need a §12.8 name that does not exist.  Inventing one is Hannes'
+    # (§0.0g row 6's precedent), so the field ships as the half that is read.
+    "constructionSystem": {
+        "systemId": "", "sources": [],
+        "maxSpanM": 0.0, "bayMaxM": 0.0, "maxStoreys": 0,
+        "wallThicknessM": 0.0, "wallThicknessesM": [], "storeyHeightsM": [],
+    },
     # §12.6 B6: the seam strategy is "selectable through the cascade", so it is
     # a template field like any other.  `bend` is the default because it is
     # also polyChain's, and because `miter` costs 2.7x (see §12.10b).
@@ -138,6 +168,10 @@ def vex(name):
 
 def style_path(style_id):
     return os.path.join(STYLE_DIR, style_id + ".geo").replace("\\", "/")
+
+
+def system_path(system_id):
+    return os.path.join(SYSTEM_DIR, system_id + ".geo").replace("\\", "/")
 
 
 def _plain(value):
@@ -209,14 +243,33 @@ def assert_storable(value, path="pf_style_template"):
                              "22.0.398)" % (path, bad))
 
 
-def load(style_id_or_path):
-    """One style template -> a plain dict."""
+def _read(path):
     import hou
-    path = (style_id_or_path if style_id_or_path.endswith(".geo")
-            else style_path(style_id_or_path))
     geo = hou.Geometry()
     geo.loadFromFile(path)
     return _plain(geo.attribValue("pf_style_template"))
+
+
+def load(style_id_or_path):
+    """One style template -> a plain dict, with its construction system in it.
+
+    ⚠️ THE REF IS EXPANDED HERE, NOT IN `resolve()`, and the order is the
+    whole reason: `resolve()` deep-merges per LEAF, so a cascade override of
+    `constructionSystem.maxSpanM` must meet a DICT, not the string that names
+    the file.  Expanding at load makes the system a normal sparse dict for
+    every layer above it.  An id that names no file raises here rather than
+    silently resolving to the DEFAULTS block - a style that asks for a system
+    it does not have is the `pf_warn_unknown_rule` shape, and unlike a rule
+    name there is nothing sane to fall back to.
+    """
+    path = (style_id_or_path if style_id_or_path.endswith(".geo")
+            else style_path(style_id_or_path))
+    tpl = _read(path)
+    cs = tpl.get("constructionSystem")
+    if isinstance(cs, (str, bytes)) and cs:
+        tpl = dict(tpl)
+        tpl["constructionSystem"] = _read(system_path(cs))
+    return tpl
 
 
 def _merge(base, over):
@@ -241,6 +294,35 @@ def resolve(template, overrides=None):
     enter through the caller, not through this function."""
     out = _merge(DEFAULTS, template or {})
     return _merge(out, overrides or {}) if overrides else out
+
+
+def by_storey(rows, key):
+    """A B3 per-storey override table -> {storey number: value}.
+
+    §12.12 asked where per-storey heights live and answered "B3, and they are
+    inexpressible today".  They are expressible now, and the enabling fact was
+    measured by G3 rather than assumed: a list of DICTS round-trips intact
+    through the `.geo` detail-dict format (only a list containing a LIST is
+    fatal, and `assert_storable()` raises on that at authoring).  So the shape
+    is `[{"n": 1, "hM": 4.2}, ...]`, `n` counted from the GROUND storey up.
+    """
+    return dict((int(r["n"]), float(r[key])) for r in (rows or ()))
+
+
+def storey_heights(cs, storeys, nominal):
+    """The per-storey heights of ONE volume, ground first.  B3's table (`cs`)
+    applied to B2's volume, and the ONE definition of it.
+
+    Read twice on purpose and from two languages - here for B2's wall height
+    (`stamp()` -> `_volh` -> `pf_mass`'s `ytop`), and again in
+    `pf_structure.vfl` for the published splits.  Two derivations of one
+    number is normally a defect; here it is the point, because
+    `structure/splits_match_the_wall` compares B3's published sum against the
+    height the GEOMETRY actually reached.  If the two ever disagree, that
+    check is what says so.
+    """
+    table = by_storey(cs.get("storeyHeightsM"), "hM")
+    return [table.get(k, nominal) for k in range(1, int(storeys) + 1)]
 
 
 def stamp(geo, overrides=None, cache=None):
@@ -293,6 +375,7 @@ def stamp(geo, overrides=None, cache=None):
                        ("_storeys", hou.attribData.Int),
                        ("_capgroups", hou.attribData.Int),
                        ("_storeyh", hou.attribData.Float),
+                       ("_volh", hou.attribData.Float),
                        ("_cuts", hou.attribData.Float)):
         if geo.findPrimAttrib(name) is None:
             geo.addArrayAttrib(hou.attribType.Prim, name, kind)
@@ -347,10 +430,23 @@ def stamp(geo, overrides=None, cache=None):
         # Per VOLUME, defaulting to the style's: a barn's single storey is as
         # tall as the dwelling's two, and without that they cannot sit under
         # the one continuous eave that makes an Einhof an Einhof.
-        prim.setAttribValue("_storeyh",
-                            [float(v.get("storeyHeightM",
-                                         tpl["storeyHeightM"]))
-                             for v in volumes])
+        heights = [float(v.get("storeyHeightM", tpl["storeyHeightM"]))
+                   for v in volumes]
+        prim.setAttribValue("_storeyh", heights)
+        # ⭐ §12.12 CLOSED, AND IT HAD TO REACH THE MASS OR IT WOULD BE A LIE.
+        # B2 gives a volume ONE height, so "the Gruenderzeit ground floor is
+        # taller" was inexpressible; publishing a per-storey table while the
+        # wall stayed at `storeys * storeyHeightM` would have made the
+        # template SAY it and the building not DO it.  So the wall's height is
+        # the SUM of the per-storey heights B3's table produces.  With no
+        # table the list is `storeys` copies of one number and the sum is the
+        # old product - `pf_mass` keeps the product expression for that case,
+        # so a template without a table cannot move by a float32 ulp.
+        cs = tpl["constructionSystem"]
+        prim.setAttribValue("_volh", [
+            sum(storey_heights(cs, v.get("storeys", 1), h))
+            if by_storey(cs.get("storeyHeightsM"), "hM") else -1.0
+            for v, h in zip(volumes, heights)])
         prim.setAttribValue("_courtyard", float(topo["courtyardDepthM"]))
         prim.setAttribValue("_plinth", PLINTH.get(topo["plinth"]["mode"], 0))
         prim.setAttribValue("_plinthmin",
@@ -430,6 +526,100 @@ def stamp_cap(geo, overrides=None, cache=None):
         prim.setAttribValue("_eave", float(cap.get("eaveDepthM", 0.0)))
         if family not in CAPS:
             prim.setAttribValue("pf_warn_unknown_rule", 1)
+
+
+def stamp_structure(geo, overrides=None, cache=None):
+    """B3 marshalling: the `constructionSystem` block onto DETAIL arrays.
+
+    ⭐ ONE ROW PER STYLE, NOT ONE PER FACE, and that is the whole reason this
+    is allowed to be Python at all (CLAUDE.md rule 2).  `stamp()` and
+    `stamp_cap()` loop geometry - one lot and one cap face per volume - and B3
+    runs on the MASS, where a per-prim loop would be per-ELEMENT Python on
+    every cook.  So the only Houdini read here is one bulk
+    `primStringAttribValues` call, the loop is over the two or three STYLES a
+    district holds, and `pf_structure.vfl` does the per-face work in one
+    detail-wrangle execution over the whole stream.
+
+    Reads   prim `pf_style_id` (B2's, not B0's `pf_style_template` - `CLEAN`
+            swept that at B2's output, the same reason `stamp_cap` gives).
+    Writes  detail `_cs_*`, swept by `structure()`'s own clean.
+    """
+    import hou
+    cache = {} if cache is None else cache
+    ids = (sorted(set(geo.primStringAttribValues("pf_style_id")))
+           if geo.findPrimAttrib("pf_style_id") is not None else [])
+    span, bay, maxst, wt, htab, ttab = [], [], [], [], [], []
+    for index, style_id in enumerate(ids):
+        if style_id not in cache:
+            cache[style_id] = resolve(load(style_id), overrides)
+        cs = cache[style_id]["constructionSystem"]
+        span.append(float(cs.get("maxSpanM", 0.0)))
+        bay.append(float(cs.get("bayMaxM", 0.0)))
+        maxst.append(int(cs.get("maxStoreys", 0)))
+        wt.append(float(cs.get("wallThicknessM", 0.0)))
+        for table, rows, key in ((htab, cs.get("storeyHeightsM"), "hM"),
+                                 (ttab, cs.get("wallThicknessesM"), "tM")):
+            for number, value in sorted(by_storey(rows, key).items()):
+                table += [float(index), float(number), value]
+    for name, kind, value in (("_cs_id", hou.attribData.String, ids),
+                              ("_cs_span", hou.attribData.Float, span),
+                              ("_cs_bay", hou.attribData.Float, bay),
+                              ("_cs_maxst", hou.attribData.Int, maxst),
+                              ("_cs_wt", hou.attribData.Float, wt),
+                              ("_cs_h", hou.attribData.Float, htab),
+                              ("_cs_t", hou.attribData.Float, ttab)):
+        if geo.findGlobalAttrib(name) is None:
+            geo.addArrayAttrib(hou.attribType.Global, name, kind)
+        geo.setGlobalAttribValue(name, value)
+
+
+def structure(parent, mass, overrides=None, name="b3"):
+    """B3 - the STRUCTURE stage (§12.6), wired downstream of B2's output.
+    -> the output node.
+
+    TWO NODES: the marshal above, and one DETAIL wrangle.  It publishes
+    `pf_bay_u` / `pf_bay_v` / `pf_bay_width`, `pf_storey_split`,
+    `pf_wall_thickness`, `pf_warn_span_exceeded` and
+    `pf_warn_storeys_exceeded`.
+
+    ⚠️ IT IS SEPARATELY RUNNABLE AND B2 STILL READS ONE B3 NUMBER, which is
+    not a contradiction but is worth saying plainly: the per-storey height
+    TABLE is B3's field, and a wall whose height ignored it would make the
+    template say a thing the building does not do (§12.12).  So the table is
+    resolved in the marshalling layer, B2 sums it for the wall height, and B3
+    publishes the splits - two derivations of one number, held together by
+    `structure/splits_match_the_wall`, which compares B3's sum against the
+    height the geometry reached.
+    """
+    marshal = parent.createNode("python", name + "_marshal")
+    marshal.setFirstInput(mass)
+    marshal.parm("python").set(
+        "import hou\n"
+        "from polyfactory.citygen import buildings\n"
+        "buildings.stamp_structure(hou.pwd().geometry(), %r)\n" % (overrides,))
+
+    node = parent.createNode("attribwrangle", name + "_structure")
+    node.parm("class").set(0)               # detail: one execution, §12 rule 4
+    node.parm("snippet").set(vex("pf_structure"))
+    node.setFirstInput(marshal)
+
+    clean = parent.createNode("attribdelete", name + "_clean")
+    clean.setFirstInput(node)
+    # conventions.md §2 on all four classes.  B3's scratch is DETAIL, which is
+    # the one class B2's own sweep had nothing to remove from - so this line
+    # is the first in the subsystem that can actually fail.
+    for do, pat in (("doptdel", "ptdel"), ("dovtxdel", "vtxdel"),
+                    ("doprimdel", "primdel"), ("dodtldel", "dtldel")):
+        clean.parm(do).set(1)
+        clean.parm(pat).set("_*")
+    groups = parent.createNode("groupdelete", name + "_clean_groups")
+    groups.setFirstInput(clean)
+    groups.parm("group1").set("_*")
+
+    out = parent.createNode("null", name + "_OUT")
+    out.setFirstInput(groups)
+    parent.layoutChildren()
+    return out
 
 
 def corner_mode(template):

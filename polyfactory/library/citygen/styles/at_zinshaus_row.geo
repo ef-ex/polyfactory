@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-27 00:12:00",
+		"date":"2026-08-27 07:56:15",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -78,6 +78,10 @@
 										"value":30
 									}
 								}
+							},
+							"constructionSystem":{
+								"type":"string",
+								"value":"at_ziegel_gruenderzeit"
 							},
 							"lotToFootprint":{
 								"type":"dict",

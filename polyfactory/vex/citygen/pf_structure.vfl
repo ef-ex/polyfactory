@@ -1,0 +1,164 @@
+// pf_structure.vfl - B3 STRUCTURE.  DETAIL wrangle: ONE execution over every
+// face of every building in the stream, whatever style each of them is.
+//
+// §12.6 B3: TABLE-DRIVEN, NO SIMULATION.  It reads the resolved
+// `constructionSystem` block - flattened onto DETAIL arrays by
+// `buildings.stamp_structure`, one row per STYLE and never one per face - and
+// publishes the bay grid, the storey splits and the wall thickness B4 and B5
+// consume, plus the two §12.8 warnings this stage owns.
+//
+// ⭐ THE CHAIN §9c CLAIMS IS ONE LINE, AND IT IS WHY THE STAGE EXISTS:
+//
+//     hi = (span > 0) ? min(bayMax, span) : bayMax
+//
+// material + jointing set a maximum practical span; the span CAPS the bay;
+// the bay sets the opening rhythm.  Everything else below is arithmetic on
+// that line.  ⚠️ §9c flags the chain as *"my reasoning, not a cited result"*.
+// Do NOT read this comment as a claim that changing `maxSpanM` moves a
+// vertex - what it does and does not reach is measured in
+// `citygen_buildings.md` §12.10e, and the honest half is stated there.
+//
+// ⚠️ NOTHING HERE MAY NAME A STYLE OR A SYSTEM, exactly as `pf_mass.vfl` may
+// not (`no_style_branching` greps this file).  The block arrives as numbers.
+//
+// WHAT THIS CANNOT SEE.  It reads faces, so it says nothing about whether a
+// bay grid is BUILDABLE with a given kit (§12.9, B4's), nothing about
+// openings (`bayRhythm`, also B4's), and nothing about what a wall thickness
+// does to a plan - B3 publishes the number, and no stage yet consumes it as
+// geometry.
+
+// One row per style, in the order `stamp_structure` sorted them.
+string ids[]    = detail(0, "_cs_id", 0);
+float  spans[]  = detail(0, "_cs_span", 0);
+float  baymax[] = detail(0, "_cs_bay", 0);
+int    maxst[]  = detail(0, "_cs_maxst", 0);
+float  wtdef[]  = detail(0, "_cs_wt", 0);
+// The two per-storey OVERRIDE tables, as flat (styleIndex, n, value) triples.
+// Flat rather than nested because a VEX array cannot hold arrays and the
+// alternative - one attribute per style - makes the schema depend on the
+// fixture.  `styleIndex` and `n` are small integers and exact in float32.
+float  htab[]   = detail(0, "_cs_h", 0);
+float  ttab[]   = detail(0, "_cs_t", 0);
+
+int np = nprimitives(0);
+
+// ---- pass 1: the clear span each VOLUME has to cross -----------------------
+//
+// Off the volume's own FLOOR face, which is the cell's plan polygon that
+// `pfb_cell` built - so this is measured on the geometry that shipped, not
+// re-derived from the rails.  The span is `area / longest plan edge`: the
+// mean width across the cell's longest side, EXACT for a rectangle at any
+// orientation (B1's own lesson - an axis-aligned box is a different
+// measurement that merely agrees on an axis-aligned lot), and approximate for
+// the degraded n-gon path, where the cell is the whole footprint.
+string vids[];
+float  vspan[];
+for (int pr = 0; pr < np; pr++) {
+    if (prim(0, "pf_wall_role", pr) != "floor") continue;
+    int pts[] = primpoints(0, pr);
+    int n = len(pts);
+    if (n < 3) continue;
+    float area = 0.0, longest = 0.0;
+    for (int j = 0; j < n; j++) {
+        vector p = point(0, "P", pts[j]);
+        vector q = point(0, "P", pts[(j + 1) % n]);
+        area += p.x * q.z - q.x * p.z;
+        longest = max(longest, length(set(q.x - p.x, 0.0, q.z - p.z)));
+    }
+    area = abs(area) * 0.5;
+    // ⚠️ TYPED LOCAL FIRST - `prim()` returns an untyped value and
+    // `append()` is then AMBIGUOUS between its string and string[] overloads.
+    // The dev-loop trap list's first VEX entry; hit again here.
+    string vid = prim(0, "pf_volume_id", pr);
+    append(vids, vid);
+    append(vspan, longest > 1e-6 ? area / longest : 0.0);
+}
+
+// ---- pass 2: publish -------------------------------------------------------
+for (int pr = 0; pr < np; pr++) {
+    string sid = prim(0, "pf_style_id", pr);
+    string vid = prim(0, "pf_volume_id", pr);
+    string role = prim(0, "pf_wall_role", pr);
+    int    si = find(ids, sid);
+    int    vi = find(vids, vid);
+    int    storeys = prim(0, "pf_storeys", pr);
+    float  nominal = prim(0, "pf_storey_height", pr);
+
+    float span   = si >= 0 ? spans[si]  : 0.0;
+    float bcap   = si >= 0 ? baymax[si] : 0.0;
+    int   stcap  = si >= 0 ? maxst[si]  : 0;
+    float tdef   = si >= 0 ? wtdef[si]  : 0.0;
+
+    // storey splits: the cumulative height of each storey's TOP above
+    // `pf_plinth_top`, ground storey first.  The last entry is therefore the
+    // wall height, which is the number `splits_match_the_wall` compares
+    // against the geometry.
+    float splits[], thick[];
+    float y = 0.0;
+    for (int k = 1; k <= storeys; k++) {
+        float h = nominal, t = tdef;
+        for (int q = 0; q + 2 < len(htab); q += 3)
+            if (int(htab[q]) == si && int(htab[q + 1]) == k) h = htab[q + 2];
+        for (int q = 0; q + 2 < len(ttab); q += 3)
+            if (int(ttab[q]) == si && int(ttab[q + 1]) == k) t = ttab[q + 2];
+        y += h;
+        append(splits, y);
+        append(thick, t);
+    }
+
+    // THE BAY GRID, on the faces that have one.  A cap and a floor are the
+    // volume's plan, not a facade, so they carry 0 - "not applicable" said in
+    // the data rather than a count nobody may use.
+    int bayu = 0, bayv = 0;
+    float bayw = 0.0;
+    if (role != "cap" && role != "floor") {
+        int pts[] = primpoints(0, pr);
+        int n = len(pts);
+        float lng = 0.0;
+        for (int j = 0; j < n; j++) {
+            vector p = point(0, "P", pts[j]);
+            vector q = point(0, "P", pts[(j + 1) % n]);
+            lng = max(lng, length(set(q.x - p.x, 0.0, q.z - p.z)));
+        }
+        // ⭐ THE CHAIN.  `bcap` is the culture's bay preference; `span` is
+        // what the material and its jointing permit; whichever is smaller
+        // decides the bay, and a system that states no limit (0) leaves the
+        // other one in charge.  Written as two statements rather than one
+        // nested ternary so each arm has its own mutation anchor - the span
+        // arm binds every REAL system in the library and the bay arm binds
+        // only the invented one, so a single anchor could not tell them apart.
+        float hi = bcap;
+        if (span > 0.0 && (bcap <= 0.0 || span < bcap)) hi = span;
+        // The FEWEST bays whose width still respects the cap, hence the
+        // WIDEST bay the cap allows.  ⚠️ The epsilon is relative to the cap,
+        // not to a metre: a face longer than an exact multiple of `hi` by
+        // less than 1e-6 of one bay - 6 um at a 6 m cap - does not buy an
+        // extra bay.  Absolute float32 noise on a 100 m face is ~7.6e-6 m, so
+        // this band sits just above it and three orders below a brick.
+        bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;
+        bayu = max(bayu, 1);
+        bayv = storeys;
+        bayw = lng / float(bayu);
+    }
+
+    setprimattrib(0, "pf_bay_u", pr, bayu);
+    setprimattrib(0, "pf_bay_v", pr, bayv);
+    setprimattrib(0, "pf_bay_width", pr, bayw);
+    setprimattrib(0, "pf_storey_split", pr, splits);
+    setprimattrib(0, "pf_wall_thickness", pr, thick);
+
+    // §12.8, both names already in its initial set - no artist-facing
+    // contract is invented here.  BOTH ARE ADVISORY AND NEITHER IS EVER A
+    // REFUSAL: §9g's Babel case is a real material's limit exceeded, and the
+    // house rule (`citygen.md` §2.0/§2.2) says the tool reports it and builds
+    // the building anyway.  Nothing below touches a point.
+    //
+    // ⚠️ 1e-3 m on the span, which is a millimetre at the 5-60 m span these
+    // systems state - three orders under anything architectural and three
+    // above float32 `P` at this fixture's ~500 m domain.
+    float need = vi >= 0 ? vspan[vi] : 0.0;
+    setprimattrib(0, "pf_warn_span_exceeded", pr,
+                  (span > 0.0 && need > span + 1e-3) ? 1 : 0);
+    setprimattrib(0, "pf_warn_storeys_exceeded", pr,
+                  (stcap > 0 && storeys > stcap) ? 1 : 0);
+}

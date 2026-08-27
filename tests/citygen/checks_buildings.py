@@ -1092,8 +1092,19 @@ def heights_follow_data(geo, templates, name="heights_follow_data"):
             bad.append((vid, "no cap"))
             continue
         seen += 1
-        want = (int(vol.get("storeys", 1))
-                * float(vol.get("storeyHeightM", tpl["storeyHeightM"])))
+        # ⚠️ THE ORACLE HAD TO LEARN B3's TABLE, and the reason is a real
+        # coupling rather than a tidy-up: a per-storey height table (§12.12)
+        # changes what the WALL is, so `storeys * storeyHeightM` stopped being
+        # the right answer the moment `at_ziegel_gruenderzeit` said the ground
+        # floor is 4.2 m.  Derived here by overwriting a list of defaults,
+        # deliberately NOT by calling `buildings.storey_heights` - an oracle
+        # that calls the code under test moves with it.
+        nominal = float(vol.get("storeyHeightM", tpl["storeyHeightM"]))
+        each = [nominal] * int(vol.get("storeys", 1))
+        for row in tpl["constructionSystem"].get("storeyHeightsM") or ():
+            if 1 <= int(row["n"]) <= len(each):
+                each[int(row["n"]) - 1] = float(row["hM"])
+        want = sum(each)
         got = cap[0]["ymax"] - fs[0]["pf_plinth_top"]
         if abs(got - want) > TOL:
             bad.append((vid, round(got, 4), round(want, 4)))
@@ -1165,7 +1176,22 @@ STORAGE = {"pf_elem_id": "String", "pf_volume_id": "String",
            "pf_cap_group": "Int", "pf_plinth_top": "Float",
            "pf_storey_height": "Float", "pf_seed": "Int",
            "pf_warn_cap_group_split": "Int", "pf_warn_topology_arity": "Int",
-           "pf_warn_footprint_collapsed": "Int", "pf_warn_unknown_rule": "Int"}
+           "pf_warn_footprint_collapsed": "Int", "pf_warn_unknown_rule": "Int",
+           # B3.  ⚠️ `[]` IS PART OF THE STORAGE, NOT DECORATION: D223 says an
+           # element's storage is the contract, and `Float` alone cannot tell
+           # a wall thickness from a per-storey TABLE of them - a consumer
+           # reading `pf_storey_split` as a scalar would get the first storey
+           # and never know.  `dataType()` returns `Float` for both.
+           "pf_bay_u": "Int", "pf_bay_v": "Int", "pf_bay_width": "Float",
+           "pf_storey_split": "Float[]", "pf_wall_thickness": "Float[]",
+           "pf_warn_span_exceeded": "Int",
+           "pf_warn_storeys_exceeded": "Int"}
+
+
+def _storage(attrib):
+    """An attribute's storage as this suite spells it, array-ness included."""
+    return "%s%s" % (str(attrib.dataType()).split(".")[-1],
+                     "[]" if attrib.isArrayType() else "")
 
 
 def attribute_storage(geo, name="attribute_storage"):
@@ -1189,8 +1215,7 @@ def attribute_storage(geo, name="attribute_storage"):
     an undeclared name on the point, vertex or detail classes, where B2
     publishes nothing and the baseline is the only guard.
     """
-    have = dict((a.name(), str(a.dataType()).split(".")[-1])
-                for a in geo.primAttribs())
+    have = dict((a.name(), _storage(a)) for a in geo.primAttribs())
     wrong = sorted(["%s=%s want %s" % (k, have.get(k, "MISSING"), v)
                     for k, v in STORAGE.items() if have.get(k) != v]
                    + ["%s=%s UNDECLARED" % (k, v) for k, v in have.items()
@@ -1246,6 +1271,15 @@ def published_names(geo):
     """The baseline snapshot: every published name and its storage.  Records
     VALUES, not pass/fail - a new attribute on the output is a diff a human
     has to look at (conventions.md §7 check 2)."""
+    # ⚠️ NOT `_storage()`, AND THE REASON IS A CONSTRAINT RATHER THAN A
+    # PREFERENCE.  Spelling array-ness here is strictly better - and it moves
+    # G2's committed snapshot, whose polyChain `pc_kit_warnings` and
+    # `pc_warnings` are string ARRAYS that this row has always recorded as
+    # plain `String`.  G2 is a DECIDED gate and its snapshot is not B3's to
+    # re-bless, so the marker lives in `attribute_storage`, which fails a run
+    # on the prim class where B3's two arrays are.
+    # STATED BLIND SPOT: this row cannot tell `pf_storey_split:Float` the
+    # array from a `Float` scalar of the same name.
     def part(attrs):
         return sorted("%s:%s" % (a.name(), str(a.dataType()).split(".")[-1])
                       for a in attrs)
@@ -1649,6 +1683,234 @@ def shape_ops(builds, name="shape_ops"):
                   % (seen, lot_seen, bad_ring[:1] or "ok",
                      bad_role[:1] or "ok", bad_degrade or "ok",
                      bad_yard[:2] or "ok", bad_out[:2] or "none"))
+
+
+B3_ATTRS = ("pf_bay_u", "pf_bay_v", "pf_bay_width", "pf_storey_split",
+            "pf_wall_thickness", "pf_warn_span_exceeded",
+            "pf_warn_storeys_exceeded")
+
+
+def _b3_faces(geo):
+    """B3's own read, deliberately NOT folded into `faces()`.
+
+    `faces()` is called on streams that stop at B2 (`plan_follows_data_b0`,
+    the shape-op builds), and an attribute read there that B2 does not publish
+    is an exception, not a failure - so the two reads stay apart rather than
+    growing a "if it exists" branch that would hide a missing name.
+    """
+    out = []
+    for prim in geo.prims():
+        rec = dict((n, prim.attribValue(n)) for n in B3_ATTRS)
+        for n in ("pf_style_id", "pf_volume_id", "pf_wall_role"):
+            rec[n] = prim.attribValue(n)
+        for n in ("pf_site_id", "pf_storeys"):
+            rec[n] = prim.attribValue(n)
+        rec["pf_storey_height"] = prim.attribValue("pf_storey_height")
+        rec["pf_plinth_top"] = prim.attribValue("pf_plinth_top")
+        pts = [p.point().position() for p in prim.vertices()]
+        rec["ymax"] = max(p[1] for p in pts)
+        # A wall face's PLAN length is the longest of its plan edges: the
+        # vertical edges are zero in plan, so this is the base edge without
+        # having to know which two vertices `pfb_cell` wrote first.
+        rec["planlen"] = max(
+            math.hypot(pts[i][0] - pts[(i + 1) % len(pts)][0],
+                       pts[i][2] - pts[(i + 1) % len(pts)][2])
+            for i in range(len(pts)))
+        out.append(rec)
+    return out
+
+
+def _split_want(cs, storeys, nominal, key="storeyHeightsM", value="hM"):
+    """The per-storey list B3's table should produce, ground first.
+
+    ⚠️ DERIVED BY OVERWRITING A LIST OF DEFAULTS, and `buildings.by_storey`
+    builds a DICT and reads it back - two different constructions on purpose.
+    Both would still fall to one misreading of the key names; that is this
+    oracle's stated blind spot, and `splits_match_the_wall` is what covers it
+    from the geometry side.
+    """
+    each = [float(nominal)] * int(storeys)
+    for row in cs.get(key) or ():
+        if 1 <= int(row["n"]) <= len(each):
+            each[int(row["n"]) - 1] = float(row[value])
+    return each
+
+
+def structure(geo, templates, span_exceeded=(), name="structure"):
+    """B3: the bay grid, the storey splits and the wall thickness (§12.6).
+
+    `templates` is {styleId: resolved template} - so four of the five clauses
+    are a differential oracle against the TEMPLATE FILE, and the fifth
+    (`splits_match_the_wall`) is a differential oracle against the GEOMETRY.
+    That pairing is deliberate: the per-storey table is read twice, in Python
+    for B2's wall height and in VEX for B3's published splits, and nothing but
+    a geometry-side comparison can catch the two drifting apart.
+
+    ⚠️ WHAT THIS CANNOT SEE.  Whether any number in a construction system is
+    TRUE of the material it names - that is the `sources` list's job and a
+    human's.  Nor whether a bay grid is buildable with a real kit (§12.9,
+    B4's).  Nor anything about a face whose style states no span and no bay
+    cap: `bay_respects_the_span` SKIPS those, and `seen` is printed so a
+    fixture that skips everything cannot read as a pass.
+    """
+    ok = dict((k, True) for k in
+              ("splits_match_the_wall", "splits_follow_the_table",
+               "thickness_follows_the_table", "bay_respects_the_span",
+               "grid_only_on_walls", "span_warning_is_true"))
+    bad = dict((k, []) for k in ok)
+    seen = dict((k, 0) for k in ok)
+    by_vol = collections.OrderedDict()
+    for rec in _b3_faces(geo):
+        by_vol.setdefault(rec["pf_volume_id"], []).append(rec)
+
+    for vid, fs in by_vol.items():
+        tpl = templates.get(fs[0]["pf_style_id"])
+        if tpl is None:
+            continue
+        cs = tpl["constructionSystem"]
+        storeys, nominal = fs[0]["pf_storeys"], fs[0]["pf_storey_height"]
+        hw = _split_want(cs, storeys, nominal)
+        tw = _split_want(cs, storeys, cs.get("wallThicknessM", 0.0),
+                         "wallThicknessesM", "tM")
+        # cumulative, because `pf_storey_split` is where each storey TOPS OUT
+        cum, total = [], 0.0
+        for h in hw:
+            total += h
+            cum.append(total)
+
+        for f in fs:
+            got = list(f["pf_storey_split"])
+            seen["splits_follow_the_table"] += 1
+            if len(got) != len(cum) or any(abs(a - b) > TOL
+                                           for a, b in zip(got, cum)):
+                bad["splits_follow_the_table"].append(
+                    (vid, [round(v, 3) for v in got],
+                     [round(v, 3) for v in cum]))
+            gt = list(f["pf_wall_thickness"])
+            seen["thickness_follows_the_table"] += 1
+            if len(gt) != len(tw) or any(abs(a - b) > TOL
+                                         for a, b in zip(gt, tw)):
+                bad["thickness_follows_the_table"].append(
+                    (vid, [round(v, 3) for v in gt],
+                     [round(v, 3) for v in tw]))
+
+            wall = f["pf_wall_role"] not in ("cap", "floor")
+            seen["grid_only_on_walls"] += 1
+            grid_ok = ((f["pf_bay_u"] >= 1 and f["pf_bay_v"] == storeys)
+                       if wall else
+                       (f["pf_bay_u"] == 0 and f["pf_bay_v"] == 0
+                        and abs(f["pf_bay_width"]) <= TOL))
+            if not grid_ok:
+                bad["grid_only_on_walls"].append(
+                    (vid, f["pf_wall_role"], f["pf_bay_u"], f["pf_bay_v"]))
+
+            # ⭐ THE CHAIN, ASSERTED: the span caps the bay.  Two terms, and
+            # each has its own mutation - a bay wider than the cap, and a bay
+            # count larger than the fewest that respect it.  A face whose
+            # style states NEITHER a span nor a bay cap has no cap to respect
+            # and is skipped, counted rather than silently dropped.
+            cap = [v for v in (float(cs.get("maxSpanM", 0.0)),
+                               float(cs.get("bayMaxM", 0.0))) if v > 0.0]
+            if wall and cap:
+                cap = min(cap)
+                seen["bay_respects_the_span"] += 1
+                fewest = f["pf_bay_u"] == 1 or (f["pf_bay_u"] - 1) * cap \
+                    < f["planlen"] - TOL
+                if f["pf_bay_width"] > cap + TOL or not fewest:
+                    bad["bay_respects_the_span"].append(
+                        (vid, f["pf_wall_role"], round(f["planlen"], 3),
+                         f["pf_bay_u"], round(f["pf_bay_width"], 3),
+                         round(cap, 3)))
+
+        cap_face = [f for f in fs if f["pf_wall_role"] == "cap"]
+        if cap_face and cum:
+            seen["splits_match_the_wall"] += 1
+            got = cap_face[0]["ymax"] - cap_face[0]["pf_plinth_top"]
+            if abs(got - cum[-1]) > TOL:
+                bad["splits_match_the_wall"].append(
+                    (vid, round(got, 4), round(cum[-1], 4)))
+
+    # ⭐ `pf_warn_span_exceeded` NEEDS AN ORACLE THAT SAYS *WHERE*, or the name
+    # is a published value nothing asserts - §12.10a defect 5's shape, and the
+    # one this suite has now shipped twice.  The expectation is the FIXTURE's,
+    # derived by hand from the lot dimensions and the system's `maxSpanM`
+    # (`SPAN_EXCEEDED` in the runner), never read off the warning, so both
+    # directions bite: a warning that stops firing and one that fires
+    # everywhere are each a failure.
+    if span_exceeded is not None:
+        got = sorted(set(r["pf_site_id"] for r in _b3_faces(geo)
+                         if r["pf_warn_span_exceeded"]))
+        seen["span_warning_is_true"] = len(by_vol)
+        if got != sorted(span_exceeded):
+            bad["span_warning_is_true"].append((got, sorted(span_exceeded)))
+
+    for key in ok:
+        ok[key] = not bad[key] and seen[key] > 0
+    return Result(name, ok, [seen[k] for k in sorted(seen)],
+                  "; ".join("%s %d seen %s" % (k, seen[k], bad[k][:2] or "ok")
+                            for k in sorted(ok)))
+
+
+def limits_are_advisory(geo, babel, fiction, wall, name="limits_advisory"):
+    """§9g's two stress tests, which are OPPOSITES and share one mechanism.
+
+    `babel` is (site, storeys, wallHeightM): a REAL construction system whose
+    sourced two-storey limit is exceeded by a template asking for eight.
+    §9g: *"the tool knows the building is impossible, says so, and builds
+    it."*  So the warning must fire AND the eight-storey building must stand
+    at its full height - `citygen.md` §2.0/§2.2, advisory, never a refusal.
+
+    `fiction` is (site, bayMaxM, maxSpanM, bayWidthM): an INVENTED system, so
+    nothing is exceeded and nothing warns; and it is the only block in the
+    library whose bay cap sits BELOW its span, which is the one place the
+    culture-side arm of §9c's chain can be seen to bind.
+
+    ⚠️ `others_silent` is here because "warns" alone is satisfied by a flag
+    nailed to 1.  §2a is full of that shape.
+    """
+    site, storeys, height = babel
+    fsite, fbay, fspan, fwidth = fiction
+    rows = _b3_faces(geo)
+    bab = [f for f in rows if f["pf_site_id"] == site]
+    fic = [f for f in rows if f["pf_site_id"] == fsite]
+    other = [f for f in rows if f["pf_site_id"] not in (site, fsite)]
+    caps = [f for f in bab if f["pf_wall_role"] == "cap"]
+    fcap = [f for f in fic if f["pf_wall_role"] == "cap"]
+    walls = [f for f in fic if f["pf_wall_role"] not in ("cap", "floor")]
+    built = (caps and len(caps[0]["pf_storey_split"]) == storeys
+             and abs(caps[0]["ymax"] - caps[0]["pf_plinth_top"] - height)
+             <= TOL)
+    ok = {
+        "babel_warns": bool(bab) and all(f["pf_warn_storeys_exceeded"] == 1
+                                         for f in bab),
+        "babel_builds": bool(built),
+        "others_silent": bool(other) and not any(
+            f["pf_warn_storeys_exceeded"] for f in other),
+        "fiction_is_silent": bool(fic) and not any(
+            f["pf_warn_storeys_exceeded"] or f["pf_warn_span_exceeded"]
+            for f in fic),
+        "bay_cap_binds": bool(walls) and fbay < fspan and all(
+            abs(f["pf_bay_width"] - fwidth) <= TOL for f in walls),
+        # §9g: "invent a material with a 400 m span limit and the entire
+        # downstream chain follows CONSISTENTLY from that one invention".
+        # `wall` is (height, thicknesses) typed out from the invented block,
+        # so this is the whole chain of an authored system asserted against
+        # its own authored numbers - the coherence claim, not a truth claim.
+        "fiction_is_coherent": bool(fcap) and abs(
+            fcap[0]["ymax"] - fcap[0]["pf_plinth_top"] - wall[0]) <= TOL
+        and len(fcap[0]["pf_wall_thickness"]) == len(wall[1])
+        and all(abs(a - b) <= TOL
+                for a, b in zip(fcap[0]["pf_wall_thickness"], wall[1])),
+    }
+    return Result(name, ok, [len(bab), len(fic), len(other)],
+                  "babel %d faces, %s storeys, wall %s; fiction %d faces, "
+                  "bay %s" % (len(bab),
+                              len(caps[0]["pf_storey_split"]) if caps else 0,
+                              round(caps[0]["ymax"]
+                                    - caps[0]["pf_plinth_top"], 3)
+                              if caps else "-", len(fic),
+                              round(walls[0]["pf_bay_width"], 3)
+                              if walls else "-"))
 
 
 def shape_frame_rotates(fgeo, want, name="shape_frame", tol=1e-3):

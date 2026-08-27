@@ -1,11 +1,22 @@
-"""Author the CityGen style templates.
+"""Author the CityGen style templates AND the construction-system library.
 
     hython devScripts/create_pf_building_styles.py
 
-Writes `polyfactory/library/citygen/styles/<styleId>.geo`, each one a Houdini
-geometry file carrying the whole template as a single detail DICTIONARY
+Writes `polyfactory/library/citygen/styles/<styleId>.geo` and
+`polyfactory/library/citygen/systems/<systemId>.geo`, each one a Houdini
+geometry file carrying the whole block as a single detail DICTIONARY
 attribute `pf_style_template` - the storage format §12.12 left to "the first
 template authored decides", decided in `citygen/buildings.py`.
+
+⭐ TWO LIBRARIES, NOT ONE, AND THAT IS §9e's TWO-LAYER MODEL MADE LITERAL.
+A *construction system* is layer 1 - what a material and its jointing permit
+(span, storeys, wall thickness) - and it is SHARED between styles: both
+Gruenderzeit styles read `at_ziegel_gruenderzeit`, and the Babel fixture reads
+the SAME `at_lehm_massiv` block the Einhof does.  A *style* is layer 2 - which
+point inside that space a culture picks.  §12.5 already spelled
+`constructionSystem` "ref -> data block"; this is that word taken literally,
+and it is the only arrangement in which "change a system's `maxSpanM` and see
+what moves" is a question about the SYSTEM rather than about one style.
 
 ⚠️ A TEMPLATE IS DATA.  Nothing here is imported at cook time and nothing in
 the generator may import it.  This script is the authoring surface until an
@@ -31,6 +42,8 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "polyfactory", "library", "citygen",
                    "styles").replace("\\", "/")
+SYSOUT = os.path.join(REPO, "polyfactory", "library", "citygen",
+                      "systems").replace("\\", "/")
 # hython does not load the polyfactory package (dev-loop trap list), and this
 # script needs exactly one thing from it: the storability guard that owns the
 # format decision, so the rule lives with the format and not with each caller.
@@ -73,10 +86,180 @@ FIERRO = ("Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, "
           "Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20"
           "Modernisierung%20von%20Gruenderzeitbauten...pdf")
 
+LEHMREG = ("Lehmbau-Regeln (1990s), as quoted by two independent 2023 "
+           "reports on their replacement DIN 18940 - 'Tragende Lehmmauern "
+           "waren nach den Lehmbau-Regeln aus den 1990er Jahren nur bei "
+           "Gebaeuden bis maximal zwei Stockwerken gestattet' / 'Zuvor "
+           "mussten tragende Lehmsteine eine Wandstaerke von 36,5 Zentimeter "
+           "aufweisen' - https://www.gebaeudeforum.de/service/newsletter/"
+           "ausgabe-05/2023/neue-lehm-norm/ and 'So duerfen etwa Lehmsteine "
+           "nur bei Gebaeuden mit maximal zwei Geschossen verwendet werden. "
+           "Vorgeschrieben ist dann zusaetzlich eine Wandstaerke von "
+           "mindestens 36,5 Zentimetern' - "
+           "https://www.bba-online.de/news/neue-din-norm-lehmsteine/")
+PAKIMMO = ("pak-immo, Gruenderzeithaeuser: Konstruktion und Sanierung - "
+           "brick format '14/29/6,5 cm' (1883), 'Das Mauerwerk eines "
+           "Stiegenhauses musste eine Mindestdicke von 60 cm aufweisen', "
+           "'Kellerwaende konnten bis zu einem Meter dick werden' - "
+           "https://www.pak-immo.at/gruenderzeithauser-konstruktion-"
+           "sanierung/")
+
+# ⚠️ 0.0 / 0 MEANS "THIS SYSTEM STATES NO LIMIT", NEVER "ZERO METRES".  It is
+# the shape §12.5 asks for ("a template may be sparse") and it is used here
+# rather than a plausible placeholder, because a placeholder is exactly the
+# unsourced number that later reads as authoritative.  Where a field is 0 the
+# `sources` line says NOT STATED and why.
+SYSTEMS = [
+    {
+        "systemId": "at_lehm_massiv",
+        "version": 1,
+        "sources": [
+            "TYPE: massive earth construction (Stampflehm / Lehmziegel) on a "
+            "stone or brick footing - the traditional Nordburgenland "
+            "Streckhof material. SOURCED: 'Die traditionellen Streckhoefe "
+            "wurden haeufig in Lehmbauweise errichtet' - "
+            "https://de.wikipedia.org/wiki/Streckhof",
+            "maxSpanM 5.0: DERIVED, not measured as a limit. Zsabetich "
+            "sources the house WIDTH at 5 m ('Die Haeuser sind 20 Meter lang "
+            "und 5 Meter breit'), and the ceiling and roof timbers cross the "
+            "house, so 5 m is the span these buildings actually spanned. "
+            "⚠️ That is the span USED, not the maximum the material permits; "
+            "no vernacular span table was found (§9c's own flag). " + ZSABETICH,
+            "maxStoreys 2: SOURCED, and MODERN. " + LEHMREG + " ⚠️ It is a "
+            "1990s code number, not a backdated vernacular measurement - the "
+            "same objection this library raises against backdating the 2.50 m "
+            "Raumhoehe minimum. It is used because it is a codification of "
+            "the MATERIAL's limit rather than of a room, and because §9g's "
+            "Babel case needs a real limit to exceed. Flagged, not hidden.",
+            "wallThicknessM 0.365: SOURCED, and MODERN, same source and same "
+            "caveat as maxStoreys.",
+            "bayMaxM 0.0: NOT STATED. No source for a Streckhof opening "
+            "rhythm was found, so the span alone decides the bay here - "
+            "which is §9c's chain with nothing else in the way.",
+        ],
+        "maxSpanM": 5.0,
+        "bayMaxM": 0.0,
+        "maxStoreys": 2,
+        "wallThicknessM": 0.365,
+        "wallThicknessesM": [],
+        "storeyHeightsM": [],
+    },
+    {
+        "systemId": "at_ziegel_gruenderzeit",
+        "version": 1,
+        "sources": [
+            "TYPE: unreinforced single-shell brick masonry with timber "
+            "Tramdecken, Vienna, under the Bauordnung fuer Wien 1883. Read "
+            "by BOTH Gruenderzeit styles - it is the shared layer-1 block "
+            "§9e's two-layer model predicts.",
+            "maxSpanM 6.0: DERIVED. The Wiener Dachstuhl spans ~12 m "
+            "(SOURCED, caption 10-14 m), and that 12 m is read as two ~6 m "
+            "timber-spanned bays either side of a load-bearing Mittelmauer - "
+            "the same reading `at_vienna_perimeter` already records for its "
+            "courtyardDepthM. So 6 m is the FLOOR structure's span, which is "
+            "what sets a bay; the roof truss crosses the full 12 m because a "
+            "truss is a different jointing system, and this block carries "
+            "ONE span. " + FIERRO,
+            "maxStoreys 5: SOURCED - Bauordnung fuer Wien 1883 §42. " + BRAUN,
+            "wallThicknessM 0.45 and the per-storey table 0.60 / 0.60: "
+            "DERIVED, and the derivation is thinner than it looks. What IS "
+            "sourced: the 1883 brick format 14/29/6,5 cm, which makes wall "
+            "thicknesses a 15 cm ladder; a 60 cm minimum for Stiegenhaus "
+            "masonry; and cellar walls up to 1 m. " + PAKIMMO + " ⚠️ What is "
+            "NOT sourced here is the STEPPING RULE itself - search returned a "
+            "'reduced by half a stone every one to two storeys' rule and a "
+            "37-74 cm ground/cellar band, and neither was verified in a "
+            "document I read, so neither is cited. 0.60 at the two lowest "
+            "storeys (2 Stein) stepping to 0.45 (1.5 Stein) above is the "
+            "ladder applied once, conservatively.",
+            "storeyHeightsM: the GROUND STOREY at 4.2 m: DERIVED, and this "
+            "is the field §12.12 was open on. SOURCED is the band and the "
+            "direction - Raumhoehe 3.2-4.0 m, 'in der Erdgeschosszone oft "
+            "auch darueber'. " + OEAW + " 4.2 m is one step above the band's "
+            "top, so the ground floor is taller by 0.7 m than the 3.5 m the "
+            "styles carry. ⚠️ AND AN IMPRECISION INHERITED RATHER THAN "
+            "INTRODUCED: 3.5 m is sourced as a ROOM height (Raumhoehe) and "
+            "used as a STOREY height, which is short by the floor build-up. "
+            "Recorded here rather than silently corrected - moving it is a "
+            "change to a G1 fixture value and is not B3's to take.",
+            "bayMaxM 0.0: NOT STATED. No source for a Gruenderzeit "
+            "Fensterachse spacing was found. ⚠️ Consequence, stated because "
+            "it bounds what this build proves: the culture-side arm of §9c's "
+            "chain is unsourced on EVERY real system here, so the span alone "
+            "decides every bay in the shipped data.",
+        ],
+        "maxSpanM": 6.0,
+        "bayMaxM": 0.0,
+        "maxStoreys": 5,
+        "wallThicknessM": 0.45,
+        "wallThicknessesM": [{"n": 1, "tM": 0.60}, {"n": 2, "tM": 0.60}],
+        "storeyHeightsM": [{"n": 1, "hM": 4.2}],
+    },
+    {
+        "systemId": "at_mauerwerk_land",
+        "version": 1,
+        "sources": [
+            "TYPE: rural mass masonry, Traun-/Mostviertel farm. ⚠️ USED BY "
+            "ONE STYLE, which is the shape G1's `rule_reuse` calls a style's "
+            "data wearing a shared name. Kept anyway, and said out loud: a "
+            "Vierkanthof is neither Lehm nor Gruenderzeit brick, and folding "
+            "it into either would be a worse lie than a lonely block.",
+            "maxStoreys 2: SOURCED - 'meist 2 Stockwerke, seltener 1'. "
+            + VK_WIKI,
+            "wallThicknessM 0.45: UNSOURCED. No wall thickness was found for "
+            "this type; 0.45 is 1.5 Stein in the Austrian brick ladder and "
+            "is a placeholder the cascade overrides.",
+            "maxSpanM 0.0 and bayMaxM 0.0: NOT STATED. No tract span and no "
+            "opening rhythm was found for a Vierkanthof. ⚠️ The visible "
+            "consequence is in the output rather than hidden: with no cap "
+            "from either side, every face of the Vierkanthof gets ONE bay. "
+            "That is what 'we have no number' looks like in the geometry, "
+            "and it is preferred to a plausible invention.",
+        ],
+        "maxSpanM": 0.0,
+        "bayMaxM": 0.0,
+        "maxStoreys": 2,
+        "wallThicknessM": 0.45,
+        "wallThicknessesM": [],
+        "storeyHeightsM": [],
+    },
+    {
+        # ⭐ §9g's CORUSCANT CASE: "the layer stops being derived and becomes
+        # AUTHORED - and that is where it earns most."  Every number is
+        # invented, and the point of the fixture is that the chain follows
+        # from the invention CONSISTENTLY rather than that the numbers are
+        # right.  It is also the only block in the library that exercises
+        # `bayMaxM`, because every real system above states no bay cap.
+        "systemId": "fic_coruscant_mega",
+        "version": 1,
+        "sources": [
+            "TYPE: none. AUTHORED FICTION, §9g's Coruscant stress test. No "
+            "number below is sourced or derived from anything - that is the "
+            "case being tested: 'invent a material with a 400 m span limit "
+            "and the entire downstream chain follows consistently from that "
+            "one invention'.",
+            "maxSpanM 400.0 / bayMaxM 60.0: the invention. The bay cap is "
+            "BELOW the span on purpose, so this block is the one place in "
+            "the library where the culture-side arm of the chain is the "
+            "binding one and can be seen to bind.",
+            "maxStoreys 500 / wallThicknessM 2.5 / ground storey 24 m and "
+            "4.0 m thick: authored to be internally coherent with a 400 m "
+            "span, nothing more.",
+        ],
+        "maxSpanM": 400.0,
+        "bayMaxM": 60.0,
+        "maxStoreys": 500,
+        "wallThicknessM": 2.5,
+        "wallThicknessesM": [{"n": 1, "tM": 4.0}],
+        "storeyHeightsM": [{"n": 1, "hM": 24.0}],
+    },
+]
+
 STYLES = [
     {
         "styleId": "at_einhof",
         "version": 1,
+        "constructionSystem": "at_lehm_massiv",
         "sources": [
             "TYPE: Streckhof, Nordburgenland. Wohnhaus -> Stall -> Scheune "
             "in one line, gable to the street. " + BAUNETZ,
@@ -129,6 +312,7 @@ STYLES = [
     {
         "styleId": "at_vienna_perimeter",
         "version": 1,
+        "constructionSystem": "at_ziegel_gruenderzeit",
         "sources": [
             "TYPE: Gruenderzeit Blockrandbebauung inside the Guertel.",
             "storeys 5 including the ground floor: SOURCED, and the counting "
@@ -186,6 +370,7 @@ STYLES = [
     {
         "styleId": "at_vierkanthof",
         "version": 1,
+        "constructionSystem": "at_mauerwerk_land",
         "sources": [
             "TYPE: Vierkanthof, Traun-/Mostviertel OOe. Built ring around a "
             "closed courtyard. " + VK_WIKI,
@@ -239,6 +424,7 @@ STYLES = [
     {
         "styleId": "at_zinshaus_row",
         "version": 1,
+        "constructionSystem": "at_ziegel_gruenderzeit",
         "sources": [
             "TYPE: Gruenderzeit Zinshaus on a mid-block plot, street tract "
             "plus a lower commercial rear tract, no courtyard.",
@@ -339,29 +525,104 @@ STYLES = [
                       "eaveDepthM": 0.7},
         "junctions": {"cornerMode": "miter"},
     },
+    {
+        # ⭐ §9g's BABEL CASE, and the whole point is the SHARED block: this
+        # style reads the SAME `at_lehm_massiv` the Einhof reads - a real
+        # material with a real, sourced limit of two storeys - and asks for
+        # eight.  §9g: "the tool knows the building is impossible, says so,
+        # and builds it."  `pf_warn_storeys_exceeded` fires on every face and
+        # the eight-storey building is built anyway (`citygen.md` §2.0/§2.2:
+        # advisory, never a refusal).
+        "styleId": "babel_lehm_tower",
+        "version": 1,
+        "constructionSystem": "at_lehm_massiv",
+        "sources": [
+            "TYPE: none. §9g's Babel stress test - a REAL material at an "
+            "impossible scale. Every number here is a fixture value; the "
+            "only thing that matters is that the construction system is not "
+            "a fixture, it is the Einhof's own sourced block.",
+            "storeys 8 against the system's sourced maxStoreys 2: UNSOURCED "
+            "BY DESIGN, and it is the case under test rather than a claim "
+            "about a building.",
+            "storeyHeightM 4.0 / rails `solid` / cap `flat`: UNSOURCED. One "
+            "volume over the whole footprint so the storey count has nowhere "
+            "to hide, and a flat cap so nothing but the warning is at issue.",
+        ],
+        "storeyHeightM": 4.0,
+        "lotToFootprint": {"op": "setback", "defaultSetbackM": 0.0,
+                           "setbackM": {}},
+        "volumeTopology": {
+            "rails": "solid",
+            "cutsAt": [],
+            "courtyardDepthM": 0.0,
+            "volumes": [{"role": "tower", "storeys": 8, "capGroup": 0}],
+            "plinth": {"mode": "none", "minM": 0.0},
+        },
+        "capFamily": {"family": "flat", "pitchDeg": 0.0, "eaveDepthM": 0.0},
+    },
+    {
+        # ⭐ §9g's CORUSCANT CASE: an invented construction system is just
+        # another authored block, and the chain follows from it consistently.
+        # Nothing here is claimed to be right; what is claimed is that a
+        # 400 m span, a 60 m bay cap and a 24 m ground storey produce a
+        # coherent bay grid, coherent splits and NO warnings - because an
+        # invented system's limits are whatever it says they are.
+        "styleId": "coruscant_spire",
+        "version": 1,
+        "constructionSystem": "fic_coruscant_mega",
+        "sources": [
+            "TYPE: none. §9g's Coruscant stress test. AUTHORED FICTION "
+            "throughout, and the fiction is the subject: 'for a real style "
+            "you could skip the structure layer and just imitate "
+            "photographs; for a fictional one you cannot'.",
+            "12 storeys at 20 m, `solid` rails, flat cap: UNSOURCED BY "
+            "DESIGN. 12 x 20 m sits far inside the invented 500-storey "
+            "limit, so this fixture's output must carry NO warning - which "
+            "is the half of §9g that the Babel fixture cannot show.",
+        ],
+        "storeyHeightM": 20.0,
+        "lotToFootprint": {"op": "setback", "defaultSetbackM": 0.0,
+                           "setbackM": {}},
+        "volumeTopology": {
+            "rails": "solid",
+            "cutsAt": [],
+            "courtyardDepthM": 0.0,
+            "volumes": [{"role": "spire", "storeys": 12, "capGroup": 0}],
+            "plinth": {"mode": "none", "minM": 0.0},
+        },
+        "capFamily": {"family": "flat", "pitchDeg": 0.0, "eaveDepthM": 0.0},
+    },
 ]
 
 
 def main():
     import hou
     from polyfactory.citygen import buildings
-    if not os.path.isdir(OUT):
-        os.makedirs(OUT)
-    for style in STYLES:
-        # ⚠️ BEFORE THE WRITE, because after it the loss is undetectable: a
-        # nested list, or a list mixing strings with numbers, leaves the key
-        # simply ABSENT from the loaded template with no exception at either
-        # end, and `resolve()` then substitutes a DEFAULTS value nobody asked
-        # for.  Measured on 22.0.398; the rule and the measurements live in
-        # `buildings.assert_storable`.
-        buildings.assert_storable(style)
-        geo = hou.Geometry()
-        geo.addAttrib(hou.attribType.Global, "pf_style_template", {},
-                      create_local_variable=False)
-        geo.setGlobalAttribValue("pf_style_template", style)
-        path = os.path.join(OUT, style["styleId"] + ".geo").replace("\\", "/")
-        geo.saveToFile(path)
-        print("wrote %-44s %5d bytes" % (path, os.path.getsize(path)))
+    # ⭐ `storeyHeightsM` / `wallThicknessesM` ARE THE SHAPE §12.12 WAS OPEN
+    # ON, and they go through the same guard as everything else: a list of
+    # DICTS is exactly what G3 measured as surviving the `.geo` detail-dict
+    # round trip, and `assert_storable` is what would have caught it had it
+    # not.  It is called on the SYSTEMS too - a construction system is a
+    # template file by the same mechanism, so it inherits the same trap.
+    for out, blocks, key in ((SYSOUT, SYSTEMS, "systemId"),
+                             (OUT, STYLES, "styleId")):
+        if not os.path.isdir(out):
+            os.makedirs(out)
+        for block in blocks:
+            # ⚠️ BEFORE THE WRITE, because after it the loss is undetectable:
+            # a nested list, or a list mixing strings with numbers, leaves the
+            # key simply ABSENT from the loaded template with no exception at
+            # either end, and `resolve()` then substitutes a DEFAULTS value
+            # nobody asked for.  Measured on 22.0.398; the rule and the
+            # measurements live in `buildings.assert_storable`.
+            buildings.assert_storable(block)
+            geo = hou.Geometry()
+            geo.addAttrib(hou.attribType.Global, "pf_style_template", {},
+                          create_local_variable=False)
+            geo.setGlobalAttribValue("pf_style_template", block)
+            path = os.path.join(out, block[key] + ".geo").replace("\\", "/")
+            geo.saveToFile(path)
+            print("wrote %-46s %5d bytes" % (path, os.path.getsize(path)))
     return 0
 
 

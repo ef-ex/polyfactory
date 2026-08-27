@@ -150,6 +150,25 @@ SETBACKS = {6: [0.0, 25.0, 12.0, 0.0],
 # wrong there. Stated here rather than read off the warning, so a collapse
 # test that flags too much, or too little, is caught instead of believed.
 DEGRADED = {5: True, 6: True, 7: False, 9: True}
+# ⭐ WHICH SITES EXCEED THEIR CONSTRUCTION SYSTEM'S SPAN, derived BY HAND from
+# the lot, the setbacks and the cut fractions - never read off the warning, or
+# the check counts the build against itself.  A volume's clear span here is the
+# cell's plan area over its longest plan edge, which for these rectangular
+# cells is the short side.
+#   1  einhof   5.0 m cells against maxSpanM 5.0  -> NOT exceeded
+#   2  vienna   ~9.6 m ring tract against 6.0     -> exceeded
+#   3  vierkant  system states no span            -> never warns
+#   4  zinshaus 12.01 / 13.99 m cells against 6.0 -> exceeded
+#   5,6,7,9     degraded, so the cell IS the lot: 6.0 / 10.0 / 10.0 / 10.0
+#   8  zinshaus 7.39 / 8.61 m cells against 6.0   -> exceeded
+#   10 einhof   10.0 m cells (setback 0) against 5.0 -> exceeded
+# ⚠️ SITE 1 SITS EXACTLY ON ITS LIMIT AND THAT IS LOAD-BEARING, so it is said
+# rather than left in the numbers: `at_lehm_massiv`'s 5.0 m span is DERIVED
+# from the sourced 5 m house width, so the Einhof spans precisely what its
+# material permits and only the 1e-3 m band keeps it quiet.  Float32 noise on
+# a 5 m span measured at ~50 m from the origin is ~1e-5 m, two orders inside
+# that band - but a fixture moved further out would need the band re-checked.
+SPAN_EXCEEDED = [2, 4, 5, 6, 7, 8, 9, 10]
 
 
 def ring_of(ox, oz, sx, sz, roles):
@@ -253,7 +272,13 @@ def scene(parent, lots=None):
     # and a fixture that makes the output look wrong teaches the wrong thing.
     slope.parm("snippet").set(
         "@P.y = " + SLOPE % (("@P.x", "@P.z") * 2) + ";")
-    return src, B.build(parent, src, ground=slope)
+    # ⚠️ B3 IS IN THE MAIN CHAIN, not in a fixture of its own, and that is a
+    # decision worth naming: its numbers are claims about the four SOURCED
+    # templates, so they belong in the baseline beside the mass they describe.
+    # The cost is that `record()`'s `published` row grew by seven names, which
+    # is a diff a human read once and absorbed deliberately (conventions.md §7
+    # check 2 working as designed).
+    return src, B.structure(parent, B.build(parent, src, ground=slope))
 
 
 def cook(lots=None, name="g1"):
@@ -596,12 +621,55 @@ WANT_OFF = {"site": 36, "ring": rect(0.0, 0.0, 30.0, 24.0),
             "roles": ROLES4, "inset": [2.5] * 4}
 
 
-def cook_extra(name, head, body, lots, overrides=None, build=True,
-               style=B0_STYLE):
-    """One B0 stream, optionally carried on through B1+B2.
+# --- B3's §9g stress fixture ------------------------------------------------
+#
+# ⭐ THREE LOTS, ONE STREAM, AND THE POINT IS THE CONSTRUCTION SYSTEMS RATHER
+# THAN THE BUILDINGS.  Site 51 asks a REAL system - the Einhof's own sourced
+# `at_lehm_massiv`, two storeys, 36.5 cm walls - for EIGHT storeys: §9g's Babel
+# case, where "the tool knows the building is impossible, says so, and builds
+# it".  Site 52 asks an INVENTED system for a 244 m spire and must produce
+# coherent output and NO warning: §9g's Coruscant case.  Site 53 is the
+# control without which "it warns" is satisfied by a flag nailed to 1 - an
+# `at_einhof` lot inside the same real system's limits.
+B3_LOTS = [(51, rect(600.0, 0.0, 12.0, 12.0)),
+           (52, rect(700.0, 0.0, 80.0, 80.0)),
+           (53, rect(900.0, 0.0, 10.0, 90.0))]
+B3_STYLE = {51: "babel_lehm_tower", 52: "coruscant_spire", 53: "at_einhof"}
+B3_HEAD = (
+    "g.addAttrib(hou.attribType.Prim, 'pf_site_id', 0)\n"
+    "g.addAttrib(hou.attribType.Prim, 'pf_style_template', '')\n"
+    "g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')\n"
+    "styles, roles = %r, %r\n" % (B3_STYLE, ROLES4))
+B3_BODY = (
+    "    p.setAttribValue('pf_site_id', site)\n"
+    "    p.setAttribValue('pf_style_template', styles[site])\n"
+    "    for i, v in enumerate(p.vertices()):\n"
+    "        v.setAttribValue('pf_face_role', roles[i])\n")
+# Hand-derived, exactly as `SPAN_EXCEEDED` is: 51 is a 12 x 12 solid volume
+# against a 5.0 m span; 52 is 80 x 80 against 400 m; 53 is the Einhof's 5.0 m
+# cells against 5.0 m.  Only 51 exceeds.
+B3_SPAN_EXCEEDED = [51]
+# 8 storeys x 4.0 m, and it must be built at its FULL height - a clamp is the
+# refusal §2.2 forbids.
+BABEL = (51, 8, 32.0)
+# (site, bayMaxM, maxSpanM, bayWidthM): an 80 m wall under a 60 m bay cap is
+# ceil(80/60) = 2 bays of 40 m.  The cap is BELOW the span, which is what makes
+# this the only fixture where the culture-side arm of the chain binds.
+FICTION = (52, 60.0, 400.0, 40.0)
+# 24.0 + 11 x 20.0, and [4.0] + [2.5] x 11 - the fiction's own tables.
+FICTION_WALL = (244.0, [4.0] + [2.5] * 11)
 
-    -> (parent, B0 output, shape node or None, B2 output or None).  A fresh
+
+def cook_extra(name, head, body, lots, overrides=None, build=True,
+               style=B0_STYLE, structure=False):
+    """One B0 stream, optionally carried on through B1+B2 and then B3.
+
+    -> (parent, B0 output, shape node or None, B2/B3 output or None).  A fresh
     /obj subtree per call, destroyed by `extras()` once the values are read.
+
+    ⚠️ `structure` DEFAULTS OFF so every stream that existed before B3 cooks
+    exactly the nodes it cooked before.  The B1 shape-op streams read `faces()`
+    on a B2 output, which publishes none of B3's names.
     """
     parent = hou.node("/obj").createNode("geo", name)
     src = parent.createNode("python", "lots")
@@ -614,6 +682,9 @@ def cook_extra(name, head, body, lots, overrides=None, build=True,
     else:
         out = B.build(parent, b0, overrides=overrides, name=name + "_b2")
         shape = parent.node(name + "_b2_shape")
+        if structure:
+            out = B.structure(parent, out, overrides=overrides,
+                              name=name + "_b3")
         (out if build else shape).cook(force=True)
         if not build:
             out = None
@@ -688,6 +759,11 @@ def extras():
                                   SWEEP_LOTS, overrides=SHAPE_L, build=False)
     made.append(p)
 
+    # ⭐ B3's §9g stress stream, cooked all the way through B3.
+    p, _b, _s, b3 = cook_extra("b3_stress", B3_HEAD, B3_BODY, B3_LOTS,
+                               structure=True)
+    made.append(p)
+
     results = [
         C.site_contract(streams),
         C.site_ids_structural([("bare", bare.geometry(), bare2.geometry())]),
@@ -701,6 +777,15 @@ def extras():
             tpl, (), MIXED_CASCADE, name="plan_follows_data_b0"),
         C.shape_ops(builds),
         C.shape_frame_rotates(swept.geometry(), SWEEP_WANT),
+        C.limits_are_advisory(b3.geometry(), BABEL, FICTION, FICTION_WALL),
+        # ⛔ B3 MASKED B2's OWN SCRATCH SWEEP, and the mutation sweep is the
+        # only reason anyone knows.  With B3 in the main chain, deleting B2's
+        # prim-class `_*` delete leaves the output clean - B3's own clean
+        # repairs it - so `no_scratch` went GREEN on a mutation it had
+        # reddened for two cycles.  B2's output is still a product other
+        # streams consume, so its sweep needs an assertion of its own:
+        # `no_scratch` now guards the SHIPPED end and this guards B2's.
+        C.no_scratch(mout.geometry(), name="no_scratch_b2"),
     ]
     for parent in made:
         parent.destroy()
@@ -798,6 +883,26 @@ def vx(old, new, src="pf_mass"):
     return lambda: patch_vex([(src, old, new)])
 
 
+def sx(old, new):
+    """A `pf_structure.vfl` mutation - B3's own file."""
+    return vx(old, new, "pf_structure")
+
+
+def csys(style, key, value):
+    """A CONSTRUCTION SYSTEM mutation, reached through the style that names it.
+
+    `B.load` expands the `constructionSystem` ref before it returns, so the
+    block is a plain dict by the time `patch_template` sees it.  ⭐ This is the
+    only door to a system-level mutation, and it is what makes "change a
+    system's `maxSpanM` and see what moves" a REGISTRY row rather than a
+    one-off probe.  ⚠️ It moves the template a check may READ as its oracle -
+    use it only where the clause's expectation is a fixture literal.
+    """
+    return lambda: patch_template(
+        lambda s, t: s == style
+        and t["constructionSystem"].__setitem__(key, value))
+
+
 CELL1 = ("vector corner[]; string tag[], wall[], face[], shared[];",
          "if (i == 1) continue;\n        vector corner[]; string tag[], "
          "wall[], face[], shared[];")
@@ -871,15 +976,16 @@ MUTATIONS = [
          ("pf_mass", "ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;",
           "ybase[i] = ((plinth == 0) ? 0.0 : lo[i] - plinthmin) + "
           "(i % 2 ? 30.0 : 0.0);"),
-         ("pf_mass", "ytop[i] = hiall + float(st) * sh;",
-          "ytop[i] = hiall + float(st) * sh + (i % 2 ? 30.0 : 0.0);")])),
+         ("pf_mass", "ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh);",
+          "ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh) + "
+          "(i % 2 ? 30.0 : 0.0);")])),
     ("outward_normals", "outward_normals", "wall quads are wound the other way",
      vx("addvertex(0, pw, base[j]);  addvertex(0, pw, base[jn]);",
         "addvertex(0, pw, base[jn]); addvertex(0, pw, base[j]);")),
     ("heights_follow_data", "heights_follow_data",
      "half a metre added to every volume",
-     vx("ytop[i] = hiall + float(st) * sh;",
-        "ytop[i] = hiall + float(st) * sh + 0.5;")),
+     vx("ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh);",
+        "ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh) + 0.5;")),
     ("plinth_follows_ground", "varying_skirts",
      "the Einhof stops adapting to the slope",
      lambda: patch_template(
@@ -909,9 +1015,24 @@ MUTATIONS = [
     ("elem_ids_structural", "unique",
      "the element id drops the face slot, so six faces share one address",
      vx('sprintf("%s:%s", vid, t)', 'sprintf("%s", vid)')),
-    ("no_scratch", "no_scratch", "the prim-class `_*` sweep is removed",
+    # ⚠️ PAIRED WITH B2's OUTPUT, NOT THE SHIPPED ONE, AND THAT IS THE FIX FOR
+    # A REGRESSION B3 CAUSED.  This row used to name `no_scratch`; with B3 in
+    # the chain its own clean repairs the leak downstream, so the row went
+    # GREEN while B2's sweep was gone.  A mutation that another node undoes
+    # proves nothing about the node it was written for.
+    ("no_scratch_b2", "no_scratch_b2",
+     "B2's prim-class `_*` sweep is removed, so the marshalling attributes "
+     "`stamp()` wrote survive `removeprim` as definitions and ship on B2's "
+     "own output - the stream `plan_follows_data_b0` and every shape-op "
+     "check reads",
      lambda: setattr(B, "CLEAN", tuple(r for r in B.CLEAN
                                        if r[1] != "primdel"))),
+    ("no_scratch", "no_scratch",
+     "B3's DETAIL sweep is removed, so the `_cs_*` construction-system arrays "
+     "ship on every building.  The detail class is the one B2 had nothing to "
+     "remove from, so this line could not fail until B3 wrote to it",
+     lambda: patch_pysrc('("doprimdel", "primdel"), ("dodtldel", "dtldel")',
+                         '("doprimdel", "primdel")', "structure")),
     ("cap_group_split_warns", "cap_group_split_warns",
      "one Einhof volume is given a third storey",
      vol("at_einhof", 1, "storeys", 3)),
@@ -1241,6 +1362,96 @@ MUTATIONS = [
      "becomes `setback`",
      lambda: patch_pysrc("\"ring\" if op == \"shapeO\" else topo[\"rails\"]",
                          "topo[\"rails\"]")),
+
+    # --- B3 ----------------------------------------------------------------
+    #
+    # ⚠️ BLAST RADIUS IS STATED PER ROW, because `build_retrospective.md` §2a
+    # row 56 is exactly this: a mutation seen RED proves the clause it
+    # reddens and nothing adjacent.  Where a row reddens more than its pair,
+    # the extra clause has its OWN row below.
+    ("structure", "splits_match_the_wall",
+     "the MASS stops reading B3's per-storey table while B3 keeps publishing "
+     "it - the Viennese wall goes back to 5 x 3.5 = 17.5 m while the splits "
+     "still say 18.2, which is the template saying a thing the building does "
+     "not do.  ⚠️ Reddens `heights_follow_data` too, for the same reason",
+     vx("ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh);",
+        "ytop[i] = hiall + (vh > 1e9 ? vh : float(st) * sh);")),
+    ("structure", "splits_follow_the_table",
+     "B3's per-storey HEIGHT override never matches, so every storey takes "
+     "the volume's nominal height and the Gruenderzeit ground floor stops "
+     "being taller.  ⚠️ Reddens `splits_match_the_wall` too - the mass still "
+     "reads the table - and that is the pair working, not a duplicate",
+     sx("if (int(htab[q]) == si && int(htab[q + 1]) == k) h = htab[q + 2];",
+        "if (int(htab[q]) == si && int(htab[q + 1]) == -1) h = htab[q + 2];")),
+    ("structure", "thickness_follows_the_table",
+     "the per-storey WALL THICKNESS override never matches, so the Viennese "
+     "wall is 0.45 m from the ground up and the two 0.60 m storeys vanish",
+     sx("if (int(ttab[q]) == si && int(ttab[q + 1]) == k) t = ttab[q + 2];",
+        "if (int(ttab[q]) == si && int(ttab[q + 1]) == -1) t = ttab[q + 2];")),
+    # ⭐ TWO ROWS FOR ONE CLAUSE, ONE PER TERM.  §2a row 46: a clause with a
+    # mutation is not a proved clause if it is an AND of terms - each term
+    # needs an input that reaches it.  `floor` makes the bay too WIDE; `+ 1`
+    # makes it narrow enough and the COUNT larger than the fewest that fit.
+    ("structure", "bay_respects_the_span",
+     "one bay fewer than the span allows, so the 48 m Viennese wall is cut "
+     "into 7 bays of 6.857 m against a 6.0 m span limit - the chain's cap "
+     "silently exceeded",
+     sx("bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;",
+        "bayu = (hi > 0.0 && lng > 1e-6) ? int(floor(lng / hi - 1e-6)) : 1;")),
+    ("structure", "bay_respects_the_span",
+     "one bay MORE than the span requires - every width still respects the "
+     "cap, so only the `fewest` term can see it",
+     sx("bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) : 1;",
+        "bayu = (hi > 0.0 && lng > 1e-6) ? int(ceil(lng / hi - 1e-6)) + 1 "
+        ": 1;")),
+    ("structure", "grid_only_on_walls",
+     "the CAP gets a bay grid, so a facade splitter handed the volume's plan "
+     "would build a storey of windows across the roof",
+     sx('if (role != "cap" && role != "floor") {', 'if (role != "floor") {')),
+    ("structure", "span_warning_is_true",
+     "`pf_warn_span_exceeded` is nailed to 0 - eight of the ten fixture "
+     "sites cross more than their material permits and not one of them says "
+     "so, which is §2.0's house rule failing SILENTLY rather than loudly",
+     sx("(span > 0.0 && need > span + 1e-3) ? 1 : 0);",
+        "(0) ? 1 : 0);")),
+    # ⭐ §9g's BABEL CASE, and its two halves are OPPOSITE claims, so they get
+    # separate mutations and each was watched alone: one kills the WARNING
+    # and leaves the eight-storey building standing, the other CLAMPS the
+    # building and leaves the warning firing.
+    ("limits_advisory", "babel_warns",
+     "the storeys limit stops being reported, so a template asking a "
+     "two-storey material for eight storeys builds in silence",
+     sx("(stcap > 0 && storeys > stcap) ? 1 : 0);", "(0) ? 1 : 0);")),
+    ("limits_advisory", "others_silent",
+     "the storeys warning fires wherever a system states a limit at all, so "
+     "every legal building in the fixture reports itself impossible - the "
+     "shape a check asserting only `warns == 1` cannot see",
+     sx("(stcap > 0 && storeys > stcap) ? 1 : 0);", "(stcap > 0) ? 1 : 0);")),
+    ("limits_advisory", "babel_builds",
+     "the mass CLAMPS a volume to two storeys - the refusal §2.2 forbids - "
+     "so Babel comes out 8 m tall with its warning still firing.  ⚠️ `pf_"
+     "storeys` is untouched, which is what keeps `babel_warns` green and "
+     "makes this row prove the BUILD half alone",
+     vx("int st = len(storeys) ? storeys[i % len(storeys)] : 1;",
+        "int st = min(len(storeys) ? storeys[i % len(storeys)] : 1, 2);")),
+    # ⭐ §9g's CORUSCANT CASE.  Both rows mutate the INVENTED system, which no
+    # other style reads - so each reddens its clause and nothing else in
+    # either suite.
+    ("limits_advisory", "fiction_is_silent",
+     "the invented system is given a 4-storey limit, so a 12-storey spire "
+     "that was coherent by construction starts reporting itself impossible",
+     csys("coruscant_spire", "maxStoreys", 4)),
+    ("limits_advisory", "fiction_is_coherent",
+     "the invented system loses its 24 m ground level, so the spire is 240 m "
+     "where its own table says 244 - an authored block that no longer agrees "
+     "with the building it produced",
+     csys("coruscant_spire", "storeyHeightsM", [])),
+    ("limits_advisory", "bay_cap_binds",
+     "the bay cap is ignored and the SPAN alone decides, so the fiction's "
+     "80 m wall becomes one 80 m bay against its own 60 m cap.  ⚠️ Every real "
+     "system in the library states no bay cap, so this row moves the fiction "
+     "and NOTHING else - which is why the two arms are two statements",
+     sx("float hi = bcap;", "float hi = span;")),
 ]
 
 
@@ -1280,6 +1491,7 @@ def run_checks(out, mirror, templates, sources):
         C.plan_follows_data(geo, STYLE_OF, RINGS, ROLES_OF, by_id,
                             DEGRADED, SETBACKS),
         C.warns_on_unknown_rule(geo),
+        C.structure(geo, by_id, SPAN_EXCEEDED),
     ] + extras()
 
 
@@ -1316,6 +1528,7 @@ def record(out):
     overwrite it with a template key no template defines."""
     geo = out.geometry()
     snap = {"published": C.published_names(geo), "sites": {}}
+    b3 = C._b3_faces(geo)
     for site, style, _o, _s, _r in LOTS:
         vols = C.volumes(geo, site)
         fs = [f for v in vols.values() for f in v]
@@ -1333,6 +1546,23 @@ def record(out):
         }
         for w in WARNS:
             row[w] = sorted(set(f[w] for f in fs))
+        # B3's VALUES, for the same reason every other family is here: a bay
+        # count or a storey split that moves is a number a human has to look
+        # at, and no clause asserts the exact grid of a particular wall.
+        b3s = [f for f in b3 if f["pf_site_id"] == site]
+        row["bayU"] = sorted(set(f["pf_bay_u"] for f in b3s))
+        row["bayWidth"] = sorted(set(round(f["pf_bay_width"], 3)
+                                     for f in b3s))
+        # ⚠️ LISTS, NOT TUPLES.  A tuple round-trips through JSON as a LIST, so
+        # a snapshot holding tuples reports every one of them as moved on
+        # every run for ever - measured here, 20 phantom movements, and a
+        # runner that cries wolf is a runner whose real diffs get skimmed.
+        for key, attr in (("storeySplit", "pf_storey_split"),
+                          ("wallThickness", "pf_wall_thickness")):
+            row[key] = [list(t) for t in sorted(set(
+                tuple(round(v, 3) for v in f[attr]) for f in b3s))]
+        for w in ("pf_warn_span_exceeded", "pf_warn_storeys_exceeded"):
+            row[w] = sorted(set(f[w] for f in b3s))
         snap["sites"]["%d_%s" % (site, style)] = row
     return snap
 
@@ -1518,7 +1748,7 @@ def main():
         names = [r.name for r in results]
         proven = set()
         for paired, clause, why, apply in MUTATIONS:
-            keep = (B.vex, B.load, B.CLEAN, B.stamp, B.site)
+            keep = (B.vex, B.load, B.CLEAN, B.stamp, B.site, B.structure)
             note = ""
             try:
                 apply()
@@ -1542,7 +1772,8 @@ def main():
                 ok = False
                 note = "MUTATION DID NOT APPLY: %s" % str(exc)[:140]
             finally:
-                B.vex, B.load, B.CLEAN, B.stamp, B.site = keep
+                (B.vex, B.load, B.CLEAN, B.stamp, B.site,
+                 B.structure) = keep
             if ok:
                 proven.add((paired, clause))
             else:

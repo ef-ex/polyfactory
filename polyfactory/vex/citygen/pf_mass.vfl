@@ -179,6 +179,11 @@ for (int pr = 0; pr < np; pr++) {
                                                  // storey is as tall as the
                                                  // dwelling's two, or the
                                                  // shared eave cannot exist
+    // B3's per-storey height TABLE, already summed per volume by `stamp()`.
+    // NEGATIVE means the style names no table (§12.12) - and the fallback is
+    // then the ORIGINAL product, not a re-summed list, so a template without
+    // a table cannot move by a float32 ulp.
+    float  volh[]   = prim(0, "_volh", pr);
     int    plinth   = prim(0, "_plinth", pr);
     float  plinthmin= prim(0, "_plinthmin", pr);
     int    collapsed= prim(0, "pf_warn_footprint_collapsed", pr);
@@ -311,7 +316,8 @@ for (int pr = 0; pr < np; pr++) {
         ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;
         int st = len(storeys) ? storeys[i % len(storeys)] : 1;
         float sh = len(sheight) ? sheight[i % len(sheight)] : 3.0;
-        ytop[i] = hiall + float(st) * sh;
+        float vh = len(volh) ? volh[i % len(volh)] : -1.0;
+        ytop[i] = hiall + (vh > 0.0 ? vh : float(st) * sh);
     }
     int capsplit[];
     for (int i = 0; i < ncells; i++) {
