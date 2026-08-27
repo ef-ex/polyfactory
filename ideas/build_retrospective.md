@@ -58,10 +58,15 @@ in one night):**
 
 > **The check passed because its subject was ABSENT, not because it was correct.**
 
-Instances 5, 16, 21, 22, 23, 26 and 27 are all this, and 21 and 27 were hit **the same night, in two
-different subsystems, by two agents who did not know the other had it** — a building with no
+Instances 5, 16, 21, 22, 23, 26, 27 and **30** are all this, and 21 and 27 were hit **the same night,
+in two different subsystems, by two agents who did not know the other had it** — a building with no
 assertion of where it was, and a gate with no leg left to measure. Instance 24 is its near neighbour:
 the subject was present but the oracle was invariant under the very error it existed to catch.
+⚠️ **Instance 30 claimed the shape AGAIN the night it was named, inside the headline clause of the
+gate that was being audited** — and instance 31 is its complement, which the rule as written does
+**not** cover: the subject was present, in the right place in x and z, and **no clause looked along
+the third axis at all.** *Assert the subject exists* has to mean **in every dimension the claim
+names**, or a claim of "no misalignment" survives a two-metre one.
 
 | 28 | *(f2)* **`tests/unit/trim_calibration.json` went stale for a WHOLE MILESTONE** — it recorded two cases at 3 edges / 1 node, the *pre-mover* topology, while the shipped builder produced 5 edges / 2 nodes. **49 unit tests stayed green against a shape the builder had stopped producing** | citygen streets, M5 |
 
@@ -92,6 +97,12 @@ practical consequences already live in this project:
 
 | 29 | *(f2)* **The sub-shape above claimed its 21st instance WITHIN HOURS OF BEING NAMED — in work already declared done and audited, one milestone after the identical failure.** `trim_calibration.json` was stale for `J_five_star`: `graph_realign`'s cubic Hermite T landing changed what the builder cuts and was never mirrored in `plan.py` (§11.5 — builder and planner must move in one commit). **11 of 74 unit tests now fail, all at ONE site** — node `(48.000, 0.000)`, edge `E_00005`, residual **−8.671534 m**; the planner predicts the pre-M5.5 trim of `5.000` while the builder cuts `12.529`. **M5.5 is not sound.** | citygen streets, M5.5 |
 
+| 30 | **`corner_closure/no_gaps` — the gate's own headline clause — derived its row set from the geometry under test** (`sorted(set(e["pc_row"] …))`), so **a row with no modules was not a row.** Deleting all **98** modules of a storey gave `[14062, 0, 0.000, 0]` — PASS, worst gap 0.000 m. Shape 1, inside the clause G2 is named for. **Fixed:** `rows_tile` takes the count from the fixture and asserts the bands tile the wall | citygen buildings, G2 round N / fix pass |
+| 31 | **The vertical axis had no measurement anywhere in G2.** `_in_box` compares x and z, so a module **2.0 m out of place in Y** passed every clause and moved no baseline value, while the headline claimed *"no hole AND NO MISALIGNMENT"*. Closed by the same clause — a displacement pushes its row's band past its neighbour's edge | citygen buildings, `G2-2` |
+| 32 | **The miter bench's control column was `bend`'s output under another parameter name** — 6 624 prims, `default*` cells only — so it removed the `[vex:corners]` refusal **and** the entire corner assembly in one edit and could not tell them apart. §2b row 14's shape in a benchmark. **The conclusion was right and the control did not establish it**; replaced by one that changes a single thing (miter, non-degenerate corners, a kit with no `corner*` modules: still 2.7×) | citygen buildings, `G2-3` |
+| 33 | ⭐ **THE COLLAPSE-TEST SHAPE'S THIRD OCCURRENCE, and it shipped in production: *a collapse test that catches one failure mode does not catch the next one.*** Round 2 found containment blind to a double inversion; G2 found the crossing test blind to a proper fold; the round-N audit found the **strictly-proper** crossing test blind to a **tangential** one. `front` 8.0 against `rear` 4.0 on a 12 m leg makes the offset lines MEET — two coincident points, four collinear — and the building shipped with **all four `pf_warn_*` at 0**, a 0.35 m facade hole, two corners with no corner module and a roof 0.55 m off the wall. ⚠️ **The only signal anywhere was polyChain's `pc_warn_corner_degenerate`, on an attribute nothing reads.** **Fixed** with a collapsed-lobe term (a zero-length edge), not another crossing test | citygen buildings, `G2-4` |
+| 34 | **A check written by the fix pass could not fail, and measuring it is the only reason anyone knows.** The first image clause was *"at least 3 drawn segments per prim"*, which looks like a structural floor — but the `corner*` prims are raw polygons, so a **fully packed** draw clears it at **3.18**. Rewritten as a differential (the unpacked stream must have more prims than the shell it came from) and then seen red at 1174-from-1174, **3 735 edges where the unpacked stream has 28 869.** *The rule that a check is not written until its mutation has been seen red is what caught this, in the pass whose whole job was fixing checks that could not fail* | citygen buildings, G2 fix pass |
+
 **⭐⭐ THE META-LESSON, AND IT INDICTS THIS DOCUMENT: PROSE IS WHAT FAILED — TWICE.**
 
 Instance 28 was written up as a rule. The rule was *correct*, and it did not prevent instance 29
@@ -120,6 +131,21 @@ stopped at §2. **When an incident is logged here, the next question is not "is 
 `tests/README.md` pins unit-test counts that a new test file silently invalidates.
 **`baseline_buildings.json` has no `calibration_is_not_stale` equivalent — that is queued work, and
 it is the single highest-value check the building subsystem does not yet have.**
+
+⚖️ **RULED ON, 2026-08-27, by G2's round-N audit — and the ruling is more interesting than a
+closure.** `baseline_g2.json` does **not** carry instance 28's failure mode, and neither does
+`baseline_buildings.json`: both are re-derived by `record()`, **the same function that writes
+them**, and compared **exactly** (`!=`, no tolerance) on **every run**. That is the three-point
+pattern above, met by construction rather than by a check. ⭐ **The real exposure was somewhere
+else entirely, and it took an auditor to see it: the blessing path could not show what it
+absorbed.** In both building runners `--update-baseline` took an `if`/`elif` branch that **never
+called `diff()`** — so *"verified after blessing is not verified"* was not a discipline anyone could
+choose to follow here, it was the only workflow the code offered. **Fixed 2026-08-27** (the diff is
+computed and printed unconditionally, the write happens after it and names its count).
+⚠️ **The second real exposure is still open and is not staleness at all:** `baseline_g2.json`
+records `mass_faces`, `planBox`, `planAreas`, `facade_elements`, `roof_faces`, `topY` and four
+warnings — and **nothing per-corner, no row count, and not `corner_closure`'s own sample count.**
+A regression at a corner that preserves the element count moves nothing.
 
 ⚠️ **And one more, recorded because its owner volunteered it against their own interest:** the same
 cycle ran `--update-baseline` and *then* read the diff to confirm it was additive. It was — but
