@@ -2,27 +2,38 @@
 
     hython tests/hda/run_ring_checks.py
 
-Nine checks and nine mutations. Every check runs twice: once on the clean
-asset, where it must pass, and once against the ONE edit that is supposed to
-redden it, where it must fail. A check whose mutation stays green is reported
-as a failure of the CHECK - `ideas/build_retrospective.md` §2a is a list of
-~20 checks that could not fail, and this pairing is what keeps this file off
-it. It has already earned that: the pairing caught an HScript ternary that
-silently built every ring as a seamed open arc, and two of these checks were
-themselves decoration on the first run (see the notes on C7 and C9).
+Thirteen checks and thirteen mutations. Every check runs twice: once on the
+clean asset, where it must pass, and once against the ONE edit that is
+supposed to redden it, where it must fail. A check whose mutation stays green
+is reported as a failure of the CHECK - `ideas/build_retrospective.md` §2a is
+a list of ~20 checks that could not fail, and this pairing is what keeps this
+file off it. It has already earned that four times over: it caught an HScript
+ternary that silently built every ring as a seamed open arc, and a ring that
+shipped inside out, and two of its own checks were decoration on their first
+run (see the notes on C7 and C9).
+
+Whole run, including hython boot, is ~2 s. It stays there because every case
+cooks a ring of a few hundred points, not a scene.
 
 The mutations edit an unlocked INSTANCE. `updateFromNode` is never called, so
 nothing is written back to `pf_ring.hda` (dev-loop's HDA trap: that call
 overwrites its own library file).
 
 What these checks CANNOT see:
-  * the cusp angle. C9 asserts N agrees with the surface, not where it cusps.
-  * UVs. `revolve` computes them and nothing here reads them.
+  * the cusp angle. Nothing asserts where shading cusps, only that N points
+    out of the solid (C9).
+  * WALL uv layout beyond how many distinct values each axis carries (C11).
+    That it is revolve's own parametrisation is taken on trust.
+  * the cap uv ISLAND. Both caps get the same 0-1 square, so they overlap
+    each other and the walls in UV space. That is deliberate - it is a
+    predictable default, not a packed layout - and nothing asserts it.
   * the parameter dialog. Names, ranges and help text are unasserted; the TAB
-    submenu, icon and output label are asserted by the build script against
-    the saved file.
-  * values other than the ones listed. Bevel is proven at one width, taper at
-    one amount per side, the arc at 90 and 140 degrees.
+    submenu, icon, output label and the presence of every parm the VEX reads
+    are asserted by the build script against the saved file.
+  * values other than the ones listed. Width taper is proven at one amount
+    per side, height taper at one amount per side, bevel at one width.
+  * bevel shapes are proven distinguishable and sound (C13), not correct -
+    nothing here knows what `Crease` is supposed to look like.
 """
 
 import math
@@ -131,6 +142,20 @@ def radius(p):
     return math.hypot(p[0], p[2])
 
 
+def caps_and_walls(geo):
+    """Split the two end caps off the walls GEOMETRICALLY: a cap's vertices
+    all sit at ONE angle about Y, while a wall quad always spans an angular
+    step. Deriving it from prim numbering instead would just restate the
+    production code's own assumption about where polycap appends."""
+    caps, walls = [], []
+    for pr in geo.prims():
+        angs = [math.atan2(v.point().position()[2], v.point().position()[0])
+                for v in pr.vertices()]
+        flat = max(angs) - min(angs) < 1e-4
+        (caps if flat else walls).append(pr)
+    return caps, walls
+
+
 def radii_at(geo, y):
     """(min, max) radius of the points sitting at height `y`."""
     rs = [radius(p.position()) for p in geo.points()
@@ -138,9 +163,22 @@ def radii_at(geo, y):
     return (min(rs), max(rs)) if rs else (None, None)
 
 
+def heights_at(geo, r):
+    """(min, max) height of the points sitting at radius `r`."""
+    ys = [p.position()[1] for p in geo.points()
+          if abs(radius(p.position()) - r) < EPS]
+    return (min(ys), max(ys)) if ys else (None, None)
+
+
 def y_extent(geo):
     ys = [p.position()[1] for p in geo.points()]
     return min(ys), max(ys)
+
+
+def signature(geo):
+    """Enough of the shape to tell two bevel results apart."""
+    return (len(geo.points()),
+            round(sum(abs(c) for p in geo.points() for c in p.position()), 5))
 
 
 # --------------------------------------------------------------------------
@@ -219,14 +257,18 @@ def c6_bevel_cuts_the_corners(cook):
 def c7_every_face_is_flat(cook):
     """The whole point of the tool: flat sides, not a torus. Measured with a
     Newell normal - see `_newell`, the 3-point version measures its own
-    conditioning. Worst on a correct build is ~4e-08 at radius 1."""
+    conditioning. The second fixture stacks BOTH tapers on a bevelled arc,
+    because height taper drops a face's corners and that is exactly the edit
+    that could bend one."""
     e = max(planar_error(cook()),
-            planar_error(cook(taper_top=0.4, bias_top=0.6, bevel=0.04,
-                              bevelsegs=3, arcangle=140.0)))
+            planar_error(cook(taper_top=0.4, bias_top=0.6,
+                              htaper_top=0.45, hbias_top=1.0,
+                              htaper_bot=0.3, hbias_bot=-0.5,
+                              bevel=0.04, bevelsegs=3, arcangle=140.0)))
     return e < 1e-6, "worst out-of-plane error: %.3e (want < 1e-6)" % e
 
 
-def c8_top_and_bottom_taper_independently(cook):
+def c8_width_taper_is_independent_top_to_bottom(cook):
     """Top tapered hard against the outer circle; the bottom must not move.
     Then the reverse, so neither side is proven only in one direction."""
     g = cook(outer=1.0, inner=0.6, taper_top=0.5, bias_top=1.0)
@@ -246,11 +288,11 @@ def c8_top_and_bottom_taper_independently(cook):
 
 
 def c9_the_solid_is_not_inside_out(cook):
-    """Two independent readings of the same property, because this shipped
-    wrong once: the enclosed volume must be NEGATIVE (Houdini's clockwise
-    front face - see `signed_volume`), and the N that actually leaves the node
-    must point AWAY from the axis on the outer wall. Comparing N against the
-    face's own winding cannot see this - that agreement holds either way."""
+    """Two independent readings, because this shipped wrong once: enclosed
+    volume must be NEGATIVE (Houdini's clockwise front face - see
+    `signed_volume`), and the N that actually leaves the node must point AWAY
+    from the axis on the outer wall. Comparing N against the face's own
+    winding cannot see this - that agreement holds either way round."""
     g = cook(outer=1.0, inner=0.7)
     vol = signed_volume(g)
     worst = 1.0
@@ -267,7 +309,82 @@ def c9_the_solid_is_not_inside_out(cook):
         if rad.length() > 0.85 and abs(mean[1]) < 0.5:      # outer wall only
             worst = min(worst, mean.dot(rad.normalized()))
     ok = vol < 0 and worst > 0.9
-    return ok, "enclosed volume %+.6f (want < 0), worst outer-wall "                "dot(N, radial) %.4f (want > 0.9)" % (vol, worst)
+    return ok, "enclosed volume %+.6f (want < 0), worst outer-wall " \
+               "dot(N, radial) %.4f (want > 0.9)" % (vol, worst)
+
+
+def c10_arc_caps_are_uvd(cook):
+    """polycap emits no UVs, so both end faces arrived at uv (0,0,0) - one
+    black patch under any texture. They must carry the profile's own square."""
+    g = cook(arcangle=90.0, outer=1.0, inner=0.7, height=0.25)
+    caps, _ = caps_and_walls(g)
+    if len(caps) != 2:
+        return False, "found %d end caps, want 2" % len(caps)
+    uvs = [v.attribValue("uv") for pr in caps for v in pr.vertices()]
+    us = [a[0] for a in uvs]
+    vs = [a[1] for a in uvs]
+    du, dv = max(us) - min(us), max(vs) - min(vs)
+    inside = all(-EPS <= c <= 1.0 + EPS for a in uvs for c in a[:2])
+    ok = du > 0.9 and dv > 0.9 and inside
+    return ok, "cap uv spans u %.3f v %.3f (want > 0.9 each), inside 0-1: %s" \
+               % (du, dv, inside)
+
+
+def c11_cap_uvs_leave_the_walls_alone(cook):
+    """MEASURED, because the obvious guess is wrong: `revolve` runs u ACROSS
+    the profile and v AROUND the arc, not the other way round. So an
+    unbevelled wall carries 5 distinct u (the closed 4-point profile's own
+    parametrisation) and 7 distinct v, one per division plus one. The cap
+    formula is radius-based, so writing it over the walls too would collapse
+    them onto the 2 radii the profile has, which is what this counts."""
+    g = cook(sides=24, arcangle=90.0)
+    _, walls = caps_and_walls(g)
+    us = set(round(v.attribValue("uv")[0], 4)
+             for pr in walls for v in pr.vertices())
+    vs = set(round(v.attribValue("uv")[1], 4)
+             for pr in walls for v in pr.vertices())
+    ok = len(us) >= 4 and len(vs) >= 6
+    return ok, ("wall uv: %d distinct u (want >= 4, measured 5), "
+                "%d distinct v (want >= 6, measured 7)" % (len(us), len(vs)))
+
+
+def c12_height_taper_slopes_the_faces(cook):
+    """The other taper: it spends HEIGHT, not width. Top dropped at the outer
+    circle, then bottom raised at the inner one, each time asserting the other
+    face has not moved - direction and independence in one pass."""
+    g = cook(outer=1.0, inner=0.6, height=0.4, htaper_top=0.5, hbias_top=1.0)
+    o_lo, o_hi = heights_at(g, 1.0)
+    i_lo, i_hi = heights_at(g, 0.6)
+    h = cook(outer=1.0, inner=0.6, height=0.4, htaper_bot=0.5, hbias_bot=-1.0)
+    p_lo, p_hi = heights_at(h, 1.0)
+    q_lo, q_hi = heights_at(h, 0.6)
+    ok = (abs(o_hi - 0.0) < EPS and abs(i_hi - 0.2) < EPS     # top slopes down
+          and abs(o_lo + 0.2) < EPS and abs(i_lo + 0.2) < EPS  # bottom is flat
+          and abs(q_lo - 0.0) < EPS and abs(p_lo + 0.2) < EPS  # bottom slopes
+          and abs(p_hi - 0.2) < EPS and abs(q_hi - 0.2) < EPS)  # top is flat
+    return ok, "top-drop: outer y %.4f..%.4f (want -.2..0) inner %.4f..%.4f " \
+               "(want -.2...2) | bottom-lift: outer %.4f..%.4f (want -.2...2) " \
+               "inner %.4f..%.4f (want 0..0.2)" % (o_lo, o_hi, i_lo, i_hi,
+                                                   p_lo, p_hi, q_lo, q_hi)
+
+
+def c13_every_bevel_shape_is_wired_and_sound(cook):
+    """Every menu entry is a branch, and a branch the suite never runs is
+    untested however green the run is. Each of the five must produce a sound
+    solid, and the menu must actually REACH polybevel - if it did not, all
+    five would come back byte-identical and every other check would still
+    pass."""
+    sigs, bad = [], []
+    for i in range(5):
+        g = cook(bevel=0.06, bevelsegs=4, bevelshape=i)
+        sigs.append(signature(g))
+        if open_edges(g) or planar_error(g) > 1e-6 or min_area(g) <= 1e-9:
+            bad.append("%d(open=%d planar=%.1e area=%.1e)"
+                       % (i, open_edges(g), planar_error(g), min_area(g)))
+    distinct = len(set(sigs))
+    ok = not bad and distinct >= 3
+    return ok, "%d/5 distinct shapes (want >= 3), unsound: %s" % (
+        distinct, ", ".join(bad) if bad else "none")
 
 
 # --------------------------------------------------------------------------
@@ -291,7 +408,7 @@ def m_arc_forced_closed(net):
 
 
 def m_not_centred(net):
-    _patch(net, "float y0 = -h * 0.5", "float y0 = 0.0")
+    _patch(net, "profile", "float y0 = -h * 0.5", "float y0 = 0.0")
 
 
 def m_bevel_always_on(net):
@@ -303,31 +420,49 @@ def m_bevel_width_ignored(net):
 
 
 def m_profile_off_plane(net):
-    _patch(net, "addpoint(0, set(rot, y1, 0))",
-           "addpoint(0, set(rot, y1, 0.02))")
+    _patch(net, "profile", "append(pts, addpoint(0, set(rob, y0o, 0)));",
+           "append(pts, addpoint(0, set(rob, y0o, 0.02)));")
 
 
 def m_top_taper_drives_bottom(net):
     # Must drive the bottom's WIDTH, not its bias: bias on an untapered side
     # moves nothing, so a bias-only mutation is invisible to every fixture.
-    _patch(net, "float wb = w * (1.0 - clamp(tb, 0.0, 1.0));",
+    _patch(net, "profile", "float wb = w * (1.0 - clamp(tb, 0.0, 1.0));",
            "float wb = w * (1.0 - clamp(tt, 0.0, 1.0));")
 
 
 def m_profile_reversed(net):
     """Emit the cross-section the other way round: the ring keeps its shape,
-    its volume and its silhouette, and turns inside out."""
-    # After the LAST append, not the first - reversing a one-element array
-    # is a no-op, and a no-op mutation reads as a check that cannot fail.
-    # `pts = reverse(pts)`, never bare `reverse(pts)`: retrospective #44.
-    _patch(net, 'addprim(0, "poly", pts);',
+    its volume and its silhouette, and turns inside out. After the LAST
+    append, not the first - reversing a one-element array is a no-op, and a
+    no-op mutation reads as a check that cannot fail. `pts = reverse(pts)`,
+    never bare `reverse(pts)`: retrospective #44."""
+    _patch(net, "profile", 'addprim(0, "poly", pts);',
            'pts = reverse(pts); addprim(0, "poly", pts);')
 
 
-def _patch(net, old, new):
-    p = net.node("profile").parm("snippet")
+def m_no_cap_uv(net):
+    net.node("capuv").bypass(True)
+
+
+def m_capuv_unguarded(net):
+    """Drop the wall guard so the cap UVs are written over the whole mesh."""
+    _patch(net, "capuv", "if (wall == 0) {", "if (wall == 0 || wall == 1) {")
+
+
+def m_height_taper_shared(net):
+    _patch(net, "profile", "float db = h * clamp(hb, 0.0, 1.0);",
+           "float db = h * clamp(ht, 0.0, 1.0);")
+
+
+def m_bevel_shape_pinned(net):
+    net.node("bevel").parm("filletshape").setExpression("4")
+
+
+def _patch(net, node, old, new):
+    p = net.node(node).parm("snippet")
     src = p.eval()
-    assert old in src, "mutation target not in the VEX: %r" % old
+    assert old in src, "mutation target not in %s's VEX: %r" % (node, old)
     p.set(src.replace(old, new))
 
 
@@ -339,14 +474,21 @@ REGISTRY = [
     (c5_zero_bevel_leaves_no_degenerate_face, m_bevel_always_on),
     (c6_bevel_cuts_the_corners, m_bevel_width_ignored),
     (c7_every_face_is_flat, m_profile_off_plane),
-    (c8_top_and_bottom_taper_independently, m_top_taper_drives_bottom),
+    (c8_width_taper_is_independent_top_to_bottom, m_top_taper_drives_bottom),
     (c9_the_solid_is_not_inside_out, m_profile_reversed),
+    (c10_arc_caps_are_uvd, m_no_cap_uv),
+    (c11_cap_uvs_leave_the_walls_alone, m_capuv_unguarded),
+    (c12_height_taper_slopes_the_faces, m_height_taper_shared),
+    (c13_every_bevel_shape_is_wired_and_sound, m_bevel_shape_pinned),
 ]
 
 DEFAULTS = {"sides": 24, "outer": 1.0, "inner": 0.7, "height": 0.25,
-            "arcangle": 360.0, "startangle": 0.0, "bevel": 0.0,
-            "bevelsegs": 1, "taper_top": 0.0, "bias_top": 0.0,
-            "taper_bot": 0.0, "bias_bot": 0.0}
+            "arcangle": 360.0, "startangle": 0.0,
+            "bevel": 0.0, "bevelshape": 4, "bevelsegs": 1,
+            "taper_top": 0.0, "bias_top": 0.0,
+            "taper_bot": 0.0, "bias_bot": 0.0,
+            "htaper_top": 0.0, "hbias_top": 0.0,
+            "htaper_bot": 0.0, "hbias_bot": 0.0}
 
 
 def main():
@@ -364,12 +506,13 @@ def main():
         return frozen
 
     failures = 0
+    t0 = time.time()
     print("pf_ring - %s\n" % HDA)
     for check, mutate in REGISTRY:
         ok, detail = check(cook)
         if not ok:
             failures += 1
-        print("  %s  %-44s %s" % ("ok  " if ok else "FAIL",
+        print("  %s  %-46s %s" % ("ok  " if ok else "FAIL",
                                   check.__name__, detail))
 
         ring.allowEditingOfContents()
@@ -384,7 +527,8 @@ def main():
             print("        MUTATION %s STAYED GREEN - this check cannot "
                   "fail: %s" % (mutate.__name__, mdetail))
 
-    print("\n%d failing checks" % failures)
+    print("\n%d failing checks in %.2f s (checks only; hython boot is on top)"
+          % (failures, time.time() - t0))
     return 1 if failures else 0
 
 
