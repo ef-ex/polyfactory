@@ -111,6 +111,11 @@ soptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
 
 OUTPUT_LABEL = "Ring"
 
+# What the TAB menu shows. The suite is overwhelmingly "PF <Name>"
+# (PF Box, PF Circle, PF Advanced Tube); only the named products
+# (polyChain, CityGen) drop the prefix, and a ring is not one.
+TAB_LABEL = "PF Ring"
+
 # polybevel::3.0's own `filletshape` menu, in its own order, so the parm below
 # feeds it straight through with no remapping to get out of step.
 BEVEL_SHAPES = ("none", "solid", "crease", "chamfer", "round")
@@ -229,7 +234,7 @@ subnet.createNode("null", "OUT").setDisplayFlag(True)
 hda_node = subnet.createDigitalAsset(
     name="pf_ring",
     hda_file_name=HDA_PATH,
-    description="Ring",
+    description=TAB_LABEL,
     min_num_inputs=0,
     max_num_inputs=0,
     version="1.0")
@@ -440,6 +445,7 @@ saved = back.sections()["DialogScript"].contents()
 assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents(), \
     "TAB submenu missing"
 assert back.icon() == "SOP_tube", "icon is %r" % back.icon()
+assert back.description() == TAB_LABEL,     "TAB label is %r, want %r" % (back.description(), TAB_LABEL)
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved, "output label missing"
 _want = ["bevelshape"]
 for _suf, _lab in CORNERS:
