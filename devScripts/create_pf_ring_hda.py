@@ -388,10 +388,6 @@ ptg.append(bev)
 
 crn = hou.FolderParmTemplate("cornerfolder", "Corners",
                              folder_type=hou.folderType.Simple)
-crn.addParmTemplate(hou.LabelParmTemplate(
-    "cornerlabel", "",
-    column_labels=("Offsets ADDED to the radius and height above. Zero "
-                   "everywhere is a plain square section.",)))
 for _i, (_suf, _lab) in enumerate(CORNERS):
     if _i == 2:
         crn.addParmTemplate(hou.SeparatorParmTemplate("cornersep"))
@@ -451,7 +447,8 @@ for _suf, _lab in CORNERS:
 for _p in _want:
     assert re.search(r'name\s+"%s"' % _p, saved), \
         "parm %s missing from the saved asset" % _p
-for _gone in ("taper_top", "bias_top", "htaper_top", "hbias_top"):
+for _gone in ("taper_top", "bias_top", "htaper_top", "hbias_top",
+              "cornerlabel"):
     assert not re.search(r'name\s+"%s"' % _gone, saved), \
-        "the taper parm %s is still on the asset" % _gone
+        "%s is still on the asset" % _gone
 print("wrote " + HDA_PATH)

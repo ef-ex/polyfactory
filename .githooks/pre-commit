@@ -17,6 +17,16 @@ echo "[graphify] Rebuilding Polyfactory graph..."
 "$graphify_cli" update . --force
 
 echo "[graphify] Staging graph outputs..."
-git add graphify-out/GRAPH_REPORT.md graphify-out/graph.json graphify-out/graph.html
+# Stage only what graphify actually produced this run. It SKIPS graph.html once
+# the graph passes GRAPHIFY_VIZ_NODE_LIMIT (5000 nodes, crossed at 5002), and
+# under `set -eu` a hardcoded pathspec that cannot match aborts EVERY commit in
+# the repo, not just the one that grew the graph.
+for f in graphify-out/GRAPH_REPORT.md graphify-out/graph.json graphify-out/graph.html; do
+    if [ -e "$f" ]; then
+        git add "$f"
+    else
+        echo "[graphify] not produced this run, skipping: $f"
+    fi
+done
 
 echo "[graphify] Graph is up to date."
