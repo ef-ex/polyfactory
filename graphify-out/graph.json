@@ -460,7 +460,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_load_pixmap_cached",
-      "community": 23,
+      "community": 20,
       "norm_label": "_load_pixmap_cached()"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_init",
-      "community": 23,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".paintevent()"
     },
     {
@@ -530,7 +530,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_init",
-      "community": 23,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".paintevent()"
     },
     {
@@ -560,7 +560,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetinfopanel_init",
-      "community": 23,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -570,7 +570,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetinfopanel_setup_ui",
-      "community": 137,
+      "community": 36,
       "norm_label": "._setup_ui()"
     },
     {
@@ -590,7 +590,7 @@
       "source_location": "L259",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetinfopanel_create_label",
-      "community": 137,
+      "community": 36,
       "norm_label": "._create_label()"
     },
     {
@@ -700,7 +700,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget",
-      "community": 23,
+      "community": 20,
       "norm_label": "assetthumbnailwidget"
     },
     {
@@ -710,7 +710,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_init",
-      "community": 23,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -720,7 +720,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_size",
-      "community": 23,
+      "community": 20,
       "norm_label": ".set_size()"
     },
     {
@@ -730,7 +730,7 @@
       "source_location": "L475",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_apply_cached_pixmap",
-      "community": 23,
+      "community": 20,
       "norm_label": "._apply_cached_pixmap()"
     },
     {
@@ -740,7 +740,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_selected",
-      "community": 23,
+      "community": 20,
       "norm_label": ".set_selected()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".paintevent()"
     },
     {
@@ -760,7 +760,7 @@
       "source_location": "L509",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_load_static_frame",
-      "community": 23,
+      "community": 20,
       "norm_label": "._load_static_frame()"
     },
     {
@@ -770,7 +770,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousepressevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -780,7 +780,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousemoveevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".mousemoveevent()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousedoubleclickevent",
-      "community": 23,
+      "community": 20,
       "norm_label": ".mousedoubleclickevent()"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_29",
-      "community": 23,
+      "community": 20,
       "norm_label": "return a cached, pre-scaled pixmap for path, loading from disk on miss."
     },
     {
@@ -860,7 +860,7 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_260",
-      "community": 137,
+      "community": 36,
       "norm_label": "create styled label for form"
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_418",
-      "community": 23,
+      "community": 20,
       "norm_label": "individual asset thumbnail with animated hover outline"
     },
     {
@@ -970,7 +970,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_468",
-      "community": 23,
+      "community": 20,
       "norm_label": "update thumbnail size dynamically without re-reading disk"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L476",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_476",
-      "community": 23,
+      "community": 20,
       "norm_label": "scale the cached pixmap to the current thumb size (no disk i/o)"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_487",
-      "community": 23,
+      "community": 20,
       "norm_label": "toggle selection highlight on this thumbnail."
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 23,
+      "community": 20,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L510",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_510",
-      "community": 23,
+      "community": 20,
       "norm_label": "load frame 5 for static display, using the module-level pixmap cache."
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_533",
-      "community": 23,
+      "community": 20,
       "norm_label": "handle single-click \u2014 also record drag start position."
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_541",
-      "community": 23,
+      "community": 20,
       "norm_label": "start a drag if the mouse has moved far enough from the press point."
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui",
-      "community": 92,
+      "community": 184,
       "norm_label": "batch_ui.py"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow",
-      "community": 92,
+      "community": 184,
       "norm_label": "assetgrouprow"
     },
     {
@@ -1710,7 +1710,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_init",
-      "community": 92,
+      "community": 184,
       "norm_label": ".__init__()"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_setup_ui",
-      "community": 92,
+      "community": 184,
       "norm_label": "._setup_ui()"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_name",
-      "community": 92,
+      "community": 184,
       "norm_label": ".get_name()"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_category",
-      "community": 92,
+      "community": 184,
       "norm_label": ".get_category()"
     },
     {
@@ -1750,7 +1750,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_tags",
-      "community": 92,
+      "community": 184,
       "norm_label": ".get_tags()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_is_checked",
-      "community": 92,
+      "community": 184,
       "norm_label": ".is_checked()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_apply_defaults",
-      "community": 92,
+      "community": 184,
       "norm_label": ".apply_defaults()"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_set_export_status",
-      "community": 92,
+      "community": 184,
       "norm_label": ".set_export_status()"
     },
     {
@@ -1790,7 +1790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_1",
-      "community": 92,
+      "community": 184,
       "norm_label": "asset group row widget used by the inline batch mode in assetexportdialog."
     },
     {
@@ -1800,7 +1800,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_14",
-      "community": 92,
+      "community": 184,
       "norm_label": "one row in the detected-assets list.      displays a checkbox, sequential inde"
     },
     {
@@ -1810,7 +1810,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_103",
-      "community": 92,
+      "community": 184,
       "norm_label": "returns the per-row name, or empty string if blank (caller applies dialog-level"
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_116",
-      "community": 92,
+      "community": 184,
       "norm_label": "fill in category/tags only if the prim had no attributes for them."
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_123",
-      "community": 92,
+      "community": 184,
       "norm_label": "update the status dot to reflect export progress.          args:"
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui",
-      "community": 117,
+      "community": 20,
       "norm_label": "browser_ui.py"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 117,
+      "community": 20,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 117,
+      "community": 20,
       "norm_label": "qpoint"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog",
-      "community": 117,
+      "community": 20,
       "norm_label": "assetbrowserdialog"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 117,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L733",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_on_asset_selected",
-      "community": 117,
+      "community": 20,
       "norm_label": "._on_asset_selected()"
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L739",
       "_origin": "ast",
       "id": "asset_library_browser_ui_show_asset_browser",
-      "community": 117,
+      "community": 20,
       "norm_label": "show_asset_browser()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L751",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler",
-      "community": 117,
+      "community": 20,
       "norm_label": "assetdrophandler"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 117,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L769",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_install",
-      "community": 117,
+      "community": 20,
       "norm_label": ".install()"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L772",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_uninstall",
-      "community": 117,
+      "community": 20,
       "norm_label": ".uninstall()"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L775",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_dropped_at",
-      "community": 117,
+      "community": 20,
       "norm_label": ".handle_dropped_at()"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L799",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_drop",
-      "community": 117,
+      "community": 20,
       "norm_label": "._handle_drop()"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_1",
-      "community": 117,
+      "community": 20,
       "norm_label": "asset browser ui - grid view of assets with search and filtering"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 117,
+      "community": 20,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L689",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_689",
-      "community": 117,
+      "community": 20,
       "norm_label": "standalone asset browser dialog"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_734",
-      "community": 117,
+      "community": 20,
       "norm_label": "double-click in the floating browser: create and connect the         asset plac"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_740",
-      "community": 117,
+      "community": 20,
       "norm_label": "show the asset browser dialog"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L752",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_752",
-      "community": 117,
+      "community": 20,
       "norm_label": "handles drops from the asset browser onto houdini's viewport or network     edi"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L770",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_770",
-      "community": 117,
+      "community": 20,
       "norm_label": "no-op \u2014 wiring is done via signal connections."
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L776",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_776",
-      "community": 117,
+      "community": 20,
       "norm_label": "called after a drag completes. if the cursor is outside our own         window,"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L800",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_800",
-      "community": 117,
+      "community": 20,
       "norm_label": "create a pf_asset_place node in the current network, wire it to the         cur"
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase",
-      "community": 20,
+      "community": 6,
       "norm_label": "assetdatabase"
     },
     {
@@ -2430,7 +2430,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_init",
-      "community": 20,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_ensure_directory",
-      "community": 20,
+      "community": 6,
       "norm_label": "._ensure_directory()"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_connect",
-      "community": 20,
+      "community": 6,
       "norm_label": "._connect()"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_initialize_schema",
-      "community": 20,
+      "community": 6,
       "norm_label": "._initialize_schema()"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_asset",
-      "community": 20,
+      "community": 6,
       "norm_label": ".add_asset()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_asset",
-      "community": 20,
+      "community": 6,
       "norm_label": "._add_tags_to_asset()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 20,
+      "community": 6,
       "norm_label": ".get_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 20,
+      "community": 6,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 20,
+      "community": 6,
       "norm_label": ".search_assets()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_categories",
-      "community": 20,
+      "community": 6,
       "norm_label": ".get_all_categories()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_tags",
-      "community": 20,
+      "community": 6,
       "norm_label": ".get_all_tags()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L323",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_names",
-      "community": 20,
+      "community": 6,
       "norm_label": ".get_all_names()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_update_asset",
-      "community": 20,
+      "community": 6,
       "norm_label": ".update_asset()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_delete_asset",
-      "community": 20,
+      "community": 6,
       "norm_label": ".delete_asset()"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_assets",
-      "community": 20,
+      "community": 6,
       "norm_label": ".add_tags_to_assets()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_remove_tags_from_assets",
-      "community": 20,
+      "community": 6,
       "norm_label": ".remove_tags_from_assets()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_close",
-      "community": 20,
+      "community": 6,
       "norm_label": ".close()"
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_enter",
-      "community": 20,
+      "community": 6,
       "norm_label": ".__enter__()"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_exit",
-      "community": 20,
+      "community": 6,
       "norm_label": ".__exit__()"
     },
     {
@@ -2630,7 +2630,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_database_rationale_12",
-      "community": 20,
+      "community": 6,
       "norm_label": "manages the asset library sqlite database"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "asset_library_database_rationale_15",
-      "community": 20,
+      "community": 6,
       "norm_label": "initialize database connection                  args:             db_path: pa"
     },
     {
@@ -2650,7 +2650,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "asset_library_database_rationale_35",
-      "community": 20,
+      "community": 6,
       "norm_label": "create database directory if it doesn't exist"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_database_rationale_65",
-      "community": 20,
+      "community": 6,
       "norm_label": "establish database connection"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "asset_library_database_rationale_78",
-      "community": 20,
+      "community": 6,
       "norm_label": "create database tables if they don't exist"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "asset_library_database_rationale_139",
-      "community": 20,
+      "community": 6,
       "norm_label": "add a new asset to the database                  args:             name: asse"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "asset_library_database_rationale_182",
-      "community": 20,
+      "community": 6,
       "norm_label": "associate tags with an asset"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 20,
+      "community": 6,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 20,
+      "community": 6,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 20,
+      "community": 6,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "asset_library_database_rationale_302",
-      "community": 20,
+      "community": 6,
       "norm_label": "get all unique categories                  returns:             list of categ"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "asset_library_database_rationale_313",
-      "community": 20,
+      "community": 6,
       "norm_label": "get all unique tags                  returns:             list of tag strings"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "asset_library_database_rationale_324",
-      "community": 20,
+      "community": 6,
       "norm_label": "get all unique asset names                  returns:             list of asse"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_database_rationale_335",
-      "community": 20,
+      "community": 6,
       "norm_label": "update asset fields                  args:             asset_id: asset id"
     },
     {
@@ -2770,7 +2770,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "asset_library_database_rationale_368",
-      "community": 20,
+      "community": 6,
       "norm_label": "delete an asset from the database                  args:             asset_id"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "asset_library_database_rationale_377",
-      "community": 20,
+      "community": 6,
       "norm_label": "add tags to multiple assets.  existing tag associations are left intact."
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "asset_library_database_rationale_388",
-      "community": 20,
+      "community": 6,
       "norm_label": "remove specific tags from multiple assets.          tags that do not exist on"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "asset_library_database_rationale_412",
-      "community": 20,
+      "community": 6,
       "norm_label": "close database connection"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 83,
+      "community": 3,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 83,
+      "community": 3,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 83,
+      "community": 3,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 83,
+      "community": 3,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 83,
+      "community": 3,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4930,7 +4930,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 15,
+      "community": 42,
       "norm_label": "node"
     },
     {
@@ -4940,7 +4940,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 15,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "polychain_init_split_role",
-      "community": 287,
+      "community": 97,
       "norm_label": "split_role()"
     },
     {
@@ -5660,7 +5660,7 @@
       "source_location": "L612",
       "_origin": "ast",
       "id": "polychain_init_kit",
-      "community": 180,
+      "community": 65,
       "norm_label": "kit"
     },
     {
@@ -5670,7 +5670,7 @@
       "source_location": "L613",
       "_origin": "ast",
       "id": "polychain_init_kit_init",
-      "community": 180,
+      "community": 65,
       "norm_label": ".__init__()"
     },
     {
@@ -5680,7 +5680,7 @@
       "source_location": "L632",
       "_origin": "ast",
       "id": "polychain_init_kit_by_name",
-      "community": 180,
+      "community": 65,
       "norm_label": ".by_name()"
     },
     {
@@ -5690,7 +5690,7 @@
       "source_location": "L635",
       "_origin": "ast",
       "id": "polychain_init_kit_by_role",
-      "community": 180,
+      "community": 65,
       "norm_label": ".by_role()"
     },
     {
@@ -5700,7 +5700,7 @@
       "source_location": "L639",
       "_origin": "ast",
       "id": "polychain_init_kit_resolve",
-      "community": 180,
+      "community": 65,
       "norm_label": ".resolve()"
     },
     {
@@ -5790,7 +5790,7 @@
       "source_location": "L746",
       "_origin": "ast",
       "id": "polychain_init_elem_key",
-      "community": 261,
+      "community": 306,
       "norm_label": "elem_key()"
     },
     {
@@ -5860,7 +5860,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "polychain_init_rationale_80",
-      "community": 287,
+      "community": 97,
       "norm_label": "`<x>_<y>` -> (x slot, y slot). a phase-1 name is its own x half.      split on"
     },
     {
@@ -5980,7 +5980,7 @@
       "source_location": "L636",
       "_origin": "ast",
       "id": "polychain_init_rationale_636",
-      "community": 180,
+      "community": 65,
       "norm_label": "payload order preserved - deterministic, never set iteration."
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L640",
       "_origin": "ast",
       "id": "polychain_init_rationale_640",
-      "community": 180,
+      "community": 65,
       "norm_label": "name first, then role, then a stand-in. never returns none/[]."
     },
     {
@@ -6040,7 +6040,7 @@
       "source_location": "L747",
       "_origin": "ast",
       "id": "polychain_init_rationale_747",
-      "community": 261,
+      "community": 306,
       "norm_label": "a 31-bit int for grouping/sorting only - never an identity."
     },
     {
@@ -6190,7 +6190,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "polychain_array2d_row_as_dict",
-      "community": 109,
+      "community": 128,
       "norm_label": ".as_dict()"
     },
     {
@@ -6290,7 +6290,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_array2d_row_loops",
-      "community": 109,
+      "community": 128,
       "norm_label": "row_loops()"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L1191",
       "_origin": "ast",
       "id": "polychain_array2d_area_rows",
-      "community": 109,
+      "community": 128,
       "norm_label": "area_rows()"
     },
     {
@@ -6840,7 +6840,7 @@
       "source_location": "L634",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_634",
-      "community": 109,
+      "community": 128,
       "norm_label": "[(points, closed, attrs)] - one entry per row, ready for the adapter.      the w"
     },
     {
@@ -7060,7 +7060,7 @@
       "source_location": "L1193",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1193",
-      "community": 109,
+      "community": 128,
       "norm_label": "[(points, closed, attrs)] - the row curves of a clipped area.      each row is a"
     },
     {
@@ -10060,7 +10060,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "polychain_place_flat",
-      "community": 132,
+      "community": 268,
       "norm_label": "_flat()"
     },
     {
@@ -10070,7 +10070,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "polychain_place_at_height",
-      "community": 132,
+      "community": 268,
       "norm_label": "_at_height()"
     },
     {
@@ -10110,7 +10110,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "polychain_place_path_sample",
-      "community": 187,
+      "community": 132,
       "norm_label": ".sample()"
     },
     {
@@ -10390,7 +10390,7 @@
       "source_location": "L974",
       "_origin": "ast",
       "id": "polychain_place_span_ends",
-      "community": 187,
+      "community": 268,
       "norm_label": "span_ends()"
     },
     {
@@ -10400,7 +10400,7 @@
       "source_location": "L994",
       "_origin": "ast",
       "id": "polychain_place_flat_ratio",
-      "community": 132,
+      "community": 268,
       "norm_label": "_flat_ratio()"
     },
     {
@@ -10410,7 +10410,7 @@
       "source_location": "L1014",
       "_origin": "ast",
       "id": "polychain_place_chord_ratio",
-      "community": 187,
+      "community": 132,
       "norm_label": "_chord_ratio()"
     },
     {
@@ -10490,7 +10490,7 @@
       "source_location": "L1389",
       "_origin": "ast",
       "id": "polychain_place_packed_transform",
-      "community": 132,
+      "community": 268,
       "norm_label": "_packed_transform()"
     },
     {
@@ -10610,7 +10610,7 @@
       "source_location": "L1859",
       "_origin": "ast",
       "id": "polychain_place_stamp_values",
-      "community": 127,
+      "community": 306,
       "norm_label": "_stamp_values()"
     },
     {
@@ -10620,7 +10620,7 @@
       "source_location": "L1892",
       "_origin": "ast",
       "id": "polychain_place_stamp_2d",
-      "community": 127,
+      "community": 306,
       "norm_label": "_stamp_2d()"
     },
     {
@@ -10630,7 +10630,7 @@
       "source_location": "L1910",
       "_origin": "ast",
       "id": "polychain_place_stamp",
-      "community": 127,
+      "community": 306,
       "norm_label": "_stamp()"
     },
     {
@@ -10670,7 +10670,7 @@
       "source_location": "L2024",
       "_origin": "ast",
       "id": "polychain_place_analyse",
-      "community": 226,
+      "community": 127,
       "norm_label": "analyse()"
     },
     {
@@ -10700,7 +10700,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "polychain_place_rationale_169",
-      "community": 132,
+      "community": 268,
       "norm_label": "`v` with its `up_ref` component removed - \"horizontal\", generalised.      d296a:"
     },
     {
@@ -10710,7 +10710,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "polychain_place_rationale_189",
-      "community": 132,
+      "community": 268,
       "norm_label": "`p` moved along `up_ref` so its height (`dot(p, up_ref)`) is `h`.      d98's fla"
     },
     {
@@ -10740,7 +10740,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "polychain_place_rationale_268",
-      "community": 187,
+      "community": 132,
       "norm_label": "(position, unit tangent) at `s` metres. mirrors `curve.sample`."
     },
     {
@@ -10910,7 +10910,7 @@
       "source_location": "L975",
       "_origin": "ast",
       "id": "polychain_place_rationale_975",
-      "community": 187,
+      "community": 268,
       "norm_label": "the two reads every span-shaped question in this file starts with.      a span i"
     },
     {
@@ -10920,7 +10920,7 @@
       "source_location": "L995",
       "_origin": "ast",
       "id": "polychain_place_rationale_995",
-      "community": 132,
+      "community": 268,
       "norm_label": "d32 - how much of a planned span survives yaw-flattening, 0..1.      a yaw-only"
     },
     {
@@ -10930,7 +10930,7 @@
       "source_location": "L1015",
       "_origin": "ast",
       "id": "polychain_place_rationale_1015",
-      "community": 187,
+      "community": 132,
       "norm_label": "how much of a planned span the straight chord across it covers.      a rigid pie"
     },
     {
@@ -11010,7 +11010,7 @@
       "source_location": "L1391",
       "_origin": "ast",
       "id": "polychain_place_rationale_1391",
-      "community": 132,
+      "community": 268,
       "norm_label": "the 4x4 that maps module local space onto the chord a->b (d21).      `base_y` is"
     },
     {
@@ -11120,7 +11120,7 @@
       "source_location": "L1860",
       "_origin": "ast",
       "id": "polychain_place_rationale_1860",
-      "community": 127,
+      "community": 306,
       "norm_label": "3.4's stamp as (name, value) pairs - one description, two writers.      d102: th"
     },
     {
@@ -11130,7 +11130,7 @@
       "source_location": "L1893",
       "_origin": "ast",
       "id": "polychain_place_rationale_1893",
-      "community": 127,
+      "community": 306,
       "norm_label": "7.3.3 - volume / storey / face / bay, by address composition (d123).      `pc_el"
     },
     {
@@ -11170,7 +11170,7 @@
       "source_location": "L2026",
       "_origin": "ast",
       "id": "polychain_place_rationale_2026",
-      "community": 226,
+      "community": 127,
       "norm_label": "[{curve, real, path, remap, sections}] - what `build` decomposes,     exposed so"
     },
     {
@@ -12390,7 +12390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_left_column",
-      "community": 76,
+      "community": 23,
       "norm_label": "ui_left_column.py"
     },
     {
@@ -12400,7 +12400,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn",
-      "community": 76,
+      "community": 23,
       "norm_label": "ui_leftcolumn"
     },
     {
@@ -12410,7 +12410,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_setupui",
-      "community": 76,
+      "community": 23,
       "norm_label": ".setupui()"
     },
     {
@@ -12420,7 +12420,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_retranslateui",
-      "community": 76,
+      "community": 23,
       "norm_label": ".retranslateui()"
     },
     {
@@ -13050,7 +13050,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpushbutton",
-      "community": 69,
+      "community": 24,
       "norm_label": "qpushbutton"
     },
     {
@@ -13210,7 +13210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_init",
-      "community": 76,
+      "community": 23,
       "norm_label": "__init__.py"
     },
     {
@@ -13220,7 +13220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_icon",
-      "community": 61,
+      "community": 23,
       "norm_label": "py_icon.py"
     },
     {
@@ -13230,7 +13230,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 61,
+      "community": 23,
       "norm_label": "pyicon"
     },
     {
@@ -13240,7 +13240,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 61,
+      "community": 23,
       "norm_label": ".__init__()"
     },
     {
@@ -13250,7 +13250,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 61,
+      "community": 23,
       "norm_label": ".setup_ui()"
     },
     {
@@ -13260,7 +13260,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 61,
+      "community": 23,
       "norm_label": ".set_icon()"
     },
     {
@@ -13270,7 +13270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 76,
+      "community": 69,
       "norm_label": "py_left_button.py"
     },
     {
@@ -13290,7 +13290,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 54,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -13410,7 +13410,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 54,
+      "community": 69,
       "norm_label": "_tooltip"
     },
     {
@@ -13420,7 +13420,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 54,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -13430,7 +13430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_column",
-      "community": 76,
+      "community": 23,
       "norm_label": "py_left_column.py"
     },
     {
@@ -13440,7 +13440,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "py_left_column_py_left_column_pyleftcolumn",
-      "community": 76,
+      "community": 23,
       "norm_label": "pyleftcolumn"
     },
     {
@@ -13450,7 +13450,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_left_column_pyleftcolumn_init",
-      "community": 76,
+      "community": 23,
       "norm_label": ".__init__()"
     },
     {
@@ -13460,7 +13460,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "py_left_column_py_left_column_pyleftcolumn_btn_clicked",
-      "community": 76,
+      "community": 23,
       "norm_label": ".btn_clicked()"
     },
     {
@@ -13470,7 +13470,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "py_left_column_py_left_column_pyleftcolumn_btn_released",
-      "community": 76,
+      "community": 23,
       "norm_label": ".btn_released()"
     },
     {
@@ -13480,7 +13480,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "py_left_column_py_left_column_pyleftcolumn_setup_ui",
-      "community": 76,
+      "community": 23,
       "norm_label": ".setup_ui()"
     },
     {
@@ -13940,7 +13940,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 76,
+      "community": 137,
       "norm_label": "__init__.py"
     },
     {
@@ -13950,7 +13950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 76,
+      "community": 137,
       "norm_label": "py_push_button.py"
     },
     {
@@ -14030,7 +14030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_init",
-      "community": 72,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -14040,7 +14040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget",
-      "community": 72,
+      "community": 76,
       "norm_label": "py_table_widget.py"
     },
     {
@@ -14050,7 +14050,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget",
-      "community": 72,
+      "community": 76,
       "norm_label": "pytablewidget"
     },
     {
@@ -14060,7 +14060,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qtablewidget",
-      "community": 72,
+      "community": 76,
       "norm_label": "qtablewidget"
     },
     {
@@ -14070,7 +14070,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_init",
-      "community": 72,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -14080,7 +14080,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_set_stylesheet",
-      "community": 72,
+      "community": 76,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -14090,7 +14090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_style",
-      "community": 72,
+      "community": 76,
       "norm_label": "style.py"
     },
     {
@@ -14390,7 +14390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_init",
-      "community": 6,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -14400,7 +14400,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_py_toggle",
-      "community": 6,
+      "community": 76,
       "norm_label": "py_toggle.py"
     },
     {
@@ -14410,7 +14410,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle",
-      "community": 6,
+      "community": 76,
       "norm_label": "pytoggle"
     },
     {
@@ -14420,7 +14420,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qcheckbox",
-      "community": 6,
+      "community": 76,
       "norm_label": "qcheckbox"
     },
     {
@@ -14430,7 +14430,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_init",
-      "community": 6,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -14440,7 +14440,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_position",
-      "community": 6,
+      "community": 76,
       "norm_label": ".position()"
     },
     {
@@ -14450,7 +14450,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_setup_animation",
-      "community": 6,
+      "community": 76,
       "norm_label": ".setup_animation()"
     },
     {
@@ -14460,7 +14460,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 117,
+      "community": 20,
       "norm_label": ".hitbutton()"
     },
     {
@@ -14470,7 +14470,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_paintevent",
-      "community": 6,
+      "community": 76,
       "norm_label": ".paintevent()"
     },
     {
@@ -14810,7 +14810,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -14820,7 +14820,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14840,7 +14840,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -14850,7 +14850,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -15070,7 +15070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py_widgets_init",
-      "community": 15,
+      "community": 35,
       "norm_label": "__init__.py"
     },
     {
@@ -15080,7 +15080,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_init_rationale_1",
-      "community": 15,
+      "community": 35,
       "norm_label": "polyfactory widgets module  qt widgets for houdini workflows.  submodules:"
     },
     {
@@ -15110,7 +15110,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 15,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -15250,7 +15250,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 15,
+      "community": 42,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15370,7 +15370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline",
-      "community": 32,
+      "community": 35,
       "norm_label": "hover_outline.py"
     },
     {
@@ -15450,7 +15450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline_rationale_1",
-      "community": 32,
+      "community": 35,
       "norm_label": "hover outline mixin - animated blue outline on hover for any widget"
     },
     {
@@ -15640,7 +15640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 15,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15650,7 +15650,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 15,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15660,7 +15660,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 15,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15670,7 +15670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 15,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15680,7 +15680,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 15,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15690,7 +15690,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 15,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -16840,7 +16840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 32,
+      "community": 106,
       "norm_label": "tag_input.py"
     },
     {
@@ -16990,7 +16990,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 32,
+      "community": 106,
       "norm_label": "tagchip"
     },
     {
@@ -17000,7 +17000,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 32,
+      "community": 106,
       "norm_label": ".__init__()"
     },
     {
@@ -17010,7 +17010,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 32,
+      "community": 106,
       "norm_label": ".paintevent()"
     },
     {
@@ -17020,7 +17020,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 32,
+      "community": 106,
       "norm_label": "._on_remove()"
     },
     {
@@ -17220,7 +17220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 32,
+      "community": 106,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -17240,7 +17240,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 32,
+      "community": 106,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -17250,7 +17250,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 32,
+      "community": 106,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -17260,7 +17260,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 32,
+      "community": 106,
       "norm_label": "handle remove button click"
     },
     {
@@ -17420,7 +17420,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 55,
       "norm_label": "parmstring"
     },
     {
@@ -17440,7 +17440,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 55,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17450,7 +17450,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 55,
       "norm_label": "._on_changed()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 48,
+      "community": 117,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17470,7 +17470,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 55,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 48,
+      "community": 117,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17580,7 +17580,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 48,
+      "community": 117,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17620,7 +17620,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 35,
+      "community": 117,
       "norm_label": "parmcolor"
     },
     {
@@ -17630,7 +17630,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 117,
       "norm_label": ".__init__()"
     },
     {
@@ -17640,7 +17640,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 117,
       "norm_label": "parmtuple"
     },
     {
@@ -17650,7 +17650,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 35,
+      "community": 117,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17660,7 +17660,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 35,
+      "community": 117,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17670,7 +17670,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 48,
+      "community": 117,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17680,7 +17680,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 48,
+      "community": 117,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17690,7 +17690,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 35,
+      "community": 117,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 55,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 55,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 55,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17830,7 +17830,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 35,
+      "community": 117,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17840,7 +17840,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 35,
+      "community": 117,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17850,7 +17850,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 48,
+      "community": 117,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17860,7 +17860,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 48,
+      "community": 117,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17870,7 +17870,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 35,
+      "community": 117,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -22677,7 +22677,7 @@
       "label": "_verts()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L54",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "hda_run_ring_checks_verts",
       "community": 150,
@@ -22687,7 +22687,7 @@
       "label": "_newell()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L58",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "hda_run_ring_checks_newell",
       "community": 150,
@@ -22697,7 +22697,7 @@
       "label": "_centroid()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L72",
+      "source_location": "L74",
       "_origin": "ast",
       "id": "hda_run_ring_checks_centroid",
       "community": 150,
@@ -22707,7 +22707,7 @@
       "label": "open_edges()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L77",
+      "source_location": "L79",
       "_origin": "ast",
       "id": "hda_run_ring_checks_open_edges",
       "community": 274,
@@ -22717,17 +22717,17 @@
       "label": "min_area()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L88",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "hda_run_ring_checks_min_area",
-      "community": 268,
+      "community": 150,
       "norm_label": "min_area()"
     },
     {
       "label": "planar_error()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L98",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "hda_run_ring_checks_planar_error",
       "community": 150,
@@ -22737,7 +22737,7 @@
       "label": "signed_volume()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L114",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "hda_run_ring_checks_signed_volume",
       "community": 150,
@@ -22747,7 +22747,7 @@
       "label": "analytic_volume()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L126",
+      "source_location": "L128",
       "_origin": "ast",
       "id": "hda_run_ring_checks_analytic_volume",
       "community": 271,
@@ -22757,7 +22757,7 @@
       "label": "arc_span()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L133",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "hda_run_ring_checks_arc_span",
       "community": 284,
@@ -22767,7 +22767,7 @@
       "label": "radius()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L141",
+      "source_location": "L143",
       "_origin": "ast",
       "id": "hda_run_ring_checks_radius",
       "community": 158,
@@ -22777,27 +22777,47 @@
       "label": "caps_and_walls()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L145",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "hda_run_ring_checks_caps_and_walls",
       "community": 242,
       "norm_label": "caps_and_walls()"
     },
     {
-      "label": "radii_at()",
+      "label": "uv_area()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L159",
+      "source_location": "L160",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_radii_at",
+      "id": "hda_run_ring_checks_uv_area",
+      "community": 242,
+      "norm_label": "uv_area()"
+    },
+    {
+      "label": "uv_bounds()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L174",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_uv_bounds",
+      "community": 311,
+      "norm_label": "uv_bounds()"
+    },
+    {
+      "label": "corner_set()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L180",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_corner_set",
       "community": 158,
-      "norm_label": "radii_at()"
+      "norm_label": "corner_set()"
     },
     {
       "label": "heights_at()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L166",
+      "source_location": "L187",
       "_origin": "ast",
       "id": "hda_run_ring_checks_heights_at",
       "community": 158,
@@ -22807,7 +22827,7 @@
       "label": "y_extent()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L173",
+      "source_location": "L194",
       "_origin": "ast",
       "id": "hda_run_ring_checks_y_extent",
       "community": 271,
@@ -22817,17 +22837,17 @@
       "label": "signature()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L178",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "hda_run_ring_checks_signature",
-      "community": 268,
+      "community": 274,
       "norm_label": "signature()"
     },
     {
       "label": "c1_closed_ring_has_no_seam()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L189",
+      "source_location": "L210",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c1_closed_ring_has_no_seam",
       "community": 274,
@@ -22837,7 +22857,7 @@
       "label": "c2_arc_ends_are_capped()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L200",
+      "source_location": "L221",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c2_arc_ends_are_capped",
       "community": 274,
@@ -22847,7 +22867,7 @@
       "label": "c3_an_arc_is_actually_an_arc()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L205",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c3_an_arc_is_actually_an_arc",
       "community": 284,
@@ -22857,7 +22877,7 @@
       "label": "c4_the_solid_is_the_one_that_was_asked_for()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L215",
+      "source_location": "L236",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c4_the_solid_is_the_one_that_was_asked_for",
       "community": 271,
@@ -22867,17 +22887,17 @@
       "label": "c5_zero_bevel_leaves_no_degenerate_face()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L232",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c5_zero_bevel_leaves_no_degenerate_face",
-      "community": 268,
+      "community": 150,
       "norm_label": "c5_zero_bevel_leaves_no_degenerate_face()"
     },
     {
       "label": "c6_bevel_cuts_the_corners()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L237",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c6_bevel_cuts_the_corners",
       "community": 150,
@@ -22887,77 +22907,97 @@
       "label": "c7_every_face_is_flat()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L257",
+      "source_location": "L278",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c7_every_face_is_flat",
       "community": 150,
       "norm_label": "c7_every_face_is_flat()"
     },
     {
-      "label": "c8_width_taper_is_independent_top_to_bottom()",
+      "label": "c8_each_corner_offset_moves_only_its_own_corner()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L271",
+      "source_location": "L292",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_c8_width_taper_is_independent_top_to_bottom",
+      "id": "hda_run_ring_checks_c8_each_corner_offset_moves_only_its_own_corner",
       "community": 158,
-      "norm_label": "c8_width_taper_is_independent_top_to_bottom()"
+      "norm_label": "c8_each_corner_offset_moves_only_its_own_corner()"
     },
     {
       "label": "c9_the_solid_is_not_inside_out()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L290",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c9_the_solid_is_not_inside_out",
       "community": 150,
       "norm_label": "c9_the_solid_is_not_inside_out()"
     },
     {
-      "label": "c10_arc_caps_are_uvd()",
+      "label": "c10_arc_caps_get_a_real_uv_island()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L316",
+      "source_location": "L347",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_c10_arc_caps_are_uvd",
+      "id": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
       "community": 242,
-      "norm_label": "c10_arc_caps_are_uvd()"
+      "norm_label": "c10_arc_caps_get_a_real_uv_island()"
     },
     {
-      "label": "c11_cap_uvs_leave_the_walls_alone()",
+      "label": "c11_the_cap_uvs_do_not_flatten_the_walls()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L333",
+      "source_location": "L363",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_c11_cap_uvs_leave_the_walls_alone",
+      "id": "hda_run_ring_checks_c11_the_cap_uvs_do_not_flatten_the_walls",
       "community": 242,
-      "norm_label": "c11_cap_uvs_leave_the_walls_alone()"
+      "norm_label": "c11_the_cap_uvs_do_not_flatten_the_walls()"
     },
     {
-      "label": "c12_height_taper_slopes_the_faces()",
+      "label": "c12_corner_offsets_add_to_the_globals()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L351",
+      "source_location": "L377",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_c12_height_taper_slopes_the_faces",
+      "id": "hda_run_ring_checks_c12_corner_offsets_add_to_the_globals",
       "community": 158,
-      "norm_label": "c12_height_taper_slopes_the_faces()"
+      "norm_label": "c12_corner_offsets_add_to_the_globals()"
     },
     {
       "label": "c13_every_bevel_shape_is_wired_and_sound()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L371",
+      "source_location": "L395",
       "_origin": "ast",
       "id": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
-      "community": 268,
+      "community": 274,
       "norm_label": "c13_every_bevel_shape_is_wired_and_sound()"
+    },
+    {
+      "label": "c14_uvs_stay_inside_the_1001_tile()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L414",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_c14_uvs_stay_inside_the_1001_tile",
+      "community": 311,
+      "norm_label": "c14_uvs_stay_inside_the_1001_tile()"
+    },
+    {
+      "label": "c15_the_layout_fills_the_tile()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L432",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_c15_the_layout_fills_the_tile",
+      "community": 311,
+      "norm_label": "c15_the_layout_fills_the_tile()"
     },
     {
       "label": "m_seam()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L393",
+      "source_location": "L451",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_seam",
       "community": 297,
@@ -22967,7 +23007,7 @@
       "label": "m_no_cap()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L400",
+      "source_location": "L458",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_no_cap",
       "community": 136,
@@ -22977,7 +23017,7 @@
       "label": "m_arc_forced_closed()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L404",
+      "source_location": "L462",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_arc_forced_closed",
       "community": 136,
@@ -22987,7 +23027,7 @@
       "label": "m_not_centred()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L410",
+      "source_location": "L468",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_not_centred",
       "community": 136,
@@ -22997,7 +23037,7 @@
       "label": "m_bevel_always_on()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L414",
+      "source_location": "L472",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_bevel_always_on",
       "community": 136,
@@ -23007,7 +23047,7 @@
       "label": "m_bevel_width_ignored()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L418",
+      "source_location": "L476",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_bevel_width_ignored",
       "community": 136,
@@ -23017,27 +23057,27 @@
       "label": "m_profile_off_plane()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L422",
+      "source_location": "L480",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_profile_off_plane",
       "community": 136,
       "norm_label": "m_profile_off_plane()"
     },
     {
-      "label": "m_top_taper_drives_bottom()",
+      "label": "m_corners_share_a_height()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L427",
+      "source_location": "L485",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_m_top_taper_drives_bottom",
+      "id": "hda_run_ring_checks_m_corners_share_a_height",
       "community": 136,
-      "norm_label": "m_top_taper_drives_bottom()"
+      "norm_label": "m_corners_share_a_height()"
     },
     {
       "label": "m_profile_reversed()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L434",
+      "source_location": "L492",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_profile_reversed",
       "community": 136,
@@ -23047,7 +23087,7 @@
       "label": "m_no_cap_uv()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L444",
+      "source_location": "L502",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_no_cap_uv",
       "community": 136,
@@ -23057,37 +23097,57 @@
       "label": "m_capuv_unguarded()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L448",
+      "source_location": "L506",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_capuv_unguarded",
       "community": 136,
       "norm_label": "m_capuv_unguarded()"
     },
     {
-      "label": "m_height_taper_shared()",
+      "label": "m_offset_replaces_the_global()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L453",
+      "source_location": "L511",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_m_height_taper_shared",
+      "id": "hda_run_ring_checks_m_offset_replaces_the_global",
       "community": 136,
-      "norm_label": "m_height_taper_shared()"
+      "norm_label": "m_offset_replaces_the_global()"
     },
     {
       "label": "m_bevel_shape_pinned()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L458",
+      "source_location": "L516",
       "_origin": "ast",
       "id": "hda_run_ring_checks_m_bevel_shape_pinned",
       "community": 136,
       "norm_label": "m_bevel_shape_pinned()"
     },
     {
+      "label": "m_no_tile_containment()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L520",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_m_no_tile_containment",
+      "community": 136,
+      "norm_label": "m_no_tile_containment()"
+    },
+    {
+      "label": "m_v_not_normalised()",
+      "file_type": "code",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L528",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_m_v_not_normalised",
+      "community": 136,
+      "norm_label": "m_v_not_normalised()"
+    },
+    {
       "label": "_patch()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L462",
+      "source_location": "L532",
       "_origin": "ast",
       "id": "hda_run_ring_checks_patch",
       "community": 136,
@@ -23097,7 +23157,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L494",
+      "source_location": "L564",
       "_origin": "ast",
       "id": "hda_run_ring_checks_main",
       "community": 136,
@@ -23117,9 +23177,9 @@
       "label": "Area-weighted face normal. Stable where a 3-point cross product is not:     on a",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L59",
+      "source_location": "L61",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_59",
+      "id": "hda_run_ring_checks_rationale_61",
       "community": 150,
       "norm_label": "area-weighted face normal. stable where a 3-point cross product is not:     on a"
     },
@@ -23127,9 +23187,9 @@
       "label": "Boundary edges - 0 means the surface is closed.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L78",
+      "source_location": "L80",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_78",
+      "id": "hda_run_ring_checks_rationale_80",
       "community": 274,
       "norm_label": "boundary edges - 0 means the surface is closed."
     },
@@ -23137,9 +23197,9 @@
       "label": "Largest distance of any vertex from its own face's plane.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L99",
+      "source_location": "L101",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_99",
+      "id": "hda_run_ring_checks_rationale_101",
       "community": 150,
       "norm_label": "largest distance of any vertex from its own face's plane."
     },
@@ -23147,9 +23207,9 @@
       "label": "Divergence theorem over a closed mesh. NEGATIVE is correct in Houdini,     which",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L115",
+      "source_location": "L117",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_115",
+      "id": "hda_run_ring_checks_rationale_117",
       "community": 150,
       "norm_label": "divergence theorem over a closed mesh. negative is correct in houdini,     which"
     },
@@ -23157,9 +23217,9 @@
       "label": "An independent derivation of the same solid: the area between two     n-gons ins",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L127",
+      "source_location": "L129",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_127",
+      "id": "hda_run_ring_checks_rationale_129",
       "community": 271,
       "norm_label": "an independent derivation of the same solid: the area between two     n-gons ins"
     },
@@ -23167,9 +23227,9 @@
       "label": "Degrees actually occupied: 360 minus the widest gap between neighbours.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L134",
+      "source_location": "L136",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_134",
+      "id": "hda_run_ring_checks_rationale_136",
       "community": 284,
       "norm_label": "degrees actually occupied: 360 minus the widest gap between neighbours."
     },
@@ -23177,29 +23237,39 @@
       "label": "Split the two end caps off the walls GEOMETRICALLY: a cap's vertices     all sit",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L146",
+      "source_location": "L148",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_146",
+      "id": "hda_run_ring_checks_rationale_148",
       "community": 242,
       "norm_label": "split the two end caps off the walls geometrically: a cap's vertices     all sit"
     },
     {
-      "label": "(min, max) radius of the points sitting at height `y`.",
+      "label": "Area these faces occupy in UV. Rotation-proof, unlike counting distinct     u or",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L160",
+      "source_location": "L161",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_160",
+      "id": "hda_run_ring_checks_rationale_161",
+      "community": 242,
+      "norm_label": "area these faces occupy in uv. rotation-proof, unlike counting distinct     u or"
+    },
+    {
+      "label": "The cross-section, read back off the solid: every distinct     (radius, height)",
+      "file_type": "rationale",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L181",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_rationale_181",
       "community": 158,
-      "norm_label": "(min, max) radius of the points sitting at height `y`."
+      "norm_label": "the cross-section, read back off the solid: every distinct     (radius, height)"
     },
     {
       "label": "(min, max) height of the points sitting at radius `r`.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L167",
+      "source_location": "L188",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_167",
+      "id": "hda_run_ring_checks_rationale_188",
       "community": 158,
       "norm_label": "(min, max) height of the points sitting at radius `r`."
     },
@@ -23207,19 +23277,19 @@
       "label": "Enough of the shape to tell two bevel results apart.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L179",
+      "source_location": "L200",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_179",
-      "community": 268,
+      "id": "hda_run_ring_checks_rationale_200",
+      "community": 274,
       "norm_label": "enough of the shape to tell two bevel results apart."
     },
     {
       "label": "Watertight is not enough. An arc-at-360 that polycap closes back up is     also",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L190",
+      "source_location": "L211",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_190",
+      "id": "hda_run_ring_checks_rationale_211",
       "community": 274,
       "norm_label": "watertight is not enough. an arc-at-360 that polycap closes back up is     also"
     },
@@ -23227,9 +23297,9 @@
       "label": "Angle AND count: a quarter arc spans 90 degrees and takes a quarter of     the s",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L206",
+      "source_location": "L227",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_206",
+      "id": "hda_run_ring_checks_rationale_227",
       "community": 284,
       "norm_label": "angle and count: a quarter arc spans 90 degrees and takes a quarter of     the s"
     },
@@ -23237,9 +23307,9 @@
       "label": "Radii and height read off the points, and then the SAME solid measured     a sec",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L216",
+      "source_location": "L237",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_216",
+      "id": "hda_run_ring_checks_rationale_237",
       "community": 271,
       "norm_label": "radii and height read off the points, and then the same solid measured     a sec"
     },
@@ -23247,9 +23317,9 @@
       "label": "A bevel adds a face per corner that faces neither along Y nor radially.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L238",
+      "source_location": "L259",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_238",
+      "id": "hda_run_ring_checks_rationale_259",
       "community": 150,
       "norm_label": "a bevel adds a face per corner that faces neither along y nor radially."
     },
@@ -23257,29 +23327,29 @@
       "label": "The whole point of the tool: flat sides, not a torus. Measured with a     Newell",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L258",
+      "source_location": "L279",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_258",
+      "id": "hda_run_ring_checks_rationale_279",
       "community": 150,
       "norm_label": "the whole point of the tool: flat sides, not a torus. measured with a     newell"
     },
     {
-      "label": "Top tapered hard against the outer circle; the bottom must not move.     Then th",
+      "label": "The whole point of dropping the taper for corner offsets: turning one     knob m",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L272",
+      "source_location": "L293",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_272",
+      "id": "hda_run_ring_checks_rationale_293",
       "community": 158,
-      "norm_label": "top tapered hard against the outer circle; the bottom must not move.     then th"
+      "norm_label": "the whole point of dropping the taper for corner offsets: turning one     knob m"
     },
     {
       "label": "Two independent readings, because this shipped wrong once: enclosed     volume m",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L291",
+      "source_location": "L322",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_291",
+      "id": "hda_run_ring_checks_rationale_322",
       "community": 150,
       "norm_label": "two independent readings, because this shipped wrong once: enclosed     volume m"
     },
@@ -23287,49 +23357,69 @@
       "label": "polycap emits no UVs, so both end faces arrived at uv (0,0,0) - one     black pa",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L317",
+      "source_location": "L348",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_317",
+      "id": "hda_run_ring_checks_rationale_348",
       "community": 242,
       "norm_label": "polycap emits no uvs, so both end faces arrived at uv (0,0,0) - one     black pa"
     },
     {
-      "label": "MEASURED, because the obvious guess is wrong: `revolve` runs u ACROSS     the pr",
+      "label": "The cap formula maps (radius, height) to (u, v). Run it over a WALL     face and",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L334",
+      "source_location": "L364",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_334",
+      "id": "hda_run_ring_checks_rationale_364",
       "community": 242,
-      "norm_label": "measured, because the obvious guess is wrong: `revolve` runs u across     the pr"
+      "norm_label": "the cap formula maps (radius, height) to (u, v). run it over a wall     face and"
     },
     {
-      "label": "The other taper: it spends HEIGHT, not width. Top dropped at the outer     circl",
+      "label": "They must sit ON TOP of the global radius and height, not replace     them - the",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L352",
+      "source_location": "L378",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_352",
+      "id": "hda_run_ring_checks_rationale_378",
       "community": 158,
-      "norm_label": "the other taper: it spends height, not width. top dropped at the outer     circl"
+      "norm_label": "they must sit on top of the global radius and height, not replace     them - the"
     },
     {
       "label": "Every menu entry is a branch, and a branch the suite never runs is     untested",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L372",
+      "source_location": "L396",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_372",
-      "community": 268,
+      "id": "hda_run_ring_checks_rationale_396",
+      "community": 274,
       "norm_label": "every menu entry is a branch, and a branch the suite never runs is     untested"
+    },
+    {
+      "label": "Before uvlayout the wall island ran v 0..5 at the default radius and     0..11 a",
+      "file_type": "rationale",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L415",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_rationale_415",
+      "community": 311,
+      "norm_label": "before uvlayout the wall island ran v 0..5 at the default radius and     0..11 a"
+    },
+    {
+      "label": "Fitting inside 1001 is half of it - a sliver in the corner also fits.     `revol",
+      "file_type": "rationale",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L433",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_rationale_433",
+      "community": 311,
+      "norm_label": "fitting inside 1001 is half of it - a sliver in the corner also fits.     `revol"
     },
     {
       "label": "Revolve stops closing the loop - the 360 seam is left open (and then     capped,",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L394",
+      "source_location": "L452",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_394",
+      "id": "hda_run_ring_checks_rationale_452",
       "community": 297,
       "norm_label": "revolve stops closing the loop - the 360 seam is left open (and then     capped,"
     },
@@ -23337,19 +23427,29 @@
       "label": "The shipped bug: an HScript ternary that silently kept `type` at 0.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L405",
+      "source_location": "L463",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_405",
+      "id": "hda_run_ring_checks_rationale_463",
       "community": 136,
       "norm_label": "the shipped bug: an hscript ternary that silently kept `type` at 0."
+    },
+    {
+      "label": "The top inner corner follows the top OUTER one, so two corners move     when one",
+      "file_type": "rationale",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L486",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_rationale_486",
+      "community": 136,
+      "norm_label": "the top inner corner follows the top outer one, so two corners move     when one"
     },
     {
       "label": "Emit the cross-section the other way round: the ring keeps its shape,     its vo",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L435",
+      "source_location": "L493",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_435",
+      "id": "hda_run_ring_checks_rationale_493",
       "community": 136,
       "norm_label": "emit the cross-section the other way round: the ring keeps its shape,     its vo"
     },
@@ -23357,11 +23457,21 @@
       "label": "Drop the wall guard so the cap UVs are written over the whole mesh.",
       "file_type": "rationale",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L449",
+      "source_location": "L507",
       "_origin": "ast",
-      "id": "hda_run_ring_checks_rationale_449",
+      "id": "hda_run_ring_checks_rationale_507",
       "community": 136,
       "norm_label": "drop the wall guard so the cap uvs are written over the whole mesh."
+    },
+    {
+      "label": "Two things keep the UVs in 1001 and EITHER alone is enough, so both     have to",
+      "file_type": "rationale",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L521",
+      "_origin": "ast",
+      "id": "hda_run_ring_checks_rationale_521",
+      "community": 136,
+      "norm_label": "two things keep the uvs in 1001 and either alone is enough, so both     have to"
     },
     {
       "label": "cases.py",
@@ -27060,7 +27170,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations",
-      "community": 292,
+      "community": 212,
       "norm_label": "mutations.py"
     },
     {
@@ -27070,7 +27180,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "polychain_mutations_m",
-      "community": 292,
+      "community": 212,
       "norm_label": "m"
     },
     {
@@ -27080,7 +27190,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
-      "community": 292,
+      "community": 212,
       "norm_label": ".__init__()"
     },
     {
@@ -27090,7 +27200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_1",
-      "community": 292,
+      "community": 212,
       "norm_label": "the mutation registry - every polychain check paired with the edit that proves i"
     },
     {
@@ -27100,7 +27210,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_52",
-      "community": 292,
+      "community": 212,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
     {
@@ -29050,7 +29160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_run_scene_checks",
-      "community": 96,
+      "community": 250,
       "norm_label": "run_scene_checks.py"
     },
     {
@@ -29060,7 +29170,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_scene",
-      "community": 96,
+      "community": 250,
       "norm_label": "scene"
     },
     {
@@ -29070,7 +29180,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_scene_init",
-      "community": 96,
+      "community": 250,
       "norm_label": ".__init__()"
     },
     {
@@ -29080,7 +29190,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_run_case",
-      "community": 96,
+      "community": 250,
       "norm_label": "run_case()"
     },
     {
@@ -29090,7 +29200,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_port_tripwires",
-      "community": 96,
+      "community": 250,
       "norm_label": "port_tripwires()"
     },
     {
@@ -29100,7 +29210,7 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_baseline_movement",
-      "community": 96,
+      "community": 250,
       "norm_label": "baseline_movement()"
     },
     {
@@ -29110,7 +29220,7 @@
       "source_location": "L360",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_exit_code",
-      "community": 96,
+      "community": 250,
       "norm_label": "exit_code()"
     },
     {
@@ -29120,7 +29230,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_main",
-      "community": 96,
+      "community": 250,
       "norm_label": "main()"
     },
     {
@@ -29130,7 +29240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_rationale_1",
-      "community": 96,
+      "community": 250,
       "norm_label": "run every polychain geometry check in a throwaway houdini session.      hython t"
     },
     {
@@ -29140,7 +29250,7 @@
       "source_location": "L190",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_rationale_190",
-      "community": 96,
+      "community": 250,
       "norm_label": "one case, read once - so a check never re-derives what another already     measu"
     },
     {
@@ -29150,7 +29260,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_rationale_219",
-      "community": 96,
+      "community": 250,
       "norm_label": "the sixteen properties the differential comparator cannot state.      v2: was ~6"
     },
     {
@@ -29160,7 +29270,7 @@
       "source_location": "L344",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_rationale_344",
-      "community": 96,
+      "community": 250,
       "norm_label": "every baselined value this run did not reproduce, as text.      d210: used to be"
     },
     {
@@ -29170,7 +29280,7 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "polychain_run_scene_checks_rationale_361",
-      "community": 96,
+      "community": 250,
       "norm_label": "d210 - a moved baselined value fails the run like a failing check;     `--update"
     },
     {
@@ -31630,7 +31740,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 195,
+      "community": 168,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -31670,7 +31780,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 184,
+      "community": 195,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -31680,7 +31790,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 184,
+      "community": 195,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -31690,7 +31800,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 184,
+      "community": 195,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -31700,7 +31810,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 184,
+      "community": 195,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -31710,7 +31820,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 184,
+      "community": 195,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -31720,7 +31830,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 184,
+      "community": 195,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -32280,7 +32390,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 195,
+      "community": 168,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -32300,7 +32410,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 184,
+      "community": 195,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -32410,7 +32520,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_kit_of",
-      "community": 134,
+      "community": 118,
       "norm_label": "kit_of()"
     },
     {
@@ -32420,7 +32530,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_inside_xz",
-      "community": 118,
+      "community": 302,
       "norm_label": "_inside_xz()"
     },
     {
@@ -32440,7 +32550,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary",
-      "community": 287,
+      "community": 314,
       "norm_label": "testvocabulary"
     },
     {
@@ -32450,7 +32560,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary_test_bottom_row_is_the_phase_1_slot_list",
-      "community": 287,
+      "community": 314,
       "norm_label": ".test_bottom_row_is_the_phase_1_slot_list()"
     },
     {
@@ -32470,7 +32580,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 118,
+      "community": 313,
       "norm_label": "testfallbackchain"
     },
     {
@@ -32480,7 +32590,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 118,
+      "community": 313,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -32490,7 +32600,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 118,
+      "community": 313,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -32590,7 +32700,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testroleclosure_test_a_marker_cell_closes_over_all_five_y_classes",
-      "community": 287,
+      "community": 134,
       "norm_label": ".test_a_marker_cell_closes_over_all_five_y_classes()"
     },
     {
@@ -32710,7 +32820,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testyprofile_test_the_profile_offset_is_read_and_not_yet_applied",
-      "community": 159,
+      "community": 118,
       "norm_label": ".test_the_profile_offset_is_read_and_not_yet_applied()"
     },
     {
@@ -32730,7 +32840,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint",
-      "community": 118,
+      "community": 302,
       "norm_label": "testcanonicalfootprint"
     },
     {
@@ -32740,7 +32850,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_the_across_axis_points_out_of_the_building",
-      "community": 118,
+      "community": 302,
       "norm_label": ".test_the_across_axis_points_out_of_the_building()"
     },
     {
@@ -32750,7 +32860,7 @@
       "source_location": "L345",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_an_open_run_is_left_exactly_as_authored",
-      "community": 118,
+      "community": 302,
       "norm_label": ".test_an_open_run_is_left_exactly_as_authored()"
     },
     {
@@ -32760,7 +32870,7 @@
       "source_location": "L350",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_rows_translate_the_canonical_loop",
-      "community": 118,
+      "community": 302,
       "norm_label": ".test_rows_translate_the_canonical_loop()"
     },
     {
@@ -32850,7 +32960,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 134,
+      "community": 118,
       "norm_label": "testkernelextensions"
     },
     {
@@ -32860,7 +32970,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -32890,7 +33000,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -32900,7 +33010,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -32910,7 +33020,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -32920,7 +33030,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -32930,7 +33040,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 134,
+      "community": 118,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -33070,7 +33180,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_40",
-      "community": 134,
+      "community": 118,
       "norm_label": "one module per role, each 3 m wide and named after its role."
     },
     {
@@ -33080,7 +33190,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_50",
-      "community": 118,
+      "community": 302,
       "norm_label": "even-odd point-in-polygon in the plan, for the winding assertion."
     },
     {
@@ -33090,7 +33200,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_70",
-      "community": 287,
+      "community": 314,
       "norm_label": "7.2 / d116 - the 20 rc slice pieces are a 5 x 4 product table."
     },
     {
@@ -33100,7 +33210,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_73",
-      "community": 287,
+      "community": 314,
       "norm_label": "the compatibility claim, and it is checkable: a phase-1 kit is a         valid p"
     },
     {
@@ -33120,7 +33230,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_101",
-      "community": 118,
+      "community": 313,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -33180,7 +33290,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_192",
-      "community": 287,
+      "community": 134,
       "norm_label": "7.2's marker cells are legal by grammar and therefore unbounded, so         they"
     },
     {
@@ -33240,7 +33350,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_291",
-      "community": 159,
+      "community": 118,
       "norm_label": "d128 is p2-8. the offset must be read now - a number nothing uses         is sti"
     },
     {
@@ -33250,7 +33360,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_309",
-      "community": 118,
+      "community": 302,
       "norm_label": "d124 - ids survive re-authoring, or 12.7's identity rule is a wish."
     },
     {
@@ -33260,7 +33370,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_315",
-      "community": 118,
+      "community": 302,
       "norm_label": "d141 - the sign, measured as the thing it decides.          `place._frame` build"
     },
     {
@@ -33280,7 +33390,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_439",
-      "community": 134,
+      "community": 118,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -36290,7 +36400,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
-      "community": 250,
+      "community": 149,
       "norm_label": "claude.md"
     },
     {
@@ -36300,7 +36410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_polyfactory_project_instructions",
-      "community": 250,
+      "community": 149,
       "norm_label": "polyfactory \u2014 project instructions"
     },
     {
@@ -36310,7 +36420,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "claude_non_negotiable_working_rules",
-      "community": 250,
+      "community": 149,
       "norm_label": "non-negotiable working rules"
     },
     {
@@ -36320,7 +36430,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "claude_multi_agent_shared_branch_rules",
-      "community": 250,
+      "community": 149,
       "norm_label": "multi-agent / shared-branch rules"
     },
     {
@@ -36330,7 +36440,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "claude_testing",
-      "community": 250,
+      "community": 149,
       "norm_label": "testing"
     },
     {
@@ -36340,7 +36450,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "claude_docs",
-      "community": 250,
+      "community": 149,
       "norm_label": "docs"
     },
     {
@@ -38340,7 +38450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_build_retrospective",
-      "community": 250,
+      "community": 149,
       "norm_label": "build_retrospective.md"
     },
     {
@@ -38370,7 +38480,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2_incident_log",
-      "community": 149,
+      "community": 312,
       "norm_label": "2. incident log"
     },
     {
@@ -38380,7 +38490,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2a_verification_integrity_the_dominant_class_20_instances",
-      "community": 149,
+      "community": 312,
       "norm_label": "2a. verification integrity \u2014 the dominant class (~20 instances)"
     },
     {
@@ -38390,7 +38500,7 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
-      "community": 149,
+      "community": 312,
       "norm_label": "2b. wrong conclusions that propagated"
     },
     {
@@ -38400,7 +38510,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2c_harness_and_infrastructure",
-      "community": 149,
+      "community": 312,
       "norm_label": "2c. harness and infrastructure"
     },
     {
@@ -38410,7 +38520,7 @@
       "source_location": "L370",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
-      "community": 149,
+      "community": 312,
       "norm_label": "2d. my own spec and briefing failures"
     },
     {
@@ -42850,7 +42960,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "ideas_fabric_4_milestones",
-      "community": 67,
+      "community": 300,
       "norm_label": "4. milestones"
     },
     {
@@ -42860,7 +42970,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "ideas_fabric_m0_look_test_go_no_go_gate",
-      "community": 67,
+      "community": 300,
       "norm_label": "m0 \u2014 look test (go/no-go gate)"
     },
     {
@@ -42870,7 +42980,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "ideas_fabric_m1_swatch_generator_flat_no_shaping",
-      "community": 67,
+      "community": 300,
       "norm_label": "m1 \u2014 swatch generator (flat, no shaping)"
     },
     {
@@ -42880,7 +42990,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "ideas_fabric_m2_templates_fitted_rest_shape_relaxation",
-      "community": 67,
+      "community": 300,
       "norm_label": "m2 \u2014 templates fitted + rest-shape relaxation"
     },
     {
@@ -42890,7 +43000,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "ideas_fabric_m3_panels_shaping",
-      "community": 67,
+      "community": 300,
       "norm_label": "m3 \u2014 panels + shaping"
     },
     {
@@ -42900,7 +43010,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ideas_fabric_m4_seams",
-      "community": 67,
+      "community": 300,
       "norm_label": "m4 \u2014 seams"
     },
     {
@@ -42910,7 +43020,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_fabric_m5_pattern_language",
-      "community": 67,
+      "community": 300,
       "norm_label": "m5 \u2014 pattern language"
     },
     {
@@ -42920,7 +43030,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "ideas_fabric_m6_hydra_generative_procedural",
-      "community": 67,
+      "community": 300,
       "norm_label": "m6 \u2014 hydra generative procedural"
     },
     {
@@ -42930,7 +43040,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "ideas_fabric_m7_hero_garment_demo",
-      "community": 67,
+      "community": 300,
       "norm_label": "m7 \u2014 hero garment demo"
     },
     {
@@ -47900,7 +48010,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 144,
+      "community": 309,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -47910,7 +48020,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 144,
+      "community": 309,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -47920,7 +48030,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 144,
+      "community": 309,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -47930,7 +48040,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 144,
+      "community": 309,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -47940,7 +48050,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 144,
+      "community": 309,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -47950,7 +48060,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 144,
+      "community": 309,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -48680,7 +48790,7 @@
       "source_location": "L14954",
       "_origin": "ast",
       "id": "ideas_polychain_33_native_network_build_log_cycle_c6_13_9_n8_stages_2_the_miter_assembly",
-      "community": 300,
+      "community": 144,
       "norm_label": "33. native network build log \u2014 cycle c6 (13.9 n8 stages 2+: the miter assembly)"
     },
     {
@@ -48690,7 +48800,7 @@
       "source_location": "L14960",
       "_origin": "ast",
       "id": "ideas_polychain_33_1_d338_the_deletion_32_3_named_paid_and_proven",
-      "community": 300,
+      "community": 144,
       "norm_label": "33.1 d338 \u2014 the deletion 32.3 named, paid and proven"
     },
     {
@@ -48700,7 +48810,7 @@
       "source_location": "L15011",
       "_origin": "ast",
       "id": "ideas_polychain_33_2_d339_fill_count_with_count_0_leaves_a_hole_in_the_y_stack",
-      "community": 300,
+      "community": 144,
       "norm_label": "33.2 d339 \u2014 `fill = count` with `count = 0` leaves a hole in the y stack"
     },
     {
@@ -48710,7 +48820,7 @@
       "source_location": "L15025",
       "_origin": "ast",
       "id": "ideas_polychain_33_3_13_9_n8_stage_2_d340_the_degenerate_corner_was_a_warning_not_geometry",
-      "community": 300,
+      "community": 144,
       "norm_label": "33.3 13.9 n8 stage 2 \u2014 d340: the degenerate corner was a warning, not geometry"
     },
     {
@@ -48720,7 +48830,7 @@
       "source_location": "L15090",
       "_origin": "ast",
       "id": "ideas_polychain_33_4_d341_the_miter_s_deciding_experiment_the_batched_cut_is_a_re_implementation_not_a_port",
-      "community": 300,
+      "community": 144,
       "norm_label": "33.4 d341 \u2014 the miter's deciding experiment: the batched cut is a re-implementation, not a port"
     },
     {
@@ -48730,7 +48840,7 @@
       "source_location": "L15160",
       "_origin": "ast",
       "id": "ideas_polychain_33_5_the_python_share_per_build_class_re_taken_32_4_s_table_two_rows_moved",
-      "community": 300,
+      "community": 144,
       "norm_label": "33.5 the python share per build class, re-taken \u2014 32.4's table, two rows moved"
     },
     {
@@ -49450,7 +49560,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme",
-      "community": 62,
+      "community": 292,
       "norm_label": "readme.md"
     },
     {
@@ -49460,7 +49570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 62,
+      "community": 292,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -49470,7 +49580,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 62,
+      "community": 292,
       "norm_label": "the five pieces"
     },
     {
@@ -49480,7 +49590,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 62,
+      "community": 292,
       "norm_label": "what stays from v1"
     },
     {
@@ -49490,7 +49600,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 62,
+      "community": 292,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -49500,7 +49610,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 62,
+      "community": 292,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -49510,7 +49620,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 62,
+      "community": 292,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -49520,7 +49630,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 62,
+      "community": 292,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -49530,7 +49640,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 62,
+      "community": 292,
       "norm_label": "the v2 commands"
     },
     {
@@ -49540,7 +49650,7 @@
       "source_location": "L326",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
-      "community": 62,
+      "community": 292,
       "norm_label": "the v1 history"
     },
     {
@@ -49677,7 +49787,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/browser_ui.py",
       "source_location": "L799",
-      "community": 117,
+      "community": 20,
       "norm_label": "_handle_drop()",
       "id": "asset_library_browser_ui_handle_drop"
     },
@@ -49758,7 +49868,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_column/__init__.py",
       "source_location": "L1",
-      "community": 76,
+      "community": 23,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_column_init_py"
     },
@@ -49794,7 +49904,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 76,
+      "community": 137,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -49812,7 +49922,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_table_widget/__init__.py",
       "source_location": "L1",
-      "community": 72,
+      "community": 76,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_table_widget_init_py"
     },
@@ -49839,7 +49949,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/py_toggle.py",
       "source_location": "L46",
-      "community": 6,
+      "community": 76,
       "norm_label": "position()",
       "id": "py_toggle_py_toggle_position"
     },
@@ -49848,7 +49958,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/__init__.py",
       "source_location": "L1",
-      "community": 6,
+      "community": 76,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_toggle_init_py"
     },
@@ -49875,7 +49985,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 55,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -92613,30 +92723,30 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L316",
+      "source_location": "L347",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_c10_arc_caps_are_uvd",
+      "target": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L333",
+      "source_location": "L363",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_c11_cap_uvs_leave_the_walls_alone",
+      "target": "hda_run_ring_checks_c11_the_cap_uvs_do_not_flatten_the_walls",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L351",
+      "source_location": "L377",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_c12_height_taper_slopes_the_faces",
+      "target": "hda_run_ring_checks_c12_corner_offsets_add_to_the_globals",
       "confidence_score": 1.0
     },
     {
@@ -92645,8 +92755,28 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L371",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
+      "target": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L414",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_c14_uvs_stay_inside_the_1001_tile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L432",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_c15_the_layout_fills_the_tile",
       "confidence_score": 1.0
     },
     {
@@ -92723,10 +92853,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L271",
+      "source_location": "L292",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_c8_width_taper_is_independent_top_to_bottom",
+      "target": "hda_run_ring_checks_c8_each_corner_offset_moves_only_its_own_corner",
       "confidence_score": 1.0
     },
     {
@@ -92745,9 +92875,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_caps_and_walls",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_caps_and_walls"
     },
     {
       "relation": "contains",
@@ -92763,11 +92893,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L166",
+      "source_location": "L180",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_heights_at",
+      "target": "hda_run_ring_checks_corner_set",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L166",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_heights_at"
     },
     {
       "relation": "contains",
@@ -92795,9 +92935,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L458",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_m_bevel_shape_pinned",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_m_bevel_shape_pinned"
     },
     {
       "relation": "contains",
@@ -92815,18 +92955,18 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L448",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_m_capuv_unguarded",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_m_capuv_unguarded"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L453",
+      "source_location": "L485",
       "weight": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_m_height_taper_shared",
+      "target": "hda_run_ring_checks_m_corners_share_a_height",
       "confidence_score": 1.0
     },
     {
@@ -92845,8 +92985,18 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L444",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_m_no_cap_uv",
+      "target": "hda_run_ring_checks_m_no_cap_uv"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L520",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_m_no_tile_containment",
       "confidence_score": 1.0
     },
     {
@@ -92858,6 +93008,16 @@
       "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
       "target": "hda_run_ring_checks_m_not_centred"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L511",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_m_offset_replaces_the_global",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -92893,11 +93053,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L310",
+      "source_location": "L528",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_m_top_taper_drives_bottom"
+      "target": "hda_run_ring_checks_m_v_not_normalised",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -92963,16 +93123,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L134",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_radii_at"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L130",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -92985,9 +93135,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
-      "target": "hda_run_ring_checks_signature",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_signature"
     },
     {
       "relation": "contains",
@@ -92998,6 +93148,26 @@
       "confidence_score": 1.0,
       "source": "hda_run_ring_checks",
       "target": "hda_run_ring_checks_signed_volume"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L160",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_uv_area",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks",
+      "target": "hda_run_ring_checks_uv_bounds",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -93110,9 +93280,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_59",
+      "source": "hda_run_ring_checks_rationale_61",
       "target": "hda_run_ring_checks_newell",
       "confidence_score": 1.0
     },
@@ -93156,9 +93326,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L381",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
-      "target": "hda_run_ring_checks_open_edges",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_open_edges"
     },
     {
       "relation": "calls",
@@ -93186,9 +93356,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L78",
+      "source_location": "L80",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_78",
+      "source": "hda_run_ring_checks_rationale_80",
       "target": "hda_run_ring_checks_open_edges",
       "confidence_score": 1.0
     },
@@ -93199,9 +93369,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L381",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
-      "target": "hda_run_ring_checks_min_area",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_min_area"
     },
     {
       "relation": "calls",
@@ -93232,9 +93402,9 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L381",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
-      "target": "hda_run_ring_checks_planar_error",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_planar_error"
     },
     {
       "relation": "calls",
@@ -93251,9 +93421,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L99",
+      "source_location": "L101",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_99",
+      "source": "hda_run_ring_checks_rationale_101",
       "target": "hda_run_ring_checks_planar_error",
       "confidence_score": 1.0
     },
@@ -93283,9 +93453,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L115",
+      "source_location": "L117",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_115",
+      "source": "hda_run_ring_checks_rationale_117",
       "target": "hda_run_ring_checks_signed_volume",
       "confidence_score": 1.0
     },
@@ -93304,9 +93474,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L127",
+      "source_location": "L129",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_127",
+      "source": "hda_run_ring_checks_rationale_129",
       "target": "hda_run_ring_checks_analytic_volume",
       "confidence_score": 1.0
     },
@@ -93325,10 +93495,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L134",
+      "source_location": "L136",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_134",
+      "source": "hda_run_ring_checks_rationale_136",
       "target": "hda_run_ring_checks_arc_span",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L385",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c12_corner_offsets_add_to_the_globals",
+      "target": "hda_run_ring_checks_radius",
       "confidence_score": 1.0
     },
     {
@@ -93347,9 +93528,9 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L169",
+      "source_location": "L183",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_heights_at",
+      "source": "hda_run_ring_checks_corner_set",
       "target": "hda_run_ring_checks_radius",
       "confidence_score": 1.0
     },
@@ -93358,10 +93539,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L136",
+      "source_location": "L169",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "hda_run_ring_checks_radii_at",
+      "source": "hda_run_ring_checks_heights_at",
       "target": "hda_run_ring_checks_radius"
     },
     {
@@ -93369,9 +93550,9 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L320",
+      "source_location": "L353",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_c10_arc_caps_are_uvd",
+      "source": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
       "target": "hda_run_ring_checks_caps_and_walls",
       "confidence_score": 1.0
     },
@@ -93380,9 +93561,9 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L341",
+      "source_location": "L371",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_c11_cap_uvs_leave_the_walls_alone",
+      "source": "hda_run_ring_checks_c11_the_cap_uvs_do_not_flatten_the_walls",
       "target": "hda_run_ring_checks_caps_and_walls",
       "confidence_score": 1.0
     },
@@ -93390,31 +93571,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L146",
+      "source_location": "L148",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_146",
+      "source": "hda_run_ring_checks_rationale_148",
       "target": "hda_run_ring_checks_caps_and_walls",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L275",
-      "weight": 1.0,
-      "source": "hda_run_ring_checks_c8_width_taper_is_independent_top_to_bottom",
-      "target": "hda_run_ring_checks_radii_at",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L160",
-      "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_160",
-      "target": "hda_run_ring_checks_radii_at",
       "confidence_score": 1.0
     },
     {
@@ -93424,7 +93584,93 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L356",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_c12_height_taper_slopes_the_faces",
+      "source": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
+      "target": "hda_run_ring_checks_uv_area",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L372",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c11_the_cap_uvs_do_not_flatten_the_walls",
+      "target": "hda_run_ring_checks_uv_area",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L161",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_161",
+      "target": "hda_run_ring_checks_uv_area",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L357",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
+      "target": "hda_run_ring_checks_uv_bounds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L426",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c14_uvs_stay_inside_the_1001_tile",
+      "target": "hda_run_ring_checks_uv_bounds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L440",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c15_the_layout_fills_the_tile",
+      "target": "hda_run_ring_checks_uv_bounds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L298",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c8_each_corner_offset_moves_only_its_own_corner",
+      "target": "hda_run_ring_checks_corner_set",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_181",
+      "target": "hda_run_ring_checks_corner_set",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L387",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_c12_corner_offsets_add_to_the_globals",
       "target": "hda_run_ring_checks_heights_at",
       "confidence_score": 1.0
     },
@@ -93432,9 +93678,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L167",
+      "source_location": "L188",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_167",
+      "source": "hda_run_ring_checks_rationale_188",
       "target": "hda_run_ring_checks_heights_at",
       "confidence_score": 1.0
     },
@@ -93456,7 +93702,17 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L380",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
+      "target": "hda_run_ring_checks_signature"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_200",
       "target": "hda_run_ring_checks_signature",
       "confidence_score": 1.0
     },
@@ -93464,19 +93720,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L179",
+      "source_location": "L211",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_179",
-      "target": "hda_run_ring_checks_signature",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L190",
-      "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_190",
+      "source": "hda_run_ring_checks_rationale_211",
       "target": "hda_run_ring_checks_c1_closed_ring_has_no_seam",
       "confidence_score": 1.0
     },
@@ -93484,9 +93730,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L206",
+      "source_location": "L227",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_206",
+      "source": "hda_run_ring_checks_rationale_227",
       "target": "hda_run_ring_checks_c3_an_arc_is_actually_an_arc",
       "confidence_score": 1.0
     },
@@ -93494,9 +93740,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L216",
+      "source_location": "L237",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_216",
+      "source": "hda_run_ring_checks_rationale_237",
       "target": "hda_run_ring_checks_c4_the_solid_is_the_one_that_was_asked_for",
       "confidence_score": 1.0
     },
@@ -93504,9 +93750,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L238",
+      "source_location": "L259",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_238",
+      "source": "hda_run_ring_checks_rationale_259",
       "target": "hda_run_ring_checks_c6_bevel_cuts_the_corners",
       "confidence_score": 1.0
     },
@@ -93514,9 +93760,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L258",
+      "source_location": "L279",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_258",
+      "source": "hda_run_ring_checks_rationale_279",
       "target": "hda_run_ring_checks_c7_every_face_is_flat",
       "confidence_score": 1.0
     },
@@ -93524,19 +93770,19 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L272",
+      "source_location": "L293",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_272",
-      "target": "hda_run_ring_checks_c8_width_taper_is_independent_top_to_bottom",
+      "source": "hda_run_ring_checks_rationale_293",
+      "target": "hda_run_ring_checks_c8_each_corner_offset_moves_only_its_own_corner",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L291",
+      "source_location": "L322",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_291",
+      "source": "hda_run_ring_checks_rationale_322",
       "target": "hda_run_ring_checks_c9_the_solid_is_not_inside_out",
       "confidence_score": 1.0
     },
@@ -93544,39 +93790,39 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L317",
+      "source_location": "L348",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_317",
-      "target": "hda_run_ring_checks_c10_arc_caps_are_uvd",
+      "source": "hda_run_ring_checks_rationale_348",
+      "target": "hda_run_ring_checks_c10_arc_caps_get_a_real_uv_island",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L334",
+      "source_location": "L364",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_334",
-      "target": "hda_run_ring_checks_c11_cap_uvs_leave_the_walls_alone",
+      "source": "hda_run_ring_checks_rationale_364",
+      "target": "hda_run_ring_checks_c11_the_cap_uvs_do_not_flatten_the_walls",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L352",
+      "source_location": "L378",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_352",
-      "target": "hda_run_ring_checks_c12_height_taper_slopes_the_faces",
+      "source": "hda_run_ring_checks_rationale_378",
+      "target": "hda_run_ring_checks_c12_corner_offsets_add_to_the_globals",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L372",
+      "source_location": "L396",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_372",
+      "source": "hda_run_ring_checks_rationale_396",
       "target": "hda_run_ring_checks_c13_every_bevel_shape_is_wired_and_sound",
       "confidence_score": 1.0
     },
@@ -93584,9 +93830,29 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L394",
+      "source_location": "L415",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_394",
+      "source": "hda_run_ring_checks_rationale_415",
+      "target": "hda_run_ring_checks_c14_uvs_stay_inside_the_1001_tile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L433",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_433",
+      "target": "hda_run_ring_checks_c15_the_layout_fills_the_tile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L452",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_452",
       "target": "hda_run_ring_checks_m_seam",
       "confidence_score": 1.0
     },
@@ -93594,9 +93860,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L405",
+      "source_location": "L463",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_405",
+      "source": "hda_run_ring_checks_rationale_463",
       "target": "hda_run_ring_checks_m_arc_forced_closed",
       "confidence_score": 1.0
     },
@@ -93627,11 +93893,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L313",
+      "source_location": "L488",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "hda_run_ring_checks_m_top_taper_drives_bottom",
-      "target": "hda_run_ring_checks_patch"
+      "source": "hda_run_ring_checks_m_corners_share_a_height",
+      "target": "hda_run_ring_checks_patch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L486",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_486",
+      "target": "hda_run_ring_checks_m_corners_share_a_height",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -93648,9 +93924,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L435",
+      "source_location": "L493",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_435",
+      "source": "hda_run_ring_checks_rationale_493",
       "target": "hda_run_ring_checks_m_profile_reversed",
       "confidence_score": 1.0
     },
@@ -93661,17 +93937,17 @@
       "source_file": "tests/hda/run_ring_checks.py",
       "source_location": "L450",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_ring_checks_m_capuv_unguarded",
-      "target": "hda_run_ring_checks_patch",
-      "confidence_score": 1.0
+      "target": "hda_run_ring_checks_patch"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L449",
+      "source_location": "L507",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_rationale_449",
+      "source": "hda_run_ring_checks_rationale_507",
       "target": "hda_run_ring_checks_m_capuv_unguarded",
       "confidence_score": 1.0
     },
@@ -93680,10 +93956,20 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_ring_checks.py",
-      "source_location": "L454",
+      "source_location": "L512",
       "weight": 1.0,
-      "source": "hda_run_ring_checks_m_height_taper_shared",
+      "source": "hda_run_ring_checks_m_offset_replaces_the_global",
       "target": "hda_run_ring_checks_patch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/hda/run_ring_checks.py",
+      "source_location": "L521",
+      "weight": 1.0,
+      "source": "hda_run_ring_checks_rationale_521",
+      "target": "hda_run_ring_checks_m_no_tile_containment",
       "confidence_score": 1.0
     },
     {
@@ -127337,5 +127623,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e79a0ff5da55b9e79e7a7347d35463cd8263c6cc"
+  "built_at_commit": "396c3bcebea4e4c29f0eaf880d9f11551e8dfbaa"
 }

@@ -5,10 +5,10 @@
 Not a torus. A ring whose outer wall, inner wall, top and bottom are all FLAT
 polygons: a solid 3D band, the thing you reach for when a torus is too round.
 
-    pf_ring                            10 nodes, no inputs:
+    pf_ring                            11 nodes, no inputs:
       profile   [attribwrangle/detail]   the cross-section in the XY plane,
-                                         x = radius, y = height. Both tapers
-                                         are applied here, per side.
+                                         x = radius, y = height. The four
+                                         corner offsets land here.
       bevel     [polybevel::3.0]         cuts the profile CORNERS in-plane,
                                          so bevel cost does not scale with
                                          the ring's side count
@@ -25,10 +25,18 @@ polygons: a solid 3D band, the thing you reach for when a torus is too round.
       cap       [polycap]                fills the two arc ends. A no-op on a
                                          closed ring (PROBED: 64 prims in,
                                          64 out) so it is always in the chain
-      capuv     [attribwrangle/vertex]   UVs for those caps. `polycap` emits
+      capuv     [attribwrangle/prim]     UVs for those caps. `polycap` emits
                                          none, so every cap vertex arrived at
                                          uv (0,0,0) - a solid black patch on
-                                         any textured arc
+                                         any textured arc. Each cap is fitted
+                                         to its OWN extents, so it stays a
+                                         full square whatever the corner
+                                         offsets and the bevel do to it.
+      uvlayout  [uvlayout]               packs every island into the 1001
+                                         tile. Without it the wall island ran
+                                         v 0..5 at the default radius and
+                                         0..11 at radius 5, and the caps sat
+                                         on top of the walls.
       cleanup   [attribdelete]           `_wall` off the output (conventions
                                          §2; `tests/hda/run_attrib_checks.py`
                                          fails the build if it survives)
@@ -37,16 +45,28 @@ polygons: a solid 3D band, the thing you reach for when a torus is too round.
       OUT       [null]
 
 Every face is planar by construction: each quad spans one angular step, so its
-two radial edges are parallel chords - and that holds under either taper,
-because dropping an edge's height keeps those two chords parallel. Measured on
-the built asset, worst-case out-of-plane error is float32 noise (~4e-08 at
+two radial edges are parallel chords - and that holds however the corners are
+offset, because moving a corner keeps those two chords parallel. Measured on
+the built asset, worst-case out-of-plane error is float32 noise (~3e-08 at
 radius 1).
+
+THE SHAPE CONTROLS: one global radius pair and height, then a radius and a
+height offset on each of the four corners, ADDED on top. Nothing is a
+percentage of anything, so the same offset means the same distance whatever
+else is set, and a corner only ever moves when its own two parms move. That
+replaced an amount/bias taper pair per side, which produced the same shapes
+and was much harder to aim.
 
 Reference-checked on 22.0.398 rather than recalled - the corrections that came
 out of probing:
   * there is no `bevel` SOP; it is `polybevel::3.0`
   * `revolve`'s `cap` toggle does NOT cap an open arc (192 prims either way);
     `polycap` does, and shares the boundary points instead of adding new ones
+  * `revolve` ships `normalizev 0`, so v is length-weighted and UNBOUNDED -
+    it is set to 1 here so the wall island reaches `uvlayout` proportioned
+    like a square rather than 11 times too tall
+  * `revolve` runs u ACROSS the cross-section and v AROUND the arc, which is
+    the opposite of the obvious guess
   * ⚠️ HSCRIPT HAS NO TERNARY. `ch("../arcangle") >= 359.999 ? 0 : 1` does not
     error - it silently evaluates to the COMPARISON and drops the rest, so at
     360 it returned 1 and every ring shipped as a seamed open arc that
@@ -96,54 +116,46 @@ OUTPUT_LABEL = "Ring"
 BEVEL_SHAPES = ("none", "solid", "crease", "chamfer", "round")
 BEVEL_LABELS = ("None", "Solid", "Crease", "Chamfer", "Round")
 
+# The four corners of the cross-section: (suffix, label, radius parm base,
+# height parm base). Order is the order they are emitted in, which is also
+# the order they appear on the parameter page.
+CORNERS = (("to", "Top Outer"), ("ti", "Top Inner"),
+           ("bo", "Bottom Outer"), ("bi", "Bottom Inner"))
+
 # --------------------------------------------------------------------------
-# The cross-section. One detail run, four points (three where a side tapers to
-# an edge) - explicit construction, so the profile is exactly what it says.
+# The cross-section. One detail run, four points (three when two corners land
+# on the same spot) - explicit construction, so the profile is exactly what
+# it says it is.
 #
 # x is RADIUS and y is HEIGHT, centred on the origin like the Tube SOP, so the
 # revolve about +Y lands the ring in the canonical place with no transform.
 #
-# Two tapers per side, each an amount plus a bias saying where it is spent:
-#   WIDTH  taper moves that face's radii   - the face gets narrower
-#   HEIGHT taper drops that face's corners - the face slopes
-# A bias of -1 spends it at the inner circle, +1 at the outer, 0 at both.
+# Each corner is the global radius/height PLUS its own two offsets. Height is
+# a world +Y offset on all four, so a positive number always moves that corner
+# up, whichever face it belongs to, and nothing is relative to anything else.
 # --------------------------------------------------------------------------
 PROFILE_VEX = r'''// pf_ring - cross-section in the XY plane (x = radius, y = height).
 float ro = chf("../outer"), ri = chf("../inner"), h = chf("../height");
-float tt = chf("../taper_top"),  bt  = chf("../bias_top");
-float tb = chf("../taper_bot"),  bb  = chf("../bias_bot");
-float ht = chf("../htaper_top"), hbt = chf("../hbias_top");
-float hb = chf("../htaper_bot"), hbb = chf("../hbias_bot");
 
 // Radii are unordered on purpose: swapping the two parms must not invert a ring.
 float lo = min(ri, ro), hi = max(ri, ro);
 ri = lo; ro = hi;
-float w = ro - ri;
-
-// --- width taper: move the radii ---
-float wt = w * (1.0 - clamp(tt, 0.0, 1.0));      // width left at the top
-float wb = w * (1.0 - clamp(tb, 0.0, 1.0));      // ... and at the bottom
-float ft = (clamp(bt, -1.0, 1.0) + 1.0) * 0.5;   // 0 = hug inner, 1 = hug outer
-float fb = (clamp(bb, -1.0, 1.0) + 1.0) * 0.5;
-
-float rit = ri + (w - wt) * ft, rot = rit + wt;
-float rib = ri + (w - wb) * fb, rob = rib + wb;
 float y0 = -h * 0.5, y1 = h * 0.5;
 
-// --- height taper: drop the corners, same amount/bias grammar ---
-float gt = (clamp(hbt, -1.0, 1.0) + 1.0) * 0.5;  // 0 = drop inner, 1 = outer
-float gb = (clamp(hbb, -1.0, 1.0) + 1.0) * 0.5;
-float dt = h * clamp(ht, 0.0, 1.0);
-float db = h * clamp(hb, 0.0, 1.0);
-float y1i = y1 - dt * (1.0 - gt), y1o = y1 - dt * gt;
-float y0i = y0 + db * (1.0 - gb), y0o = y0 + db * gb;
-y1i = max(y1i, y0i);                             // the faces may meet,
-y1o = max(y1o, y0o);                             // they may not cross
+// Per-corner offsets, ADDED to the global radius and height above. A radius
+// is clamped at the axis; nothing else is clamped, so a corner goes exactly
+// where it is sent - including past its neighbour, which is the artist's call.
+float rot = max(ro + chf("../rad_to"), 0.0), y1o = y1 + chf("../hgt_to");
+float rit = max(ri + chf("../rad_ti"), 0.0), y1i = y1 + chf("../hgt_ti");
+float rob = max(ro + chf("../rad_bo"), 0.0), y0o = y0 + chf("../hgt_bo");
+float rib = max(ri + chf("../rad_bi"), 0.0), y0i = y0 + chf("../hgt_bi");
 
-// A fully width-tapered side is one edge, not two coincident points - that is
-// what keeps the tip a row of triangles instead of zero-area quads. Both sides
-// collapsing would leave a profile with no area, so the bottom keeps its width.
-int ct = (wt <= 1e-6), cb = (wb <= 1e-6);
+// Two corners landing on the SAME point are one point, not two coincident
+// ones - that is what keeps a knife edge a row of triangles instead of a row
+// of zero-area quads. Both pairs collapsing would leave a profile with no
+// area at all, so the bottom keeps its two.
+int ct = (abs(rot - rit) <= 1e-6 && abs(y1o - y1i) <= 1e-6);
+int cb = (abs(rob - rib) <= 1e-6 && abs(y0o - y0i) <= 1e-6);
 if (ct && cb) cb = 0;
 
 // ⚠️ ORDER IS THE OUTSIDE OF THE RING. Houdini winds a front face CLOCKWISE
@@ -153,27 +165,36 @@ if (ct && cb) cb = 0;
 // the other way round and every ring ships inside out - correct silhouette,
 // correct volume, normals pointing into the solid.
 int pts[];
-if (!ct) append(pts, addpoint(0, set(rit, y1i, 0)));                  // top in
-append(pts, addpoint(0, set(rot, ct ? (y1i + y1o) * 0.5 : y1o, 0)));  // top out
-if (!cb) append(pts, addpoint(0, set(rob, y0o, 0)));                  // bot out
-append(pts, addpoint(0, set(rib, cb ? (y0i + y0o) * 0.5 : y0i, 0)));  // bot in
+if (!ct) append(pts, addpoint(0, set(rit, y1i, 0)));   // top inner
+append(pts, addpoint(0, set(rot, y1o, 0)));            // top outer
+if (!cb) append(pts, addpoint(0, set(rob, y0o, 0)));   // bottom outer
+append(pts, addpoint(0, set(rib, y0i, 0)));            // bottom inner
 addprim(0, "poly", pts);
 '''
 
 # `polycap` emits no UVs at all, so an arc's two end faces arrived at uv
-# (0,0,0) - one solid black patch under any texture. They get the profile's
-# own parametrisation: u across the ring's width, v up its height, which is
-# the same 0-1 square `revolve` gives the walls.
+# (0,0,0) - one solid black patch under any texture. Each cap is fitted to
+# its OWN radius/height extents rather than to the parameters, so a bevel or
+# an offset corner cannot shrink the square it gets. `uvlayout` downstream
+# then packs this island alongside the walls.
 CAPUV_VEX = r'''// pf_ring - UVs for the arc's end caps. Walls already have revolve's.
 int wall = prim(0, "_wall", @primnum);
 if (wall == 0) {
-    float ri = min(chf("../inner"), chf("../outer"));
-    float ro = max(chf("../inner"), chf("../outer"));
-    float h  = chf("../height");
-    float r  = length(set(@P.x, 0.0, @P.z));
-    float u  = (ro - ri) > 1e-9 ? (r - ri) / (ro - ri) : 0.0;
-    float v  = h > 1e-9 ? (@P.y + h * 0.5) / h : 0.0;
-    v@uv = set(clamp(u, 0.0, 1.0), clamp(v, 0.0, 1.0), 0.0);
+    int pts[] = primpoints(0, @primnum);
+    float rmin = 1e18, rmax = -1e18, ymin = 1e18, ymax = -1e18;
+    foreach (int pt; pts) {
+        vector p = point(0, "P", pt);
+        float r = length(set(p.x, 0.0, p.z));
+        rmin = min(rmin, r); rmax = max(rmax, r);
+        ymin = min(ymin, p.y); ymax = max(ymax, p.y);
+    }
+    float dr = max(rmax - rmin, 1e-9), dy = max(ymax - ymin, 1e-9);
+    for (int i = 0; i < len(pts); i++) {
+        vector p = point(0, "P", pts[i]);
+        float r = length(set(p.x, 0.0, p.z));
+        setvertexattrib(0, "uv", @primnum, i,
+                        set((r - rmin) / dr, (p.y - ymin) / dy, 0.0));
+    }
 }
 '''
 
@@ -191,21 +212,6 @@ def _int(name, label, default, lo, hi, help_):
                             min_is_strict=True, max_is_strict=False)
     t.setHelp(help_)
     return t
-
-
-def _taper_pair(prefix, side, kind, what):
-    """The four (amount, bias) pairs share one grammar; write it once."""
-    amount = _float(
-        "%staper_%s" % (prefix, side), "%s %s Taper" % (side.capitalize(), kind),
-        0.0, 0.0, 1.0,
-        "How much %s the %s face loses. 0 leaves it alone, 1 spends all "
-        "of it." % (what, side), maxlock=True)
-    bias = _float(
-        "%sbias_%s" % (prefix, side), "%s %s Towards" % (side.capitalize(), kind),
-        0.0, -1.0, 1.0,
-        "Where that is spent: -1 at the inner circle, +1 at the outer, 0 at "
-        "both evenly.", minlock=True, maxlock=True)
-    return amount, bias
 
 
 if hou.isUIAvailable() is False:
@@ -245,13 +251,13 @@ def _place(node, x, y, comment=None):
     return node
 
 
-profile = _place(net.createNode("attribwrangle", "profile"), 0, 7,
+profile = _place(net.createNode("attribwrangle", "profile"), 0, 8,
                  "The cross-section: x = radius, y = height.\n"
-                 "Width and height taper are both applied here, per side.")
+                 "Global radius/height plus each corner's own offsets.")
 profile.parm("class").set("detail")
 profile.parm("snippet").set(PROFILE_VEX)
 
-bevel = _place(net.createNode("polybevel::3.0", "bevel"), 2, 6,
+bevel = _place(net.createNode("polybevel::3.0", "bevel"), 2, 7,
                "Corner bevel, in the profile plane - so it costs the\n"
                "same whatever the ring's side count is.")
 bevel.setInput(0, profile)
@@ -261,7 +267,7 @@ bevel.parm("offset").setExpression('ch("../bevel")')
 bevel.parm("divisions").setExpression('ch("../bevelsegs")')
 bevel.parm("filletshape").setExpression('ch("../bevelshape")')
 
-swbevel = _place(net.createNode("switch", "swbevel"), 0, 5,
+swbevel = _place(net.createNode("switch", "swbevel"), 0, 6,
                  "PROBED: polybevel at offset 0 still splits every corner\n"
                  "into two coincident points, so zero width takes the\n"
                  "unbevelled profile instead of a degenerate one.")
@@ -269,7 +275,7 @@ swbevel.setInput(0, profile)
 swbevel.setInput(1, bevel)
 swbevel.parm("input").setExpression('ch("../bevel") > 0')
 
-rev = _place(net.createNode("revolve", "rev"), 0, 4,
+rev = _place(net.createNode("revolve", "rev"), 0, 5,
              "Around +Y. `Sides` is the count for a FULL turn; an arc\n"
              "takes its share, so facet size holds while the arc changes.")
 rev.setInput(0, swbevel)
@@ -285,30 +291,37 @@ rev.parm("divs").setExpression(
 rev.parm("type").setExpression('ch("../arcangle") < 359.999')
 rev.parm("beginangle").setExpression('ch("../startangle")')
 rev.parm("endangle").setExpression('ch("../startangle") + ch("../arcangle")')
+# Ships as 0, which leaves v length-weighted and unbounded (0..11 at radius 5).
+rev.parm("normalizev").set(1)
 
-markwall = _place(net.createNode("attribwrangle", "markwall"), 0, 3,
+markwall = _place(net.createNode("attribwrangle", "markwall"), 0, 4,
                   "Everything the revolve made is wall. Whatever polycap\n"
                   "adds next is therefore a cap, and can be UV'd alone.")
 markwall.setInput(0, rev)
 markwall.parm("class").set("primitive")
 markwall.parm("snippet").set("i@_wall = 1;")
 
-cap = _place(net.createNode("polycap", "cap"), 0, 2,
+cap = _place(net.createNode("polycap", "cap"), 0, 3,
              "Fills the two arc ends. PROBED as a no-op on a closed\n"
              "ring, so it stays in the chain unconditionally.")
 cap.setInput(0, markwall)
 
-capuv = _place(net.createNode("attribwrangle", "capuv"), 0, 1,
+capuv = _place(net.createNode("attribwrangle", "capuv"), 0, 2,
                "polycap emits NO UVs - every cap vertex arrives at\n"
                "uv (0,0,0), one black patch under any texture.")
 capuv.setInput(0, cap)
-capuv.parm("class").set("vertex")
+capuv.parm("class").set("primitive")
 capuv.parm("snippet").set(CAPUV_VEX)
+
+uvlayout = _place(net.createNode("uvlayout", "uvlayout"), 0, 1,
+                  "Everything packed into the 1001 tile, caps beside the\n"
+                  "walls rather than on top of them.")
+uvlayout.setInput(0, capuv)
 
 cleanup = _place(net.createNode("attribdelete", "cleanup"), 0, 0,
                  "`_wall` is internal (conventions.md 2) and does not\n"
                  "leave the node.")
-cleanup.setInput(0, capuv)
+cleanup.setInput(0, uvlayout)
 cleanup.parm("doprimdel").set(1)
 cleanup.parm("primdel").set("_wall")
 
@@ -333,7 +346,7 @@ ptg.append(_int("sides", "Sides", 24, 3, 64,
 ptg.append(_float("outer", "Outer Radius", 1.0, 0.0, 10.0,
                   "Radius of the outer wall, measured at the CORNERS - the "
                   "flat sides are chords, so the mid-edge sits a little "
-                  "closer in."))
+                  "closer in. Both outer corners start here."))
 ptg.append(_float("inner", "Inner Radius", 0.7, 0.0, 10.0,
                   "Radius of the hole, at the corners. Swapping it past the "
                   "outer radius is harmless - the two are sorted."))
@@ -373,18 +386,27 @@ bev.addParmTemplate(_int(
     "corner off - except under None, which ignores this."))
 ptg.append(bev)
 
-tap = hou.FolderParmTemplate("taperfolder", "Taper",
+crn = hou.FolderParmTemplate("cornerfolder", "Corners",
                              folder_type=hou.folderType.Simple)
-for _a, _b in (_taper_pair("", "top", "Width", "of the ring's width"),
-               _taper_pair("h", "top", "Height", "of the ring's height")):
-    tap.addParmTemplate(_a)
-    tap.addParmTemplate(_b)
-tap.addParmTemplate(hou.SeparatorParmTemplate("tapersep"))
-for _a, _b in (_taper_pair("", "bot", "Width", "of the ring's width"),
-               _taper_pair("h", "bot", "Height", "of the ring's height")):
-    tap.addParmTemplate(_a)
-    tap.addParmTemplate(_b)
-ptg.append(tap)
+crn.addParmTemplate(hou.LabelParmTemplate(
+    "cornerlabel", "",
+    column_labels=("Offsets ADDED to the radius and height above. Zero "
+                   "everywhere is a plain square section.",)))
+for _i, (_suf, _lab) in enumerate(CORNERS):
+    if _i == 2:
+        crn.addParmTemplate(hou.SeparatorParmTemplate("cornersep"))
+    crn.addParmTemplate(_float(
+        "rad_" + _suf, _lab + " Radius", 0.0, -1.0, 1.0,
+        "Moves the %s corner in or out, on top of the %s radius. Negative "
+        "goes towards the axis." % (_lab.lower(),
+                                    "outer" if "o" in _suf[1] else "inner"),
+        minlock=False))
+    crn.addParmTemplate(_float(
+        "hgt_" + _suf, _lab + " Height", 0.0, -1.0, 1.0,
+        "Moves the %s corner along +Y, on top of the height. Positive is "
+        "always UP, on the bottom corners too." % _lab.lower(),
+        minlock=False))
+ptg.append(crn)
 
 ptg.append(_float(
     "cuspangle", "Cusp Angle", 10.0, 0.0, 90.0,
@@ -423,6 +445,13 @@ assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents(), \
     "TAB submenu missing"
 assert back.icon() == "SOP_tube", "icon is %r" % back.icon()
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved, "output label missing"
-for _p in ("htaper_top", "hbias_top", "htaper_bot", "hbias_bot", "bevelshape"):
-    assert re.search(r'name\s+"%s"' % _p, saved),         "parm %s missing from the saved asset" % _p
+_want = ["bevelshape"]
+for _suf, _lab in CORNERS:
+    _want += ["rad_" + _suf, "hgt_" + _suf]
+for _p in _want:
+    assert re.search(r'name\s+"%s"' % _p, saved), \
+        "parm %s missing from the saved asset" % _p
+for _gone in ("taper_top", "bias_top", "htaper_top", "hbias_top"):
+    assert not re.search(r'name\s+"%s"' % _gone, saved), \
+        "the taper parm %s is still on the asset" % _gone
 print("wrote " + HDA_PATH)

@@ -2,18 +2,17 @@
 
     hython tests/hda/run_ring_checks.py
 
-Thirteen checks and thirteen mutations. Every check runs twice: once on the
+Fifteen checks and fifteen mutations. Every check runs twice: once on the
 clean asset, where it must pass, and once against the ONE edit that is
 supposed to redden it, where it must fail. A check whose mutation stays green
 is reported as a failure of the CHECK - `ideas/build_retrospective.md` §2a is
 a list of ~20 checks that could not fail, and this pairing is what keeps this
-file off it. It has already earned that four times over: it caught an HScript
-ternary that silently built every ring as a seamed open arc, and a ring that
-shipped inside out, and two of its own checks were decoration on their first
-run (see the notes on C7 and C9).
+file off it. It has earned that repeatedly: it caught an HScript ternary that
+built every ring as a seamed open arc, a ring that shipped inside out, and
+three of its own checks that were decoration on their first run.
 
-Whole run, including hython boot, is ~2 s. It stays there because every case
-cooks a ring of a few hundred points, not a scene.
+Whole run, including hython boot, is a couple of seconds. It stays there
+because every case cooks a ring of a few hundred points, not a scene.
 
 The mutations edit an unlocked INSTANCE. `updateFromNode` is never called, so
 nothing is written back to `pf_ring.hda` (dev-loop's HDA trap: that call
@@ -22,16 +21,19 @@ overwrites its own library file).
 What these checks CANNOT see:
   * the cusp angle. Nothing asserts where shading cusps, only that N points
     out of the solid (C9).
-  * WALL uv layout beyond how many distinct values each axis carries (C11).
-    That it is revolve's own parametrisation is taken on trust.
-  * the cap uv ISLAND. Both caps get the same 0-1 square, so they overlap
-    each other and the walls in UV space. That is deliberate - it is a
-    predictable default, not a packed layout - and nothing asserts it.
+  * TEXEL DENSITY. C15 asserts the layout fills the tile, not that a texture
+    lands at a consistent scale across walls and caps. Normalising v makes
+    the wall island a square whatever the ring's real proportions are, which
+    is the conventional choice for a primitive and is not area-correct.
+  * WHERE uvlayout puts each island - only that they are in the tile (C14),
+    that both islands have real area (C10, C11) and that the tile is used
+    (C15). Islands may be rotated, so nothing here assumes an orientation.
   * the parameter dialog. Names, ranges and help text are unasserted; the TAB
-    submenu, icon, output label and the presence of every parm the VEX reads
-    are asserted by the build script against the saved file.
-  * values other than the ones listed. Width taper is proven at one amount
-    per side, height taper at one amount per side, bevel at one width.
+    submenu, icon, output label, the presence of every parm the VEX reads and
+    the ABSENCE of the removed taper parms are asserted by the build script
+    against the saved file.
+  * values other than the ones listed. Each corner offset is proven at one
+    value, the bevel at one width.
   * bevel shapes are proven distinguishable and sound (C13), not correct -
     nothing here knows what `Crease` is supposed to look like.
 """
@@ -151,16 +153,35 @@ def caps_and_walls(geo):
     for pr in geo.prims():
         angs = [math.atan2(v.point().position()[2], v.point().position()[0])
                 for v in pr.vertices()]
-        flat = max(angs) - min(angs) < 1e-4
-        (caps if flat else walls).append(pr)
+        (caps if max(angs) - min(angs) < 1e-4 else walls).append(pr)
     return caps, walls
 
 
-def radii_at(geo, y):
-    """(min, max) radius of the points sitting at height `y`."""
-    rs = [radius(p.position()) for p in geo.points()
-          if abs(p.position()[1] - y) < EPS]
-    return (min(rs), max(rs)) if rs else (None, None)
+def uv_area(prims):
+    """Area these faces occupy in UV. Rotation-proof, unlike counting distinct
+    u or v values - uvlayout is free to turn an island any way it likes, and a
+    COLLAPSED island rotated 45 degrees still has many distinct u and v."""
+    total = 0.0
+    for pr in prims:
+        uvs = [v.attribValue("uv") for v in pr.vertices()]
+        for i in range(1, len(uvs) - 1):
+            ax, ay = uvs[i][0] - uvs[0][0], uvs[i][1] - uvs[0][1]
+            bx, by = uvs[i + 1][0] - uvs[0][0], uvs[i + 1][1] - uvs[0][1]
+            total += abs(ax * by - ay * bx) * 0.5
+    return total
+
+
+def uv_bounds(prims):
+    uvs = [v.attribValue("uv") for pr in prims for v in pr.vertices()]
+    return (min(a[0] for a in uvs), max(a[0] for a in uvs),
+            min(a[1] for a in uvs), max(a[1] for a in uvs))
+
+
+def corner_set(geo):
+    """The cross-section, read back off the solid: every distinct
+    (radius, height) a point sits at. A plain ring has exactly four."""
+    return sorted(set((round(radius(p.position()), 4), round(p.position()[1], 4))
+                      for p in geo.points()))
 
 
 def heights_at(geo, r):
@@ -257,34 +278,44 @@ def c6_bevel_cuts_the_corners(cook):
 def c7_every_face_is_flat(cook):
     """The whole point of the tool: flat sides, not a torus. Measured with a
     Newell normal - see `_newell`, the 3-point version measures its own
-    conditioning. The second fixture stacks BOTH tapers on a bevelled arc,
-    because height taper drops a face's corners and that is exactly the edit
-    that could bend one."""
+    conditioning. The second fixture pushes all four corners off the square
+    AND bevels an arc, because a moved corner is exactly the edit that could
+    bend a face."""
     e = max(planar_error(cook()),
-            planar_error(cook(taper_top=0.4, bias_top=0.6,
-                              htaper_top=0.45, hbias_top=1.0,
-                              htaper_bot=0.3, hbias_bot=-0.5,
-                              bevel=0.04, bevelsegs=3, arcangle=140.0)))
+            planar_error(cook(rad_to=0.3, hgt_to=-0.12, rad_ti=-0.15,
+                              hgt_ti=0.2, rad_bo=0.1, hgt_bo=0.05,
+                              rad_bi=0.25, hgt_bi=-0.3,
+                              bevel=0.02, bevelsegs=3, arcangle=140.0)))
     return e < 1e-6, "worst out-of-plane error: %.3e (want < 1e-6)" % e
 
 
-def c8_width_taper_is_independent_top_to_bottom(cook):
-    """Top tapered hard against the outer circle; the bottom must not move.
-    Then the reverse, so neither side is proven only in one direction."""
-    g = cook(outer=1.0, inner=0.6, taper_top=0.5, bias_top=1.0)
-    ti, to = radii_at(g, 0.125)
-    bi, bo = radii_at(g, -0.125)
-    h = cook(outer=1.0, inner=0.6, taper_bot=0.5, bias_bot=-1.0)
-    ui, uo = radii_at(h, 0.125)
-    li, lo = radii_at(h, -0.125)
-    ok = (abs(to - 1.0) < EPS and abs(ti - 0.8) < EPS
-          and abs(bo - 1.0) < EPS and abs(bi - 0.6) < EPS
-          and abs(uo - 1.0) < EPS and abs(ui - 0.6) < EPS
-          and abs(lo - 0.8) < EPS and abs(li - 0.6) < EPS)
-    return ok, "top-taper: top %.4f..%.4f (want .8-1) bottom %.4f..%.4f " \
-               "(want .6-1) | bottom-taper: top %.4f..%.4f (want .6-1) " \
-               "bottom %.4f..%.4f (want .6-.8)" % (ti, to, bi, bo,
-                                                   ui, uo, li, lo)
+def c8_each_corner_offset_moves_only_its_own_corner(cook):
+    """The whole point of dropping the taper for corner offsets: turning one
+    knob moves one corner and nothing else. All eight are exercised, because
+    an offset nothing ever sets is an untested branch."""
+    base = {"sides": 24, "outer": 1.0, "inner": 0.6, "height": 0.4}
+    flat = sorted([(0.6, -0.2), (0.6, 0.2), (1.0, -0.2), (1.0, 0.2)])
+    got = corner_set(cook(**base))
+    if got != flat:
+        return False, "with no offsets the section is %s, want %s" % (got, flat)
+    cases = [("rad_to", 0.3, (1.0, 0.2), (1.3, 0.2)),
+             ("hgt_to", -0.15, (1.0, 0.2), (1.0, 0.05)),
+             ("rad_ti", -0.2, (0.6, 0.2), (0.4, 0.2)),
+             ("hgt_ti", 0.25, (0.6, 0.2), (0.6, 0.45)),
+             ("rad_bo", 0.4, (1.0, -0.2), (1.4, -0.2)),
+             ("hgt_bo", 0.1, (1.0, -0.2), (1.0, -0.1)),
+             ("rad_bi", 0.15, (0.6, -0.2), (0.75, -0.2)),
+             ("hgt_bi", -0.3, (0.6, -0.2), (0.6, -0.5))]
+    bad = []
+    for parm, val, was, now in cases:
+        parms = dict(base)
+        parms[parm] = val
+        want = sorted([c for c in flat if c != was] + [now])
+        got = corner_set(cook(**parms))
+        if got != want:
+            bad.append("%s=%g gave %s want %s" % (parm, val, got, want))
+    return not bad, "8 offsets, %d wrong%s" % (
+        len(bad), (": " + "; ".join(bad)) if bad else "")
 
 
 def c9_the_solid_is_not_inside_out(cook):
@@ -313,59 +344,52 @@ def c9_the_solid_is_not_inside_out(cook):
                "dot(N, radial) %.4f (want > 0.9)" % (vol, worst)
 
 
-def c10_arc_caps_are_uvd(cook):
+def c10_arc_caps_get_a_real_uv_island(cook):
     """polycap emits no UVs, so both end faces arrived at uv (0,0,0) - one
-    black patch under any texture. They must carry the profile's own square."""
-    g = cook(arcangle=90.0, outer=1.0, inner=0.7, height=0.25)
+    black patch under any texture, and a zero-area island for uvlayout to
+    pack. Area, not extent: uvlayout scales the island to share the tile, so
+    how big it ends up is its business, but it must not be flat."""
+    g = cook(arcangle=90.0, outer=1.0, inner=0.7, height=0.25, bevel=0.03)
     caps, _ = caps_and_walls(g)
     if len(caps) != 2:
         return False, "found %d end caps, want 2" % len(caps)
-    uvs = [v.attribValue("uv") for pr in caps for v in pr.vertices()]
-    us = [a[0] for a in uvs]
-    vs = [a[1] for a in uvs]
-    du, dv = max(us) - min(us), max(vs) - min(vs)
-    inside = all(-EPS <= c <= 1.0 + EPS for a in uvs for c in a[:2])
-    ok = du > 0.9 and dv > 0.9 and inside
-    return ok, "cap uv spans u %.3f v %.3f (want > 0.9 each), inside 0-1: %s" \
-               % (du, dv, inside)
+    area = uv_area(caps)
+    u0, u1, v0, v1 = uv_bounds(caps)
+    ok = area > 0.001 and (u1 - u0) > 0.03 and (v1 - v0) > 0.03
+    return ok, "cap uv area %.4f (want > 0.001), bbox %.3f x %.3f " \
+               "(want > 0.03 each)" % (area, u1 - u0, v1 - v0)
 
 
-def c11_cap_uvs_leave_the_walls_alone(cook):
-    """MEASURED, because the obvious guess is wrong: `revolve` runs u ACROSS
-    the profile and v AROUND the arc, not the other way round. So an
-    unbevelled wall carries 5 distinct u (the closed 4-point profile's own
-    parametrisation) and 7 distinct v, one per division plus one. The cap
-    formula is radius-based, so writing it over the walls too would collapse
-    them onto the 2 radii the profile has, which is what this counts."""
+def c11_the_cap_uvs_do_not_flatten_the_walls(cook):
+    """The cap formula maps (radius, height) to (u, v). Run it over a WALL
+    face and either both its radii or both its heights are equal, so the
+    face collapses to a LINE in UV. Total island area cannot see that: the
+    mutation actually made the wall area BIGGER (0.248 -> 5.95) by handing
+    uvlayout a mesh of degenerate islands and defeating the packer. Counting
+    faces with no UV area is what sees it."""
     g = cook(sides=24, arcangle=90.0)
     _, walls = caps_and_walls(g)
-    us = set(round(v.attribValue("uv")[0], 4)
-             for pr in walls for v in pr.vertices())
-    vs = set(round(v.attribValue("uv")[1], 4)
-             for pr in walls for v in pr.vertices())
-    ok = len(us) >= 4 and len(vs) >= 6
-    return ok, ("wall uv: %d distinct u (want >= 4, measured 5), "
-                "%d distinct v (want >= 6, measured 7)" % (len(us), len(vs)))
+    flat = sum(1 for pr in walls if uv_area([pr]) < 1e-9)
+    return flat == 0, "%d of %d wall faces have no UV area (want 0)" % (
+        flat, len(walls))
 
 
-def c12_height_taper_slopes_the_faces(cook):
-    """The other taper: it spends HEIGHT, not width. Top dropped at the outer
-    circle, then bottom raised at the inner one, each time asserting the other
-    face has not moved - direction and independence in one pass."""
-    g = cook(outer=1.0, inner=0.6, height=0.4, htaper_top=0.5, hbias_top=1.0)
-    o_lo, o_hi = heights_at(g, 1.0)
-    i_lo, i_hi = heights_at(g, 0.6)
-    h = cook(outer=1.0, inner=0.6, height=0.4, htaper_bot=0.5, hbias_bot=-1.0)
-    p_lo, p_hi = heights_at(h, 1.0)
-    q_lo, q_hi = heights_at(h, 0.6)
-    ok = (abs(o_hi - 0.0) < EPS and abs(i_hi - 0.2) < EPS     # top slopes down
-          and abs(o_lo + 0.2) < EPS and abs(i_lo + 0.2) < EPS  # bottom is flat
-          and abs(q_lo - 0.0) < EPS and abs(p_lo + 0.2) < EPS  # bottom slopes
-          and abs(p_hi - 0.2) < EPS and abs(q_hi - 0.2) < EPS)  # top is flat
-    return ok, "top-drop: outer y %.4f..%.4f (want -.2..0) inner %.4f..%.4f " \
-               "(want -.2...2) | bottom-lift: outer %.4f..%.4f (want -.2...2) " \
-               "inner %.4f..%.4f (want 0..0.2)" % (o_lo, o_hi, i_lo, i_hi,
-                                                   p_lo, p_hi, q_lo, q_hi)
+def c12_corner_offsets_add_to_the_globals(cook):
+    """They must sit ON TOP of the global radius and height, not replace
+    them - the thing that makes one global control plus four local ones
+    predictable. So the same offset has to survive moving either global."""
+    off = {"rad_to": 0.25, "hgt_bi": 0.1, "inner": 0.6}
+    a = cook(outer=1.0, height=0.4, **off)
+    b = cook(outer=2.0, height=0.4, **off)      # global radius moves
+    c = cook(outer=1.0, height=1.0, **off)      # global height moves
+    ra = max(radius(p.position()) for p in a.points())
+    rb = max(radius(p.position()) for p in b.points())
+    lo_c, _ = heights_at(c, 0.6)
+    lo_a, _ = heights_at(a, 0.6)
+    ok = (abs(ra - 1.25) < EPS and abs(rb - 2.25) < EPS
+          and abs(lo_a + 0.1) < EPS and abs(lo_c + 0.4) < EPS)
+    return ok, "top-outer r %.4f then %.4f (want 1.25, 2.25) | bottom-inner " \
+               "y %.4f then %.4f (want -0.1, -0.4)" % (ra, rb, lo_a, lo_c)
 
 
 def c13_every_bevel_shape_is_wired_and_sound(cook):
@@ -385,6 +409,40 @@ def c13_every_bevel_shape_is_wired_and_sound(cook):
     ok = not bad and distinct >= 3
     return ok, "%d/5 distinct shapes (want >= 3), unsound: %s" % (
         distinct, ", ".join(bad) if bad else "none")
+
+
+def c14_uvs_stay_inside_the_1001_tile(cook):
+    """Before uvlayout the wall island ran v 0..5 at the default radius and
+    0..11 at radius 5 - four and ten tiles of overspill that only showed on a
+    CLOSED ring, because an arc happened to land inside 0-1."""
+    out = []
+    for name, parms in (("defaults", {}),
+                        ("big radius", {"outer": 5.0, "inner": 4.0}),
+                        ("tall", {"height": 4.0}),
+                        ("64 sides", {"sides": 64}),
+                        ("arc + bevel", {"arcangle": 200.0, "bevel": 0.05,
+                                         "bevelsegs": 3})):
+        g = cook(**parms)
+        u0, u1, v0, v1 = uv_bounds(g.prims())
+        if min(u0, v0) < -1e-3 or max(u1, v1) > 1.0 + 1e-3:
+            out.append("%s u %.3f..%.3f v %.3f..%.3f" % (name, u0, u1, v0, v1))
+    return not out, "outside the tile: %s" % ("; ".join(out) if out else "none")
+
+
+def c15_the_layout_fills_the_tile(cook):
+    """Fitting inside 1001 is half of it - a sliver in the corner also fits.
+    `revolve` ships v un-normalised and length-weighted, and uvlayout keeps an
+    island's aspect, so leaving it that way packed the ring into 20% of the
+    tile at the default radius and 9% at radius 5."""
+    worst, worstname = 1.0, ""
+    for name, parms in (("defaults", {}),
+                        ("big radius", {"outer": 5.0, "inner": 4.0})):
+        u0, u1, v0, v1 = uv_bounds(cook(**parms).prims())
+        used = min(u1 - u0, v1 - v0)
+        if used < worst:
+            worst, worstname = used, name
+    return worst > 0.9, "smallest tile extent used: %.3f on %s (want > 0.9)" \
+                        % (worst, worstname)
 
 
 # --------------------------------------------------------------------------
@@ -420,15 +478,15 @@ def m_bevel_width_ignored(net):
 
 
 def m_profile_off_plane(net):
-    _patch(net, "profile", "append(pts, addpoint(0, set(rob, y0o, 0)));",
-           "append(pts, addpoint(0, set(rob, y0o, 0.02)));")
+    _patch(net, "profile", "append(pts, addpoint(0, set(rot, y1o, 0)));",
+           "append(pts, addpoint(0, set(rot, y1o, 0.02)));")
 
 
-def m_top_taper_drives_bottom(net):
-    # Must drive the bottom's WIDTH, not its bias: bias on an untapered side
-    # moves nothing, so a bias-only mutation is invisible to every fixture.
-    _patch(net, "profile", "float wb = w * (1.0 - clamp(tb, 0.0, 1.0));",
-           "float wb = w * (1.0 - clamp(tt, 0.0, 1.0));")
+def m_corners_share_a_height(net):
+    """The top inner corner follows the top OUTER one, so two corners move
+    when one knob turns - the exact failure the taper had by design."""
+    _patch(net, "profile", 'y1i = y1 + chf("../hgt_ti")',
+           'y1i = y1 + chf("../hgt_to")')
 
 
 def m_profile_reversed(net):
@@ -450,13 +508,25 @@ def m_capuv_unguarded(net):
     _patch(net, "capuv", "if (wall == 0) {", "if (wall == 0 || wall == 1) {")
 
 
-def m_height_taper_shared(net):
-    _patch(net, "profile", "float db = h * clamp(hb, 0.0, 1.0);",
-           "float db = h * clamp(ht, 0.0, 1.0);")
+def m_offset_replaces_the_global(net):
+    _patch(net, "profile", 'float rot = max(ro + chf("../rad_to"), 0.0)',
+           'float rot = max(chf("../rad_to"), 0.0)')
 
 
 def m_bevel_shape_pinned(net):
     net.node("bevel").parm("filletshape").setExpression("4")
+
+
+def m_no_tile_containment(net):
+    """Two things keep the UVs in 1001 and EITHER alone is enough, so both
+    have to go for C14 to be able to fail: the packer, and normalising v
+    (which revolve ships OFF, leaving v length-weighted and unbounded)."""
+    net.node("uvlayout").bypass(True)
+    net.node("rev").parm("normalizev").set(0)
+
+
+def m_v_not_normalised(net):
+    net.node("rev").parm("normalizev").set(0)
 
 
 def _patch(net, node, old, new):
@@ -474,21 +544,21 @@ REGISTRY = [
     (c5_zero_bevel_leaves_no_degenerate_face, m_bevel_always_on),
     (c6_bevel_cuts_the_corners, m_bevel_width_ignored),
     (c7_every_face_is_flat, m_profile_off_plane),
-    (c8_width_taper_is_independent_top_to_bottom, m_top_taper_drives_bottom),
+    (c8_each_corner_offset_moves_only_its_own_corner, m_corners_share_a_height),
     (c9_the_solid_is_not_inside_out, m_profile_reversed),
-    (c10_arc_caps_are_uvd, m_no_cap_uv),
-    (c11_cap_uvs_leave_the_walls_alone, m_capuv_unguarded),
-    (c12_height_taper_slopes_the_faces, m_height_taper_shared),
+    (c10_arc_caps_get_a_real_uv_island, m_no_cap_uv),
+    (c11_the_cap_uvs_do_not_flatten_the_walls, m_capuv_unguarded),
+    (c12_corner_offsets_add_to_the_globals, m_offset_replaces_the_global),
     (c13_every_bevel_shape_is_wired_and_sound, m_bevel_shape_pinned),
+    (c14_uvs_stay_inside_the_1001_tile, m_no_tile_containment),
+    (c15_the_layout_fills_the_tile, m_v_not_normalised),
 ]
 
 DEFAULTS = {"sides": 24, "outer": 1.0, "inner": 0.7, "height": 0.25,
             "arcangle": 360.0, "startangle": 0.0,
             "bevel": 0.0, "bevelshape": 4, "bevelsegs": 1,
-            "taper_top": 0.0, "bias_top": 0.0,
-            "taper_bot": 0.0, "bias_bot": 0.0,
-            "htaper_top": 0.0, "hbias_top": 0.0,
-            "htaper_bot": 0.0, "hbias_bot": 0.0}
+            "rad_to": 0.0, "hgt_to": 0.0, "rad_ti": 0.0, "hgt_ti": 0.0,
+            "rad_bo": 0.0, "hgt_bo": 0.0, "rad_bi": 0.0, "hgt_bi": 0.0}
 
 
 def main():
@@ -512,7 +582,7 @@ def main():
         ok, detail = check(cook)
         if not ok:
             failures += 1
-        print("  %s  %-46s %s" % ("ok  " if ok else "FAIL",
+        print("  %s  %-48s %s" % ("ok  " if ok else "FAIL",
                                   check.__name__, detail))
 
         ring.allowEditingOfContents()
