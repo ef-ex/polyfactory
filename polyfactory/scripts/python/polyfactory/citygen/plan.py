@@ -287,10 +287,14 @@ def _corner(a, b, params):
     # between two points that each lie on their own kerb line — so the planner
     # returns the capped kerb-line reaches and no fillet run.
     if gore:
+        # Leave a numerical margin above the standing floor: trim attributes
+        # are float32. Mirror s5j_solve, including its length-scaled allowance.
         cap_a = max(a.length - max(params.min_end_segment,
-                                   params.min_standing_widths * a.width), 0.0)
+                                   params.min_standing_widths * a.width)
+                    - max(0.001, 1e-6 * a.length), 0.0)
         cap_b = max(b.length - max(params.min_end_segment,
-                                   params.min_standing_widths * b.width), 0.0)
+                                   params.min_standing_widths * b.width)
+                    - max(0.001, 1e-6 * b.length), 0.0)
         if reach_a > cap_a or reach_b > cap_b:
             return min(ka, cap_a), min(kb, cap_b)
     return reach_a, reach_b

@@ -458,6 +458,9 @@ class TestCalibration(unittest.TestCase):
             bound = RESIDUAL_M[name]
             for e in case["edges"]:
                 start, end = got.get(e["edge_id"], (0.0, 0.0))
+                # Count coverage independently of residual assertions: a failed
+                # subTest skips the rest of its body, but does not erase an edge.
+                seen += e["edge_id"] in got
                 with self.subTest(case=name, edge=e["edge_id"]):
                     self.assertLessEqual(abs(start - e["trim_start"]), bound)
                     self.assertLessEqual(abs(end - e["trim_end"]), bound)
@@ -468,8 +471,6 @@ class TestCalibration(unittest.TestCase):
                     if e["edge_id"] not in got:
                         self.assertEqual(e["trim_start"], 0.0)
                         self.assertEqual(e["trim_end"], 0.0)
-                    else:
-                        seen += 1
         self.assertEqual(seen, 331, "the planner did not see every street")
 
 
@@ -665,8 +666,8 @@ class TestCornerModel(unittest.TestCase):
 
         At 400 m the corner is 128.89 m and nothing binds. At 120 m the same
         corner would still want 128.89 m, which is more than the arm has: the
-        arterial is capped at 120 - 26.8 and the local at 120 - 14.4, exactly,
-        so each arm keeps one full width of standing street.
+        arterial is capped at 120 - 26.8 - 0.001 and the local at
+        120 - 14.4 - 0.001, retaining a float32 margin above the standing floor.
 
         R_shallow_y_12_subfloor is the scene case for the gore RADIUS; it
         deliberately does not reach this bound (its cap is 173.2 m against a
@@ -676,8 +677,8 @@ class TestCornerModel(unittest.TestCase):
         loose = plan.crossing_trims(self._shallow_node(400.0), p)
         self.assertAlmostEqual(loose["a"], 128.8884, places=4)
         tight = plan.crossing_trims(self._shallow_node(120.0), p)
-        self.assertAlmostEqual(tight["a"], 120.0 - 26.8, places=6)
-        self.assertAlmostEqual(tight["b"], 120.0 - 14.4, places=6)
+        self.assertAlmostEqual(tight["a"], 120.0 - 26.8 - 0.001, places=6)
+        self.assertAlmostEqual(tight["b"], 120.0 - 14.4 - 0.001, places=6)
         # every street survives its own junction, which is the property
         self.assertGreater(120.0 - tight["a"], 0.0)
         self.assertGreater(120.0 - tight["b"], 0.0)
@@ -685,7 +686,15 @@ class TestCornerModel(unittest.TestCase):
         half = plan.crossing_trims(
             self._shallow_node(120.0),
             plan.Params(min_end_segment=0.0, min_standing_widths=0.5))
-        self.assertAlmostEqual(half["a"], 120.0 - 13.4, places=6)
+        self.assertAlmostEqual(half["a"], 120.0 - 13.4 - 0.001, places=6)
+        # The margin scales for float32 trim storage on long streets. This
+        # checks the numeric model, not the builder or its later vertex push.
+        large = self._shallow_node(24000.0)
+        for arm in large.arms:
+            arm.width *= 200.0
+        large_trims = plan.crossing_trims(large, p)
+        self.assertAlmostEqual(large_trims["a"], 24000.0 - 5360.0 - 0.024,
+                               places=6)
 
     def test_the_miter_limit_is_where_the_two_regimes_meet(self):
         """`miter_limit` 4.0 turns over at 2*asin(1/4) = 28.955 degrees for two

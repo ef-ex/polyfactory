@@ -14,6 +14,89 @@ Branch `cityGen`. Written 2026-08-08.
 
 ## 0.0 RESUME POINTER — overnight run started 2026-08-17
 
+### Current restart — 2026-09-06 (supersedes the historical pointer below)
+
+Base `worldengine` at `de96d27`; isolated worktree `F:/projects/polyfactory-m55`,
+branch `codex/street-m55-planner`. The cityGen/polychain merges are already in this
+base. Remote worldengine was 100 commits behind at the restart fetch. Preserve the
+pre-existing `CLAUDE.md` edit in the main checkout.
+
+**M5.5 diagnosis corrected, independently reviewed:** the proposed scalar-only
+planner fix below is not possible. `E_00005` is a curved Hermite approach: its
+bearing is 86.7885 degrees at the node, 62.9059 at the planner's 20.1908 m cut,
+and 55.8576 at the builder's 28.8623 m cut. The builder re-reads both the origin
+and tangent at the cut over eight passes; initial direction and total length
+cannot determine those frames. The -8.671534 m residual is real. Do not widen
+its bound or remove J from the exactness check to hide it.
+
+The claim that the current repair uses these footprint predictions was also
+incorrect: shipped `graph_plan` calls `default_junction_type`, not `node_trims`,
+`graph_trims`, or `standing`. Current repair still uses `junction_premeasure`.
+Adding shape data only to calibration would not finish production integration.
+An accurate predictor needs an explicit consumer and the same authoritative
+normalized shape as the builder. Passing the segmenter's approximately 5 m
+samples is insufficient because the junction resamples at 4 m afterward.
+Section 11.1 rule 6 forbids decisions against geometry that will change; it does
+not forbid settled curve data. Shape creation/resampling remains native/VEX.
+
+**Coverage correction:** all 331 fixture streets are present in planner output.
+The former 328 count incremented only after residual assertions inside each
+subTest, so the three failing J comparisons skipped their increments. The
+counter now counts membership independently; residual checks remain unchanged.
+
+Evidence: fresh headless shipped-HDA probe and independent diagnostic audit,
+`F:/projects/polyfactory-review-2026-09-06/m55/J-full.json`. No builder or fixture
+change was made for this diagnosis. M5.5 prediction remains open; this is not
+a claim that its street geometry was fixed.
+
+The recorded M5.4c gore-cap margin (Finding C) is now implemented and independently
+audited below. No new junction type, landing policy, or widened acceptance bound
+was introduced. Next integration work: identify the footprint consumer and share
+its authoritative normalized curve data before attempting M5.5 exact prediction.
+
+**M5.4c implementation, 2026-09-06:** the existing gore cap now retains
+`max(0.001 m, 1e-6 * arm_length)` above its standing target, in both the shipped
+junction VEX and the Python forecast. This is a float32 clearance allowance,
+not an artist parameter or a changed routing rule. The absolute part covers
+the current district-scale fixtures; the relative part covers trim storage
+on longer streets. Geometry generation remains VEX; Python remains the
+existing section 11.2 numerical planner exception, with no new geometry code.
+
+| Shallow-Y angle | Minimum standing minus width, before (m) | After (m) |
+|---|---:|---:|
+| 12 degrees | 36.18753624 | 36.18753624 |
+| 8 degrees | 0.00001092 | 0.00101800 |
+| 6 degrees | -0.00001537 | 0.00099171 |
+| 4 degrees | 0.00000641 | 0.00101349 |
+| 2 degrees | -0.00016232 | 0.00084476 |
+
+All five streets survive and every junction mouth still has a road in all
+five cases. The table is rounded for reading; the check compares unrounded
+values against zero. Run `hython tests/citygen/run_gore_checks.py` in a fresh
+session with the package environment set. It writes no baseline or HIP.
+The existing 17-case scene JSON is exactly unchanged (26 recorded failures);
+the unit run reports 10 remaining M5.5 failures, 74 passes and 944 subtest
+passes. The false coverage failure is gone, not the real trim discrepancies.
+
+**Scope limit:** this margin fixes cap-boundary rounding on these one-ended
+shallow roads. It does not promise a width floor after two junctions consume
+one street, or after a later vertex-clearance push advances a trim. It does
+not resolve the existing bevel appearance, coplanar-overlap limitations, or
+the M5.5 shape handoff.
+
+**Independent audit PASS, 2026-09-06:** final shipped runner passes all five angles;
+removing the margin in an isolated HDA copy fails at 6 and 2 degrees; restoring
+the shipped asset passes again. Ten corner-model tests pass, and removing either
+the margin or its relative component fails the cap assertion. Final HDA SHA256:
+`652701edc00e812620b2d6158ad7b6e02633131a7a88c7678fc6ce36709b7f09`.
+Fresh extraction differs from the base only in the index and intended solve
+snippet; original root display/render flags are preserved. Audit evidence:
+`F:/projects/polyfactory-review-2026-09-06/m55/audit-gore.log` and
+`audit-gore-final.log`. The counter correction separately survived a dropped-key
+mutation: removing one returned street correctly reports 330 rather than 331.
+
+### Historical resume pointer
+
 ⚠️ **TARGET BRANCH IS `worldengine` — Hannes, 2026-08-17: every agent works there.** Street
 work is COMMITTED on `cityGen` and **merges into `worldengine` when M5 is green**, because git
 refuses one branch in two worktrees and `worldengine` is checked out in the shared tree that
