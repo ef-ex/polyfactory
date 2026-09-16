@@ -67,7 +67,12 @@ Requested once the replica was working in his viewport — the order the law abo
   bar* the radius (`"strength_g": radius`), so the bar moved with the wheel. Now `strength`.
   Ctrl + wheel changes strength, as before.
 
-Both are declared patches in the build's SPEC and the parity check holds the asset to
+* **Damage Strength on the parameter page.** The reference hides `stroke_float` and changes it
+  only by Ctrl + wheel inside the state, so at strength 1 only the brush *centre* (soft edge
+  0.5) reaches mask 1 — an edge needed the centre right on it, i.e. several strokes. Same parm,
+  now visible right after Damage Depth; the state, the HUD and Ctrl + wheel still drive it.
+
+All three are declared patches in the build's SPEC and the parity check holds the asset to
 reference-plus-exactly-these.
 
 ## 3. The failed first attempt, kept as the warning it is

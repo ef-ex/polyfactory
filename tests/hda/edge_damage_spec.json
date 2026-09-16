@@ -105,6 +105,22 @@
    "hidden": false
   },
   {
+   "name": "stroke_float",
+   "type": "Float",
+   "label": "Damage Strength",
+   "depth": 0,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "How much a stroke paints: 1 cuts Damage Depth deep, past 1 carves deeper, negative erases. Ctrl + wheel in the viewport changes it too.",
+   "hidden": false
+  },
+  {
    "name": "sepparm6",
    "type": "Separator",
    "label": "",
@@ -403,22 +419,6 @@
    "type": "Data",
    "label": "Strokes",
    "depth": 1,
-   "help": "",
-   "hidden": true
-  },
-  {
-   "name": "stroke_float",
-   "type": "Float",
-   "label": "Stroke Float",
-   "depth": 0,
-   "default": [
-    1.0
-   ],
-   "min": 0.0,
-   "max": 10.0,
-   "minlock": false,
-   "maxlock": false,
-   "size": 1,
    "help": "",
    "hidden": true
   },

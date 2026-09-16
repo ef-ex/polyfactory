@@ -25,8 +25,10 @@ behavioural:
   * IMPROVEMENTS Hannes asked for AFTER the faithful port (2026-09-16):
     a `damage_depth` parm ("Damage Depth") and the mask-bias wrangle
     `@P += @N * ((1 - mask) * 0.1 - mask * damage_depth)`, so a stroke cuts
-    anywhere, not only at the edges the blur pulls in; and the HUD's
+    anywhere, not only at the edges the blur pulls in; the HUD's
     strength bar reads the strength (the reference fed it the radius);
+    and the hidden `stroke_float` is shown as "Damage Strength" after
+    Damage Depth (the reference exposed strength only via Ctrl+wheel);
   * the stroke cache lives on the ASSET: the inner attribpaint's bakedgeo /
     unsavedbakedgeo / strokegeo reference the asset's hidden Cache folder
     (the reference interface carries it), so the module's writes through
@@ -150,6 +152,19 @@ PARMS = [{'default': [0],
   'min': 0.0,
   'minlock': True,
   'name': 'damage_depth',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [1.0],
+  'depth': 0,
+  'help': 'How much a stroke paints: 1 cuts Damage Depth deep, past 1 carves deeper, negative '
+          'erases. Ctrl + wheel in the viewport changes it too.',
+  'hidden': False,
+  'label': 'Damage Strength',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'stroke_float',
   'size': 1,
   'type': 'Float'},
  {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm6', 'type': 'Separator'},
@@ -344,18 +359,6 @@ PARMS = [{'default': [0],
   'name': 'unsavedbakedgeo',
   'type': 'Data'},
  {'depth': 1, 'help': '', 'hidden': True, 'label': 'Strokes', 'name': 'strokegeo', 'type': 'Data'},
- {'default': [1.0],
-  'depth': 0,
-  'help': '',
-  'hidden': True,
-  'label': 'Stroke Float',
-  'max': 10.0,
-  'maxlock': False,
-  'min': 0.0,
-  'minlock': False,
-  'name': 'stroke_float',
-  'size': 1,
-  'type': 'Float'},
  {'default': [4],
   'depth': 0,
   'help': '',
