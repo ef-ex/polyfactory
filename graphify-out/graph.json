@@ -4930,7 +4930,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 42,
+      "community": 117,
       "norm_label": "node"
     },
     {
@@ -4940,7 +4940,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 42,
+      "community": 117,
       "norm_label": ".__init__()"
     },
     {
@@ -14810,7 +14810,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -14820,7 +14820,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14840,7 +14840,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -14850,7 +14850,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -15110,7 +15110,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 42,
+      "community": 117,
       "norm_label": ".__init__()"
     },
     {
@@ -15250,7 +15250,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 42,
+      "community": 117,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15640,7 +15640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 35,
+      "community": 117,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15650,7 +15650,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 35,
+      "community": 117,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15660,7 +15660,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 35,
+      "community": 117,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15670,7 +15670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 35,
+      "community": 117,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15680,7 +15680,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 35,
+      "community": 117,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15690,7 +15690,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 35,
+      "community": 117,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -17420,7 +17420,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 55,
+      "community": 35,
       "norm_label": "parmstring"
     },
     {
@@ -17440,7 +17440,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 55,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17450,7 +17450,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 55,
+      "community": 35,
       "norm_label": "._on_changed()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 117,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17470,7 +17470,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 55,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 117,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17580,7 +17580,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 117,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17620,7 +17620,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 117,
+      "community": 35,
       "norm_label": "parmcolor"
     },
     {
@@ -17630,7 +17630,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 117,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -17640,7 +17640,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 117,
+      "community": 51,
       "norm_label": "parmtuple"
     },
     {
@@ -17650,7 +17650,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 117,
+      "community": 35,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17660,7 +17660,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 117,
+      "community": 35,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17670,7 +17670,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 117,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17680,7 +17680,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 117,
+      "community": 48,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17690,7 +17690,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 117,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 55,
+      "community": 35,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 55,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 55,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17830,7 +17830,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 117,
+      "community": 35,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17840,7 +17840,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 117,
+      "community": 35,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17850,7 +17850,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 117,
+      "community": 48,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17860,7 +17860,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 117,
+      "community": 48,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17870,7 +17870,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 117,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -34770,7 +34770,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 163,
+      "community": 172,
       "norm_label": "section()"
     },
     {
@@ -34810,7 +34810,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 184,
+      "community": 163,
       "norm_label": ".style()"
     },
     {
@@ -34840,7 +34840,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -34850,7 +34850,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -34860,7 +34860,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -34960,7 +34960,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 216,
+      "community": 172,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -35100,7 +35100,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -35110,7 +35110,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -35130,7 +35130,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -35140,7 +35140,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 184,
+      "community": 163,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -35260,7 +35260,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 247,
+      "community": 172,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -35330,7 +35330,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 184,
+      "community": 163,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -35340,7 +35340,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 184,
+      "community": 163,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -35350,7 +35350,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 184,
+      "community": 163,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -35410,7 +35410,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 216,
+      "community": 172,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -35490,7 +35490,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 247,
+      "community": 172,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -41830,7 +41830,7 @@
       "source_location": "L1548",
       "_origin": "ast",
       "id": "ideas_citygen_streets_before_and_after_per_criterion",
-      "community": 99,
+      "community": 87,
       "norm_label": "before and after, per criterion"
     },
     {
@@ -41920,7 +41920,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 316,
+      "community": 17,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -41930,7 +41930,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 316,
+      "community": 17,
       "norm_label": "what the literature adds"
     },
     {
@@ -41940,7 +41940,7 @@
       "source_location": "L1876",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 316,
+      "community": 17,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -41950,7 +41950,7 @@
       "source_location": "L1913",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 316,
+      "community": 17,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -41960,7 +41960,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 316,
+      "community": 17,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -41970,7 +41970,7 @@
       "source_location": "L2068",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 316,
+      "community": 17,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -41980,7 +41980,7 @@
       "source_location": "L2094",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 316,
+      "community": 17,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -42560,7 +42560,7 @@
       "source_location": "L4031",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
-      "community": 99,
+      "community": 87,
       "norm_label": "the sagitta gate is gone. the seam is bounded instead \u2014 2026-08-10"
     },
     {
@@ -42570,7 +42570,7 @@
       "source_location": "L4089",
       "_origin": "ast",
       "id": "ideas_citygen_streets_before_and_after_per_criterion_4089",
-      "community": 99,
+      "community": 87,
       "norm_label": "before and after, per criterion"
     },
     {
@@ -43367,7 +43367,7 @@
       "label": "4. Checks, and what they cannot see",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L117",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "ideas_edge_damage_4_checks_and_what_they_cannot_see",
       "community": 310,
@@ -43377,7 +43377,7 @@
       "label": "5. What the first audit found, and where each fix landed",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L133",
+      "source_location": "L139",
       "_origin": "ast",
       "id": "ideas_edge_damage_5_what_the_first_audit_found_and_where_each_fix_landed",
       "community": 310,
@@ -43387,7 +43387,7 @@
       "label": "6. Next, if wanted",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L152",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "ideas_edge_damage_6_next_if_wanted",
       "community": 310,
@@ -50515,7 +50515,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 55,
+      "community": 35,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -93255,9 +93255,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing"
     },
     {
       "relation": "contains",
@@ -93335,9 +93335,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c8_bias_trades_chips_for_surface",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c8_bias_trades_chips_for_surface"
     },
     {
       "relation": "contains",
@@ -93345,9 +93345,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c9_an_open_input_is_refused_with_the_reason",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c9_an_open_input_is_refused_with_the_reason"
     },
     {
       "relation": "contains",
@@ -93385,9 +93385,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_bias_unwired",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_bias_unwired"
     },
     {
       "relation": "contains",
@@ -93405,9 +93405,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L250",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_no_contract",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_no_contract"
     },
     {
       "relation": "contains",
@@ -93415,9 +93415,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_no_polygon_floor",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_no_polygon_floor"
     },
     {
       "relation": "contains",
@@ -93505,9 +93505,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_prim_area",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_prim_area"
     },
     {
       "relation": "contains",
@@ -93515,9 +93515,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_real_chips",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_real_chips"
     },
     {
       "relation": "contains",
@@ -93546,9 +93546,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing",
-      "target": "hda_run_edge_damage_checks_open_edges",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_open_edges"
     },
     {
       "relation": "calls",
@@ -93601,9 +93601,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_c8_bias_trades_chips_for_surface",
-      "target": "hda_run_edge_damage_checks_volume",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_volume"
     },
     {
       "relation": "rationale_for",
@@ -93611,9 +93611,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_49",
-      "target": "hda_run_edge_damage_checks_volume",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_volume"
     },
     {
       "relation": "calls",
@@ -93622,9 +93622,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing",
-      "target": "hda_run_edge_damage_checks_chipped",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_chipped"
     },
     {
       "relation": "calls",
@@ -93666,9 +93666,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_real_chips",
-      "target": "hda_run_edge_damage_checks_chipped",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_chipped"
     },
     {
       "relation": "calls",
@@ -93677,9 +93677,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_real_chips",
-      "target": "hda_run_edge_damage_checks_prim_area",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_prim_area"
     },
     {
       "relation": "calls",
@@ -93688,9 +93688,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_c2_no_strokes_means_no_damage",
-      "target": "hda_run_edge_damage_checks_real_chips",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_real_chips"
     },
     {
       "relation": "rationale_for",
@@ -93698,9 +93698,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_70",
-      "target": "hda_run_edge_damage_checks_real_chips",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_real_chips"
     },
     {
       "relation": "calls",
@@ -93730,9 +93730,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_87",
-      "target": "hda_run_edge_damage_checks_c1_damage_everywhere_removes_material",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c1_damage_everywhere_removes_material"
     },
     {
       "relation": "rationale_for",
@@ -93740,9 +93740,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L97",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_97",
-      "target": "hda_run_edge_damage_checks_c2_no_strokes_means_no_damage",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c2_no_strokes_means_no_damage"
     },
     {
       "relation": "rationale_for",
@@ -93750,9 +93750,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_124",
-      "target": "hda_run_edge_damage_checks_c3_an_upstream_attribute_localises_the_damage",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c3_an_upstream_attribute_localises_the_damage"
     },
     {
       "relation": "rationale_for",
@@ -93760,9 +93760,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_152",
-      "target": "hda_run_edge_damage_checks_c5_the_input_transform_comes_back",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c5_the_input_transform_comes_back"
     },
     {
       "relation": "rationale_for",
@@ -93770,9 +93770,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L179",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_179",
-      "target": "hda_run_edge_damage_checks_c8_bias_trades_chips_for_surface",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c8_bias_trades_chips_for_surface"
     },
     {
       "relation": "rationale_for",
@@ -93780,9 +93780,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_185",
-      "target": "hda_run_edge_damage_checks_c9_an_open_input_is_refused_with_the_reason",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c9_an_open_input_is_refused_with_the_reason"
     },
     {
       "relation": "rationale_for",
@@ -93790,9 +93790,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L204",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_rationale_204",
-      "target": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c10_the_cutter_never_reduces_to_nothing"
     },
     {
       "relation": "calls",
@@ -121921,9 +121921,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_paintable_stylised_chipped_edges",
-      "target": "ideas_edge_damage_5_what_the_first_audit_found_and_where_each_fix_landed",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_5_what_the_first_audit_found_and_where_each_fix_landed"
     },
     {
       "relation": "contains",
@@ -121931,9 +121931,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_paintable_stylised_chipped_edges",
-      "target": "ideas_edge_damage_6_next_if_wanted",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_6_next_if_wanted"
     },
     {
       "relation": "contains",
@@ -121941,9 +121941,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_1_what_it_does",
-      "target": "ideas_edge_damage_input_contract",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_input_contract"
     },
     {
       "relation": "contains",
@@ -128840,5 +128840,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0693df3fda11e9c8802f2b97bf4cb24201627ab0"
+  "built_at_commit": "594fe31e80602aa8f5909c98a78fa41033ad5ce5"
 }

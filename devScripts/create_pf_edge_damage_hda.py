@@ -179,7 +179,7 @@ so the brush lands on what is drawn; leaving flips it back to the output.
 """
 import hou
 import toolutils
-from sidefx_stroke import StrokeState
+from sidefx_stroke import StrokeState, createStrokeStateTemplate
 
 
 class State(StrokeState):
@@ -211,12 +211,12 @@ class State(StrokeState):
 
 
 def createViewerStateTemplate():
+    # SideFX's helper, never a bare hou.ViewerStateTemplate: StrokeState's
+    # onMouseEvent reads kwargs['realtime_mode'] from the menu this helper
+    # binds, and a template without it raised KeyError on the first click.
     typename = kwargs["type"].definition().sections()["DefaultState"].contents()
-    t = hou.ViewerStateTemplate(typename, "Edge Damage Paint",
-                                hou.sopNodeTypeCategory())
-    t.bindFactory(State)
-    t.bindIcon(kwargs["type"].icon())
-    return t
+    return createStrokeStateTemplate(typename, "Edge Damage Paint",
+                                     kwargs["type"].icon(), State)
 '''
 
 PYTHON_MODULE = r'''def reset(node):
@@ -652,6 +652,10 @@ assert back.icon() == ICON, "icon is %r" % back.icon()
 assert back.description() == TAB_LABEL
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
 assert back.sections()["DefaultState"].contents() == back.nodeTypeName()
+assert "createStrokeStateTemplate(" in back.sections()["ViewerStateModule"].contents(), \
+    "the stroke state must be built by SideFX's helper (realtime_mode menu)"
+for _sec in ("ViewerStateInstall", "ViewerStateModule"):
+    assert back.extraFileOptions().get(_sec + "/IsPython"), _sec + " not flagged Python"
 for _p in ("viz", "masksource", "maskattrib", "allowopen", "chipdepth", "chipsize", "bias",
            "detail", "edgewear", "style", "lowpolypct", "smoothsize", "seed",
            "paintres", "basis", "stroke_radius", "stroke_numstrokes", "reset"):

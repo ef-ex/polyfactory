@@ -85,6 +85,12 @@ on one of these lines:
   its per-stroke instance parms through `opmultiparm` — a plain `ch()` cannot express a
   per-instance link. ~40 lines, no HUD, no hotkeys, no menu: the viz switch parm does what the
   reference's radio menu did.
+  * ⚠️ **Build the template with `sidefx_stroke.createStrokeStateTemplate`, never a bare
+    `hou.ViewerStateTemplate`.** `StrokeState.onMouseEvent` reads `kwargs['realtime_mode']`
+    from the popup menu that helper binds; a hand-rolled template without the menu raised
+    `KeyError: 'realtime_mode'` on Hannes' first click in the viewport (2026-09-16) — after two
+    audits, because no headless check can click. The build script now asserts the helper is
+    used.
   * ⚠️ **The install/uninstall/module sections must be flagged as Python**
     (`ExtraFileOptions` `<section>/IsPython`, `/IsScript`, and `/IsViewerState` on the three
     viewer-state sections), or Houdini runs `ViewerStateInstall` as HSCRIPT — "Unknown
