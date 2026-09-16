@@ -110,7 +110,7 @@
    "label": "Damage Strength",
    "depth": 0,
    "default": [
-    1.0
+    2.0
    ],
    "min": 0.0,
    "max": 10.0,

@@ -154,7 +154,7 @@ PARMS = [{'default': [0],
   'name': 'damage_depth',
   'size': 1,
   'type': 'Float'},
- {'default': [1.0],
+ {'default': [2.0],
   'depth': 0,
   'help': 'How much a stroke paints: 1 cuts Damage Depth deep, past 1 carves deeper, negative '
           'erases. Ctrl + wheel in the viewport changes it too.',
