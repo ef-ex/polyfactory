@@ -7,8 +7,9 @@ Damage. The contract is therefore PARITY, not correctness of my own
 choosing: `edge_damage_spec.json` is the reference asset as read off a live
 session, and these checks hold the shipped asset to it - every node, wire
 and non-default parameter; every parameter template; the viewer state
-module byte for byte - plus one behaviour that needs no strokes. Four
-checks, four mutations, each seen red.
+module byte for byte - plus one behaviour that needs no strokes and the
+unlocked-instance condition the reference's stroke cache needs. Five
+checks, five mutations, each seen red.
 
 What these checks CANNOT see: a brush stroke landing where the cursor is
 (only a human can); the HUD and hotkeys (viewer-side); anything the
@@ -111,6 +112,26 @@ def c4_no_strokes_hands_the_input_back(node, spec):
     return abs(v - 1.0) < 5e-3, "volume %.5f of 1.0 (want within 0.5%%)" % v
 
 
+def c5_the_stroke_cache_can_be_written(node, spec):
+    """The reference's onPostApplyStroke writes bakedgeo/strokegeo on the
+    INNER attribpaint after every stroke; on a locked instance that is a
+    hou.PermissionError on the first stroke (Hannes, 2026-09-16). New
+    instances must come unlocked, and the write must succeed on a fresh one."""
+    fresh = node.parent().createNode("pf_edge_damage")
+    try:
+        unlocked = fresh.type().definition().options().unlockNewInstances()
+        try:
+            fresh.node("attribpaint1").parm("bakedgeo").set(None)
+            fresh.node("attribpaint1").parm("strokegeo").set(None)
+            writable = True
+        except hou.PermissionError:
+            writable = False
+    finally:
+        fresh.destroy()
+    return unlocked and writable, "unlockNewInstances %s, inner cache parms writable %s" % (
+        unlocked, writable)
+
+
 # mutations - c1/c4 edit the unlocked INSTANCE; c2/c3 edit the ORACLE, which
 # proves the comparison reads the field at all (a definition cannot be
 # mutated on an instance without writing the library file back).
@@ -130,11 +151,28 @@ def m_no_mask_bias(node, spec):
     node.node("apply_mask_bias").bypass(True)
 
 
+def m_instances_locked(node, spec):
+    """Flip the option on the loaded definition IN MEMORY (never saved:
+    nothing calls updateFromNode or save) and restore it after."""
+    d = node.type().definition()
+    o = d.options()
+    o.setUnlockNewInstances(False)
+    d.setOptions(o)
+
+
+def _restore_unlock(node):
+    d = node.type().definition()
+    o = d.options()
+    o.setUnlockNewInstances(True)
+    d.setOptions(o)
+
+
 REGISTRY = [
     (c1_every_node_wire_and_parm_matches_the_reference, m_rewired),
     (c2_every_parameter_template_matches_the_reference, m_spec_default_moved),
     (c3_the_viewer_state_is_the_reference_module, m_spec_module_edited),
     (c4_no_strokes_hands_the_input_back, m_no_mask_bias),
+    (c5_the_stroke_cache_can_be_written, m_instances_locked),
 ]
 
 
@@ -165,6 +203,8 @@ def main():
         except Exception as exc:
             red, mdetail = False, "%s: %s" % (type(exc).__name__, exc)
         node.matchCurrentDefinition()
+        if mutate is m_instances_locked:
+            _restore_unlock(node)
         if red:
             failures += 1
             print("        MUTATION %s STAYED GREEN - this check cannot "

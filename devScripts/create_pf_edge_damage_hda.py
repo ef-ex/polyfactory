@@ -21,7 +21,12 @@ behavioural:
     "'NoneType' object has no attribute 'setIsActive'"). The port creates
     it with SideFX's own mask-visualizer defaults when it is missing.
     Three lines, marked "pf port" in the module; the parity check holds the
-    module to reference-plus-exactly-those-lines.
+    module to reference-plus-exactly-those-lines;
+  * new instances are UNLOCKED. The reference's stroke caching and Reset
+    write Data parms on the inner attribpaint; locked, that is a
+    hou.PermissionError on the first stroke. The reference ran unlocked
+    (embedded in its own scene), and polyfactory ships open wrappers
+    (artist_ui.md 6.10).
 `tests/hda/run_edge_damage_checks.py` asserts parity against SPEC.
 
 How it works (Quentin's design, restated so nobody "improves" it again):
@@ -821,8 +826,12 @@ defn.setParmTemplateGroup(ptg)
 
 hda_node.setUserData("nodeshape", "chevron_down")
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
+# UNLOCKED instances, like the reference ran: its onPostApplyStroke and
+# reset() write bakedgeo/strokegeo on the INNER attribpaint, which a locked
+# instance refuses (hou.PermissionError on the first stroke). This is also
+# polyfactory policy - artist_ui.md 6.10, "the graph stays reachable".
 _opts = defn.options()
-_opts.setUnlockNewInstances(False)
+_opts.setUnlockNewInstances(True)
 defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 
