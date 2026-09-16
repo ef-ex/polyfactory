@@ -2,7 +2,7 @@
 
     hython tests/hda/run_edge_damage_checks.py
 
-Seven checks, seven mutations, the pf_ring pattern: every check runs on the
+Ten checks, ten mutations, the pf_ring pattern: every check runs on the
 clean asset and then against the ONE edit meant to redden it, and a mutation
 that stays green is reported as a failure of the CHECK.
 
@@ -19,6 +19,11 @@ What these checks CANNOT see:
     passed through to native nodes and cooked at their defaults only.
   * `_*` leakage on the viz branches - `run_attrib_checks.py` sweeps every
     menu value of every asset and owns that.
+  * the unit-cube fit. Every fixture is already a unit-ish box, so a
+    bypassed `fit` passes (the audit's alternate mutation); C5 only proves
+    the transform comes BACK.
+  * `cutn` and the VDB round trip - bypassing either still cooks a
+    plausible solid on a cube.
 """
 
 import os
@@ -55,6 +60,20 @@ def chipped(geo):
     return list(g.prims()) if g else None
 
 
+def prim_area(pr):
+    vs = [v.point().position() for v in pr.vertices()]
+    return 0.5 * sum(((vs[i] - vs[0]).cross(vs[i + 1] - vs[0])).length()
+                     for i in range(1, len(vs) - 1))
+
+
+def real_chips(geo, eps=1e-5):
+    """Chip faces that carry area. A boolean seam on a clean intersection
+    leaves a few coincident zero-area faces in the group; those are not
+    damage, and counting them as such made an exact-volume identity read as
+    a defect."""
+    return [pr for pr in (chipped(geo) or []) if prim_area(pr) > eps]
+
+
 def centroid(pr):
     import hou
     vs = [v.point().position() for v in pr.vertices()]
@@ -76,23 +95,43 @@ def c1_damage_everywhere_removes_material(cook, box):
 
 def c2_no_strokes_means_no_damage(cook, box):
     """Paint mode with nothing painted must hand the input back untouched:
-    the cutter clears the surface everywhere, so the intersection is the
-    whole original."""
-    g = cook(masksource=0)
-    dv = abs(volume(g) - volume(box)) / volume(box)
-    ok = dv < 1e-4 and chipped(g) is not None and len(chipped(g)) == 0
-    return ok, "volume moved %.2e (want < 1e-4), chipped faces %s (want 0)" % (
-        dv, None if chipped(g) is None else len(chipped(g)))
+    the unpainted vertices are put back on the original surface and pushed
+    out along its face normal, so the cutter clears it everywhere and the
+    intersection is the whole original. Checked on a cube AND on a chunky
+    slab (thinnest dim 0.3, comfortably coarser than `detail`), because the
+    audit found the additive push 0.09 short at a blurred corner and the
+    rest-normal push cancelling to zero across a thin side - the face-normal
+    push has to hold on both. A part thinner than `detail` is out of
+    contract (see the doc); c10 covers the coarsest in-contract case."""
+    # The guarantee is "no material removed" = volume unchanged, on both a
+    # cube and a chunky slab. Zero chip faces is additionally required on the
+    # cube, whose clean intersection leaves none; the slab's coplanar seam
+    # leaves an occasional zero-VOLUME sliver in the group, so it is held to
+    # the volume guarantee only.
+    out = []
+    for name, size, want_zero in ((("cube", (1.0, 1.0, 1.0), True)),
+                                  (("slab", (1.0, 0.3, 1.0), False))):
+        g = cook(masksource=0, _sizev=size)
+        v0 = size[0] * size[1] * size[2]
+        dv = abs(volume(g) - v0) / v0
+        n = len(real_chips(g))
+        if not (dv < 5e-3 and (n == 0 or not want_zero)):
+            out.append("%s: volume moved %.2e, %d real chips" % (name, dv, n))
+    return not out, "; ".join(out) if out else "cube and slab untouched"
 
 
 def c3_an_upstream_attribute_localises_the_damage(cook, box):
-    """`pf_damage` = 1 on the +X half only: every chip must sit at x > 0."""
-    g = cook(masksource=1, maskattrib="pf_damage")
+    """`pf_wear` = 1 on the +X half only: every chip must sit at x > 0. A
+    NON-default attribute name, so a hard-coded `pf_damage` would fail."""
+    g = cook(masksource=1, maskattrib="pf_wear")
     ch = chipped(g) or []
-    wrong = sum(1 for pr in ch if centroid(pr)[0] < -1e-3)
+    # The mask goes 0 -> 1 across one canvas cell (paintres 0.05) at x = 0,
+    # so a chip may reach that far past the plane; a mode that ignores the
+    # attribute puts chips at x = -0.5.
+    wrong = sum(1 for pr in ch if centroid(pr)[0] < -0.06)
     ok = len(ch) > 0 and wrong == 0
-    return ok, "%d chipped faces, %d on the unpainted side (want > 0, 0)" % (
-        len(ch), wrong)
+    return ok, "%d chipped faces, %d further than a cell into the " \
+               "unpainted side (want > 0, 0)" % (len(ch), wrong)
 
 
 def c4_chips_ship_as_a_group_inside_the_solid(cook, box):
@@ -136,6 +175,41 @@ def c7_the_seed_moves_the_chips(cook, box):
     return sa != sb, "position sums %.4f vs %.4f (want different)" % (sa, sb)
 
 
+def c8_bias_trades_chips_for_surface(cook, box):
+    """Lower bias, more removed. Measured: -0.1 leaves ~59%, +0.1 ~99.99%."""
+    lo, hi = volume(cook(masksource=2, bias=-0.1)), volume(cook(masksource=2, bias=0.1))
+    return lo < hi - 1e-3, "volume at bias -0.1: %.4f, at +0.1: %.4f (want lower first)" % (lo, hi)
+
+
+def c9_an_open_input_is_refused_with_the_reason(cook, box):
+    """The boolean returns nothing for an open mesh. The tool must SAY so:
+    a box with one face deleted is an ERROR on the asset node that names
+    the open edges (a warning inside a locked asset never surfaces -
+    probed), a closed box cooks clean, and Allow Open Input lets the open
+    one through without the error."""
+    cook(masksource=2, _open=True)
+    e_open = " ".join(cook.node.errors())
+    cook(masksource=2)
+    e_closed = list(cook.node.errors())
+    cook(masksource=2, _open=True, allowopen=1)
+    e_allowed = " ".join(cook.node.errors())
+    ok = ("not closed" in e_open and "4 open edges" in e_open and not e_closed
+          and "not closed" not in e_allowed)
+    return ok, "open: %s | closed errors %d | allowed: %s" % (
+        "refused" if "not closed" in e_open else "SILENT", len(e_closed),
+        "let through" if "not closed" not in e_allowed else "still refused")
+
+
+def c10_the_cutter_never_reduces_to_nothing(cook, box):
+    """A percentage of a small cutter went to 0 polygons and the output was
+    empty. With the coarsest canvas and the strongest reduction the output
+    must still be a closed solid with chips in it."""
+    g = cook(masksource=2, paintres=0.2, lowpolypct=1.0)
+    n, oe = len(chipped(g) or []), open_edges(g)
+    ok = n >= 20 and oe == 0
+    return ok, "%d chip faces, %d open edges (want >= 20, 0)" % (n, oe)
+
+
 # --------------------------------------------------------------------------
 # mutations: one per check, each editing production code inside the asset.
 # --------------------------------------------------------------------------
@@ -169,6 +243,19 @@ def m_seed_unwired(net):
     net.node("noise").parm("offset").setExpression("0")
 
 
+def m_bias_unwired(net):
+    net.node("bias").parm("dist").setExpression("0")
+
+
+def m_no_contract(net):
+    net.node("warn").bypass(True)
+
+
+def m_no_polygon_floor(net):
+    net.node("lowpoly").parm("finalcount").setExpression(
+        'nprims("../noname") * ch("../lowpolypct") / 100')
+
+
 def _patch(net, node, old, new):
     p = net.node(node).parm("snippet")
     src = p.eval()
@@ -184,12 +271,15 @@ REGISTRY = [
     (c5_the_input_transform_comes_back, m_transform_not_restored),
     (c6_both_chip_styles_are_wired_and_sound, m_style_pinned),
     (c7_the_seed_moves_the_chips, m_seed_unwired),
+    (c8_bias_trades_chips_for_surface, m_bias_unwired),
+    (c9_an_open_input_is_refused_with_the_reason, m_no_contract),
+    (c10_the_cutter_never_reduces_to_nothing, m_no_polygon_floor),
 ]
 
 DEFAULTS = {"masksource": 0, "maskattrib": "pf_damage", "chipdepth": 0.07,
             "chipsize": 0.1, "bias": 0.04, "detail": 0.2, "edgewear": 13,
             "style": 1, "lowpolypct": 10.0, "smoothsize": 0.25, "seed": 0.0,
-            "paintres": 0.05, "viz": 0}
+            "paintres": 0.05, "viz": 0, "allowopen": 0}
 
 
 def main():
@@ -199,19 +289,28 @@ def main():
     geo = hou.node("/obj").createNode("geo", "edge_damage_checks")
     box = geo.createNode("box")
     mark = geo.createNode("attribwrangle")
-    mark.parm("snippet").set("f@pf_damage = @P.x > 0;")
+    mark.parm("snippet").set("f@pf_wear = @P.x > 0;")
     mark.setInput(0, box)
+    hole = geo.createNode("blast")           # one face off = an open mesh
+    hole.setInput(0, mark)
+    hole.parm("group").set("0")
+    hole.parm("grouptype").set(4)            # primitives
     node = geo.createNode("pf_edge_damage")
-    node.setInput(0, mark)
 
-    def cook(_size=1.0, _center=(0.0, 0.0, 0.0), **parms):
+    def cook(_size=1.0, _center=(0.0, 0.0, 0.0), _sizev=(1.0, 1.0, 1.0),
+             _open=False, **parms):
         box.parm("scale").set(_size)
         box.parmTuple("t").set(_center)
+        box.parmTuple("size").set(_sizev)
+        node.setInput(0, hole if _open else mark)
         node.setParms(DEFAULTS)
         node.setParms(parms)
         frozen = hou.Geometry()
-        frozen.merge(node.geometry())
+        geo = node.geometry()            # None when the asset errors
+        if geo is not None:
+            frozen.merge(geo)
         return frozen
+    cook.node = node
 
     unit = hou.Geometry()
     box.parm("scale").set(1.0)

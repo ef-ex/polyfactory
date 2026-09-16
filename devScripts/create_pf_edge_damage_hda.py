@@ -8,6 +8,16 @@ Design doc: ideas/edge_damage.md. The technique is Quentin King's public
 rebuilt here on native nodes to polyfactory's conventions.
 
     pf_edge_damage                     1 input, one chain plus a viz switch:
+      contract  [attribwrangle/prim]   counts open edges and non-polygons
+      warn      [error]                ...and refuses them: the boolean
+                                       needs a closed polygon solid and
+                                       returns NOTHING otherwise (a
+                                       16-open-edge wood block cooked to 0
+                                       prims). Allow Open Input downgrades
+                                       the open case to a warning.
+      ...
+      empty     [error]                the last word: an empty result is
+                                       an error with the reason in it
       fit       [matchsize]            input into the unit cube, transform
                                        stashed. Every size parm below is a
                                        fraction of the object.
@@ -22,6 +32,9 @@ rebuilt here on native nodes to polyfactory's conventions.
                                        `opmultiparm`, so the viewer state
                                        drives the ASSET and the inner node
                                        follows.
+      rest      [attribwrangle/point]  pre-blur position, so an unpainted
+                                       vertex can be put back there and
+                                       pushed clear
       pull      [attribblur on P]      THE damage. Blurring positions pulls
                                        edges and corners in while flat faces
                                        stay flat; the boolean below then
@@ -115,13 +128,44 @@ if (mode == 2) d = 1.0;
 f@%s = d;
 ''' % MASK
 
-# The push is what keeps unpainted surface untouched: those vertices move
-# OUT further than the noise and the bias can pull anything back IN, so the
-# cutter clears the original there and the intersection keeps it whole.
+# Where the canvas was BEFORE the blur, so the push below can put an
+# unpainted vertex back there and then out - whatever the blur did to it.
+REST_VEX = r'''v@_rest = @P;
+'''
+
+# The push is what keeps unpainted surface untouched. An unpainted vertex is
+# returned to its pre-blur position and moved OUT, along the ORIGINAL's face
+# normal there (input 1 is the fitted input; xyzdist finds the face), by
+# more than the bias, the voxels and the reduction can bring anything back
+# IN - the noise only ever adds outward. So the cutter clears the original
+# wherever nothing was painted and the intersection keeps it whole.
+#   Two earlier forms failed on a thin plank and the audit caught the first:
+#   adding to the blurred position was 0.09 short at a blurred corner, and
+#   pushing along an interpolated rest NORMAL went nowhere across the thin
+#   side, where the top and bottom normals cancel to ~0 (measured 0.14 long).
+#   A face normal read off the original cannot cancel.
 PUSH_VEX = r'''// pf_edge_damage - unpainted vertices clear the original surface.
-float clear = chf("../chipdepth") + abs(chf("../bias")) + 0.05;
-@P += @N * (1.0 - clamp(f@%s, 0.0, 1.0)) * clear;
+float clear = chf("../chipdepth") + abs(chf("../bias")) + chf("../detail") * 0.5 + 0.05;
+float d = clamp(f@%s, 0.0, 1.0);
+int pr; vector uv;
+xyzdist(1, v@_rest, pr, uv);
+vector fn = prim_normal(1, pr, uv.x, uv.y);
+vector safe = v@_rest + fn * clear;
+@P = lerp(safe, @P, d);
 ''' % MASK
+
+# The boolean needs a closed polygon solid and quietly returns nothing
+# otherwise - a wood block with 16 open edges cooked to 0 prims. Counted on
+# the input, before any of this tool's own work, and raised as a warning.
+CONTRACT_VEX = r'''// pf_edge_damage - the input contract, counted for the warning below.
+if (primintrinsic(0, "typename", @primnum) != "Poly")
+    setdetailattrib(0, "_nonpoly", 1, "add");
+int h = primhedge(0, @primnum);
+for (int i = 0; i < primvertexcount(0, @primnum); i++) {
+    if (hedge_equivcount(0, h) < 2) setdetailattrib(0, "_open", 1, "add");
+    h = hedge_next(0, h);
+}
+'''
 
 MASKVIZ_VEX = r'''@Cd = lerp({0.25, 0.25, 0.25}, {1.0, 0.35, 0.0}, clamp(f@%s, 0.0, 1.0));
 ''' % MASK
@@ -176,13 +220,9 @@ def createViewerStateTemplate():
 '''
 
 PYTHON_MODULE = r'''def reset(node):
-    """The Reset button: drop every stroke."""
-    import toolutils
+    """The Reset button: drop every stroke. The strokes live on this node's
+    own multiparm; the inner paint node is locked and holds nothing."""
     node.parm("stroke_numstrokes").set(0)
-    paint = toolutils.findChildNodeOfType(node, "attribpaint", True)
-    for p in ("bakedgeo", "unsavedbakedgeo", "strokegeo"):
-        if paint.parm(p) is not None:
-            paint.parm(p).set(None)
 '''
 
 
@@ -248,10 +288,35 @@ def _wrangle(name, x, y, vex, comment, cls="point"):
     return w
 
 
+contract = _wrangle("contract", 0, 16, CONTRACT_VEX,
+                    "Counts open edges and non-polygons on the INPUT.",
+                    cls="primitive")
+contract.setInput(0, src)
+
+warn = _place(net.createNode("error", "warn"), 0, 15,
+              "The boolean needs a closed polygon solid and returns\n"
+              "nothing otherwise. Said here, not discovered later.\n"
+              "PROBED: a warning inside a locked asset never reaches\n"
+              "the asset node; an error does, text and all.")
+warn.setInput(0, contract)
+warn.parm("numerror").set(2)
+warn.parm("enable1").setExpression('detail("../contract", "_open", 0) > 0')
+# 2 = error, 1 = warning (which only a diver into the asset would see).
+warn.parm("severity1").setExpression('if(ch("../allowopen"), 1, 2)')
+warn.parm("errormsg1").set(
+    "Input is not closed: `detail(\"../contract\", \"_open\", 0)` open "
+    "edges. Edge damage needs a watertight solid - Fuse or PolyFill it "
+    "first, or turn on Allow Open Input to cut anyway.")
+warn.parm("enable2").setExpression('detail("../contract", "_nonpoly", 0) > 0')
+warn.parm("severity2").set(2)
+warn.parm("errormsg2").set(
+    "Input has `detail(\"../contract\", \"_nonpoly\", 0)` non-polygon "
+    "primitives. Convert to polygons first.")
+
 fit = _place(net.createNode("matchsize", "fit"), 0, 14,
              "Into the unit cube, transform stashed. Every size below\n"
              "is a fraction of the object.")
-fit.setInput(0, src)
+fit.setInput(0, warn)
 fit.parm("doscale").set(1)
 fit.parm("stashxform").set(1)
 
@@ -288,11 +353,16 @@ _links = " ".join("'stroke#_%s' '../stroke#_%s'" % (p, p) for p in STROKE_INSTAN
 _err = hou.hscript("opmultiparm %s %s" % (paint.path(), _links))[1]
 assert not _err, "opmultiparm: " + _err
 
+rest = _wrangle("rest", 0, 9.3, REST_VEX,
+                "Pre-blur position, for the push below.")
+rest.setInput(0, paint)
+
 pull = _place(net.createNode("attribblur", "pull"), 0, 9,
               "THE damage: blurring P pulls edges and corners in while\n"
               "flat faces stay flat. Everything after this only\n"
-              "roughens the result.")
-pull.setInput(0, paint)
+              "roughens the result. Distance scales with Paint\n"
+              "Resolution x Edge Wear.")
+pull.setInput(0, rest)
 pull.parm("attributes").set("P")
 pull.parm("iterations").setExpression('ch("../edgewear")')
 
@@ -319,10 +389,11 @@ bias.setInput(0, noise)
 bias.parm("dist").setExpression('ch("../bias")')
 
 push = _wrangle("push", 0, 5, PUSH_VEX,
-                "Unpainted vertices move OUT further than the noise\n"
-                "and bias can pull IN, so the cutter clears the\n"
-                "original there.")
+                "Unpainted vertices go back to where they were and OUT\n"
+                "along the original's face normal (input 1), further\n"
+                "than anything can pull them IN.")
 push.setInput(0, bias)
+push.setInput(1, fit)
 
 vdb = _place(net.createNode("vdbfrompolygons", "vdb"), 0, 4,
              "A watertight cutter whatever the noise did.")
@@ -343,9 +414,13 @@ noname.parm("doprimdel").set(1)
 noname.parm("primdel").set("name")
 
 lowpoly = _place(net.createNode("polyreduce::2.0", "lowpoly"), 2, 2,
-                 "Low-poly: sharp, irregular facets.")
+                 "Low-poly: sharp, irregular facets. A floor of 200\n"
+                 "polygons, because a percentage of a small cutter\n"
+                 "reduced to nothing and the output was empty.")
 lowpoly.setInput(0, noname)
-lowpoly.parm("percentage").setExpression('ch("../lowpolypct")')
+lowpoly.parm("target").set(2)                    # polygon count
+lowpoly.parm("finalcount").setExpression(
+    'max(nprims("../noname") * ch("../lowpolypct") / 100, 200)')
 
 smooth = _place(net.createNode("remesh::2.0", "smooth"), -2, 2,
                 "Smooth: even small triangles.")
@@ -399,8 +474,20 @@ gclean = _place(net.createNode("groupdelete", "gclean"), 0, -5)
 gclean.setInput(0, clean)
 gclean.parm("group1").set("_*")
 
-out_null.setInput(0, gclean)
-out_null.setPosition(hou.Vector2(0, -6))
+empty = _place(net.createNode("error", "empty"), 0, -6,
+               "An open input let through can still cut to nothing.\n"
+               "Nothing is never silent.")
+empty.setInput(0, gclean)
+empty.parm("enable1").setExpression(
+    'nprims("../restore") == 0 && nprims("../contract") > 0')
+empty.parm("severity1").set(2)
+empty.parm("errormsg1").set(
+    "Edge damage produced nothing. The input is not a watertight solid "
+    "(`detail(\"../contract\", \"_open\", 0)` open edges) - Fuse or "
+    "PolyFill it first.")
+
+out_null.setInput(0, empty)
+out_null.setPosition(hou.Vector2(0, -7))
 
 # --------------------------------------------------------------------------
 # Parameter interface
@@ -421,6 +508,12 @@ _ma = hou.StringParmTemplate("maskattrib", "Mask Attribute", 1,
 _ma.setHelp("The upstream point attribute read when Damage Where is "
             "An Attribute Says.")
 ptg.append(_ma)
+_ao = hou.ToggleParmTemplate("allowopen", "Allow Open Input", False)
+_ao.setHelp("The cut needs a watertight polygon solid and an open mesh "
+            "is refused with an error. Turn this on to cut anyway - the "
+            "result may be open, wrong, or empty (which is still an "
+            "error).")
+ptg.append(_ao)
 
 ptg.append(_float("chipdepth", "Chip Depth", 0.07, 0.0, 0.5,
                   "How deep a chip cuts, as a fraction of the object."))
@@ -434,8 +527,15 @@ ptg.append(_float("detail", "Detail", 0.2, 0.02, 1.0,
                   "Size of the smallest feature, as a fraction of the "
                   "object. Smaller is finer and slower."))
 ptg.append(_int("edgewear", "Edge Wear", 13, 0, 50,
-                "How far edges and corners get eaten. Flat faces stay "
-                "flat whatever the value; 0 leaves only the noise chips."))
+                "How far edges and corners get eaten, in canvas cells - "
+                "so it scales with Paint Resolution. At the defaults a cube "
+                "loses about 1% of its volume; 0 leaves only the noise "
+                "chips. Thin parts wear through first."))
+ptg.append(_float("paintres", "Paint Resolution", 0.05, 0.01, 0.2,
+                  "Canvas cell size, as a fraction of the object. Sets "
+                  "how fine you can paint AND how far one step of Edge "
+                  "Wear reaches: doubling it doubles the wear. Above ~0.1 "
+                  "the flat faces start to go too.", maxlock=True))
 ptg.append(_menu("style", "Chip Style", ("smooth", "lowpoly"),
                  ("Smooth", "Low-poly"), 1,
                  "Low-poly gives sharp irregular facets; Smooth gives an "
@@ -449,15 +549,20 @@ ptg.append(_float("smoothsize", "Smooth Triangle Size", 0.25, 0.01, 1.0,
 ptg.append(_float("seed", "Seed", 0.0, 0.0, 100.0,
                   "Another value, another set of chips.", minlock=False))
 
-adv = hou.FolderParmTemplate("advfolder", "Advanced",
+adv = hou.FolderParmTemplate("advfolder", "Advanced Noise",
                              folder_type=hou.folderType.Collapsible)
-adv.addParmTemplate(_float("paintres", "Paint Resolution", 0.05, 0.01, 0.5,
-                           "Canvas density for painting, as a fraction of "
-                           "the object. Smaller paints finer and costs "
-                           "more."))
 _ap = hou.node("/obj").createNode("geo", "_tmpl").createNode("attribnoise::2.0")
+NOISE_HELP = {
+    "basis": "Attribute Noise's own noise types. Simplex is the default; "
+             "Worley types give cellular, crystal-like chips.",
+    "fractal": "Layers of finer noise on top. None is the plain noise.",
+    "oct": "How many finer layers, when Fractal is on.",
+    "lac": "How much finer each layer is than the last.",
+    "rough": "How strong each finer layer is relative to the last."}
 for p in ("basis", "fractal", "oct", "lac", "rough"):
-    adv.addParmTemplate(_ap.parmTemplateGroup().find(p))
+    t = _ap.parmTemplateGroup().find(p)
+    t.setHelp(NOISE_HELP[p])
+    adv.addParmTemplate(t)
 _ap.parent().destroy()
 ptg.append(adv)
 
@@ -465,25 +570,38 @@ pnt = hou.FolderParmTemplate("paintfolder", "Paint",
                              folder_type=hou.folderType.Collapsible)
 _tp = hou.node("/obj").createNode("geo", "_tmpl2").createNode("attribpaint")
 _tpg = _tp.parmTemplateGroup()
+STROKE_HELP = {
+    "stroke_radius": "Brush size in the viewport. MMB-drag or the mouse "
+                     "wheel changes it while painting.",
+    "stroke_float": "How much damage one stroke paints: 1 is full, less "
+                    "fades, negative erases.",
+    "stroke_opacity": "Stroke opacity, like a paint program.",
+    "stroke_softedge": "How soft the brush edge is.",
+    "stroke_projtype": "How the brush projects onto the surface.",
+    "stroke_numstrokes": "The strokes themselves, one entry each. Reset "
+                         "Strokes clears them."}
+STROKE_DEFAULTS = {"stroke_attrib": (MASK,), "stroke_radius": (0.1,),
+                   "stroke_float": (1.0,), "stroke_projtype": 4}
 for p in STROKE_PARMS:
     t = _tpg.find(p)
     if p in STROKE_LABELS:
         t.setLabel(STROKE_LABELS[p])
+    if p in STROKE_HELP:
+        t.setHelp(STROKE_HELP[p])
+    if p in STROKE_DEFAULTS:
+        t.setDefaultValue(STROKE_DEFAULTS[p])
     if p in ("stroke_attrib", "stroke_attribtype"):
         t.hide(True)
     pnt.addParmTemplate(t)
 _tp.parent().destroy()
 _reset = hou.ButtonParmTemplate("reset", "Reset Strokes")
+_reset.setHelp("Drops every stroke.")
 _reset.setScriptCallback("hou.phm().reset(kwargs['node'])")
 _reset.setScriptCallbackLanguage(hou.scriptLanguage.Python)
 pnt.addParmTemplate(_reset)
 ptg.append(pnt)
 
 defn.setParmTemplateGroup(ptg)
-hda_node.parm("stroke_attrib").set(MASK)
-hda_node.parm("stroke_radius").set(0.1)
-hda_node.parm("stroke_projtype").set(4)
-hda_node.parm("stroke_float").set(1.0)
 
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
 _opts = defn.options()
@@ -513,6 +631,15 @@ defn.addSection("ViewerStateInstall",
 defn.addSection("ViewerStateUninstall",
                 "__import__('viewerstate.utils', fromlist=[None])"
                 ".unregister_pystate_embedded(kwargs['type'])")
+# Without these flags Houdini runs the install/uninstall sections as
+# HSCRIPT ("Unknown command: __import__") and the state never registers.
+# Mirrors the options on attribpaint's own definition.
+for _sec in ("ViewerStateInstall", "ViewerStateUninstall", "ViewerStateModule",
+             "PythonModule", "ViewerStateName.orig"):
+    defn.setExtraFileOption(_sec + "/IsPython", True)
+    defn.setExtraFileOption(_sec + "/IsScript", True)
+for _sec in ("ViewerStateInstall", "ViewerStateUninstall", "ViewerStateModule"):
+    defn.setExtraFileOption(_sec + "/IsViewerState", True)
 
 hda_node.destroy()
 build_geo.destroy()
@@ -525,7 +652,7 @@ assert back.icon() == ICON, "icon is %r" % back.icon()
 assert back.description() == TAB_LABEL
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
 assert back.sections()["DefaultState"].contents() == back.nodeTypeName()
-for _p in ("viz", "masksource", "maskattrib", "chipdepth", "chipsize", "bias",
+for _p in ("viz", "masksource", "maskattrib", "allowopen", "chipdepth", "chipsize", "bias",
            "detail", "edgewear", "style", "lowpolypct", "smoothsize", "seed",
            "paintres", "basis", "stroke_radius", "stroke_numstrokes", "reset"):
     assert re.search(r'name\s+"%s"' % _p, saved), "parm %s missing" % _p
