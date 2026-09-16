@@ -8,8 +8,9 @@ choosing: `edge_damage_spec.json` is the reference asset as read off a live
 session, and these checks hold the shipped asset to it - every node, wire
 and non-default parameter; every parameter template; the viewer state
 module byte for byte - plus one behaviour that needs no strokes and the
-unlocked-instance condition the reference's stroke cache needs. Five
-checks, five mutations, each seen red.
+unlocked-instance condition the reference's stroke cache needs, and the one
+requested improvement (Damage Depth cuts flat faces). Six checks, six
+mutations, each seen red.
 
 What these checks CANNOT see: a brush stroke landing where the cursor is
 (only a human can); the HUD and hotkeys (viewer-side); anything the
@@ -89,9 +90,10 @@ def c2_every_parameter_template_matches_the_reference(node, spec):
 def c3_the_viewer_state_is_the_reference_module(node, spec):
     d = node.type().definition()
     s = d.sections()
-    # reference + exactly the documented three-line visualizer guard
-    patch = spec["viewer_state_patch"]
-    expected = spec["viewer_state"].replace(patch["anchor"], patch["anchor"] + patch["guard"])
+    # reference + exactly the declared patches (visualizer guard, HUD bar)
+    expected = spec["viewer_state"]
+    for old, new in spec["viewer_state_patches"]:
+        expected = expected.replace(old, new)
     same = s["ViewerStateModule"].contents() == expected
     state_ok = s["DefaultState"].contents() == d.nodeTypeName()
     flags = all(d.extraFileOptions().get(k) for k in (
@@ -147,6 +149,34 @@ def m_spec_module_edited(node, spec):
     spec["viewer_state"] = spec["viewer_state"].replace("0.05", "0.06", 1)
 
 
+def c6_a_stroke_cuts_a_flat_face(node, spec):
+    """Hannes: damage anywhere, not only at the edges the blur pulls in.
+    With `mask` forced to 1 everywhere (a wrangle slipped in before the
+    paint node on the unlocked instance - no stroke can be scripted), the
+    +X FACE must lose material: chip faces in its middle, volume down."""
+    import hou
+    w = node.createNode("attribwrangle", "_force_mask")
+    w.setInput(0, node.node("divide4"))
+    w.parm("snippet").set("f@mask = 1.0;")
+    node.node("attribpaint1").setInput(0, w)
+    g = node.geometry()
+    grp = g.findPrimGroup("pf_chipped")
+    mid = 0
+    for pr in (grp.prims() if grp else []):
+        vs = [v.point().position() for v in pr.vertices()]
+        c = sum(vs, hou.Vector3()) / len(vs)
+        if c[0] > 0.3 and abs(c[1]) < 0.25 and abs(c[2]) < 0.25:
+            mid += 1
+    v = volume(g)
+    node.node("attribpaint1").setInput(0, node.node("divide4"))
+    w.destroy()
+    return mid > 0 and v < 0.97, "%d chip faces mid +X face (want > 0), volume %.4f (want < 0.97)" % (mid, v)
+
+
+def m_no_depth(node, spec):
+    node.parm("damage_depth").set(0.0)          # the original tool
+
+
 def m_no_mask_bias(node, spec):
     node.node("apply_mask_bias").bypass(True)
 
@@ -173,6 +203,7 @@ REGISTRY = [
     (c3_the_viewer_state_is_the_reference_module, m_spec_module_edited),
     (c4_no_strokes_hands_the_input_back, m_no_mask_bias),
     (c5_the_stroke_cache_can_be_written, m_instances_locked),
+    (c6_a_stroke_cuts_a_flat_face, m_no_depth),
 ]
 
 
@@ -205,6 +236,8 @@ def main():
         node.matchCurrentDefinition()
         if mutate is m_instances_locked:
             _restore_unlock(node)
+        if mutate is m_no_depth:
+            node.parm("damage_depth").revertToDefaults()
         if red:
             failures += 1
             print("        MUTATION %s STAYED GREEN - this check cannot "

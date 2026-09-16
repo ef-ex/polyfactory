@@ -51,6 +51,25 @@ parms after each one. `attribpaint`'s paint mode is the default *paint* (over): 
 the mask toward the current strength, so repainting a deep dent with a lower strength lifts it
 — that is the reference's behaviour, keep it.
 
+## 2b. Improvements Hannes asked for, after the faithful port (2026-09-16)
+
+Requested once the replica was working in his viewport — the order the law above demands:
+
+* **Damage anywhere, not only at the edges.** In the reference a full-strength stroke leaves
+  the cutter *on* the surface (`(1 − mask) × 0.1` = 0), so only the corners the blur pulls in
+  dip below it; faces needed a strength past 1. New parm **Damage Depth** (`damage_depth`,
+  default 0.1, after Damage Bias) and the wrangle becomes
+  `@P += @N * ((1 - mask) * 0.1 - mask * damage_depth)`: a stroke dips the cutter into the
+  surface by that depth, the noise chips it, unpainted surface still clears, past 1 still
+  carves deeper. At 0 it is the original tool. Check c6 forces `mask` = 1 and requires chips
+  in the middle of a face.
+* **Plain wheel is radius only.** It always was — but the reference's HUD fed the *strength
+  bar* the radius (`"strength_g": radius`), so the bar moved with the wheel. Now `strength`.
+  Ctrl + wheel changes strength, as before.
+
+Both are declared patches in the build's SPEC and the parity check holds the asset to
+reference-plus-exactly-these.
+
 ## 3. The failed first attempt, kept as the warning it is
 
 The first port (commits `0693df3`…`a08a7e3`, superseded) "improved" the reference: it replaced
