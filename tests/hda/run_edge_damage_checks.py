@@ -10,7 +10,8 @@ and non-default parameter; every parameter template; the viewer state
 module byte for byte - plus one behaviour that needs no strokes, the stroke
 cache landing on the asset (so a locked instance keeps its strokes), and
 the requested improvements (Damage Depth cuts flat faces; Sizes In World
-Units). Seven checks, seven mutations, each seen red.
+Units; the three output groups). Eight checks, eight mutations, each seen
+red.
 
 What these checks CANNOT see: a brush stroke landing where the cursor is
 (only a human can); the HUD and hotkeys (viewer-side); anything the
@@ -187,6 +188,31 @@ def c7_world_units_make_size_matter(node, spec):
         counts["off", 1.0], counts["off", 2.0], counts["on", 1.0], counts["on", 2.0])
 
 
+def c8_three_groups_describe_the_cut(node, spec):
+    """Hannes: the original surface prims, the damage prims and the seam.
+    With mask forced to 1 on the +X HALF (everywhere would cut every
+    original face away and leave no seam) the prim groups must partition
+    the output - every face in exactly one - and the seam must be non-empty."""
+    import hou
+    w = node.createNode("attribwrangle", "_force_mask")
+    w.setInput(0, node.node("divide4")); w.parm("snippet").set("f@mask = @P.x > 0;")
+    node.node("attribpaint1").setInput(0, w)
+    g = hou.Geometry(); g.merge(node.geometry())     # frozen: a live handle goes stale on rewire
+    orig, chip = g.findPrimGroup("pf_original"), g.findPrimGroup("pf_chipped")
+    seam = g.findEdgeGroup("pf_seam")
+    o = set(p.number() for p in orig.prims()) if orig else set()
+    c = set(p.number() for p in chip.prims()) if chip else set()
+    n_seam = len(seam.edges()) if seam else 0
+    node.node("attribpaint1").setInput(0, node.node("divide4")); w.destroy()
+    ok = bool(o) and bool(c) and not (o & c) and (o | c) == set(range(len(g.prims()))) and n_seam > 0
+    return ok, "original %d + chipped %d of %d prims (want disjoint, complete), seam edges %d (want > 0)" % (
+        len(o), len(c), len(g.prims()), n_seam)
+
+
+def m_no_seam_group(node, spec):
+    node.node("boolean2").parm("useabseamedges").set(0)
+
+
 def m_scale_pinned(node, spec):
     node.node("matchsize2").parm("doscale").deleteAllKeyframes()
     node.node("matchsize2").parm("doscale").set(1)
@@ -214,6 +240,7 @@ REGISTRY = [
     (c5_the_stroke_cache_lands_on_the_asset, m_cache_unlinked),
     (c6_a_stroke_cuts_a_flat_face, m_no_depth),
     (c7_world_units_make_size_matter, m_scale_pinned),
+    (c8_three_groups_describe_the_cut, m_no_seam_group),
 ]
 
 

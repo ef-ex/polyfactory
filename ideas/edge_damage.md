@@ -80,7 +80,12 @@ Requested once the replica was working in his viewport — the order the law abo
   still stashed/restored) and every size is in scene units. Check c7: a 2× box gets the same
   canvas off and > 3× the canvas on.
 
-All four are declared patches in the build's SPEC and the parity check holds the asset to
+* **Three output groups**, all the boolean's own: prim **`pf_original`** (the original's
+  surviving faces, A inside B), prim **`pf_chipped`** (the damage faces, B inside A) and edge
+  **`pf_seam`** (the A/B seam). Check c8: the prim groups partition the output and the seam is
+  non-empty where damage lands.
+
+All five are declared patches in the build's SPEC and the parity check holds the asset to
 reference-plus-exactly-these.
 
 ## 3. The failed first attempt, kept as the warning it is

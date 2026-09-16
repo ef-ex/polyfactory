@@ -899,7 +899,11 @@
    "parms": {
     "booleanop": 1,
     "usebinsidea": 1,
-    "binsidea": "pf_chipped"
+    "binsidea": "pf_chipped",
+    "useainsideb": 1,
+    "ainsideb": "pf_original",
+    "useabseamedges": 1,
+    "abseamedges": "pf_seam"
    }
   },
   {

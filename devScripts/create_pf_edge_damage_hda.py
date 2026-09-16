@@ -29,8 +29,10 @@ behavioural:
     strength bar reads the strength (the reference fed it the radius);
     the hidden `stroke_float` is shown as "Damage Strength" after
     Damage Depth (the reference exposed strength only via Ctrl+wheel);
-    and a "Sizes In World Units" toggle that turns the unit-cube scaling
-    off so every size parm is in scene units;
+    a "Sizes In World Units" toggle that turns the unit-cube scaling
+    off so every size parm is in scene units; and three output groups
+    from the boolean itself - prim `pf_original` (A inside B), prim
+    `pf_chipped` (B inside A), edge `pf_seam` (the A/B seam);
   * the stroke cache lives on the ASSET: the inner attribpaint's bakedgeo /
     unsavedbakedgeo / strokegeo reference the asset's hidden Cache folder
     (the reference interface carries it), so the module's writes through
@@ -638,7 +640,13 @@ NODES = [{'flags': {'bypass': False, 'display': False, 'render': False},
  {'flags': {'bypass': False, 'display': False, 'render': False},
   'in': ['matchsize2', 'normal4'],
   'name': 'boolean2',
-  'parms': {'binsidea': 'pf_chipped', 'booleanop': 1, 'usebinsidea': 1},
+  'parms': {'abseamedges': 'pf_seam',
+            'ainsideb': 'pf_original',
+            'binsidea': 'pf_chipped',
+            'booleanop': 1,
+            'useabseamedges': 1,
+            'useainsideb': 1,
+            'usebinsidea': 1},
   'pos': [0.1417, -2.96608],
   'type': 'boolean::2.0'},
  {'flags': {'bypass': False, 'display': False, 'render': False},
