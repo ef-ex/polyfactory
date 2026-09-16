@@ -460,7 +460,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_load_pixmap_cached",
-      "community": 20,
+      "community": 83,
       "norm_label": "_load_pixmap_cached()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".paintevent()"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".paintevent()"
     },
     {
@@ -700,7 +700,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget",
-      "community": 20,
+      "community": 83,
       "norm_label": "assetthumbnailwidget"
     },
     {
@@ -720,7 +720,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_size",
-      "community": 20,
+      "community": 83,
       "norm_label": ".set_size()"
     },
     {
@@ -730,7 +730,7 @@
       "source_location": "L475",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_apply_cached_pixmap",
-      "community": 20,
+      "community": 83,
       "norm_label": "._apply_cached_pixmap()"
     },
     {
@@ -740,7 +740,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_selected",
-      "community": 20,
+      "community": 83,
       "norm_label": ".set_selected()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".paintevent()"
     },
     {
@@ -760,7 +760,7 @@
       "source_location": "L509",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_load_static_frame",
-      "community": 20,
+      "community": 83,
       "norm_label": "._load_static_frame()"
     },
     {
@@ -770,7 +770,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousepressevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -780,7 +780,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousemoveevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".mousemoveevent()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousedoubleclickevent",
-      "community": 20,
+      "community": 83,
       "norm_label": ".mousedoubleclickevent()"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_29",
-      "community": 20,
+      "community": 83,
       "norm_label": "return a cached, pre-scaled pixmap for path, loading from disk on miss."
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_418",
-      "community": 20,
+      "community": 83,
       "norm_label": "individual asset thumbnail with animated hover outline"
     },
     {
@@ -970,7 +970,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_468",
-      "community": 20,
+      "community": 83,
       "norm_label": "update thumbnail size dynamically without re-reading disk"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L476",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_476",
-      "community": 20,
+      "community": 83,
       "norm_label": "scale the cached pixmap to the current thumb size (no disk i/o)"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_487",
-      "community": 20,
+      "community": 83,
       "norm_label": "toggle selection highlight on this thumbnail."
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 20,
+      "community": 83,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L510",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_510",
-      "community": 20,
+      "community": 83,
       "norm_label": "load frame 5 for static display, using the module-level pixmap cache."
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_533",
-      "community": 20,
+      "community": 83,
       "norm_label": "handle single-click \u2014 also record drag start position."
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_541",
-      "community": 20,
+      "community": 83,
       "norm_label": "start a drag if the mouse has moved far enough from the press point."
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 83,
+      "community": 92,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 83,
+      "community": 92,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 83,
+      "community": 92,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 83,
+      "community": 92,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 83,
+      "community": 92,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1580,7 +1580,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "asset_library_batch_importer_read_str_attrib",
-      "community": 83,
+      "community": 92,
       "norm_label": "_read_str_attrib()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 83,
+      "community": 92,
       "norm_label": "geometry"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 83,
+      "community": 92,
       "norm_label": "_sanitize()"
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 83,
+      "community": 92,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 83,
+      "community": 92,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 83,
+      "community": 92,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 83,
+      "community": 92,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 83,
+      "community": 92,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_282",
-      "community": 83,
+      "community": 92,
       "norm_label": "read a string primitive attribute value; return default if absent."
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 83,
+      "community": 92,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 21,
+      "community": 20,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 21,
+      "community": 20,
       "norm_label": "qpoint"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 21,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 21,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 21,
+      "community": 20,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 83,
+      "community": 92,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 83,
+      "community": 92,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 83,
+      "community": 92,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 83,
+      "community": 92,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 83,
+      "community": 92,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4930,7 +4930,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 42,
+      "community": 15,
       "norm_label": "node"
     },
     {
@@ -4940,7 +4940,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 42,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -14460,7 +14460,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 21,
+      "community": 20,
       "norm_label": ".hitbutton()"
     },
     {
@@ -14810,7 +14810,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -14820,7 +14820,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14840,7 +14840,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -14850,7 +14850,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -15100,7 +15100,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager",
-      "community": 42,
+      "community": 15,
       "norm_label": "bindingmanager"
     },
     {
@@ -15110,7 +15110,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 42,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -15200,7 +15200,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_poll_parm_changes",
-      "community": 42,
+      "community": 15,
       "norm_label": "._poll_parm_changes()"
     },
     {
@@ -15210,7 +15210,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_build_layout",
-      "community": 42,
+      "community": 15,
       "norm_label": ".build_layout()"
     },
     {
@@ -15220,7 +15220,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_cleanup",
-      "community": 42,
+      "community": 15,
       "norm_label": ".cleanup()"
     },
     {
@@ -15240,7 +15240,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_14",
-      "community": 42,
+      "community": 15,
       "norm_label": "manages parameter bindings for an hda python panel ui.          coordinates up"
     },
     {
@@ -15250,7 +15250,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 42,
+      "community": 15,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15340,7 +15340,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_160",
-      "community": 42,
+      "community": 15,
       "norm_label": "poll for external parameter changes (from ui, expressions, etc)."
     },
     {
@@ -15350,7 +15350,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_166",
-      "community": 42,
+      "community": 15,
       "norm_label": "build a layout containing all registered widgets.                  args:"
     },
     {
@@ -15360,7 +15360,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_192",
-      "community": 42,
+      "community": 15,
       "norm_label": "stop polling and clean up resources."
     },
     {
@@ -15930,7 +15930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base",
-      "community": 15,
+      "community": 35,
       "norm_label": "parm_widgets_base.py"
     },
     {
@@ -15950,7 +15950,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_init",
-      "community": 14,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -16000,7 +16000,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield",
-      "community": 14,
+      "community": 35,
       "norm_label": "enhancedinputfield"
     },
     {
@@ -16010,7 +16010,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_init",
-      "community": 14,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -16230,7 +16230,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_init",
-      "community": 14,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -16250,7 +16250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_1",
-      "community": 15,
+      "community": 35,
       "norm_label": "base parameter widgets - label, inputfield, baseparmwidget, expressiondialog"
     },
     {
@@ -16280,7 +16280,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_87",
-      "community": 14,
+      "community": 35,
       "norm_label": "enhanced inputfield with all houdini parameter polish features:     - hover eff"
     },
     {
@@ -16490,7 +16490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric",
-      "community": 15,
+      "community": 35,
       "norm_label": "parm_widgets_numeric.py"
     },
     {
@@ -16510,7 +16510,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_init",
-      "community": 14,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -16610,7 +16610,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_init",
-      "community": 14,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -16650,7 +16650,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_expression_style",
-      "community": 14,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -16680,7 +16680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_1",
-      "community": 15,
+      "community": 35,
       "norm_label": "numeric parameter widgets - parmfloat, parmint  float and integer parameter wi"
     },
     {
@@ -16700,7 +16700,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_27",
-      "community": 14,
+      "community": 35,
       "norm_label": "args:             parm: houdini parameter to bind to             label: option"
     },
     {
@@ -16810,7 +16810,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_266",
-      "community": 14,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17420,7 +17420,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 319,
       "norm_label": "parmstring"
     },
     {
@@ -17440,7 +17440,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 319,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17450,7 +17450,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 319,
       "norm_label": "._on_changed()"
     },
     {
@@ -17470,7 +17470,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 319,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17480,7 +17480,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle",
-      "community": 35,
+      "community": 55,
       "norm_label": "parmtoggle"
     },
     {
@@ -17490,7 +17490,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_init",
-      "community": 35,
+      "community": 14,
       "norm_label": ".__init__()"
     },
     {
@@ -17500,7 +17500,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_on_changed",
-      "community": 35,
+      "community": 55,
       "norm_label": "._on_changed()"
     },
     {
@@ -17520,7 +17520,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 35,
+      "community": 55,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17530,7 +17530,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_eventfilter",
-      "community": 51,
+      "community": 55,
       "norm_label": ".eventfilter()"
     },
     {
@@ -17600,7 +17600,7 @@
       "source_location": "L394",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_eventfilter",
-      "community": 51,
+      "community": 55,
       "norm_label": ".eventfilter()"
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 319,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 319,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 319,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17760,7 +17760,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 35,
+      "community": 55,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17770,7 +17770,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_235",
-      "community": 51,
+      "community": 55,
       "norm_label": "block user input when expression is active."
     },
     {
@@ -17810,7 +17810,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_395",
-      "community": 51,
+      "community": 55,
       "norm_label": "block user input when expression is active."
     },
     {
@@ -22747,7 +22747,7 @@
       "label": "c4_no_strokes_hands_the_input_back()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L102",
+      "source_location": "L105",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_c4_no_strokes_hands_the_input_back",
       "community": 37,
@@ -22757,7 +22757,7 @@
       "label": "m_rewired()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L114",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_m_rewired",
       "community": 37,
@@ -22767,7 +22767,7 @@
       "label": "m_spec_default_moved()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L118",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_m_spec_default_moved",
       "community": 37,
@@ -22777,7 +22777,7 @@
       "label": "m_spec_module_edited()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L122",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_m_spec_module_edited",
       "community": 37,
@@ -22787,7 +22787,7 @@
       "label": "m_no_mask_bias()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L126",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_m_no_mask_bias",
       "community": 37,
@@ -22797,7 +22797,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L138",
+      "source_location": "L141",
       "_origin": "ast",
       "id": "hda_run_edge_damage_checks_main",
       "community": 37,
@@ -22817,9 +22817,9 @@
       "label": "With no strokes `mask` is 0 everywhere, `(1 - mask) * 0.1` pushes the     whole",
       "file_type": "rationale",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L103",
+      "source_location": "L106",
       "_origin": "ast",
-      "id": "hda_run_edge_damage_checks_rationale_103",
+      "id": "hda_run_edge_damage_checks_rationale_106",
       "community": 37,
       "norm_label": "with no strokes `mask` is 0 everywhere, `(1 - mask) * 0.1` pushes the     whole"
     },
@@ -31900,7 +31900,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 195,
+      "community": 168,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -31940,7 +31940,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 319,
+      "community": 195,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -31950,7 +31950,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 319,
+      "community": 195,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -31960,7 +31960,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 319,
+      "community": 195,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -31970,7 +31970,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 319,
+      "community": 195,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -31980,7 +31980,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 319,
+      "community": 195,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -31990,7 +31990,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 319,
+      "community": 195,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -32550,7 +32550,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 195,
+      "community": 168,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -32570,7 +32570,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 319,
+      "community": 195,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -43077,7 +43077,7 @@
       "label": "2. How it works (Quentin's design, restated so nobody \"improves\" it again)",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L34",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "ideas_edge_damage_2_how_it_works_quentin_s_design_restated_so_nobody_improves_it_again",
       "community": 310,
@@ -43087,7 +43087,7 @@
       "label": "3. The failed first attempt, kept as the warning it is",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L51",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "ideas_edge_damage_3_the_failed_first_attempt_kept_as_the_warning_it_is",
       "community": 310,
@@ -43097,7 +43097,7 @@
       "label": "4. Checks, and what they cannot see",
       "file_type": "document",
       "source_file": "ideas/edge_damage.md",
-      "source_location": "L62",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "ideas_edge_damage_4_checks_and_what_they_cannot_see",
       "community": 310,
@@ -50225,7 +50225,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 55,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -92965,9 +92965,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c1_every_node_wire_and_parm_matches_the_reference",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c1_every_node_wire_and_parm_matches_the_reference"
     },
     {
       "relation": "contains",
@@ -92975,9 +92975,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c2_every_parameter_template_matches_the_reference",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c2_every_parameter_template_matches_the_reference"
     },
     {
       "relation": "contains",
@@ -92985,9 +92985,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c3_the_viewer_state_is_the_reference_module",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c3_the_viewer_state_is_the_reference_module"
     },
     {
       "relation": "contains",
@@ -92995,9 +92995,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_c4_no_strokes_hands_the_input_back",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_c4_no_strokes_hands_the_input_back"
     },
     {
       "relation": "contains",
@@ -93005,9 +93005,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_no_mask_bias",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_no_mask_bias"
     },
     {
       "relation": "contains",
@@ -93015,9 +93015,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_rewired",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_rewired"
     },
     {
       "relation": "contains",
@@ -93025,9 +93025,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_spec_default_moved",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_spec_default_moved"
     },
     {
       "relation": "contains",
@@ -93035,9 +93035,9 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks",
-      "target": "hda_run_edge_damage_checks_m_spec_module_edited",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_m_spec_module_edited"
     },
     {
       "relation": "contains",
@@ -93076,17 +93076,17 @@
       "source_file": "tests/hda/run_edge_damage_checks.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "hda_run_edge_damage_checks_c4_no_strokes_hands_the_input_back",
-      "target": "hda_run_edge_damage_checks_volume",
-      "confidence_score": 1.0
+      "target": "hda_run_edge_damage_checks_volume"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/hda/run_edge_damage_checks.py",
-      "source_location": "L103",
+      "source_location": "L106",
       "weight": 1.0,
-      "source": "hda_run_edge_damage_checks_rationale_103",
+      "source": "hda_run_edge_damage_checks_rationale_106",
       "target": "hda_run_edge_damage_checks_c4_no_strokes_hands_the_input_back",
       "confidence_score": 1.0
     },
@@ -121135,9 +121135,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage",
-      "target": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage"
     },
     {
       "relation": "references",
@@ -121155,9 +121155,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage",
-      "target": "ideas_edge_damage_1_the_law_of_this_file_it_is_a_replica",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_1_the_law_of_this_file_it_is_a_replica"
     },
     {
       "relation": "contains",
@@ -121165,9 +121165,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage",
-      "target": "ideas_edge_damage_2_how_it_works_quentin_s_design_restated_so_nobody_improves_it_again",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_2_how_it_works_quentin_s_design_restated_so_nobody_improves_it_again"
     },
     {
       "relation": "contains",
@@ -121175,9 +121175,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage",
-      "target": "ideas_edge_damage_3_the_failed_first_attempt_kept_as_the_warning_it_is",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_3_the_failed_first_attempt_kept_as_the_warning_it_is"
     },
     {
       "relation": "contains",
@@ -121185,9 +121185,9 @@
       "source_file": "ideas/edge_damage.md",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_edge_damage_edge_damage_a_1_1_port_of_quentin_king_s_paintable_stylized_edge_damage",
-      "target": "ideas_edge_damage_4_checks_and_what_they_cannot_see",
-      "confidence_score": 1.0
+      "target": "ideas_edge_damage_4_checks_and_what_they_cannot_see"
     },
     {
       "relation": "contains",
@@ -128084,5 +128084,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a08a7e3e659ad224fedf05c298f449a85314efc4"
+  "built_at_commit": "18678a51719bfbe31b66be5d21d96df7dd8b7fe0"
 }

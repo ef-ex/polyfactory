@@ -88,7 +88,10 @@ def c2_every_parameter_template_matches_the_reference(node, spec):
 def c3_the_viewer_state_is_the_reference_module(node, spec):
     d = node.type().definition()
     s = d.sections()
-    same = s["ViewerStateModule"].contents() == spec["viewer_state"]
+    # reference + exactly the documented three-line visualizer guard
+    patch = spec["viewer_state_patch"]
+    expected = spec["viewer_state"].replace(patch["anchor"], patch["anchor"] + patch["guard"])
+    same = s["ViewerStateModule"].contents() == expected
     state_ok = s["DefaultState"].contents() == d.nodeTypeName()
     flags = all(d.extraFileOptions().get(k) for k in (
         "ViewerStateInstall/IsPython", "ViewerStateModule/IsPython", "ViewerStateModule/IsViewerState"))
