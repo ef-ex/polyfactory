@@ -1,0 +1,1127 @@
+{
+ "parms": [
+  {
+   "name": "visual_mode",
+   "type": "Int",
+   "label": "Viz Mode",
+   "depth": 0,
+   "default": [
+    0
+   ],
+   "min": 0,
+   "max": 10,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "sepparm4",
+   "type": "Separator",
+   "label": "",
+   "depth": 0,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "paint_resolution",
+   "type": "Float",
+   "label": "Painting Resolution",
+   "depth": 0,
+   "default": [
+    0.05
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "damage_resolution",
+   "type": "Float",
+   "label": "Damage Resolution Size",
+   "depth": 0,
+   "default": [
+    0.2
+   ],
+   "min": 0.001,
+   "max": 1.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "blur_iterations",
+   "type": "Float",
+   "label": "Blurring Iterations",
+   "depth": 0,
+   "default": [
+    13.0
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "dist",
+   "type": "Float",
+   "label": "Damage Bias",
+   "depth": 0,
+   "default": [
+    0.04
+   ],
+   "min": -0.1,
+   "max": 0.1,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "sepparm6",
+   "type": "Separator",
+   "label": "",
+   "depth": 0,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "damage_meshing",
+   "type": "Menu",
+   "label": "Damage Meshing Method",
+   "depth": 0,
+   "default": 1,
+   "items": [
+    "0",
+    "1"
+   ],
+   "labels": [
+    "Remesh",
+    "PolyReduce"
+   ],
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "target_mesh_size",
+   "type": "Float",
+   "label": "Target Mesh Size",
+   "depth": 0,
+   "default": [
+    0.25
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "target_mesh_percentage",
+   "type": "Float",
+   "label": "Target Mesh Percentage",
+   "depth": 0,
+   "default": [
+    10.0
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "sepparm2",
+   "type": "Separator",
+   "label": "",
+   "depth": 0,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "noise_folder",
+   "type": "Folder",
+   "label": "Noise Settings",
+   "depth": 0,
+   "foldertype": "folderType.Simple",
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "basis",
+   "type": "Menu",
+   "label": "Noise Type",
+   "depth": 1,
+   "default": 5,
+   "items": [
+    "value_fast",
+    "sparse",
+    "alligator",
+    "perlin",
+    "flow",
+    "simplex",
+    "worleyFA",
+    "worleyFB",
+    "mworleyFA",
+    "mworleyFB",
+    "cworleyFA",
+    "cworleyFB",
+    "pcloud",
+    "scloud",
+    "fscloud"
+   ],
+   "labels": [
+    "Fast",
+    "Sparse Convolution",
+    "Alligator",
+    "Perlin",
+    "Perlin Flow",
+    "Simplex",
+    "Worley Cellular F1",
+    "Worley Cellular F2-F1",
+    "Manhattan Cellular F1",
+    "Manhattan Cellular F2-F1",
+    "Chebyshev Cellular F1",
+    "Chebyshev Cellular F2-F1",
+    "Perlin Cloud",
+    "Simplex Cloud",
+    "Fast Simplex Cloud"
+   ],
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "amplitude",
+   "type": "Float",
+   "label": "Amplitude",
+   "depth": 1,
+   "default": [
+    0.07
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "elementsize",
+   "type": "Float",
+   "label": "Element Size",
+   "depth": 1,
+   "default": [
+    0.1
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "sepparm3",
+   "type": "Separator",
+   "label": "",
+   "depth": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "fractal_settings",
+   "type": "Folder",
+   "label": "Fractal",
+   "depth": 1,
+   "foldertype": "folderType.Simple",
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "fractal",
+   "type": "Menu",
+   "label": "Fractal Type",
+   "depth": 2,
+   "default": 1,
+   "items": [
+    "none",
+    "fBm",
+    "mfT",
+    "hmfT"
+   ],
+   "labels": [
+    "None",
+    "Standard (fBm)",
+    "Terrain",
+    "Hybrid Terrain"
+   ],
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "oct",
+   "type": "Float",
+   "label": "Max Octaves",
+   "depth": 2,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 16.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "lac",
+   "type": "Float",
+   "label": "Lacunarity",
+   "depth": 2,
+   "default": [
+    2.01234
+   ],
+   "min": 0.0,
+   "max": 4.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "rough",
+   "type": "Float",
+   "label": "Roughness",
+   "depth": 2,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": true,
+   "maxlock": true,
+   "size": 1,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "sepparm5",
+   "type": "Separator",
+   "label": "",
+   "depth": 0,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "reset_button",
+   "type": "Button",
+   "label": "Reset",
+   "depth": 0,
+   "callback": "kwargs['node'].hdaViewerStateModule().reset(hou.pwd())",
+   "lang": "scriptLanguage.Python",
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "sepparm",
+   "type": "Separator",
+   "label": "",
+   "depth": 0,
+   "help": "",
+   "hidden": false
+  },
+  {
+   "name": "labelparm",
+   "type": "Label",
+   "label": "all the stroke stuff",
+   "depth": 0,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "folder0",
+   "type": "Folder",
+   "label": "Cache",
+   "depth": 0,
+   "foldertype": "folderType.Tabs",
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "bakedgeo",
+   "type": "Data",
+   "label": "Baked Geometry",
+   "depth": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "unsavedbakedgeo",
+   "type": "Data",
+   "label": "Unsaved Baked Geometry",
+   "depth": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "strokegeo",
+   "type": "Data",
+   "label": "Strokes",
+   "depth": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_float",
+   "type": "Float",
+   "label": "Stroke Float",
+   "depth": 0,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_projtype",
+   "type": "Int",
+   "label": "Stroke Projection",
+   "depth": 0,
+   "default": [
+    4
+   ],
+   "min": 0,
+   "max": 10,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_softedge",
+   "type": "Float",
+   "label": "Soft Edge",
+   "depth": 0,
+   "default": [
+    0.5
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_attrib",
+   "type": "String",
+   "label": "Paint Attribute",
+   "depth": 0,
+   "default": [
+    "mask"
+   ],
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_attribtype",
+   "type": "Int",
+   "label": "Stroke Attrib Type",
+   "depth": 0,
+   "default": [
+    1
+   ],
+   "min": 0,
+   "max": 10,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_radius",
+   "type": "Float",
+   "label": "Radius",
+   "depth": 0,
+   "default": [
+    0.2
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_opacity",
+   "type": "Float",
+   "label": "Opacity",
+   "depth": 0,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": true,
+   "maxlock": true,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke_numstrokes",
+   "type": "Folder",
+   "label": "Number of Strokes",
+   "depth": 0,
+   "foldertype": "folderType.TabbedMultiparmBlock",
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_enable",
+   "type": "Toggle",
+   "label": "Enable Stroke",
+   "depth": 1,
+   "default": true,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_radius",
+   "type": "Float",
+   "label": "Radius",
+   "depth": 1,
+   "default": [
+    0.1
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": true,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_tool",
+   "type": "Int",
+   "label": "Tool",
+   "depth": 1,
+   "default": [
+    0
+   ],
+   "min": 0,
+   "max": 10,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_color",
+   "type": "Float",
+   "label": "Stroke Color",
+   "depth": 1,
+   "default": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "min": 0.0,
+   "max": 1.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 3,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_opacity",
+   "type": "Float",
+   "label": "Opacity",
+   "depth": 1,
+   "default": [
+    1.0
+   ],
+   "min": 0.0,
+   "max": 10.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_projtype",
+   "type": "Int",
+   "label": "Projection",
+   "depth": 1,
+   "default": [
+    0
+   ],
+   "min": 0,
+   "max": 10,
+   "minlock": false,
+   "maxlock": false,
+   "size": 1,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_projcenter",
+   "type": "Float",
+   "label": "Projection Center",
+   "depth": 1,
+   "default": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "min": -1.0,
+   "max": 1.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 3,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_projdir",
+   "type": "Float",
+   "label": "Projection Direction",
+   "depth": 1,
+   "default": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "min": -1.0,
+   "max": 1.0,
+   "minlock": false,
+   "maxlock": false,
+   "size": 3,
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_data",
+   "type": "String",
+   "label": "Raw Data",
+   "depth": 1,
+   "default": [
+    ""
+   ],
+   "help": "",
+   "hidden": true
+  },
+  {
+   "name": "stroke#_metadata",
+   "type": "String",
+   "label": "Meta Data",
+   "depth": 1,
+   "default": [
+    ""
+   ],
+   "help": "",
+   "hidden": true
+  }
+ ],
+ "nodes": [
+  {
+   "name": "attribpaint1",
+   "type": "attribpaint",
+   "in": [
+    "divide4"
+   ],
+   "pos": [
+    2.70884,
+    8.82948
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "folder0_11": 4,
+    "stroke_radius": 0.09999999999999999,
+    "stroke_opacity": "ch(\"../stroke_opacity\")",
+    "stroke_float": 1.0,
+    "stroke_int": 1,
+    "stroke_numstrokes": "ch(\"../stroke_numstrokes\")",
+    "folder0": 1,
+    "attribname1": "mask"
+   }
+  },
+  {
+   "name": "IN",
+   "type": "null",
+   "in": [
+    "box1"
+   ],
+   "pos": [
+    1.11759e-08,
+    12.786
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {}
+  },
+  {
+   "name": "apply_mask_bias",
+   "type": "attribwrangle",
+   "in": [
+    "peak1"
+   ],
+   "pos": [
+    2.70584,
+    3.49821
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "snippet": "float mask = 1.0-@mask;\n@P += @N * mask * 0.1;"
+   }
+  },
+  {
+   "name": "mountain2",
+   "type": "attribnoise::2.0",
+   "in": [
+    "remesh3"
+   ],
+   "pos": [
+    2.70884,
+    6.20456
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "attribs": "P",
+    "displace": 1,
+    "folder1": 1,
+    "amplitude": "ch(\"../amplitude\")",
+    "folder7": 1,
+    "basis": "ch(\"../basis\")",
+    "elementsize": "ch(\"../elementsize\")",
+    "folder4": 1,
+    "fractal": "ch(\"../fractal\")",
+    "oct": "ch(\"../oct\")",
+    "lac": "ch(\"../lac\")",
+    "rough": "ch(\"../rough\")",
+    "folder2": 1,
+    "folder5": 1,
+    "remapramp2pos": 1.0,
+    "remapramp2value": 1.0
+   }
+  },
+  {
+   "name": "matchsize2",
+   "type": "matchsize",
+   "in": [
+    "IN"
+   ],
+   "pos": [
+    1.11759e-08,
+    11.7047
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "doscale": 1,
+    "stashxform": 1
+   }
+  },
+  {
+   "name": "divide3",
+   "type": "divide",
+   "in": [
+    "matchsize2"
+   ],
+   "pos": [
+    2.70884,
+    10.6855
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "convex": 0,
+    "usemaxsides": 0,
+    "brick": 1,
+    "sizex": "ch(\"../paint_resolution\")",
+    "sizey": "ch(\"../paint_resolution\")",
+    "sizez": "ch(\"../paint_resolution\")"
+   }
+  },
+  {
+   "name": "divide4",
+   "type": "divide",
+   "in": [
+    "divide3"
+   ],
+   "pos": [
+    2.70884,
+    9.72401
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {}
+  },
+  {
+   "name": "attribblur2",
+   "type": "attribblur",
+   "in": [
+    "attribpaint1"
+   ],
+   "pos": [
+    2.70884,
+    7.83588
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "iterations": "ch(\"../blur_iterations\")"
+   }
+  },
+  {
+   "name": "remesh3",
+   "type": "remesh::2.0",
+   "in": [
+    "attribblur2"
+   ],
+   "pos": [
+    2.70884,
+    6.96988
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "targetsize": "ch(\"../damage_resolution\")*0.5"
+   }
+  },
+  {
+   "name": "boolean2",
+   "type": "boolean::2.0",
+   "in": [
+    "matchsize2",
+    "normal4"
+   ],
+   "pos": [
+    0.1417,
+    -2.96608
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "booleanop": 1,
+    "usebinsidea": 1,
+    "binsidea": "pf_chipped"
+   }
+  },
+  {
+   "name": "normal4",
+   "type": "normal",
+   "in": [
+    "switch1"
+   ],
+   "pos": [
+    2.70884,
+    -1.87126
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "cuspangle": 0.0
+   }
+  },
+  {
+   "name": "vdbfrompolygons2",
+   "type": "vdbfrompolygons",
+   "in": [
+    "apply_mask_bias"
+   ],
+   "pos": [
+    2.70759,
+    2.67162
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "voxelsize": "ch(\"../damage_resolution\")*0.25",
+    "exteriorbandvoxels": 1,
+    "interiorbandvoxels": 5
+   }
+  },
+  {
+   "name": "convertvdb2",
+   "type": "convertvdb",
+   "in": [
+    "vdbfrompolygons2"
+   ],
+   "pos": [
+    2.70759,
+    1.86662
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "conversion": 2
+   }
+  },
+  {
+   "name": "polyreduce1",
+   "type": "polyreduce::2.0",
+   "in": [
+    "convertvdb2"
+   ],
+   "pos": [
+    4.06597,
+    0.57932
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "percentage": "ch(\"../target_mesh_percentage\")"
+   }
+  },
+  {
+   "name": "remesh4",
+   "type": "remesh::2.0",
+   "in": [
+    "convertvdb2"
+   ],
+   "pos": [
+    1.39823,
+    0.57932
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "targetsize": "ch(\"../target_mesh_size\")"
+   }
+  },
+  {
+   "name": "peak1",
+   "type": "peak",
+   "in": [
+    "mountain2"
+   ],
+   "pos": [
+    2.70884,
+    4.92121
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "dist": "ch(\"../dist\")"
+   }
+  },
+  {
+   "name": "switch1",
+   "type": "switch",
+   "in": [
+    "remesh4",
+    "polyreduce1"
+   ],
+   "pos": [
+    2.70884,
+    -0.585466
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "input": "ch(\"../damage_meshing\")"
+   }
+  },
+  {
+   "name": "matchsize1",
+   "type": "matchsize",
+   "in": [
+    "boolean2"
+   ],
+   "pos": [
+    -2.52668,
+    -5.66201
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "restorexform": 1
+   }
+  },
+  {
+   "name": "VisualizationMode",
+   "type": "switch",
+   "in": [
+    "matchsize1",
+    "boolean2",
+    "MASK_MERGE",
+    "BOOLEAN_GEO_MERGE"
+   ],
+   "pos": [
+    0.1417,
+    -7.49501
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "input": "ch(\"../visual_mode\")"
+   }
+  },
+  {
+   "name": "output0",
+   "type": "output",
+   "in": [
+    "VisualizationMode"
+   ],
+   "pos": [
+    0.1417,
+    -8.44203
+   ],
+   "flags": {
+    "display": true,
+    "render": true,
+    "bypass": false
+   },
+   "parms": {
+    "outputidx": 0
+   }
+  },
+  {
+   "name": "BOOLEAN_GEO",
+   "type": "null",
+   "in": [
+    "switch1"
+   ],
+   "pos": [
+    6.40568,
+    -1.87626
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {}
+  },
+  {
+   "name": "MASK_MERGE",
+   "type": "object_merge",
+   "in": [],
+   "pos": [
+    1.69757,
+    -5.16204
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "objpath1": "../MASK"
+   }
+  },
+  {
+   "name": "BOOLEAN_GEO_MERGE",
+   "type": "object_merge",
+   "in": [],
+   "pos": [
+    3.18168,
+    -6.3722
+   ],
+   "flags": {
+    "display": false,
+    "render": false,
+    "bypass": false
+   },
+   "parms": {
+    "objpath1": "../BOOLEAN_GEO"
+   }
+  }
+ ],
+ "stroke_links": "'stroke#_enable' '../stroke#_enable' 'stroke#_radius' '../stroke#_radius' 'stroke#_tool' '../stroke#_tool' 'stroke#_opacity' '../stroke#_opacity' 'stroke#_projtype' '../stroke#_projtype' 'stroke#_projcenterx' '../stroke#_projcenterx' 'stroke#_projcentery' '../stroke#_projcentery' 'stroke#_projcenterz' '../stroke#_projcenterz' 'stroke#_projdirx' '../stroke#_projdirx' 'stroke#_projdiry' '../stroke#_projdiry' 'stroke#_projdirz' '../stroke#_projdirz' 'stroke#_data' '../stroke#_data' 'stroke#_metadata' '../stroke#_metadata'",
+ "viewer_state": "\"\"\"\nState:          Edge Damage Paint Viewer\nState type:     Quentin::paint_edge_damage::1.0\nDescription:    Quentin::paint edge damage::1.0\nAuthor:         Quentin\nDate Created:   February 24, 2024 - 13:44:18\n\"\"\"\n\nimport hou\nimport viewerstate.utils as su\nfrom sidefx_stroke import StrokeState, StrokeCursor\nfrom sidefx_stroke import createStrokeStateTemplate\nimport toolutils\nimport soputils\nfrom enum import Enum\n\nclass VISUAL_MODES(Enum):\n    OUTPUT = 0\n    PAINTABLE = 1\n    MASK = 2\n    BOOLEAN = 3\n\nclass State(StrokeState):\n    DEFAULT_CURSOR_PROMPT = \"MMB to resize cursor. CTRL+MMB to adjust damage strength\"\n\n    HUD_TEMPLATE = {\n        \"title\": \"Edge Damage Paint\", \"desc\": \"tool\", \"icon\": \"SOP_attribpaint\",\n        \"rows\": [\n            {\"id\": \"radius\", \"label\": \"Brush Radius\", \"value\": \"1.0\", \"key\": \"mousewheel\"},\n            {\"id\": \"radius_g\", \"type\": \"bargraph\"},\n            {\"id\": \"strength\", \"label\": \"Damage Strength\", \"value\": \"1.0\"},\n            {\"id\": \"strength_g\", \"type\": \"bargraph\"},\n        ]\n    }\n    \n    def __init__(self, **kwargs):\n        super(State, self).__init__(**kwargs)\n\n        self.cursor.prompt = State.DEFAULT_CURSOR_PROMPT\n        \n        self.cursor.brushes = []\n        self.cursor.init_brushlist([('sphere', {})])\n\n        self.root_node = None               # Our HDA node\n        self.paint_node = None              # The attribute paint node that we're leveraging\n\n        self.scene_viewer.hudInfo(template=self.HUD_TEMPLATE)\n\n    def get_paint_node(self, parentNode):\n        \"\"\"\n            Finds the attribute paint node within the HDA\n        \"\"\"\n        return toolutils.findChildNodeOfType(parentNode, 'attribpaint', True)\n    \n    def resize_strength(self, node, dist):\n        \"\"\"\n            Adjusts painting strength\n        \"\"\"\n        scale = dist * 0.05\n        stroke_strength = self.root_node.parm(\"stroke_float\")\n        if stroke_strength is None:\n            return\n        strength = stroke_strength.evalAsFloat()\n        strength += scale\n        stroke_strength.set(strength)\n\n    def get_paint_attribute(self):\n        \"\"\"\n            Gets the attribute name and type we are painting on to\n        \"\"\"\n        attrib_idx = self.paint_node.evalParm(\"attribute\")\n        attrib_name = self.paint_node.evalParm(\"attribname\" + str(attrib_idx + 1))\n        attrib_type = self.paint_node.evalParm(\"attribtype\" + str(attrib_idx + 1))\n        return (attrib_name, attrib_type)\n\n    def set_visualizer_active(self, scene_viewer, is_active):\n        \"\"\"\n            Enables / disables the attribute visualizer to the viewport, for the mask display mode\n        \"\"\"\n        viewports = scene_viewer.viewports()\n        cur_viewport = scene_viewer.curViewport()\n\n        if len(viewports) == 0 or cur_viewport is None:\n            return False\n        \n        for viewport in viewports:\n            soputils.turnOffVisualizers(hou.viewportVisualizers.type('vis_color'), hou.viewportVisualizerCategory.Scene, None, viewport)\n        \n        attribname, attribtype = self.get_paint_attribute()\n        viz = soputils.findVisualizer(attribname, hou.viewportVisualizerCategory.Scene, None)\n        \n        for viewport in viewports:\n            viz.setIsActive(is_active, viewport)\n\n            if isinstance(viewport, hou.GeometryViewport):\n                if is_active:\n                    bbox = self.paint_node.geometry().boundingBox()\n                    viewport.frameBoundingBox(bbox)\n                else:\n                    bbox = self.root_node.geometry().boundingBox()\n                    viewport.frameBoundingBox(bbox)\n\n    def update_hint_panel(self):\n        \"\"\"\n            Updates viewport UI\n        \"\"\"\n        radius = self.root_node.parm(\"stroke_radius\").evalAsFloat()\n        strength = self.root_node.parm(\"stroke_float\").evalAsFloat()\n\n        rows = {\n            \"radius\": \"%0.2f\" % radius,\n            \"radius_g\": radius,\n            \"strength\": \"%0.2f\" % strength,\n            \"strength_g\": radius,\n        }\n\n        self.scene_viewer.hudInfo(values=rows)\n\n    def set_visualization(self, mode):\n        \"\"\"\n            Sets display mode\n        \"\"\"\n        self.set_visualizer_active(self.scene_viewer, False)\n        if mode == VISUAL_MODES.OUTPUT:\n            self.root_node.parm(\"visual_mode\").set(0)\n        elif mode == VISUAL_MODES.PAINTABLE:\n            self.root_node.parm(\"visual_mode\").set(1)\n        elif mode == VISUAL_MODES.MASK:\n            self.set_visualizer_active(self.scene_viewer, True)\n            self.root_node.parm(\"visual_mode\").set(2)\n        elif mode == VISUAL_MODES.BOOLEAN:\n            self.root_node.parm(\"visual_mode\").set(3)\n\n    def onParmChanged(self, **kwargs):\n        \"\"\"\n            Custom callback whenever a parameter changes\n        \"\"\"\n        self.update_hint_panel()\n\n    def onEnter(self, kwargs):\n        super(State, self).onEnter(kwargs)\n        \n        node = kwargs['node']\n        self.root_node = node\n        self.paint_node = self.get_paint_node(node)\n\n        self.set_visualization(VISUAL_MODES.PAINTABLE)\n        self.scene_viewer.hudInfo(show=True)\n        self.update_hint_panel()\n        \n        node.addEventCallback([hou.nodeEventType.ParmTupleChanged],\n                        self.onParmChanged)\n        \n        # Force focus on the paintable geometry\n        self.root_node.cook(force=True)\n        for v in self.scene_viewer.viewports():\n            v.frameBoundingBox(self.root_node.geometry().boundingBox())\n            v.draw()\n\n    def onExit(self, kwargs):\n        super(State, self).onExit(kwargs)\n\n        self.set_visualization(VISUAL_MODES.OUTPUT)\n\n        node = kwargs.get(\"node\")\n        if node:\n            node.removeEventCallback([hou.nodeEventType.ParmTupleChanged],\n                                        self.onParmChanged)\n            \n        # Force focus back on the output geometry\n        self.root_node.cook(force=True)\n        for v in self.scene_viewer.viewports():\n            v.frameBoundingBox(self.root_node.geometry().boundingBox())\n            v.draw()\n\n    def intersectGeometry(self, node):\n        \"\"\"\n            Returns the geometry the stroke uses for intersection tests\n        \"\"\"\n        if self.intersect_geometry is None:\n            self.intersect_geometry = self.paint_node.geometry()\n        else:\n            if self.intersect_geometry.sopNode() != self.paint_node:\n                self.intersect_geometry = self.paint_node.geometry()\n\n        return self.intersect_geometry\n    \n    def onPostApplyStroke(self, node, ui_event, captured_parms):\n        \"\"\"\n            Cache strokes for better performance\n        \"\"\"\n        if self.root_node.parm('stroke_numstrokes').eval():\n            post_geometry = self.paint_node.node('POST_APPLY_EACH_STROKE').geometry()\n            if post_geometry is not None:\n                post_geometry = post_geometry.freeze(True, True)\n\n            self.paint_node.parm('bakedgeo').set(post_geometry)\n            self.paint_node.parm('unsavedbakedgeo').set(None)\n\n            strokes_parm = self.paint_node.parm('strokegeo') \n            stroke_geo = self.paint_node.node('all_strokes').geometry().freeze(True, True)\n            strokes_parm.set(stroke_geo)\n            self.root_node.parm('stroke_numstrokes').set(0)\n        \n    def onMouseWheelEvent(self, kwargs):\n        \"\"\" \n            Either resize cursor or change damage intensity\n        \"\"\"\n        ui_event = kwargs['ui_event']\n        node = kwargs['node']\n        dist = ui_event.device().mouseWheel()\n        dist *= 10.0\n\n        if ui_event.device().isShiftKey():\n            dist *= StrokeState.CURSOR_DRAG_FACTOR\n\n        if ui_event.device().isCtrlKey():\n            self.resize_strength(node, dist)\n        else:\n            self.resize_cursor(node, dist) # Defined in base stroke class\n\n    def onMenuAction(self, kwargs):\n        \"\"\"\n            Menu actions\n        \"\"\"\n        menu_item = kwargs['menu_item']\n        node = kwargs['node']\n        if menu_item == 'display_mode':\n            mode = kwargs['display_mode']\n            self.log(mode)\n            if mode == \"paint_display\":\n                self.set_visualization(VISUAL_MODES.PAINTABLE)\n            elif mode == \"output_display\":\n                self.set_visualization(VISUAL_MODES.OUTPUT)\n            elif mode == \"mask_display\":\n                self.set_visualization(VISUAL_MODES.MASK)\n            elif mode == \"boolean_display\":\n                self.set_visualization(VISUAL_MODES.BOOLEAN)\n\ndef reset(node):\n    \"\"\"\n        Zero's out current strokes\n    \"\"\"\n    paint_node = toolutils.findChildNodeOfType(node, 'attribpaint', True)\n    paint_node.parm('bakedgeo').set(None)\n    paint_node.parm('unsavedbakedgeo').set(None)\n    paint_node.parm('strokegeo').set(None)\n    node.parm('stroke_numstrokes').set(0)\n\ndef createViewerStateTemplate():\n    state_typename = kwargs[\"type\"].definition().sections()[\"DefaultState\"].contents()\n    state_label = \"Edge Damage Paint\"\n    state_cat = hou.sopNodeTypeCategory()\n\n    t = hou.ViewerStateTemplate(state_typename, state_label, state_cat)\n    t.bindFactory(State)    \n    t.bindIcon(kwargs[\"type\"].icon())\n\n    hotkey_definitions = hou.PluginHotkeyDefinitions()\n    realtime = su.defineHotkey(hotkey_definitions,\n        state_typename, 'realtime_mode', '0', 'realtime', 'Enable realtime mode')\n    set_paint_display = su.defineHotkey(hotkey_definitions,\n        state_typename, 'set_paint_display', '1', 'View paintable geometry')\n    set_output_display = su.defineHotkey(hotkey_definitions,\n        state_typename, 'set_output_display', '2', 'View output geometry')\n    set_mask_display = su.defineHotkey(hotkey_definitions,\n        state_typename, 'set_mask_display', '3', 'View mask geometry')\n    set_boolean_display = su.defineHotkey(hotkey_definitions,\n        state_typename, 'set_boolean_display', '4', 'View boolean geometry')\n    t.bindHotkeyDefinitions(hotkey_definitions)\n\n    m = hou.ViewerStateMenu('paint_damage_menu', 'Paint Edge Damage')\n    m.addToggleItem('realtime_mode', 'Draw realtime', True, hotkey=realtime)\n    m.addSeparator()\n    m.addRadioStrip('display_mode', 'Display mode', 'paint_display')\n    m.addRadioStripItem('display_mode', 'paint_display', 'Paintable Geometry', hotkey=set_paint_display)\n    m.addRadioStripItem('display_mode', 'output_display', 'Output Geometry', hotkey=set_output_display)\n    m.addRadioStripItem('display_mode', 'mask_display', 'Mask Geometry', hotkey=set_mask_display)\n    m.addRadioStripItem('display_mode', 'boolean_display', 'Boolean Geometry', hotkey=set_boolean_display)\n    m.addSeparator()\n\n    t.bindMenu(m)\n\n    return t"
+}

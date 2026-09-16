@@ -1,76 +1,31 @@
-"""Create `pf_edge_damage` - paintable, stylised chipped edges, as a SOP HDA.
+"""Create `pf_edge_damage` - a 1:1 port of Quentin King's "Paintable
+Stylized Edge Damage" (quentinking.com/houdini/edgedamage/, free download)
+as a polyfactory SOP HDA.
 
     hython devScripts/create_pf_edge_damage_hda.py
 
-Paint where a prop is worn, and the tool takes low-poly chips out of it.
-Design doc: ideas/edge_damage.md. The technique is Quentin King's public
-"Paintable Stylized Edge Damage" (quentinking.com/houdini/edgedamage/),
-rebuilt here on native nodes to polyfactory's conventions.
+THIS IS A REPLICA, NOT A REDESIGN. The network, every parameter (name,
+label, default, range, hidden state), the attribpaint links and the viewer
+state module are taken verbatim from the reference asset
+`Quentin::paint_edge_damage::1.0`, read node-for-node off a live session
+(the dump is embedded below as SPEC). Three deviations, all naming, none
+behavioural:
+  * the asset is `pf_edge_damage`, TAB label "PF Edge Damage", under
+    Poly Factory/Modeling (polyfactory's TAB law);
+  * the chip prim group is `pf_chipped`, not `chipped` (conventions.md 1);
+  * the embedded `paint.pic` icon section is not copied - the state binds
+    the asset icon, `SOP_attribpaint`, which is the same picture.
+`tests/hda/run_edge_damage_checks.py` asserts parity against SPEC.
 
-    pf_edge_damage                     1 input, one chain plus a viz switch:
-      contract  [attribwrangle/prim]   counts open edges and non-polygons
-      warn      [error]                ...and refuses them: the boolean
-                                       needs a closed polygon solid and
-                                       returns NOTHING otherwise (a
-                                       16-open-edge wood block cooked to 0
-                                       prims). Allow Open Input downgrades
-                                       the open case to a warning.
-      ...
-      empty     [error]                the last word: an empty result is
-                                       an error with the reason in it
-      fit       [matchsize]            input into the unit cube, transform
-                                       stashed. Every size parm below is a
-                                       fraction of the object.
-      canvas    [divide, brick]        dense paint canvas at Paint Resolution
-      tri       [divide]               triangulates the bricks
-      maskinit  [attribwrangle/point]  `_damage` from the chosen source:
-                                       0 (paint on top), an upstream
-                                       attribute, or 1 everywhere
-      paint     [attribpaint]          the strokes. Its stroke parms are
-                                       channel-linked to this asset's, and
-                                       new stroke instances are linked with
-                                       `opmultiparm`, so the viewer state
-                                       drives the ASSET and the inner node
-                                       follows.
-      rest      [attribwrangle/point]  pre-blur position, so an unpainted
-                                       vertex can be put back there and
-                                       pushed clear
-      pull      [attribblur on P]      THE damage. Blurring positions pulls
-                                       edges and corners in while flat faces
-                                       stay flat; the boolean below then
-                                       cuts exactly those edges off
-      dmesh     [remesh]               even triangles at half the detail
-                                       size, so the noise has vertices to move
-      noise     [attribnoise on P]     roughens the worn edges into chips
-      bias      [peak]                 lifts the cutter: higher = fewer chips
-      push      [attribwrangle/point]  unpainted vertices are pushed OUT by
-                                       more than the noise can dip, so the
-                                       cutter never touches unpainted surface
-      vdb/poly  [vdbfrompolygons, convertvdb]  a watertight cutter whatever
-                                       the noise did to the topology
-      lowpoly   [polyreduce]           Low-poly style: sharp irregular facets
-      smooth    [remesh]               Smooth style: even small triangles
-      style     [switch]
-      cutn      [normal, cusp 0]       hard normals into the boolean
-      cut       [boolean, intersect]   original AND cutter. B-inside-A faces
-                                       are the chips: group `pf_chipped`
-      restore   [matchsize]            back to the input's transform
-      viz       [switch]               Output / Paint Canvas / Mask / Cutter
-      clean     [attribdelete, groupdelete]  `_*` off every class
-      OUT
-
-Probed on 22.0.398 rather than recalled:
-  * attribpaint's stroke multiparm is `stroke_numstrokes`, a
-    TabbedMultiparmBlock; its instance parms are relayed with
-    `opmultiparm node 'stroke#_x' '../stroke#_x'` - a plain `ch()` cannot
-    express a per-instance link.
-  * The stroke viewer state is `sidefx_stroke.StrokeState`; subclassing it and
-    returning the inner paint node's geometry from `intersectGeometry` is what
-    lets a LOCKED asset be painted on. That is the one Python in this tool,
-    and it is UI (CLAUDE.md rule 2; decision log in the doc).
-  * `boolean::2.0` `booleanop` 1 is intersect; `usebinsidea` + `binsidea`
-    name the B-inside-A prim group.
-  * `convertvdb` `conversion` 2 is polygons.
+How it works (Quentin's design, restated so nobody "improves" it again):
+matchsize into the unit cube -> brick divide (paint canvas) -> attribpaint
+`mask` -> attribblur on P (pulls edges in) -> remesh -> attribnoise along
+N -> peak -> `@P += @N * (1 - mask) * 0.1` (mask 0 clears the surface,
+mask past 1 dips INTO it, negative erases) -> VDB -> polygons ->
+polyreduce | remesh -> hard normals -> boolean INTERSECT with the original
+-> restore transform. The viewer state (sidefx_stroke.StrokeState) paints
+the asset's own stroke multiparm; Ctrl+wheel changes strength, the HUD
+shows radius and strength, hotkeys 1-4 switch the viz.
 """
 
 import os
@@ -80,6 +35,10 @@ import hou
 
 _POLYFACTORY = os.environ.get("POLYFACTORY", "F:/projects/polyfactory/polyfactory")
 HDA_PATH = os.path.join(_POLYFACTORY, "otls", "pf_edge_damage.hda").replace("\\", "/")
+
+NAME = "pf_edge_damage"
+TAB_LABEL = "PF Edge Damage"
+ICON = "SOP_attribpaint"
 
 TOOLS_SHELF = """<?xml version="1.0" encoding="UTF-8"?>
 <shelfDocument>
@@ -98,153 +57,693 @@ soptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
 </shelfDocument>
 """
 
-NAME = "pf_edge_damage"
-TAB_LABEL = "PF Edge Damage"
-OUTPUT_LABEL = "Damaged"
-ICON = "SOP_attribpaint"
-MASK = "_damage"
+# --------------------------------------------------------------------------
+# SPEC - the reference asset, as read off the live session.
+# --------------------------------------------------------------------------
+PARMS = [{'default': [0],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Viz Mode',
+  'max': 10,
+  'maxlock': False,
+  'min': 0,
+  'minlock': False,
+  'name': 'visual_mode',
+  'size': 1,
+  'type': 'Int'},
+ {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm4', 'type': 'Separator'},
+ {'default': [0.05],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Painting Resolution',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'paint_resolution',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [0.2],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Damage Resolution Size',
+  'max': 1.0,
+  'maxlock': False,
+  'min': 0.001,
+  'minlock': True,
+  'name': 'damage_resolution',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [13.0],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Blurring Iterations',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'blur_iterations',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [0.04],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Damage Bias',
+  'max': 0.1,
+  'maxlock': False,
+  'min': -0.1,
+  'minlock': False,
+  'name': 'dist',
+  'size': 1,
+  'type': 'Float'},
+ {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm6', 'type': 'Separator'},
+ {'default': 1,
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'items': ['0', '1'],
+  'label': 'Damage Meshing Method',
+  'labels': ['Remesh', 'PolyReduce'],
+  'name': 'damage_meshing',
+  'type': 'Menu'},
+ {'default': [0.25],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Target Mesh Size',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'target_mesh_size',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [10.0],
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Target Mesh Percentage',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'target_mesh_percentage',
+  'size': 1,
+  'type': 'Float'},
+ {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm2', 'type': 'Separator'},
+ {'depth': 0,
+  'foldertype': 'folderType.Simple',
+  'help': '',
+  'hidden': False,
+  'label': 'Noise Settings',
+  'name': 'noise_folder',
+  'type': 'Folder'},
+ {'default': 5,
+  'depth': 1,
+  'help': '',
+  'hidden': False,
+  'items': ['value_fast',
+            'sparse',
+            'alligator',
+            'perlin',
+            'flow',
+            'simplex',
+            'worleyFA',
+            'worleyFB',
+            'mworleyFA',
+            'mworleyFB',
+            'cworleyFA',
+            'cworleyFB',
+            'pcloud',
+            'scloud',
+            'fscloud'],
+  'label': 'Noise Type',
+  'labels': ['Fast',
+             'Sparse Convolution',
+             'Alligator',
+             'Perlin',
+             'Perlin Flow',
+             'Simplex',
+             'Worley Cellular F1',
+             'Worley Cellular F2-F1',
+             'Manhattan Cellular F1',
+             'Manhattan Cellular F2-F1',
+             'Chebyshev Cellular F1',
+             'Chebyshev Cellular F2-F1',
+             'Perlin Cloud',
+             'Simplex Cloud',
+             'Fast Simplex Cloud'],
+  'name': 'basis',
+  'type': 'Menu'},
+ {'default': [0.07],
+  'depth': 1,
+  'help': '',
+  'hidden': False,
+  'label': 'Amplitude',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'amplitude',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [0.1],
+  'depth': 1,
+  'help': '',
+  'hidden': False,
+  'label': 'Element Size',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'elementsize',
+  'size': 1,
+  'type': 'Float'},
+ {'depth': 1, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm3', 'type': 'Separator'},
+ {'depth': 1,
+  'foldertype': 'folderType.Simple',
+  'help': '',
+  'hidden': False,
+  'label': 'Fractal',
+  'name': 'fractal_settings',
+  'type': 'Folder'},
+ {'default': 1,
+  'depth': 2,
+  'help': '',
+  'hidden': False,
+  'items': ['none', 'fBm', 'mfT', 'hmfT'],
+  'label': 'Fractal Type',
+  'labels': ['None', 'Standard (fBm)', 'Terrain', 'Hybrid Terrain'],
+  'name': 'fractal',
+  'type': 'Menu'},
+ {'default': [1.0],
+  'depth': 2,
+  'help': '',
+  'hidden': False,
+  'label': 'Max Octaves',
+  'max': 16.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'oct',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [2.01234],
+  'depth': 2,
+  'help': '',
+  'hidden': False,
+  'label': 'Lacunarity',
+  'max': 4.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'lac',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [1.0],
+  'depth': 2,
+  'help': '',
+  'hidden': False,
+  'label': 'Roughness',
+  'max': 1.0,
+  'maxlock': True,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'rough',
+  'size': 1,
+  'type': 'Float'},
+ {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm5', 'type': 'Separator'},
+ {'callback': "kwargs['node'].hdaViewerStateModule().reset(hou.pwd())",
+  'depth': 0,
+  'help': '',
+  'hidden': False,
+  'label': 'Reset',
+  'lang': 'scriptLanguage.Python',
+  'name': 'reset_button',
+  'type': 'Button'},
+ {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm', 'type': 'Separator'},
+ {'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'all the stroke stuff',
+  'name': 'labelparm',
+  'type': 'Label'},
+ {'depth': 0,
+  'foldertype': 'folderType.Tabs',
+  'help': '',
+  'hidden': True,
+  'label': 'Cache',
+  'name': 'folder0',
+  'type': 'Folder'},
+ {'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Baked Geometry',
+  'name': 'bakedgeo',
+  'type': 'Data'},
+ {'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Unsaved Baked Geometry',
+  'name': 'unsavedbakedgeo',
+  'type': 'Data'},
+ {'depth': 1, 'help': '', 'hidden': True, 'label': 'Strokes', 'name': 'strokegeo', 'type': 'Data'},
+ {'default': [1.0],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Stroke Float',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'stroke_float',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [4],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Stroke Projection',
+  'max': 10,
+  'maxlock': False,
+  'min': 0,
+  'minlock': False,
+  'name': 'stroke_projtype',
+  'size': 1,
+  'type': 'Int'},
+ {'default': [0.5],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Soft Edge',
+  'max': 1.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'stroke_softedge',
+  'size': 1,
+  'type': 'Float'},
+ {'default': ['mask'],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Paint Attribute',
+  'name': 'stroke_attrib',
+  'type': 'String'},
+ {'default': [1],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Stroke Attrib Type',
+  'max': 10,
+  'maxlock': False,
+  'min': 0,
+  'minlock': False,
+  'name': 'stroke_attribtype',
+  'size': 1,
+  'type': 'Int'},
+ {'default': [0.2],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Radius',
+  'max': 1.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'stroke_radius',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [1.0],
+  'depth': 0,
+  'help': '',
+  'hidden': True,
+  'label': 'Opacity',
+  'max': 1.0,
+  'maxlock': True,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'stroke_opacity',
+  'size': 1,
+  'type': 'Float'},
+ {'depth': 0,
+  'foldertype': 'folderType.TabbedMultiparmBlock',
+  'help': '',
+  'hidden': True,
+  'label': 'Number of Strokes',
+  'name': 'stroke_numstrokes',
+  'type': 'Folder'},
+ {'default': True,
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Enable Stroke',
+  'name': 'stroke#_enable',
+  'type': 'Toggle'},
+ {'default': [0.1],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Radius',
+  'max': 1.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': True,
+  'name': 'stroke#_radius',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Tool',
+  'max': 10,
+  'maxlock': False,
+  'min': 0,
+  'minlock': False,
+  'name': 'stroke#_tool',
+  'size': 1,
+  'type': 'Int'},
+ {'default': [1.0, 1.0, 1.0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Stroke Color',
+  'max': 1.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'stroke#_color',
+  'size': 3,
+  'type': 'Float'},
+ {'default': [1.0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Opacity',
+  'max': 10.0,
+  'maxlock': False,
+  'min': 0.0,
+  'minlock': False,
+  'name': 'stroke#_opacity',
+  'size': 1,
+  'type': 'Float'},
+ {'default': [0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Projection',
+  'max': 10,
+  'maxlock': False,
+  'min': 0,
+  'minlock': False,
+  'name': 'stroke#_projtype',
+  'size': 1,
+  'type': 'Int'},
+ {'default': [0.0, 0.0, 0.0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Projection Center',
+  'max': 1.0,
+  'maxlock': False,
+  'min': -1.0,
+  'minlock': False,
+  'name': 'stroke#_projcenter',
+  'size': 3,
+  'type': 'Float'},
+ {'default': [0.0, 0.0, 0.0],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Projection Direction',
+  'max': 1.0,
+  'maxlock': False,
+  'min': -1.0,
+  'minlock': False,
+  'name': 'stroke#_projdir',
+  'size': 3,
+  'type': 'Float'},
+ {'default': [''],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Raw Data',
+  'name': 'stroke#_data',
+  'type': 'String'},
+ {'default': [''],
+  'depth': 1,
+  'help': '',
+  'hidden': True,
+  'label': 'Meta Data',
+  'name': 'stroke#_metadata',
+  'type': 'String'}]
 
-# The stroke parms the viewer state reads off the node it is entered on, in
-# the order they sit on attribpaint. Copied from attribpaint's own templates
-# so types, menus and ranges stay identical to the native node's.
-STROKE_PARMS = ("stroke_radius", "stroke_float", "stroke_opacity",
-                "stroke_softedge", "stroke_projtype", "stroke_attrib",
-                "stroke_attribtype", "stroke_numstrokes")
-STROKE_LABELS = {"stroke_radius": "Brush Radius", "stroke_float": "Strength",
-                 "stroke_opacity": "Opacity", "stroke_softedge": "Soft Edge",
-                 "stroke_projtype": "Projection"}
-# Per-stroke instance parms relayed to the inner node. `stroke#_color` is a
-# colour-attribute thing and `_damage` is a float, so it is not relayed.
-STROKE_INSTANCE = ("enable", "radius", "tool", "opacity", "projtype",
-                   "projcenterx", "projcentery", "projcenterz",
-                   "projdirx", "projdiry", "projdirz", "data", "metadata")
+NODES = [{'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['divide4'],
+  'name': 'attribpaint1',
+  'parms': {'attribname1': 'mask',
+            'folder0': 1,
+            'folder0_11': 4,
+            'stroke_float': 1.0,
+            'stroke_int': 1,
+            'stroke_numstrokes': 'ch("../stroke_numstrokes")',
+            'stroke_opacity': 'ch("../stroke_opacity")',
+            'stroke_radius': 0.09999999999999999},
+  'pos': [2.70884, 8.82948],
+  'type': 'attribpaint'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['box1'],
+  'name': 'IN',
+  'parms': {},
+  'pos': [1.11759e-08, 12.786],
+  'type': 'null'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['peak1'],
+  'name': 'apply_mask_bias',
+  'parms': {'snippet': 'float mask = 1.0-@mask;\n@P += @N * mask * 0.1;'},
+  'pos': [2.70584, 3.49821],
+  'type': 'attribwrangle'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['remesh3'],
+  'name': 'mountain2',
+  'parms': {'amplitude': 'ch("../amplitude")',
+            'attribs': 'P',
+            'basis': 'ch("../basis")',
+            'displace': 1,
+            'elementsize': 'ch("../elementsize")',
+            'folder1': 1,
+            'folder2': 1,
+            'folder4': 1,
+            'folder5': 1,
+            'folder7': 1,
+            'fractal': 'ch("../fractal")',
+            'lac': 'ch("../lac")',
+            'oct': 'ch("../oct")',
+            'remapramp2pos': 1.0,
+            'remapramp2value': 1.0,
+            'rough': 'ch("../rough")'},
+  'pos': [2.70884, 6.20456],
+  'type': 'attribnoise::2.0'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['IN'],
+  'name': 'matchsize2',
+  'parms': {'doscale': 1, 'stashxform': 1},
+  'pos': [1.11759e-08, 11.7047],
+  'type': 'matchsize'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['matchsize2'],
+  'name': 'divide3',
+  'parms': {'brick': 1,
+            'convex': 0,
+            'sizex': 'ch("../paint_resolution")',
+            'sizey': 'ch("../paint_resolution")',
+            'sizez': 'ch("../paint_resolution")',
+            'usemaxsides': 0},
+  'pos': [2.70884, 10.6855],
+  'type': 'divide'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['divide3'],
+  'name': 'divide4',
+  'parms': {},
+  'pos': [2.70884, 9.72401],
+  'type': 'divide'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['attribpaint1'],
+  'name': 'attribblur2',
+  'parms': {'iterations': 'ch("../blur_iterations")'},
+  'pos': [2.70884, 7.83588],
+  'type': 'attribblur'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['attribblur2'],
+  'name': 'remesh3',
+  'parms': {'targetsize': 'ch("../damage_resolution")*0.5'},
+  'pos': [2.70884, 6.96988],
+  'type': 'remesh::2.0'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['matchsize2', 'normal4'],
+  'name': 'boolean2',
+  'parms': {'binsidea': 'pf_chipped', 'booleanop': 1, 'usebinsidea': 1},
+  'pos': [0.1417, -2.96608],
+  'type': 'boolean::2.0'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['switch1'],
+  'name': 'normal4',
+  'parms': {'cuspangle': 0.0},
+  'pos': [2.70884, -1.87126],
+  'type': 'normal'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['apply_mask_bias'],
+  'name': 'vdbfrompolygons2',
+  'parms': {'exteriorbandvoxels': 1,
+            'interiorbandvoxels': 5,
+            'voxelsize': 'ch("../damage_resolution")*0.25'},
+  'pos': [2.70759, 2.67162],
+  'type': 'vdbfrompolygons'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['vdbfrompolygons2'],
+  'name': 'convertvdb2',
+  'parms': {'conversion': 2},
+  'pos': [2.70759, 1.86662],
+  'type': 'convertvdb'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['convertvdb2'],
+  'name': 'polyreduce1',
+  'parms': {'percentage': 'ch("../target_mesh_percentage")'},
+  'pos': [4.06597, 0.57932],
+  'type': 'polyreduce::2.0'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['convertvdb2'],
+  'name': 'remesh4',
+  'parms': {'targetsize': 'ch("../target_mesh_size")'},
+  'pos': [1.39823, 0.57932],
+  'type': 'remesh::2.0'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['mountain2'],
+  'name': 'peak1',
+  'parms': {'dist': 'ch("../dist")'},
+  'pos': [2.70884, 4.92121],
+  'type': 'peak'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['remesh4', 'polyreduce1'],
+  'name': 'switch1',
+  'parms': {'input': 'ch("../damage_meshing")'},
+  'pos': [2.70884, -0.585466],
+  'type': 'switch'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['boolean2'],
+  'name': 'matchsize1',
+  'parms': {'restorexform': 1},
+  'pos': [-2.52668, -5.66201],
+  'type': 'matchsize'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['matchsize1', 'boolean2', 'MASK_MERGE', 'BOOLEAN_GEO_MERGE'],
+  'name': 'VisualizationMode',
+  'parms': {'input': 'ch("../visual_mode")'},
+  'pos': [0.1417, -7.49501],
+  'type': 'switch'},
+ {'flags': {'bypass': False, 'display': True, 'render': True},
+  'in': ['VisualizationMode'],
+  'name': 'output0',
+  'parms': {'outputidx': 0},
+  'pos': [0.1417, -8.44203],
+  'type': 'output'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': ['switch1'],
+  'name': 'BOOLEAN_GEO',
+  'parms': {},
+  'pos': [6.40568, -1.87626],
+  'type': 'null'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': [],
+  'name': 'MASK_MERGE',
+  'parms': {'objpath1': '../MASK'},
+  'pos': [1.69757, -5.16204],
+  'type': 'object_merge'},
+ {'flags': {'bypass': False, 'display': False, 'render': False},
+  'in': [],
+  'name': 'BOOLEAN_GEO_MERGE',
+  'parms': {'objpath1': '../BOOLEAN_GEO'},
+  'pos': [3.18168, -6.3722],
+  'type': 'object_merge'}]
 
-MASKINIT_VEX = r'''// pf_edge_damage - where damage is allowed, before any stroke lands.
-int mode = chi("../masksource");
-string a = chs("../maskattrib");
-float d = 0.0;
-if (mode == 1 && haspointattrib(0, a)) d = point(0, a, @ptnum);
-if (mode == 2) d = 1.0;
-f@%s = d;
-''' % MASK
+# attribpaint1's per-stroke instance links (hscript `opmultiparm` pairs).
+STROKE_LINKS = "'stroke#_enable' '../stroke#_enable' 'stroke#_radius' '../stroke#_radius' 'stroke#_tool' '../stroke#_tool' 'stroke#_opacity' '../stroke#_opacity' 'stroke#_projtype' '../stroke#_projtype' 'stroke#_projcenterx' '../stroke#_projcenterx' 'stroke#_projcentery' '../stroke#_projcentery' 'stroke#_projcenterz' '../stroke#_projcenterz' 'stroke#_projdirx' '../stroke#_projdirx' 'stroke#_projdiry' '../stroke#_projdiry' 'stroke#_projdirz' '../stroke#_projdirz' 'stroke#_data' '../stroke#_data' 'stroke#_metadata' '../stroke#_metadata'"
 
-# Where the canvas was BEFORE the blur, so the push below can put an
-# unpainted vertex back there and then out - whatever the blur did to it.
-REST_VEX = r'''v@_rest = @P;
-'''
-
-# The push is what keeps unpainted surface untouched. An unpainted vertex is
-# returned to its pre-blur position and moved OUT, along the ORIGINAL's face
-# normal there (input 1 is the fitted input; xyzdist finds the face), by
-# more than the bias, the voxels and the reduction can bring anything back
-# IN - the noise only ever adds outward. So the cutter clears the original
-# wherever nothing was painted and the intersection keeps it whole.
-#   Two earlier forms failed on a thin plank and the audit caught the first:
-#   adding to the blurred position was 0.09 short at a blurred corner, and
-#   pushing along an interpolated rest NORMAL went nowhere across the thin
-#   side, where the top and bottom normals cancel to ~0 (measured 0.14 long).
-#   A face normal read off the original cannot cancel.
-PUSH_VEX = r'''// pf_edge_damage - unpainted vertices clear the original surface.
-float clear = chf("../chipdepth") + abs(chf("../bias")) + chf("../detail") * 0.5 + 0.05;
-float d = clamp(f@%s, 0.0, 1.0);
-int pr; vector uv;
-xyzdist(1, v@_rest, pr, uv);
-vector fn = prim_normal(1, pr, uv.x, uv.y);
-vector safe = v@_rest + fn * clear;
-@P = lerp(safe, @P, d);
-''' % MASK
-
-# The boolean needs a closed polygon solid and quietly returns nothing
-# otherwise - a wood block with 16 open edges cooked to 0 prims. Counted on
-# the input, before any of this tool's own work, and raised as a warning.
-CONTRACT_VEX = r'''// pf_edge_damage - the input contract, counted for the warning below.
-if (primintrinsic(0, "typename", @primnum) != "Poly")
-    setdetailattrib(0, "_nonpoly", 1, "add");
-int h = primhedge(0, @primnum);
-for (int i = 0; i < primvertexcount(0, @primnum); i++) {
-    if (hedge_equivcount(0, h) < 2) setdetailattrib(0, "_open", 1, "add");
-    h = hedge_next(0, h);
-}
-'''
-
-MASKVIZ_VEX = r'''@Cd = lerp({0.25, 0.25, 0.25}, {1.0, 0.35, 0.0}, clamp(f@%s, 0.0, 1.0));
-''' % MASK
-
-VIEWER_STATE = r'''"""pf_edge_damage - paint the damage mask on a LOCKED asset.
-
-sidefx_stroke.StrokeState writes strokes into the node it is entered on
-(this asset's `stroke_*` parms) and asks `intersectGeometry` what to paint
-against: the inner paint canvas. Entering flips the viz switch to the canvas
-so the brush lands on what is drawn; leaving flips it back to the output.
-"""
-import hou
-import toolutils
-from sidefx_stroke import StrokeState, createStrokeStateTemplate
+VIEWER_STATE = '"""\nState:          Edge Damage Paint Viewer\nState type:     Quentin::paint_edge_damage::1.0\nDescription:    Quentin::paint edge damage::1.0\nAuthor:         Quentin\nDate Created:   February 24, 2024 - 13:44:18\n"""\n\nimport hou\nimport viewerstate.utils as su\nfrom sidefx_stroke import StrokeState, StrokeCursor\nfrom sidefx_stroke import createStrokeStateTemplate\nimport toolutils\nimport soputils\nfrom enum import Enum\n\nclass VISUAL_MODES(Enum):\n    OUTPUT = 0\n    PAINTABLE = 1\n    MASK = 2\n    BOOLEAN = 3\n\nclass State(StrokeState):\n    DEFAULT_CURSOR_PROMPT = "MMB to resize cursor. CTRL+MMB to adjust damage strength"\n\n    HUD_TEMPLATE = {\n        "title": "Edge Damage Paint", "desc": "tool", "icon": "SOP_attribpaint",\n        "rows": [\n            {"id": "radius", "label": "Brush Radius", "value": "1.0", "key": "mousewheel"},\n            {"id": "radius_g", "type": "bargraph"},\n            {"id": "strength", "label": "Damage Strength", "value": "1.0"},\n            {"id": "strength_g", "type": "bargraph"},\n        ]\n    }\n    \n    def __init__(self, **kwargs):\n        super(State, self).__init__(**kwargs)\n\n        self.cursor.prompt = State.DEFAULT_CURSOR_PROMPT\n        \n        self.cursor.brushes = []\n        self.cursor.init_brushlist([(\'sphere\', {})])\n\n        self.root_node = None               # Our HDA node\n        self.paint_node = None              # The attribute paint node that we\'re leveraging\n\n        self.scene_viewer.hudInfo(template=self.HUD_TEMPLATE)\n\n    def get_paint_node(self, parentNode):\n        """\n            Finds the attribute paint node within the HDA\n        """\n        return toolutils.findChildNodeOfType(parentNode, \'attribpaint\', True)\n    \n    def resize_strength(self, node, dist):\n        """\n            Adjusts painting strength\n        """\n        scale = dist * 0.05\n        stroke_strength = self.root_node.parm("stroke_float")\n        if stroke_strength is None:\n            return\n        strength = stroke_strength.evalAsFloat()\n        strength += scale\n        stroke_strength.set(strength)\n\n    def get_paint_attribute(self):\n        """\n            Gets the attribute name and type we are painting on to\n        """\n        attrib_idx = self.paint_node.evalParm("attribute")\n        attrib_name = self.paint_node.evalParm("attribname" + str(attrib_idx + 1))\n        attrib_type = self.paint_node.evalParm("attribtype" + str(attrib_idx + 1))\n        return (attrib_name, attrib_type)\n\n    def set_visualizer_active(self, scene_viewer, is_active):\n        """\n            Enables / disables the attribute visualizer to the viewport, for the mask display mode\n        """\n        viewports = scene_viewer.viewports()\n        cur_viewport = scene_viewer.curViewport()\n\n        if len(viewports) == 0 or cur_viewport is None:\n            return False\n        \n        for viewport in viewports:\n            soputils.turnOffVisualizers(hou.viewportVisualizers.type(\'vis_color\'), hou.viewportVisualizerCategory.Scene, None, viewport)\n        \n        attribname, attribtype = self.get_paint_attribute()\n        viz = soputils.findVisualizer(attribname, hou.viewportVisualizerCategory.Scene, None)\n        \n        for viewport in viewports:\n            viz.setIsActive(is_active, viewport)\n\n            if isinstance(viewport, hou.GeometryViewport):\n                if is_active:\n                    bbox = self.paint_node.geometry().boundingBox()\n                    viewport.frameBoundingBox(bbox)\n                else:\n                    bbox = self.root_node.geometry().boundingBox()\n                    viewport.frameBoundingBox(bbox)\n\n    def update_hint_panel(self):\n        """\n            Updates viewport UI\n        """\n        radius = self.root_node.parm("stroke_radius").evalAsFloat()\n        strength = self.root_node.parm("stroke_float").evalAsFloat()\n\n        rows = {\n            "radius": "%0.2f" % radius,\n            "radius_g": radius,\n            "strength": "%0.2f" % strength,\n            "strength_g": radius,\n        }\n\n        self.scene_viewer.hudInfo(values=rows)\n\n    def set_visualization(self, mode):\n        """\n            Sets display mode\n        """\n        self.set_visualizer_active(self.scene_viewer, False)\n        if mode == VISUAL_MODES.OUTPUT:\n            self.root_node.parm("visual_mode").set(0)\n        elif mode == VISUAL_MODES.PAINTABLE:\n            self.root_node.parm("visual_mode").set(1)\n        elif mode == VISUAL_MODES.MASK:\n            self.set_visualizer_active(self.scene_viewer, True)\n            self.root_node.parm("visual_mode").set(2)\n        elif mode == VISUAL_MODES.BOOLEAN:\n            self.root_node.parm("visual_mode").set(3)\n\n    def onParmChanged(self, **kwargs):\n        """\n            Custom callback whenever a parameter changes\n        """\n        self.update_hint_panel()\n\n    def onEnter(self, kwargs):\n        super(State, self).onEnter(kwargs)\n        \n        node = kwargs[\'node\']\n        self.root_node = node\n        self.paint_node = self.get_paint_node(node)\n\n        self.set_visualization(VISUAL_MODES.PAINTABLE)\n        self.scene_viewer.hudInfo(show=True)\n        self.update_hint_panel()\n        \n        node.addEventCallback([hou.nodeEventType.ParmTupleChanged],\n                        self.onParmChanged)\n        \n        # Force focus on the paintable geometry\n        self.root_node.cook(force=True)\n        for v in self.scene_viewer.viewports():\n            v.frameBoundingBox(self.root_node.geometry().boundingBox())\n            v.draw()\n\n    def onExit(self, kwargs):\n        super(State, self).onExit(kwargs)\n\n        self.set_visualization(VISUAL_MODES.OUTPUT)\n\n        node = kwargs.get("node")\n        if node:\n            node.removeEventCallback([hou.nodeEventType.ParmTupleChanged],\n                                        self.onParmChanged)\n            \n        # Force focus back on the output geometry\n        self.root_node.cook(force=True)\n        for v in self.scene_viewer.viewports():\n            v.frameBoundingBox(self.root_node.geometry().boundingBox())\n            v.draw()\n\n    def intersectGeometry(self, node):\n        """\n            Returns the geometry the stroke uses for intersection tests\n        """\n        if self.intersect_geometry is None:\n            self.intersect_geometry = self.paint_node.geometry()\n        else:\n            if self.intersect_geometry.sopNode() != self.paint_node:\n                self.intersect_geometry = self.paint_node.geometry()\n\n        return self.intersect_geometry\n    \n    def onPostApplyStroke(self, node, ui_event, captured_parms):\n        """\n            Cache strokes for better performance\n        """\n        if self.root_node.parm(\'stroke_numstrokes\').eval():\n            post_geometry = self.paint_node.node(\'POST_APPLY_EACH_STROKE\').geometry()\n            if post_geometry is not None:\n                post_geometry = post_geometry.freeze(True, True)\n\n            self.paint_node.parm(\'bakedgeo\').set(post_geometry)\n            self.paint_node.parm(\'unsavedbakedgeo\').set(None)\n\n            strokes_parm = self.paint_node.parm(\'strokegeo\') \n            stroke_geo = self.paint_node.node(\'all_strokes\').geometry().freeze(True, True)\n            strokes_parm.set(stroke_geo)\n            self.root_node.parm(\'stroke_numstrokes\').set(0)\n        \n    def onMouseWheelEvent(self, kwargs):\n        """ \n            Either resize cursor or change damage intensity\n        """\n        ui_event = kwargs[\'ui_event\']\n        node = kwargs[\'node\']\n        dist = ui_event.device().mouseWheel()\n        dist *= 10.0\n\n        if ui_event.device().isShiftKey():\n            dist *= StrokeState.CURSOR_DRAG_FACTOR\n\n        if ui_event.device().isCtrlKey():\n            self.resize_strength(node, dist)\n        else:\n            self.resize_cursor(node, dist) # Defined in base stroke class\n\n    def onMenuAction(self, kwargs):\n        """\n            Menu actions\n        """\n        menu_item = kwargs[\'menu_item\']\n        node = kwargs[\'node\']\n        if menu_item == \'display_mode\':\n            mode = kwargs[\'display_mode\']\n            self.log(mode)\n            if mode == "paint_display":\n                self.set_visualization(VISUAL_MODES.PAINTABLE)\n            elif mode == "output_display":\n                self.set_visualization(VISUAL_MODES.OUTPUT)\n            elif mode == "mask_display":\n                self.set_visualization(VISUAL_MODES.MASK)\n            elif mode == "boolean_display":\n                self.set_visualization(VISUAL_MODES.BOOLEAN)\n\ndef reset(node):\n    """\n        Zero\'s out current strokes\n    """\n    paint_node = toolutils.findChildNodeOfType(node, \'attribpaint\', True)\n    paint_node.parm(\'bakedgeo\').set(None)\n    paint_node.parm(\'unsavedbakedgeo\').set(None)\n    paint_node.parm(\'strokegeo\').set(None)\n    node.parm(\'stroke_numstrokes\').set(0)\n\ndef createViewerStateTemplate():\n    state_typename = kwargs["type"].definition().sections()["DefaultState"].contents()\n    state_label = "Edge Damage Paint"\n    state_cat = hou.sopNodeTypeCategory()\n\n    t = hou.ViewerStateTemplate(state_typename, state_label, state_cat)\n    t.bindFactory(State)    \n    t.bindIcon(kwargs["type"].icon())\n\n    hotkey_definitions = hou.PluginHotkeyDefinitions()\n    realtime = su.defineHotkey(hotkey_definitions,\n        state_typename, \'realtime_mode\', \'0\', \'realtime\', \'Enable realtime mode\')\n    set_paint_display = su.defineHotkey(hotkey_definitions,\n        state_typename, \'set_paint_display\', \'1\', \'View paintable geometry\')\n    set_output_display = su.defineHotkey(hotkey_definitions,\n        state_typename, \'set_output_display\', \'2\', \'View output geometry\')\n    set_mask_display = su.defineHotkey(hotkey_definitions,\n        state_typename, \'set_mask_display\', \'3\', \'View mask geometry\')\n    set_boolean_display = su.defineHotkey(hotkey_definitions,\n        state_typename, \'set_boolean_display\', \'4\', \'View boolean geometry\')\n    t.bindHotkeyDefinitions(hotkey_definitions)\n\n    m = hou.ViewerStateMenu(\'paint_damage_menu\', \'Paint Edge Damage\')\n    m.addToggleItem(\'realtime_mode\', \'Draw realtime\', True, hotkey=realtime)\n    m.addSeparator()\n    m.addRadioStrip(\'display_mode\', \'Display mode\', \'paint_display\')\n    m.addRadioStripItem(\'display_mode\', \'paint_display\', \'Paintable Geometry\', hotkey=set_paint_display)\n    m.addRadioStripItem(\'display_mode\', \'output_display\', \'Output Geometry\', hotkey=set_output_display)\n    m.addRadioStripItem(\'display_mode\', \'mask_display\', \'Mask Geometry\', hotkey=set_mask_display)\n    m.addRadioStripItem(\'display_mode\', \'boolean_display\', \'Boolean Geometry\', hotkey=set_boolean_display)\n    m.addSeparator()\n\n    t.bindMenu(m)\n\n    return t'
 
 
-class State(StrokeState):
-    def __init__(self, **kwargs):
-        super(State, self).__init__(**kwargs)
-        self.cursor.init_brushlist([("sphere", {})])
-        self.cursor.prompt = "Paint damage. MMB drag / wheel resizes the brush."
-        self.root = None
-        self.paint = None
-
-    def onEnter(self, kwargs):
-        super(State, self).onEnter(kwargs)
-        self.root = kwargs["node"]
-        self.paint = toolutils.findChildNodeOfType(self.root, "attribpaint", True)
-        self.root.parm("viz").set(1)
-        for v in self.scene_viewer.viewports():
-            v.frameBoundingBox(self.root.geometry().boundingBox())
-
-    def onExit(self, kwargs):
-        super(State, self).onExit(kwargs)
-        if self.root is not None:
-            self.root.parm("viz").set(0)
-
-    def intersectGeometry(self, node):
-        if (self.intersect_geometry is None
-                or self.intersect_geometry.sopNode() != self.paint):
-            self.intersect_geometry = self.paint.geometry()
-        return self.intersect_geometry
-
-
-def createViewerStateTemplate():
-    # SideFX's helper, never a bare hou.ViewerStateTemplate: StrokeState's
-    # onMouseEvent reads kwargs['realtime_mode'] from the menu this helper
-    # binds, and a template without it raised KeyError on the first click.
-    typename = kwargs["type"].definition().sections()["DefaultState"].contents()
-    return createStrokeStateTemplate(typename, "Edge Damage Paint",
-                                     kwargs["type"].icon(), State)
-'''
-
-PYTHON_MODULE = r'''def reset(node):
-    """The Reset button: drop every stroke. The strokes live on this node's
-    own multiparm; the inner paint node is locked and holds nothing."""
-    node.parm("stroke_numstrokes").set(0)
-'''
+def _template(p):
+    t = p["type"]
+    if t == "Separator":
+        return hou.SeparatorParmTemplate(p["name"])
+    if t == "Label":
+        return hou.LabelParmTemplate(p["name"], p["label"])
+    if t == "Data":
+        return hou.DataParmTemplate(p["name"], p["label"], 1,
+                                    data_parm_type=hou.dataParmType.Geometry)
+    if t == "Button":
+        b = hou.ButtonParmTemplate(p["name"], p["label"])
+        b.setScriptCallback(p["callback"])
+        b.setScriptCallbackLanguage(hou.scriptLanguage.Python)
+        return b
+    if t == "Toggle":
+        return hou.ToggleParmTemplate(p["name"], p["label"], bool(p["default"]))
+    if t == "String":
+        return hou.StringParmTemplate(p["name"], p["label"], 1,
+                                      default_value=tuple(p["default"]))
+    if t == "Menu":
+        return hou.MenuParmTemplate(p["name"], p["label"], tuple(p["items"]),
+                                    menu_labels=tuple(p["labels"]),
+                                    default_value=p["default"])
+    if t == "Int":
+        return hou.IntParmTemplate(p["name"], p["label"], p["size"],
+                                   tuple(p["default"]), min=p["min"], max=p["max"],
+                                   min_is_strict=p["minlock"], max_is_strict=p["maxlock"])
+    if t == "Float":
+        return hou.FloatParmTemplate(p["name"], p["label"], p["size"],
+                                     tuple(p["default"]), min=p["min"], max=p["max"],
+                                     min_is_strict=p["minlock"], max_is_strict=p["maxlock"])
+    if t == "Folder":
+        ft = {"Simple": hou.folderType.Simple, "Collapsible": hou.folderType.Collapsible,
+              "Tabs": hou.folderType.Tabs, "MultiparmBlock": hou.folderType.MultiparmBlock,
+              "TabbedMultiparmBlock": hou.folderType.TabbedMultiparmBlock,
+              "ScrollingMultiparmBlock": hou.folderType.ScrollingMultiparmBlock,
+              "ImportBlock": hou.folderType.ImportBlock}[p["foldertype"].split(".")[-1]]
+        return hou.FolderParmTemplate(p["name"], p["label"], folder_type=ft)
+    raise ValueError(p)
 
 
-def _float(name, label, default, lo, hi, help_, minlock=True, maxlock=False):
-    t = hou.FloatParmTemplate(name, label, 1, (default,), min=lo, max=hi,
-                              min_is_strict=minlock, max_is_strict=maxlock)
-    t.setHelp(help_)
-    return t
-
-
-def _int(name, label, default, lo, hi, help_):
-    t = hou.IntParmTemplate(name, label, 1, (default,), min=lo, max=hi,
-                            min_is_strict=True, max_is_strict=False)
-    t.setHelp(help_)
-    return t
-
-
-def _menu(name, label, items, labels, default, help_):
-    t = hou.MenuParmTemplate(name, label, items, menu_labels=labels,
-                             default_value=default)
-    t.setHelp(help_)
-    return t
+def build_ptg():
+    """PARMS is a flat pre-order list with depths; rebuild the tree."""
+    ptg = hou.ParmTemplateGroup()
+    stack = []                       # (depth, folder template)
+    made = []
+    for p in PARMS:
+        t = _template(p)
+        if p["help"]:
+            t.setHelp(p["help"])
+        if p["hidden"]:
+            t.hide(True)
+        while stack and stack[-1][0] >= p["depth"]:
+            stack.pop()
+        made.append((p["depth"], t, stack[-1][1] if stack else None))
+        if p["type"] == "Folder":
+            stack.append((p["depth"], t))
+    # attach children to folders bottom-up, then roots to the group
+    for depth, t, parent in reversed(made):
+        if parent is not None:
+            parent.addParmTemplate(t)
+    for depth, t, parent in made:
+        if parent is None:
+            ptg.append(t)
+    return ptg
 
 
 if hou.isUIAvailable() is False:
@@ -257,8 +756,6 @@ if os.path.exists(HDA_PATH):
 obj = hou.node("/obj")
 build_geo = obj.createNode("geo", "_build_" + NAME)
 subnet = build_geo.createNode("subnet", NAME)
-subnet.createNode("null", "OUT").setDisplayFlag(True)
-
 hda_node = subnet.createDigitalAsset(
     name=NAME, hda_file_name=HDA_PATH, description=TAB_LABEL,
     min_num_inputs=1, max_num_inputs=1, version="1.0")
@@ -267,347 +764,55 @@ defn = hda_node.type().definition()
 defn.setMinNumInputs(1)
 defn.setMaxNumInputs(1)
 defn.setIcon(ICON)
-
 net = hda_node
-out_null = net.node("OUT")
-src = net.indirectInputs()[0]
+for c in list(net.children()):
+    c.destroy()
 
+# nodes first, wiring second (inputs reference nodes by name)
+made = {}
+for n in NODES:
+    node = net.createNode(n["type"], n["name"])
+    node.setPosition(hou.Vector2(*n["pos"]))
+    made[n["name"]] = node
+for n in NODES:
+    node = made[n["name"]]
+    for i, src in enumerate(n["in"]):
+        if src is None:
+            continue
+        if src in made:
+            node.setInput(i, made[src])
+        else:                        # the reference's "box1" = the asset input
+            node.setInput(i, net.indirectInputs()[0])
+    for pname, val in n["parms"].items():
+        parm = node.parm(pname)
+        if isinstance(val, str) and val.startswith("ch("):
+            parm.setExpression(val)
+        else:
+            parm.set(val)
+    if n["flags"]["display"]:
+        node.setDisplayFlag(True)
+    if n["flags"]["render"]:
+        node.setRenderFlag(True)
+    if n["flags"]["bypass"]:
+        node.bypass(True)
 
-def _place(node, x, y, comment=None):
-    node.setPosition(hou.Vector2(x, y))
-    if comment:
-        node.setComment(comment)
-        node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
-    return node
-
-
-def _wrangle(name, x, y, vex, comment, cls="point"):
-    w = _place(net.createNode("attribwrangle", name), x, y, comment)
-    w.parm("class").set(cls)
-    w.parm("snippet").set(vex)
-    return w
-
-
-contract = _wrangle("contract", 0, 16, CONTRACT_VEX,
-                    "Counts open edges and non-polygons on the INPUT.",
-                    cls="primitive")
-contract.setInput(0, src)
-
-warn = _place(net.createNode("error", "warn"), 0, 15,
-              "The boolean needs a closed polygon solid and returns\n"
-              "nothing otherwise. Said here, not discovered later.\n"
-              "PROBED: a warning inside a locked asset never reaches\n"
-              "the asset node; an error does, text and all.")
-warn.setInput(0, contract)
-warn.parm("numerror").set(2)
-warn.parm("enable1").setExpression('detail("../contract", "_open", 0) > 0')
-# 2 = error, 1 = warning (which only a diver into the asset would see).
-warn.parm("severity1").setExpression('if(ch("../allowopen"), 1, 2)')
-warn.parm("errormsg1").set(
-    "Input is not closed: `detail(\"../contract\", \"_open\", 0)` open "
-    "edges. Edge damage needs a watertight solid - Fuse or PolyFill it "
-    "first, or turn on Allow Open Input to cut anyway.")
-warn.parm("enable2").setExpression('detail("../contract", "_nonpoly", 0) > 0')
-warn.parm("severity2").set(2)
-warn.parm("errormsg2").set(
-    "Input has `detail(\"../contract\", \"_nonpoly\", 0)` non-polygon "
-    "primitives. Convert to polygons first.")
-
-fit = _place(net.createNode("matchsize", "fit"), 0, 14,
-             "Into the unit cube, transform stashed. Every size below\n"
-             "is a fraction of the object.")
-fit.setInput(0, warn)
-fit.parm("doscale").set(1)
-fit.parm("stashxform").set(1)
-
-canvas = _place(net.createNode("divide", "canvas"), 0, 13,
-                "Dense paint canvas. Brick divide keeps flat faces flat.")
-canvas.setInput(0, fit)
-canvas.parm("brick").set(1)
-canvas.parm("convex").set(0)
-canvas.parm("usemaxsides").set(0)
-for ax in "xyz":
-    canvas.parm("size" + ax).setExpression('ch("../paintres")')
-
-tri = _place(net.createNode("divide", "tri"), 0, 12)
-tri.setInput(0, canvas)
-
-maskinit = _wrangle("maskinit", 0, 11, MASKINIT_VEX,
-                    "`_damage`: 0 for painting, an upstream attribute,\n"
-                    "or 1 everywhere.")
-maskinit.setInput(0, tri)
-
-paint = _place(net.createNode("attribpaint", "paint"), 0, 10,
-               "Stroke parms are channel-linked to the asset's; new\n"
-               "stroke instances are linked with opmultiparm.")
-paint.setInput(0, maskinit)
-paint.parm("attribname1").set(MASK)
-paint.parm("attribtype1").set(1)                 # float
-for p in STROKE_PARMS[:-1]:
-    if p == "stroke_attrib":
-        paint.parm(p).set(MASK)
-    else:
-        paint.parm(p).setExpression('ch("../%s")' % p)
-paint.parm("stroke_numstrokes").setExpression('ch("../stroke_numstrokes")')
-_links = " ".join("'stroke#_%s' '../stroke#_%s'" % (p, p) for p in STROKE_INSTANCE)
-_err = hou.hscript("opmultiparm %s %s" % (paint.path(), _links))[1]
+_err = hou.hscript("opmultiparm %s %s" % (made["attribpaint1"].path(), STROKE_LINKS))[1]
 assert not _err, "opmultiparm: " + _err
 
-rest = _wrangle("rest", 0, 9.3, REST_VEX,
-                "Pre-blur position, for the push below.")
-rest.setInput(0, paint)
-
-pull = _place(net.createNode("attribblur", "pull"), 0, 9,
-              "THE damage: blurring P pulls edges and corners in while\n"
-              "flat faces stay flat. Everything after this only\n"
-              "roughens the result. Iterations are computed from\n"
-              "Edge Wear (a distance) and the cell size.")
-pull.setInput(0, rest)
-pull.parm("attributes").set("P")
-# Laplacian blur reaches ~sqrt(iterations) cells, so a wear DISTANCE needs
-# (wear / cell)^2 iterations. 3.25 puts the reference's 13 iterations at
-# wear 0.1 on a 0.05 canvas; at 0.025 cells the same wear takes 52. Before
-# this, a finer Paint Resolution silently shrank the wear below the VDB
-# voxel and the tool cut nothing (Hannes, on his first real try).
-pull.parm("iterations").setExpression(
-    'min(400, round(pow(ch("../edgewear") / ch("../paintres"), 2) * 3.25))')
-
-dmesh = _place(net.createNode("remesh::2.0", "dmesh"), 0, 8,
-               "Even triangles at half the detail size - vertices\n"
-               "for the noise to move.")
-dmesh.setInput(0, pull)
-dmesh.parm("targetsize").setExpression('ch("../detail") * 0.5')
-
-noise = _place(net.createNode("attribnoise::2.0", "noise"), 0, 7,
-               "The chip shapes.")
-noise.setInput(0, dmesh)
-noise.parm("attribs").set("P")
-noise.parm("displace").set(1)
-for p in ("amplitude", "elementsize", "basis", "fractal", "oct", "lac",
-          "rough", "offset"):
-    noise.parm(p).setExpression('ch("../%s")' % {
-        "amplitude": "chipdepth", "elementsize": "chipsize",
-        "offset": "seed"}.get(p, p))
-
-bias = _place(net.createNode("peak", "bias"), 0, 6,
-              "Lifts the whole cutter: higher = fewer chips.")
-bias.setInput(0, noise)
-bias.parm("dist").setExpression('ch("../bias")')
-
-push = _wrangle("push", 0, 5, PUSH_VEX,
-                "Unpainted vertices go back to where they were and OUT\n"
-                "along the original's face normal (input 1), further\n"
-                "than anything can pull them IN.")
-push.setInput(0, bias)
-push.setInput(1, fit)
-
-vdb = _place(net.createNode("vdbfrompolygons", "vdb"), 0, 4,
-             "A watertight cutter whatever the noise did.")
-vdb.setInput(0, push)
-vdb.parm("voxelsize").setExpression('ch("../detail") * 0.25')
-vdb.parm("exteriorbandvoxels").set(1)
-vdb.parm("interiorbandvoxels").set(5)
-
-poly = _place(net.createNode("convertvdb", "poly"), 0, 3)
-poly.setInput(0, vdb)
-poly.parm("conversion").set(2)                   # polygons
-
-noname = _place(net.createNode("attribdelete", "noname"), 0, 2.5,
-                "vdbfrompolygons names its grid `surface`, and that prim\n"
-                "`name` would ride the chip faces out through the boolean.")
-noname.setInput(0, poly)
-noname.parm("doprimdel").set(1)
-noname.parm("primdel").set("name")
-
-lowpoly = _place(net.createNode("polyreduce::2.0", "lowpoly"), 2, 2,
-                 "Low-poly: sharp, irregular facets. A floor of 200\n"
-                 "polygons, because a percentage of a small cutter\n"
-                 "reduced to nothing and the output was empty.")
-lowpoly.setInput(0, noname)
-lowpoly.parm("target").set(2)                    # polygon count
-lowpoly.parm("finalcount").setExpression(
-    'max(nprims("../noname") * ch("../lowpolypct") / 100, 200)')
-
-smooth = _place(net.createNode("remesh::2.0", "smooth"), -2, 2,
-                "Smooth: even small triangles.")
-smooth.setInput(0, noname)
-smooth.parm("targetsize").setExpression('ch("../smoothsize")')
-
-style = _place(net.createNode("switch", "style"), 0, 1)
-style.setInput(0, smooth)
-style.setInput(1, lowpoly)
-style.parm("input").setExpression('ch("../style")')
-
-cutn = _place(net.createNode("normal", "cutn"), 0, 0,
-              "Hard normals into the boolean.")
-cutn.setInput(0, style)
-cutn.parm("cuspangle").set(0)
-
-cut = _place(net.createNode("boolean::2.0", "cut"), 0, -1,
-             "Original AND cutter. The cutter's faces inside the\n"
-             "original are the chips: `pf_chipped`.")
-cut.setInput(0, fit)
-cut.setInput(1, cutn)
-cut.parm("booleanop").set(1)                     # intersect
-cut.parm("usebinsidea").set(1)
-cut.parm("binsidea").set("pf_chipped")
-
-restore = _place(net.createNode("matchsize", "restore"), 0, -2,
-                 "Back to the input's transform.")
-restore.setInput(0, cut)
-restore.parm("restorexform").set(1)
-
-maskviz = _wrangle("maskviz", 4, -2, MASKVIZ_VEX, "Mask as colour.")
-maskviz.setInput(0, pull)
-
-viz = _place(net.createNode("switch", "viz"), 0, -3,
-             "Output / Paint Canvas / Mask / Cutter. The paint state\n"
-             "flips this to the canvas while painting.")
-viz.setInput(0, restore)
-viz.setInput(1, tri)
-viz.setInput(2, maskviz)
-viz.setInput(3, cutn)
-viz.parm("input").setExpression('ch("../viz")')
-
-clean = _place(net.createNode("attribdelete", "clean"), 0, -4,
-               "`_*` off every class (conventions.md 2).")
-clean.setInput(0, viz)
-for cls in ("pt", "vtx", "prim", "dtl"):
-    clean.parm("do%sdel" % cls).set(1)
-    clean.parm("%sdel" % cls).set("_*")
-
-gclean = _place(net.createNode("groupdelete", "gclean"), 0, -5)
-gclean.setInput(0, clean)
-gclean.parm("group1").set("_*")
-
-empty = _place(net.createNode("error", "empty"), 0, -6,
-               "An open input let through can still cut to nothing.\n"
-               "Nothing is never silent.")
-empty.setInput(0, gclean)
-empty.parm("enable1").setExpression(
-    'nprims("../restore") == 0 && nprims("../contract") > 0')
-empty.parm("severity1").set(2)
-empty.parm("errormsg1").set(
-    "Edge damage produced nothing. The input is not a watertight solid "
-    "(`detail(\"../contract\", \"_open\", 0)` open edges) - Fuse or "
-    "PolyFill it first.")
-
-out_null.setInput(0, empty)
-out_null.setPosition(hou.Vector2(0, -7))
-
-# --------------------------------------------------------------------------
-# Parameter interface
-# --------------------------------------------------------------------------
-ptg = hou.ParmTemplateGroup()
-
-ptg.append(_menu("viz", "Show", ("output", "canvas", "mask", "cutter"),
-                 ("Output", "Paint Canvas", "Mask", "Cutter"), 0,
-                 "What the node draws. The paint state switches to the "
-                 "canvas by itself; Mask and Cutter are for checking."))
-ptg.append(_menu("masksource", "Damage Where", ("paint", "attrib", "all"),
-                 ("I Paint It", "An Attribute Says", "Everywhere"), 0,
-                 "Paint: only where strokes land. Attribute: a float "
-                 "point attribute from upstream, 0..1, strokes add on "
-                 "top. Everywhere: the whole surface."))
-_ma = hou.StringParmTemplate("maskattrib", "Mask Attribute", 1,
-                             default_value=("pf_damage",))
-_ma.setHelp("The upstream point attribute read when Damage Where is "
-            "An Attribute Says.")
-ptg.append(_ma)
-_ao = hou.ToggleParmTemplate("allowopen", "Allow Open Input", False)
-_ao.setHelp("The cut needs a watertight polygon solid and an open mesh "
-            "is refused with an error. Turn this on to cut anyway - the "
-            "result may be open, wrong, or empty (which is still an "
-            "error).")
-ptg.append(_ao)
-
-ptg.append(_float("chipdepth", "Chip Depth", 0.07, 0.0, 0.5,
-                  "How deep a chip cuts, as a fraction of the object."))
-ptg.append(_float("chipsize", "Chip Size", 0.1, 0.01, 1.0,
-                  "How big the chips are, as a fraction of the object."))
-ptg.append(_float("bias", "Damage Bias", 0.04, -0.1, 0.1,
-                  "How much of the painted area actually chips. Lower is "
-                  "more, higher is less; 0 chips about half.",
-                  minlock=False))
-ptg.append(_float("detail", "Detail", 0.2, 0.02, 1.0,
-                  "Size of the smallest feature, as a fraction of the "
-                  "object. Smaller is finer and slower."))
-ptg.append(_float("edgewear", "Edge Wear", 0.1, 0.0, 0.5,
-                  "How far edges and corners get eaten, as a fraction of "
-                  "the object, whatever the Paint Resolution. At the "
-                  "default a cube loses about 1% of its volume; 0 leaves "
-                  "only the noise chips. Thin parts wear through first."))
-ptg.append(_float("paintres", "Paint Resolution", 0.05, 0.01, 0.2,
-                  "Canvas cell size, as a fraction of the object: how fine "
-                  "you can paint. Finer costs more (Edge Wear needs more "
-                  "blur steps to reach the same distance).", maxlock=True))
-ptg.append(_menu("style", "Chip Style", ("smooth", "lowpoly"),
-                 ("Smooth", "Low-poly"), 1,
-                 "Low-poly gives sharp irregular facets; Smooth gives an "
-                 "even small-triangle surface."))
-ptg.append(_float("lowpolypct", "Low-poly Amount", 10.0, 1.0, 100.0,
-                  "Percentage of the cutter's polygons kept. Lower is "
-                  "chunkier.", maxlock=True))
-ptg.append(_float("smoothsize", "Smooth Triangle Size", 0.25, 0.01, 1.0,
-                  "Triangle size of the Smooth style, as a fraction of "
-                  "the object."))
-ptg.append(_float("seed", "Seed", 0.0, 0.0, 100.0,
-                  "Another value, another set of chips.", minlock=False))
-
-adv = hou.FolderParmTemplate("advfolder", "Advanced Noise",
-                             folder_type=hou.folderType.Collapsible)
-_ap = hou.node("/obj").createNode("geo", "_tmpl").createNode("attribnoise::2.0")
-NOISE_HELP = {
-    "basis": "Attribute Noise's own noise types. Simplex is the default; "
-             "Worley types give cellular, crystal-like chips.",
-    "fractal": "Layers of finer noise on top. None is the plain noise.",
-    "oct": "How many finer layers, when Fractal is on.",
-    "lac": "How much finer each layer is than the last.",
-    "rough": "How strong each finer layer is relative to the last."}
-for p in ("basis", "fractal", "oct", "lac", "rough"):
-    t = _ap.parmTemplateGroup().find(p)
-    t.setHelp(NOISE_HELP[p])
-    adv.addParmTemplate(t)
-_ap.parent().destroy()
-ptg.append(adv)
-
-pnt = hou.FolderParmTemplate("paintfolder", "Paint",
-                             folder_type=hou.folderType.Collapsible)
-_tp = hou.node("/obj").createNode("geo", "_tmpl2").createNode("attribpaint")
-_tpg = _tp.parmTemplateGroup()
-STROKE_HELP = {
-    "stroke_radius": "Brush size in the viewport. MMB-drag or the mouse "
-                     "wheel changes it while painting.",
-    "stroke_float": "How much damage one stroke paints: 1 is full, less "
-                    "fades, negative erases.",
-    "stroke_opacity": "Stroke opacity, like a paint program.",
-    "stroke_softedge": "How soft the brush edge is.",
-    "stroke_projtype": "How the brush projects onto the surface.",
-    "stroke_numstrokes": "The strokes themselves, one entry each. Reset "
-                         "Strokes clears them."}
-STROKE_DEFAULTS = {"stroke_attrib": (MASK,), "stroke_radius": (0.1,),
-                   "stroke_float": (1.0,), "stroke_projtype": 4}
-for p in STROKE_PARMS:
-    t = _tpg.find(p)
-    if p in STROKE_LABELS:
-        t.setLabel(STROKE_LABELS[p])
-    if p in STROKE_HELP:
-        t.setHelp(STROKE_HELP[p])
-    if p in STROKE_DEFAULTS:
-        t.setDefaultValue(STROKE_DEFAULTS[p])
-    if p in ("stroke_attrib", "stroke_attribtype"):
-        t.hide(True)
-    pnt.addParmTemplate(t)
+# the reference's multiparm is attribpaint's own; copy its template so the
+# instance parms match the native node exactly
+_tp = obj.createNode("geo", "_tmpl").createNode("attribpaint")
+_strokes = _tp.parmTemplateGroup().find("stroke_numstrokes")
 _tp.parent().destroy()
-_reset = hou.ButtonParmTemplate("reset", "Reset Strokes")
-_reset.setHelp("Drops every stroke.")
-_reset.setScriptCallback("hou.phm().reset(kwargs['node'])")
-_reset.setScriptCallbackLanguage(hou.scriptLanguage.Python)
-pnt.addParmTemplate(_reset)
-ptg.append(pnt)
 
+ptg = build_ptg()
+ptg.replace("stroke_numstrokes", _strokes)
+_sn = ptg.find("stroke_numstrokes")
+_sn.hide(True)
+ptg.replace("stroke_numstrokes", _sn)
 defn.setParmTemplateGroup(ptg)
 
+hda_node.setUserData("nodeshape", "chevron_down")
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
 _opts = defn.options()
 _opts.setUnlockNewInstances(False)
@@ -615,17 +820,7 @@ defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 
 defn = hou.hda.definitionsInFile(HDA_PATH)[0]
-ds = defn.sections()["DialogScript"].contents()
-if "outputlabel" in ds:
-    ds = re.sub(r'outputlabel\t1\t"[^"]*"',
-                'outputlabel\t1\t"%s"' % OUTPUT_LABEL, ds)
-else:
-    ds = ds.replace('  parm {', '  outputlabel\t1\t"%s"\n  parm {'
-                    % OUTPUT_LABEL, 1)
-defn.addSection("DialogScript", ds)
 defn.addSection("Tools.shelf", TOOLS_SHELF)
-defn.addSection("PythonModule", PYTHON_MODULE)
-# The embedded viewer state, exactly as the Type Properties editor installs it.
 typename = defn.nodeTypeName()
 defn.addSection("DefaultState", typename)
 defn.addSection("ViewerStateName.orig", typename)
@@ -636,11 +831,8 @@ defn.addSection("ViewerStateInstall",
 defn.addSection("ViewerStateUninstall",
                 "__import__('viewerstate.utils', fromlist=[None])"
                 ".unregister_pystate_embedded(kwargs['type'])")
-# Without these flags Houdini runs the install/uninstall sections as
-# HSCRIPT ("Unknown command: __import__") and the state never registers.
-# Mirrors the options on attribpaint's own definition.
 for _sec in ("ViewerStateInstall", "ViewerStateUninstall", "ViewerStateModule",
-             "PythonModule", "ViewerStateName.orig"):
+             "ViewerStateName.orig"):
     defn.setExtraFileOption(_sec + "/IsPython", True)
     defn.setExtraFileOption(_sec + "/IsScript", True)
 for _sec in ("ViewerStateInstall", "ViewerStateUninstall", "ViewerStateModule"):
@@ -649,20 +841,9 @@ for _sec in ("ViewerStateInstall", "ViewerStateUninstall", "ViewerStateModule"):
 hda_node.destroy()
 build_geo.destroy()
 
-# --- Verify by reading the SAVED asset back, never the build state --------
 back = hou.hda.definitionsInFile(HDA_PATH)[0]
-saved = back.sections()["DialogScript"].contents()
-assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
-assert back.icon() == ICON, "icon is %r" % back.icon()
-assert back.description() == TAB_LABEL
-assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
+assert back.sections()["ViewerStateModule"].contents() == VIEWER_STATE
 assert back.sections()["DefaultState"].contents() == back.nodeTypeName()
-assert "createStrokeStateTemplate(" in back.sections()["ViewerStateModule"].contents(), \
-    "the stroke state must be built by SideFX's helper (realtime_mode menu)"
-for _sec in ("ViewerStateInstall", "ViewerStateModule"):
-    assert back.extraFileOptions().get(_sec + "/IsPython"), _sec + " not flagged Python"
-for _p in ("viz", "masksource", "maskattrib", "allowopen", "chipdepth", "chipsize", "bias",
-           "detail", "edgewear", "style", "lowpolypct", "smoothsize", "seed",
-           "paintres", "basis", "stroke_radius", "stroke_numstrokes", "reset"):
-    assert re.search(r'name\s+"%s"' % _p, saved), "parm %s missing" % _p
+assert back.extraFileOptions().get("ViewerStateInstall/IsPython")
+assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
 print("wrote " + HDA_PATH)

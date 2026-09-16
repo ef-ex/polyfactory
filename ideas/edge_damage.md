@@ -1,165 +1,74 @@
-# Edge Damage — paintable, stylised chipped edges
+# Edge Damage — a 1:1 port of Quentin King's Paintable Stylized Edge Damage
 
-**Status:** built 2026-09-16 on branch `pf-edge-damage`; 10 mutation-paired checks green
-(`tests/hda/run_edge_damage_checks.py`), all 10 mutations seen red. One independent audit has
-run (2026-09-16) and every finding it raised is fixed and re-checked — see §6; a **re-audit of
-those fixes has not run**, so the honest word is *implemented, self-checked, first audit
-addressed*. The paint state itself (a brush stroke landing under the cursor) still has only a
-human in the viewport as its oracle — no check reaches it. The viewer state is confirmed to
-REGISTER in a fresh session (`hou.ui.isRegisteredViewerState` true), which the first audit
-could not verify headless.
-**This file owns:** `pf_edge_damage` — what it does, why it is built the way it is, and its
-decision log. It does not own rock *formation* ([`rocks.md`](rocks.md), parked) — that is
-geology; this is wear on a prop.
-**Origin:** Hannes liked Quentin King's free *Paintable Stylized Edge Damage*
-(quentinking.com/houdini/edgedamage/) while studying the palette-textured low-poly style of
-*8-bitBot*, and asked for it in polyfactory. It shipped as an Indie `.hiplc`, which a
-Commercial session cannot load, so it was rebuilt from its network — read over the Indie
-session's bridge — on native nodes, to polyfactory's conventions. Same algorithm, no copied
-sections.
+**Status:** ported 2026-09-16 on branch `pf-edge-damage`. Parity checks
+(`tests/hda/run_edge_damage_checks.py`) hold the shipped asset to a dump of the reference
+asset — nodes, wires, parameters, viewer-state module — and are green with every mutation seen
+red. Brush behaviour has only Hannes' viewport as its oracle.
+**This file owns:** `pf_edge_damage` — what it is, the three naming deviations, and the record
+of the failed first attempt. It does not own rock formation ([`rocks.md`](rocks.md)).
+**Origin:** Hannes liked the tool while studying *8-bitBot*'s chipped low-poly props and asked
+for it in polyfactory. It ships as an Indie `.hiplc` a Commercial session cannot load, so it
+was read node-for-node off the Indie session over its bridge (port 9877) and rebuilt from that
+dump. **Reference:** `Quentin::paint_edge_damage::1.0`, quentinking.com/houdini/edgedamage/,
+free download. Credit is Quentin's; the port is his design verbatim.
 
 ---
 
-## 1. What it does
+## 1. The law of this file: it is a replica
 
-Paint where a prop is worn; the tool takes low-poly chips out of its edges and corners there.
-Flat faces stay flat. Output is the input with the chips cut in, back in the input's own
-transform, with the chip faces in prim group **`pf_chipped`** (for a second material, decals,
-or a dark palette swatch).
+Hannes, 2026-09-16: *"please do not invent or change things from provided material when I ask
+you to port it over. I expect a 1 to 1 replica."*
 
-Three ways to say where: **I Paint It** (the default — select the node, enter the viewer state,
-paint), **An Attribute Says** (a 0..1 float point attribute from upstream, default `pf_damage`;
-strokes add on top) and **Everywhere**.
+The build script embeds the reference dump as `SPEC` and builds from it; nothing is authored by
+hand. Deviations — exactly three, all naming, none behavioural:
 
-### Input contract
+| what | reference | polyfactory | why |
+|---|---|---|---|
+| asset / TAB | `Quentin::paint_edge_damage`, *Digital Assets* | `pf_edge_damage`, *PF Edge Damage* under *Poly Factory/Modeling* | polyfactory's TAB law |
+| chip group | `chipped` | `pf_chipped` | conventions.md §1 |
+| icon | embedded `paint.pic` section | `SOP_attribpaint` (same picture) | nothing to embed |
 
-The cut is a boolean against a VDB cutter, so the input must be a **closed polygon solid** — an
-open mesh makes the boolean return nothing, which is exactly how the first build failed on a
-wood block with 16 open edges (0 prims out, silently). The tool now **counts open edges and
-non-polygons on the input and errors** with the count and the fix ("Fuse or PolyFill it
-first"); *Allow Open Input* downgrades the open case to cut-anyway, and an empty result is
-itself an error with the reason. Many 8-bitBot OBJs are open — fuse them first.
+Anything else that differs from the reference is a defect; `run_edge_damage_checks.py` will
+say so.
 
-The other limit is resolution: features **thinner than `Detail`** cannot be represented by the
-remesh/VDB stages, so a plank thinner than `Detail` erodes or the boolean goes unstable. Set
-`Detail` (and `Paint Resolution`) finer than the thinnest part you care about; the checks hold
-the identity guarantee on a cube and a chunky slab, not on sub-`Detail` planks.
+## 2. How it works (Quentin's design, restated so nobody "improves" it again)
 
-## 2. How — the mechanism, in one sentence each
+`matchsize` into the unit cube → brick `divide` (the paint canvas) → `attribpaint` writes
+`mask` → `attribblur` on **P** (pulls edges and corners in) → `remesh` → `attribnoise` along N
+→ `peak` (the *Damage Bias*) → **`@P += @N * (1.0 - @mask) * 0.1`** → VDB → polygons →
+`polyreduce` | `remesh` (*Damage Meshing Method*) → hard normals → `boolean` **intersect** with
+the original → `matchsize` restores the transform.
 
-The whole trick is Quentin's and it is worth understanding, because every parameter is a knob
-on one of these lines:
+That one wrangle is the whole mask semantics: mask 0 pushes the cutter 0.1 *out* (untouched
+surface), mask 1 leaves the worn edges to cut, mask **past 1 pushes the cutter INTO the face**
+(painting deeper carves), negative erases. The paint state is `sidefx_stroke.StrokeState`
+subclassed: Ctrl+wheel changes strength, MMB the radius, a HUD shows both, hotkeys 1–4 switch
+the viz (paintable / output / mask / boolean), strokes are baked into the paint node's Data
+parms after each one. `attribpaint`'s paint mode is the default *paint* (over): a stroke drags
+the mask toward the current strength, so repainting a deep dent with a lower strength lifts it
+— that is the reference's behaviour, keep it.
 
-1. `matchsize` the input into the unit cube (transform stashed) so every size is a fraction of
-   the object.
-2. Brick-`divide` it into a dense canvas and paint `_damage` on that.
-3. **`attribblur` on `P`.** This is the damage. Blurring positions pulls every edge and corner
-   inward while flat faces stay flat. (⚠️ The first build blurred the *mask* instead and cut
-   nothing — the reference node's `attributes` parm is at its default, `P`, which is exactly
-   the kind of default a survey of non-default parms does not show.)
-4. `remesh`, then `attribnoise` along the normal, then `peak` — roughen the worn edges into
-   chips (Chip Depth / Chip Size / Seed) and lift the whole cutter (Damage Bias: higher lifts
-   more, so fewer chips).
-5. A wrangle returns every **unpainted** vertex to its pre-blur position and pushes it OUT
-   along the **original's** face normal (found with `xyzdist`/`prim_normal` against the fitted
-   input) by more than the bias, voxels and reduction can bring anything back IN
-   (`chipdepth + |bias| + detail*0.5 + 0.05`); the noise only ever adds outward. So the cutter
-   clears the original wherever nothing was painted. Two earlier forms failed on a thin plank
-   and the audit caught the first: adding to the *blurred* position was ~0.09 short at a
-   blurred corner, and pushing along an interpolated *rest normal* went nowhere across a thin
-   side, where the top and bottom normals cancel to ~0. A face normal read off the original
-   cannot cancel.
-6. VDB and back to polygons — a watertight cutter whatever the noise did — then either
-   `polyreduce` (Low-poly: sharp irregular facets) or `remesh` (Smooth).
-7. `boolean` **intersect**: original AND cutter. The cutter's faces inside the original are the
-   chips, and that group ships as `pf_chipped`.
-8. `matchsize` restores the transform; `attribdelete`/`groupdelete` strip `_*`.
+## 3. The failed first attempt, kept as the warning it is
 
-## 3. Decision log
-
-* **Python survives in one place: the viewer state** (CLAUDE.md rule 2 — UI). A locked asset
-  cannot be painted with the inner `attribpaint`'s own state, because that state is entered on
-  the node it belongs to. `sidefx_stroke.StrokeState` is SideFX's base class for exactly this:
-  subclass it, return the inner canvas from `intersectGeometry`, and let it write strokes into
-  the asset's own `stroke_*` parms. The inner `attribpaint` follows through channel links, and
-  its per-stroke instance parms through `opmultiparm` — a plain `ch()` cannot express a
-  per-instance link. ~40 lines, no HUD, no hotkeys, no menu: the viz switch parm does what the
-  reference's radio menu did.
-  * ⚠️ **Build the template with `sidefx_stroke.createStrokeStateTemplate`, never a bare
-    `hou.ViewerStateTemplate`.** `StrokeState.onMouseEvent` reads `kwargs['realtime_mode']`
-    from the popup menu that helper binds; a hand-rolled template without the menu raised
-    `KeyError: 'realtime_mode'` on Hannes' first click in the viewport (2026-09-16) — after two
-    audits, because no headless check can click. The build script now asserts the helper is
-    used.
-  * ⚠️ **The install/uninstall/module sections must be flagged as Python**
-    (`ExtraFileOptions` `<section>/IsPython`, `/IsScript`, and `/IsViewerState` on the three
-    viewer-state sections), or Houdini runs `ViewerStateInstall` as HSCRIPT — "Unknown
-    command: __import__" — and the state never registers. The audit caught this; it is why the
-    build script mirrors attribpaint's own `ExtraFileOptions`, and why registration is now
-    asserted (`hou.ui.isRegisteredViewerState`).
-* **No stroke caching in v1.** The reference bakes strokes into the paint node's Data parms
-  after each stroke so a long session stays fast. On a 0.05-resolution canvas the un-cached
-  cook is well under a second; add the cache when a real prop makes it hurt, not before.
-* **You paint in the unit cube.** Entering the state shows the canvas in fitted space, so a
-  prop at scale 100 jumps to the origin while you paint and comes back when you leave. The
-  reference has the same wart. Painting in world space would need the intersection geometry
-  restored while the paint node stays fitted — a transform mismatch the stroke projection
-  cannot see through. Accepted for v1; recorded so nobody "fixes" it by restoring one side.
-* **Mask attribute is `_damage`, group is `pf_chipped`** (conventions.md §1–2). Nothing else
-  leaves the node; `run_attrib_checks.py` records the asset with no leaks at any of its 316
-  branches.
-* **Defaults are the reference's** (chip depth 0.07, size 0.1, bias 0.04, detail 0.2, 13
-  blur iterations, low-poly at 10 %) — they render a good cube out of the box, which
-  artist_ui.md §6.5 demands. The noise range stays `positive` (outward only) as in the
-  reference: the blur does the cutting, the noise only roughens.
-* **`Edge Wear` is a DISTANCE (fraction of the object), decoupled from `Paint Resolution`.**
-  It started as a blur iteration count, i.e. a distance in canvas cells — the audit flagged
-  that `paintres` was therefore the real damage knob, and it was only documented. Then Hannes'
-  first real try (Paint Resolution 0.025, all else default) cut *nothing*: the wear had shrunk
-  below the VDB voxel. A Laplacian blur reaches ~√iterations cells, so the node now computes
-  `iterations = (wear / cell)² × 3.25` (13 at the reference's 0.1 / 0.05; capped at 400). c11
-  holds the removed volume equal within 2.5× across canvas sizes — measured 0.0077 vs 0.0078.
-  `paintres` stays on the main page, capped at 0.2, as "how fine you can paint".
-* **The low-poly reduction has a 200-polygon floor.** As a raw percentage a small cutter
-  reduced to nothing and the output was empty (audit); `polyreduce` now targets
-  `max(count × pct/100, 200)`.
+The first port (commits `0693df3`…`a08a7e3`, superseded) "improved" the reference: it replaced
+the `(1 - mask) * 0.1` wrangle with a clamped rest-position push (so a mask past 1 could never
+carve into a face), dropped the HUD/menu state for a bare template (which then crashed with
+`KeyError: 'realtime_mode'`), re-derived *Blurring Iterations* as a distance, added mask
+sources, an input contract, a polygon floor — two audits and ~1 400 lines of checks around a
+tool that could not do what the original does. Every one of those changes was a regression
+against the thing that was asked for. Ported material is replicated, then — separately, if
+ever — proposed for change.
 
 ## 4. Checks, and what they cannot see
 
-`hython tests/hda/run_edge_damage_checks.py` — 10 checks, each paired with the one edit that
-reddens it, all 10 seen red: material removed (union ≠ intersect), no strokes → no damage
-(inverted push), an upstream *non-default* attribute localises chips (mode ignored), chips ship
-as a group inside the solid (group renamed), the transform comes back (restore bypassed), both
-styles wired and sound (switch pinned), the seed moves chips (offset unwired), bias trades
-chips for surface (bias unwired), an open input is refused with the reason (contract bypassed),
-the cutter never reduces to nothing (polygon floor removed). ~3 s plus hython boot.
+Four parity checks, each with a mutation seen red: every node/wire/non-default parm equals
+the dump (mutation: rewire the boolean); every parameter template equals the dump (mutation:
+move a default in the oracle — proves the field is read); the viewer-state module is the
+reference's byte for byte, the state is the default state, the Python flags are set, the stroke
+instance links are the reference's (mutation: edit the oracle module); no strokes returns the
+input's volume (mutation: bypass the mask-bias wrangle).
 
-Blind spots, stated: the **paint state itself** — nothing scripts a brush stroke, so "a stroke
-lands where the cursor is" has only a human oracle; how chips **look**; the pass-through noise
-menus, cooked at defaults only; the unit-cube **fit** (every fixture is already unit-ish, so a
-bypassed fit passes — c5 only proves the transform comes *back*); **`cutn` and the VDB round
-trip** (bypassing either still cooks a plausible solid on a cube).
-
-## 5. What the first audit found, and where each fix landed
-
-An independent agent audited `0693df3` and returned eight findings; all are fixed on this
-branch and re-checked:
-
-1. **Open/non-poly input cooked to nothing, silently** → `contract`+`warn` error nodes with the
-   count and fix, *Allow Open Input* escape, `empty` error node (c9, c10).
-2. **Viewer-state sections ran as HSCRIPT** (not flagged Python) → `IsPython`/`IsScript`/
-   `IsViewerState` set; registration asserted true in a fresh session.
-3. **Reset button threw on the locked inner node** → it only clears the asset's own multiparm.
-4. **Push clearance failed on thin/blurred corners** → face-normal push off the original (c2 on
-   cube + slab); sub-`Detail` planks declared out of contract (§1).
-5. **`Paint Resolution` was the real damage knob but hidden** → promoted to the main page with
-   honest help; `Edge Wear` help corrected.
-6. **Check blind spots** (bias, open input, cutter floor untested) → c8/c9/c10 added; remaining
-   blind spots stated in §4.
-7. **Artist face** — help on every visible parm; `stroke_attrib` now defaults to `_damage`.
-8. **Doc honesty** — this section, §1's contract, and §3's corrections.
-
-## 6. Next, if wanted
-
-A re-audit of these fixes (Rule 0 — not yet run). Stroke caching (§3); a `pf_damage` float on
-the output for shading falloff; painting in world space. None started.
+Blind spots: a stroke landing under the cursor, the HUD and hotkeys, and anything the reference
+itself gets wrong — the reference is the oracle. The old suite's audit findings (open meshes
+cook to nothing, thin parts erode below the damage resolution) describe the reference too; they
+are its behaviour, recorded here, not fixed in the port.
