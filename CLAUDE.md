@@ -30,8 +30,14 @@ own product by design. Do not treat a tool as a subsystem of another.
 
 - **Never rewrite history on a shared branch** — no `commit --amend`, `rebase`, `reset`, or
   `checkout` of files you did not edit. Stage and revert **named paths only**, never `-A`.
-- **Commit incrementally, per item.** Interruptions (usage limits, 529s) are routine; only
-  committed work survives them.
+- **Commit incrementally, per item, and push it.** Interruptions (usage limits, 529s) are
+  routine; only committed work survives them, and only pushed work survives the machine.
+  A verified item is pushed as soon as it is verified — see global rule 13. Do not save a
+  run's worth of commits for Hannes to approve in one lump. Unverified work stays local and
+  goes on the board.
+- On this shared branch a push can be rejected as non-fast-forward because another agent got
+  there first. **Merge, never rebase** (history rule above), and if the merge touches files
+  you did not edit, stop — that is another owner's work.
 - Long autonomous builds keep a **resume pointer** in the owning `ideas/*.md` (§0.0 pattern:
   branch, gates, next item, recovery procedure). Verify any brief against `git log` first —
   briefs go stale.
