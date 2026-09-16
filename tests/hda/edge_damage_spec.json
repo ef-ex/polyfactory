@@ -696,7 +696,10 @@
     "stroke_int": 1,
     "stroke_numstrokes": "ch(\"../stroke_numstrokes\")",
     "folder0": 1,
-    "attribname1": "mask"
+    "attribname1": "mask",
+    "bakedgeo": "ch(\"../bakedgeo\")",
+    "unsavedbakedgeo": "ch(\"../unsavedbakedgeo\")",
+    "strokegeo": "ch(\"../strokegeo\")"
    }
   },
   {

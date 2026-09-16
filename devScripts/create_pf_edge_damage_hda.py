@@ -27,11 +27,12 @@ behavioural:
     `@P += @N * ((1 - mask) * 0.1 - mask * damage_depth)`, so a stroke cuts
     anywhere, not only at the edges the blur pulls in; and the HUD's
     strength bar reads the strength (the reference fed it the radius);
-  * new instances are UNLOCKED. The reference's stroke caching and Reset
-    write Data parms on the inner attribpaint; locked, that is a
-    hou.PermissionError on the first stroke. The reference ran unlocked
-    (embedded in its own scene), and polyfactory ships open wrappers
-    (artist_ui.md 6.10).
+  * the stroke cache lives on the ASSET: the inner attribpaint's bakedgeo /
+    unsavedbakedgeo / strokegeo reference the asset's hidden Cache folder
+    (the reference interface carries it), so the module's writes through
+    `paint_node.parm(...)` follow the reference and succeed on a LOCKED
+    instance. Without this a locked instance refused the write, the module
+    zeroed the stroke count, and the last stroke was lost.
 `tests/hda/run_edge_damage_checks.py` asserts parity against SPEC.
 
 How it works (Quentin's design, restated so nobody "improves" it again):
@@ -539,13 +540,16 @@ NODES = [{'flags': {'bypass': False, 'display': False, 'render': False},
   'in': ['divide4'],
   'name': 'attribpaint1',
   'parms': {'attribname1': 'mask',
+            'bakedgeo': 'ch("../bakedgeo")',
             'folder0': 1,
             'folder0_11': 4,
             'stroke_float': 1.0,
             'stroke_int': 1,
             'stroke_numstrokes': 'ch("../stroke_numstrokes")',
             'stroke_opacity': 'ch("../stroke_opacity")',
-            'stroke_radius': 0.09999999999999999},
+            'stroke_radius': 0.09999999999999999,
+            'strokegeo': 'ch("../strokegeo")',
+            'unsavedbakedgeo': 'ch("../unsavedbakedgeo")'},
   'pos': [2.70884, 8.82948],
   'type': 'attribpaint'},
  {'flags': {'bypass': False, 'display': False, 'render': False},
@@ -845,12 +849,8 @@ defn.setParmTemplateGroup(ptg)
 
 hda_node.setUserData("nodeshape", "chevron_down")
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
-# UNLOCKED instances, like the reference ran: its onPostApplyStroke and
-# reset() write bakedgeo/strokegeo on the INNER attribpaint, which a locked
-# instance refuses (hou.PermissionError on the first stroke). This is also
-# polyfactory policy - artist_ui.md 6.10, "the graph stays reachable".
 _opts = defn.options()
-_opts.setUnlockNewInstances(True)
+_opts.setUnlockNewInstances(False)
 defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 

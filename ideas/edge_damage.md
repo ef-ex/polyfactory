@@ -21,14 +21,14 @@ you to port it over. I expect a 1 to 1 replica."*
 
 The build script embeds the reference dump as `SPEC` and builds from it; nothing is authored by
 hand. Deviations — exactly five: three naming, one three-line guard that only runs where the
-reference would crash, and the unlocked instances the reference itself ran as:
+reference would crash, and the stroke cache wired to the asset's own Cache folder:
 
 | what | reference | polyfactory | why |
 |---|---|---|---|
 | asset / TAB | `Quentin::paint_edge_damage`, *Digital Assets* | `pf_edge_damage`, *PF Edge Damage* under *Poly Factory/Modeling* | polyfactory's TAB law |
 | chip group | `chipped` | `pf_chipped` | conventions.md §1 |
 | icon | embedded `paint.pic` section | `SOP_attribpaint` (same picture) | nothing to embed |
-| instances | unlocked (embedded in Quentin's scene) | `UnlockNewInstances` on | his stroke cache and Reset write Data parms on the inner `attribpaint`; locked, the first stroke raises `hou.PermissionError`. Also polyfactory policy (artist_ui.md §6.10). Cost: an already-placed instance does not pick up a newer library definition by itself |
+| stroke cache | inner `attribpaint` holds `bakedgeo` etc. (worked because his instance was unlocked in his scene) | inner cache parms reference the asset's own hidden Cache folder (`ch("../bakedgeo")` …), instances stay locked | his `onPostApplyStroke` and Reset write through `paint_node.parm(...)`; on a locked instance the inner parm refuses, the module zeroes the stroke count and the stroke is lost — "painted damage vanishes". Shipping unlocked was tried first and is fragile: Houdini re-syncs (re-locks) instances whenever the library file changes. `Parm.set` follows the reference, so the write lands on the asset either way |
 | mask visualizer | assumed to exist in the scene | created with SideFX's mask defaults if missing (3 lines, marked `pf port`) | Quentin's `.hiplc` carries the visualizer; a fresh scene does not, and `onEnter` crashed on `None.setIsActive` — the reference has the same latent bug |
 
 Anything else that differs from the reference is a defect; `run_edge_damage_checks.py` will

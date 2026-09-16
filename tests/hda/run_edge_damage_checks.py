@@ -7,10 +7,10 @@ Damage. The contract is therefore PARITY, not correctness of my own
 choosing: `edge_damage_spec.json` is the reference asset as read off a live
 session, and these checks hold the shipped asset to it - every node, wire
 and non-default parameter; every parameter template; the viewer state
-module byte for byte - plus one behaviour that needs no strokes and the
-unlocked-instance condition the reference's stroke cache needs, and the one
-requested improvement (Damage Depth cuts flat faces). Six checks, six
-mutations, each seen red.
+module byte for byte - plus one behaviour that needs no strokes, the stroke
+cache landing on the asset (so a locked instance keeps its strokes), and
+the one requested improvement (Damage Depth cuts flat faces). Six checks,
+six mutations, each seen red.
 
 What these checks CANNOT see: a brush stroke landing where the cursor is
 (only a human can); the HUD and hotkeys (viewer-side); anything the
@@ -114,24 +114,23 @@ def c4_no_strokes_hands_the_input_back(node, spec):
     return abs(v - 1.0) < 5e-3, "volume %.5f of 1.0 (want within 0.5%%)" % v
 
 
-def c5_the_stroke_cache_can_be_written(node, spec):
-    """The reference's onPostApplyStroke writes bakedgeo/strokegeo on the
-    INNER attribpaint after every stroke; on a locked instance that is a
-    hou.PermissionError on the first stroke (Hannes, 2026-09-16). New
-    instances must come unlocked, and the write must succeed on a fresh one."""
-    fresh = node.parent().createNode("pf_edge_damage")
-    try:
-        unlocked = fresh.type().definition().options().unlockNewInstances()
-        try:
-            fresh.node("attribpaint1").parm("bakedgeo").set(None)
-            fresh.node("attribpaint1").parm("strokegeo").set(None)
-            writable = True
-        except hou.PermissionError:
-            writable = False
-    finally:
-        fresh.destroy()
-    return unlocked and writable, "unlockNewInstances %s, inner cache parms writable %s" % (
-        unlocked, writable)
+def c5_the_stroke_cache_lands_on_the_asset(node, spec):
+    """The reference's onPostApplyStroke writes bakedgeo/strokegeo through
+    `paint_node.parm(...)`. On a locked instance the inner parm refuses the
+    write, the module zeroes the stroke count and the stroke is LOST
+    (Hannes, 2026-09-16). The inner cache parms must reference the asset's
+    own Cache folder, so the write follows the reference and lands there."""
+    ap = node.node("attribpaint1")
+    linked = all(ap.parm(p).expression() == 'ch("../%s")' % p
+                 for p in ("bakedgeo", "unsavedbakedgeo", "strokegeo"))
+    g = hou.Geometry(); g.createPoint()
+    node.parm("bakedgeo").set(None)
+    ap.parm("bakedgeo").set(g)                 # as the module does
+    on_asset = node.parm("bakedgeo").eval() is not None
+    read_back = ap.parm("bakedgeo").eval() is not None
+    ap.parm("bakedgeo").set(None)
+    return linked and on_asset and read_back, "linked %s, write through inner parm lands on " \
+        "the asset %s, inner reads it back %s" % (linked, on_asset, read_back)
 
 
 # mutations - c1/c4 edit the unlocked INSTANCE; c2/c3 edit the ORACLE, which
@@ -181,20 +180,10 @@ def m_no_mask_bias(node, spec):
     node.node("apply_mask_bias").bypass(True)
 
 
-def m_instances_locked(node, spec):
-    """Flip the option on the loaded definition IN MEMORY (never saved:
-    nothing calls updateFromNode or save) and restore it after."""
-    d = node.type().definition()
-    o = d.options()
-    o.setUnlockNewInstances(False)
-    d.setOptions(o)
-
-
-def _restore_unlock(node):
-    d = node.type().definition()
-    o = d.options()
-    o.setUnlockNewInstances(True)
-    d.setOptions(o)
+def m_cache_unlinked(node, spec):
+    """The shipped bug: the inner parm holds its own value, so the write
+    stays inside the (locked) asset instead of reaching it."""
+    node.node("attribpaint1").parm("bakedgeo").deleteAllKeyframes()
 
 
 REGISTRY = [
@@ -202,7 +191,7 @@ REGISTRY = [
     (c2_every_parameter_template_matches_the_reference, m_spec_default_moved),
     (c3_the_viewer_state_is_the_reference_module, m_spec_module_edited),
     (c4_no_strokes_hands_the_input_back, m_no_mask_bias),
-    (c5_the_stroke_cache_can_be_written, m_instances_locked),
+    (c5_the_stroke_cache_lands_on_the_asset, m_cache_unlinked),
     (c6_a_stroke_cuts_a_flat_face, m_no_depth),
 ]
 
@@ -234,8 +223,6 @@ def main():
         except Exception as exc:
             red, mdetail = False, "%s: %s" % (type(exc).__name__, exc)
         node.matchCurrentDefinition()
-        if mutate is m_instances_locked:
-            _restore_unlock(node)
         if mutate is m_no_depth:
             node.parm("damage_depth").revertToDefaults()
         if red:
