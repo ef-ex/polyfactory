@@ -27,8 +27,10 @@ behavioural:
     `@P += @N * ((1 - mask) * 0.1 - mask * damage_depth)`, so a stroke cuts
     anywhere, not only at the edges the blur pulls in; the HUD's
     strength bar reads the strength (the reference fed it the radius);
-    and the hidden `stroke_float` is shown as "Damage Strength" after
+    the hidden `stroke_float` is shown as "Damage Strength" after
     Damage Depth (the reference exposed strength only via Ctrl+wheel);
+    and a "Sizes In World Units" toggle that turns the unit-cube scaling
+    off so every size parm is in scene units;
   * the stroke cache lives on the ASSET: the inner attribpaint's bakedgeo /
     unsavedbakedgeo / strokegeo reference the asset's hidden Cache folder
     (the reference interface carries it), so the module's writes through
@@ -93,6 +95,15 @@ PARMS = [{'default': [0],
   'size': 1,
   'type': 'Int'},
  {'depth': 0, 'help': '', 'hidden': False, 'label': '', 'name': 'sepparm4', 'type': 'Separator'},
+ {'default': False,
+  'depth': 0,
+  'help': 'Off: the mesh is fitted into a unit cube first and every size below is a fraction of '
+          'the object (the original tool). On: sizes are in scene units, so a bigger mesh gets a '
+          'finer canvas and smaller chips.',
+  'hidden': False,
+  'label': 'Sizes In World Units',
+  'name': 'world_units',
+  'type': 'Toggle'},
  {'default': [0.05],
   'depth': 0,
   'help': '',
@@ -592,7 +603,7 @@ NODES = [{'flags': {'bypass': False, 'display': False, 'render': False},
  {'flags': {'bypass': False, 'display': False, 'render': False},
   'in': ['IN'],
   'name': 'matchsize2',
-  'parms': {'doscale': 1, 'stashxform': 1},
+  'parms': {'doscale': '!ch("../world_units")', 'stashxform': 1},
   'pos': [1.11759e-08, 11.7047],
   'type': 'matchsize'},
  {'flags': {'bypass': False, 'display': False, 'render': False},
@@ -823,7 +834,7 @@ for n in NODES:
             node.setInput(i, net.indirectInputs()[0])
     for pname, val in n["parms"].items():
         parm = node.parm(pname)
-        if isinstance(val, str) and val.startswith("ch("):
+        if isinstance(val, str) and (val.startswith("ch(") or val.startswith("!ch(")):
             parm.setExpression(val)
         else:
             parm.set(val)

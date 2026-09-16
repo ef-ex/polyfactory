@@ -25,6 +25,15 @@
    "hidden": false
   },
   {
+   "name": "world_units",
+   "type": "Toggle",
+   "label": "Sizes In World Units",
+   "depth": 0,
+   "default": false,
+   "hidden": false,
+   "help": "Off: the mesh is fitted into a unit cube first and every size below is a fraction of the object (the original tool). On: sizes are in scene units, so a bigger mesh gets a finer canvas and smaller chips."
+  },
+  {
    "name": "paint_resolution",
    "type": "Float",
    "label": "Painting Resolution",
@@ -788,7 +797,7 @@
     "bypass": false
    },
    "parms": {
-    "doscale": 1,
+    "doscale": "!ch(\"../world_units\")",
     "stashxform": 1
    }
   },

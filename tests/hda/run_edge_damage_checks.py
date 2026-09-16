@@ -9,8 +9,8 @@ session, and these checks hold the shipped asset to it - every node, wire
 and non-default parameter; every parameter template; the viewer state
 module byte for byte - plus one behaviour that needs no strokes, the stroke
 cache landing on the asset (so a locked instance keeps its strokes), and
-the one requested improvement (Damage Depth cuts flat faces). Six checks,
-six mutations, each seen red.
+the requested improvements (Damage Depth cuts flat faces; Sizes In World
+Units). Seven checks, seven mutations, each seen red.
 
 What these checks CANNOT see: a brush stroke landing where the cursor is
 (only a human can); the HUD and hotkeys (viewer-side); anything the
@@ -172,6 +172,26 @@ def c6_a_stroke_cuts_a_flat_face(node, spec):
     return mid > 0 and v < 0.97, "%d chip faces mid +X face (want > 0), volume %.4f (want < 0.97)" % (mid, v)
 
 
+def c7_world_units_make_size_matter(node, spec):
+    """Hannes: scaling the mesh changed nothing. Off, a 2x box gets the same
+    canvas (the reference); on, twice the size means a finer canvas."""
+    box = node.inputs()[0]
+    counts = {}
+    for size in (1.0, 2.0):
+        box.parm("scale").set(size)
+        node.parm("world_units").set(0); counts["off", size] = len(node.node("divide3").geometry().prims())
+        node.parm("world_units").set(1); counts["on", size] = len(node.node("divide3").geometry().prims())
+    box.parm("scale").set(1.0); node.parm("world_units").set(0)
+    ok = counts["off", 1.0] == counts["off", 2.0] and counts["on", 2.0] > 3 * counts["on", 1.0]
+    return ok, "canvas prims off: %d/%d (want equal), on: %d/%d (want > 3x)" % (
+        counts["off", 1.0], counts["off", 2.0], counts["on", 1.0], counts["on", 2.0])
+
+
+def m_scale_pinned(node, spec):
+    node.node("matchsize2").parm("doscale").deleteAllKeyframes()
+    node.node("matchsize2").parm("doscale").set(1)
+
+
 def m_no_depth(node, spec):
     node.parm("damage_depth").set(0.0)          # the original tool
 
@@ -193,6 +213,7 @@ REGISTRY = [
     (c4_no_strokes_hands_the_input_back, m_no_mask_bias),
     (c5_the_stroke_cache_lands_on_the_asset, m_cache_unlinked),
     (c6_a_stroke_cuts_a_flat_face, m_no_depth),
+    (c7_world_units_make_size_matter, m_scale_pinned),
 ]
 
 

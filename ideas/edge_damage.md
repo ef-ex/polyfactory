@@ -73,7 +73,14 @@ Requested once the replica was working in his viewport — the order the law abo
   now visible right after Damage Depth, **default 2** (Hannes, once the tool felt predictable:
   one pass wears an edge); the state, the HUD and Ctrl + wheel still drive it.
 
-All three are declared patches in the build's SPEC and the parity check holds the asset to
+* **Sizes In World Units** (toggle, off by default = the original). The reference's
+  `matchsize` scales every input into the unit cube, so Painting Resolution, Damage Resolution
+  and Element Size are fractions of the object and scaling the mesh changes nothing — Hannes
+  could not get fine chips on a 1×1 floor tile. On, `matchsize2.doscale` is off (translation
+  still stashed/restored) and every size is in scene units. Check c7: a 2× box gets the same
+  canvas off and > 3× the canvas on.
+
+All four are declared patches in the build's SPEC and the parity check holds the asset to
 reference-plus-exactly-these.
 
 ## 3. The failed first attempt, kept as the warning it is
