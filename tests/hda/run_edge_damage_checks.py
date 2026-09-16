@@ -1,0 +1,248 @@
+"""`pf_edge_damage` checks, against the SHIPPED asset, in a throwaway session.
+
+    hython tests/hda/run_edge_damage_checks.py
+
+Seven checks, seven mutations, the pf_ring pattern: every check runs on the
+clean asset and then against the ONE edit meant to redden it, and a mutation
+that stays green is reported as a failure of the CHECK.
+
+Strokes cannot be scripted, so the mask is driven through `masksource`:
+Everywhere for the bulk checks, an upstream attribute for locality, and
+Paint-with-no-strokes for the no-damage control.
+
+What these checks CANNOT see:
+  * the paint state itself - that a brush stroke lands where the cursor is.
+    A human in the viewport is the only oracle for that.
+  * how the chips LOOK. C1 measures removed volume, C7 that the seed moves
+    them; nothing here judges a chip as stylised or as ugly.
+  * the mask blur, the noise type menu and the fractal parms - they are
+    passed through to native nodes and cooked at their defaults only.
+  * `_*` leakage on the viz branches - `run_attrib_checks.py` sweeps every
+    menu value of every asset and owns that.
+"""
+
+import os
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(os.path.dirname(HERE))
+HDA = os.path.join(REPO, "polyfactory", "otls", "pf_edge_damage.hda").replace("\\", "/")
+
+
+def open_edges(geo):
+    seen = {}
+    for pr in geo.prims():
+        ids = [v.point().number() for v in pr.vertices()]
+        for i in range(len(ids)):
+            e = (min(ids[i], ids[i - 1]), max(ids[i], ids[i - 1]))
+            seen[e] = seen.get(e, 0) + 1
+    return sum(1 for c in seen.values() if c == 1)
+
+
+def volume(geo):
+    """|enclosed volume| over a closed mesh, divergence theorem."""
+    total = 0.0
+    for pr in geo.prims():
+        vs = [v.point().position() for v in pr.vertices()]
+        for i in range(1, len(vs) - 1):
+            total += vs[0].dot(vs[i].cross(vs[i + 1])) / 6.0
+    return abs(total)
+
+
+def chipped(geo):
+    g = geo.findPrimGroup("pf_chipped")
+    return list(g.prims()) if g else None
+
+
+def centroid(pr):
+    import hou
+    vs = [v.point().position() for v in pr.vertices()]
+    return sum(vs, hou.Vector3(0, 0, 0)) / len(vs)
+
+
+# --------------------------------------------------------------------------
+# checks. cook(**parms) -> frozen output of the asset on a unit box.
+# --------------------------------------------------------------------------
+def c1_damage_everywhere_removes_material(cook, box):
+    """Edge wear on a cube at defaults takes ~0.8% of its volume: the edges
+    and corners, not the faces. The floor is what a union (the mutation)
+    cannot reach; the ceiling says the faces survived."""
+    g = cook(masksource=2)
+    v, v0, oe = volume(g), volume(box), open_edges(g)
+    ok = oe == 0 and 0.3 * v0 < v < 0.999 * v0
+    return ok, "volume %.4f of %.4f (want 30..99.9%%), open edges %d" % (v, v0, oe)
+
+
+def c2_no_strokes_means_no_damage(cook, box):
+    """Paint mode with nothing painted must hand the input back untouched:
+    the cutter clears the surface everywhere, so the intersection is the
+    whole original."""
+    g = cook(masksource=0)
+    dv = abs(volume(g) - volume(box)) / volume(box)
+    ok = dv < 1e-4 and chipped(g) is not None and len(chipped(g)) == 0
+    return ok, "volume moved %.2e (want < 1e-4), chipped faces %s (want 0)" % (
+        dv, None if chipped(g) is None else len(chipped(g)))
+
+
+def c3_an_upstream_attribute_localises_the_damage(cook, box):
+    """`pf_damage` = 1 on the +X half only: every chip must sit at x > 0."""
+    g = cook(masksource=1, maskattrib="pf_damage")
+    ch = chipped(g) or []
+    wrong = sum(1 for pr in ch if centroid(pr)[0] < -1e-3)
+    ok = len(ch) > 0 and wrong == 0
+    return ok, "%d chipped faces, %d on the unpainted side (want > 0, 0)" % (
+        len(ch), wrong)
+
+
+def c4_chips_ship_as_a_group_inside_the_solid(cook, box):
+    g = cook(masksource=2)
+    ch = chipped(g)
+    if ch is None:
+        return False, "no pf_chipped group on the output"
+    """Every chip face sits inside the box or on its surface - a chip that
+    lands exactly in a face plane is a legal sliver, one outside is not."""
+    outside = sum(1 for pr in ch if max(abs(c) for c in centroid(pr)) > 0.5 + 1e-4)
+    leak = g.findPrimAttrib("name") is not None
+    ok = len(ch) > 0 and outside == 0 and not leak
+    return ok, "%d chipped faces, %d outside the box (want > 0, 0), vdb " \
+               "`name` on the output: %s" % (len(ch), outside, leak)
+
+
+def c5_the_input_transform_comes_back(cook, box):
+    """The work happens in the unit cube; the output must land where the
+    input was: a box of size 3 at (5, 2, -1)."""
+    g = cook(masksource=2, _size=3.0, _center=(5.0, 2.0, -1.0))
+    bb = g.boundingBox()
+    c, s = bb.center(), bb.sizevec()
+    ok = (max(abs(c[0] - 5.0), abs(c[1] - 2.0), abs(c[2] + 1.0)) < 2e-2
+          and 2.5 < max(s) <= 3.0 + 1e-4)
+    return ok, "centre (%.3f %.3f %.3f) size %.3f (want 5 2 -1, ~3)" % (
+        c[0], c[1], c[2], max(s))
+
+
+def c6_both_chip_styles_are_wired_and_sound(cook, box):
+    a, b = cook(masksource=2, style=0), cook(masksource=2, style=1)
+    ok = (len(a.points()) != len(b.points()) and open_edges(a) == 0
+          and open_edges(b) == 0)
+    return ok, "smooth %d pts, low-poly %d pts (want different), open %d/%d" % (
+        len(a.points()), len(b.points()), open_edges(a), open_edges(b))
+
+
+def c7_the_seed_moves_the_chips(cook, box):
+    a, b = cook(masksource=2, seed=0.0), cook(masksource=2, seed=7.0)
+    sa = round(sum(abs(c) for p in a.points() for c in p.position()), 4)
+    sb = round(sum(abs(c) for p in b.points() for c in p.position()), 4)
+    return sa != sb, "position sums %.4f vs %.4f (want different)" % (sa, sb)
+
+
+# --------------------------------------------------------------------------
+# mutations: one per check, each editing production code inside the asset.
+# --------------------------------------------------------------------------
+def m_union_instead_of_intersect(net):
+    net.node("cut").parm("booleanop").set(0)
+
+
+def m_push_inverted(net):
+    _patch(net, "push", "(1.0 - clamp(f@_damage, 0.0, 1.0))",
+           "clamp(f@_damage, 0.0, 1.0)")
+
+
+def m_attribute_mode_ignored(net):
+    _patch(net, "maskinit", "if (mode == 2) d = 1.0;",
+           "if (mode >= 1) d = 1.0;")
+
+
+def m_group_renamed(net):
+    net.node("cut").parm("binsidea").set("chipped")
+
+
+def m_transform_not_restored(net):
+    net.node("restore").bypass(True)
+
+
+def m_style_pinned(net):
+    net.node("style").parm("input").setExpression("1")
+
+
+def m_seed_unwired(net):
+    net.node("noise").parm("offset").setExpression("0")
+
+
+def _patch(net, node, old, new):
+    p = net.node(node).parm("snippet")
+    src = p.eval()
+    assert old in src, "mutation target not in %s's VEX: %r" % (node, old)
+    p.set(src.replace(old, new))
+
+
+REGISTRY = [
+    (c1_damage_everywhere_removes_material, m_union_instead_of_intersect),
+    (c2_no_strokes_means_no_damage, m_push_inverted),
+    (c3_an_upstream_attribute_localises_the_damage, m_attribute_mode_ignored),
+    (c4_chips_ship_as_a_group_inside_the_solid, m_group_renamed),
+    (c5_the_input_transform_comes_back, m_transform_not_restored),
+    (c6_both_chip_styles_are_wired_and_sound, m_style_pinned),
+    (c7_the_seed_moves_the_chips, m_seed_unwired),
+]
+
+DEFAULTS = {"masksource": 0, "maskattrib": "pf_damage", "chipdepth": 0.07,
+            "chipsize": 0.1, "bias": 0.04, "detail": 0.2, "edgewear": 13,
+            "style": 1, "lowpolypct": 10.0, "smoothsize": 0.25, "seed": 0.0,
+            "paintres": 0.05, "viz": 0}
+
+
+def main():
+    import hou
+    hou.hipFile.clear(suppress_save_prompt=True)
+    hou.hda.installFile(HDA)
+    geo = hou.node("/obj").createNode("geo", "edge_damage_checks")
+    box = geo.createNode("box")
+    mark = geo.createNode("attribwrangle")
+    mark.parm("snippet").set("f@pf_damage = @P.x > 0;")
+    mark.setInput(0, box)
+    node = geo.createNode("pf_edge_damage")
+    node.setInput(0, mark)
+
+    def cook(_size=1.0, _center=(0.0, 0.0, 0.0), **parms):
+        box.parm("scale").set(_size)
+        box.parmTuple("t").set(_center)
+        node.setParms(DEFAULTS)
+        node.setParms(parms)
+        frozen = hou.Geometry()
+        frozen.merge(node.geometry())
+        return frozen
+
+    unit = hou.Geometry()
+    box.parm("scale").set(1.0)
+    box.parmTuple("t").set((0, 0, 0))
+    unit.merge(box.geometry())
+
+    failures = 0
+    t0 = time.time()
+    print("pf_edge_damage - %s\n" % HDA)
+    for check, mutate in REGISTRY:
+        ok, detail = check(cook, unit)
+        if not ok:
+            failures += 1
+        print("  %s  %-52s %s" % ("ok  " if ok else "FAIL", check.__name__, detail))
+
+        node.allowEditingOfContents()
+        try:
+            mutate(node)
+            red, mdetail = check(cook, unit)
+        except Exception as exc:
+            red, mdetail = False, "%s: %s" % (type(exc).__name__, exc)
+        node.matchCurrentDefinition()
+        if red:
+            failures += 1
+            print("        MUTATION %s STAYED GREEN - this check cannot "
+                  "fail: %s" % (mutate.__name__, mdetail))
+
+    print("\n%d failing checks in %.2f s (checks only; hython boot is on top)"
+          % (failures, time.time() - t0))
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
