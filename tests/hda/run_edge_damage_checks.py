@@ -2,7 +2,7 @@
 
     hython tests/hda/run_edge_damage_checks.py
 
-Ten checks, ten mutations, the pf_ring pattern: every check runs on the
+Eleven checks, eleven mutations, the pf_ring pattern: every check runs on the
 clean asset and then against the ONE edit meant to redden it, and a mutation
 that stays green is reported as a failure of the CHECK.
 
@@ -200,14 +200,27 @@ def c9_an_open_input_is_refused_with_the_reason(cook, box):
         "let through" if "not closed" not in e_allowed else "still refused")
 
 
+def c11_edge_wear_is_a_distance_not_a_cell_count(cook, box):
+    """Hannes' first real try: Paint Resolution 0.025, everything else at
+    default, and NOTHING was cut - the wear was in canvas cells, so a finer
+    canvas shrank it below the VDB voxel. The same Edge Wear must remove a
+    comparable amount of material on a fine canvas and on the default one."""
+    v_fine = 1.0 - volume(cook(masksource=2, paintres=0.025))
+    v_def = 1.0 - volume(cook(masksource=2, paintres=0.05))
+    ok = v_fine > 0.002 and v_def > 0.002 and 0.4 < v_fine / v_def < 2.5
+    return ok, "removed %.4f at 0.025 vs %.4f at 0.05 (want both > 0.002, " \
+               "ratio 0.4..2.5)" % (v_fine, v_def)
+
+
 def c10_the_cutter_never_reduces_to_nothing(cook, box):
     """A percentage of a small cutter went to 0 polygons and the output was
     empty. With the coarsest canvas and the strongest reduction the output
     must still be a closed solid with chips in it."""
+    # Measured: 93 chip faces with the 200-polygon floor, 23 without it.
     g = cook(masksource=2, paintres=0.2, lowpolypct=1.0)
     n, oe = len(chipped(g) or []), open_edges(g)
-    ok = n >= 20 and oe == 0
-    return ok, "%d chip faces, %d open edges (want >= 20, 0)" % (n, oe)
+    ok = n >= 60 and oe == 0
+    return ok, "%d chip faces, %d open edges (want >= 60, 0)" % (n, oe)
 
 
 # --------------------------------------------------------------------------
@@ -251,6 +264,12 @@ def m_no_contract(net):
     net.node("warn").bypass(True)
 
 
+def m_wear_in_cells(net):
+    """The shipped bug: iterations = a constant, so the distance shrinks
+    with the cell size."""
+    net.node("pull").parm("iterations").setExpression("13")
+
+
 def m_no_polygon_floor(net):
     net.node("lowpoly").parm("finalcount").setExpression(
         'nprims("../noname") * ch("../lowpolypct") / 100')
@@ -274,10 +293,11 @@ REGISTRY = [
     (c8_bias_trades_chips_for_surface, m_bias_unwired),
     (c9_an_open_input_is_refused_with_the_reason, m_no_contract),
     (c10_the_cutter_never_reduces_to_nothing, m_no_polygon_floor),
+    (c11_edge_wear_is_a_distance_not_a_cell_count, m_wear_in_cells),
 ]
 
 DEFAULTS = {"masksource": 0, "maskattrib": "pf_damage", "chipdepth": 0.07,
-            "chipsize": 0.1, "bias": 0.04, "detail": 0.2, "edgewear": 13,
+            "chipsize": 0.1, "bias": 0.04, "detail": 0.2, "edgewear": 0.1,
             "style": 1, "lowpolypct": 10.0, "smoothsize": 0.25, "seed": 0.0,
             "paintres": 0.05, "viz": 0, "allowopen": 0}
 

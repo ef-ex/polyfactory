@@ -360,11 +360,17 @@ rest.setInput(0, paint)
 pull = _place(net.createNode("attribblur", "pull"), 0, 9,
               "THE damage: blurring P pulls edges and corners in while\n"
               "flat faces stay flat. Everything after this only\n"
-              "roughens the result. Distance scales with Paint\n"
-              "Resolution x Edge Wear.")
+              "roughens the result. Iterations are computed from\n"
+              "Edge Wear (a distance) and the cell size.")
 pull.setInput(0, rest)
 pull.parm("attributes").set("P")
-pull.parm("iterations").setExpression('ch("../edgewear")')
+# Laplacian blur reaches ~sqrt(iterations) cells, so a wear DISTANCE needs
+# (wear / cell)^2 iterations. 3.25 puts the reference's 13 iterations at
+# wear 0.1 on a 0.05 canvas; at 0.025 cells the same wear takes 52. Before
+# this, a finer Paint Resolution silently shrank the wear below the VDB
+# voxel and the tool cut nothing (Hannes, on his first real try).
+pull.parm("iterations").setExpression(
+    'min(400, round(pow(ch("../edgewear") / ch("../paintres"), 2) * 3.25))')
 
 dmesh = _place(net.createNode("remesh::2.0", "dmesh"), 0, 8,
                "Even triangles at half the detail size - vertices\n"
@@ -526,16 +532,15 @@ ptg.append(_float("bias", "Damage Bias", 0.04, -0.1, 0.1,
 ptg.append(_float("detail", "Detail", 0.2, 0.02, 1.0,
                   "Size of the smallest feature, as a fraction of the "
                   "object. Smaller is finer and slower."))
-ptg.append(_int("edgewear", "Edge Wear", 13, 0, 50,
-                "How far edges and corners get eaten, in canvas cells - "
-                "so it scales with Paint Resolution. At the defaults a cube "
-                "loses about 1% of its volume; 0 leaves only the noise "
-                "chips. Thin parts wear through first."))
+ptg.append(_float("edgewear", "Edge Wear", 0.1, 0.0, 0.5,
+                  "How far edges and corners get eaten, as a fraction of "
+                  "the object, whatever the Paint Resolution. At the "
+                  "default a cube loses about 1% of its volume; 0 leaves "
+                  "only the noise chips. Thin parts wear through first."))
 ptg.append(_float("paintres", "Paint Resolution", 0.05, 0.01, 0.2,
-                  "Canvas cell size, as a fraction of the object. Sets "
-                  "how fine you can paint AND how far one step of Edge "
-                  "Wear reaches: doubling it doubles the wear. Above ~0.1 "
-                  "the flat faces start to go too.", maxlock=True))
+                  "Canvas cell size, as a fraction of the object: how fine "
+                  "you can paint. Finer costs more (Edge Wear needs more "
+                  "blur steps to reach the same distance).", maxlock=True))
 ptg.append(_menu("style", "Chip Style", ("smooth", "lowpoly"),
                  ("Smooth", "Low-poly"), 1,
                  "Low-poly gives sharp irregular facets; Smooth gives an "

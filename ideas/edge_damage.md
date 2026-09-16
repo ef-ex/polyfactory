@@ -112,10 +112,14 @@ on one of these lines:
   blur iterations, low-poly at 10 %) — they render a good cube out of the box, which
   artist_ui.md §6.5 demands. The noise range stays `positive` (outward only) as in the
   reference: the blur does the cutting, the noise only roughens.
-* **`Edge Wear` is in canvas cells, so `Paint Resolution` is on the main page, not hidden.**
-  The blur distance is `paintres × edgewear` — the audit found `paintres` was the real damage
-  knob while sitting in Advanced labelled "canvas density". Both now carry help that says so,
-  and `paintres` is capped at 0.2 (above that the flat faces go too).
+* **`Edge Wear` is a DISTANCE (fraction of the object), decoupled from `Paint Resolution`.**
+  It started as a blur iteration count, i.e. a distance in canvas cells — the audit flagged
+  that `paintres` was therefore the real damage knob, and it was only documented. Then Hannes'
+  first real try (Paint Resolution 0.025, all else default) cut *nothing*: the wear had shrunk
+  below the VDB voxel. A Laplacian blur reaches ~√iterations cells, so the node now computes
+  `iterations = (wear / cell)² × 3.25` (13 at the reference's 0.1 / 0.05; capped at 400). c11
+  holds the removed volume equal within 2.5× across canvas sizes — measured 0.0077 vs 0.0078.
+  `paintres` stays on the main page, capped at 0.2, as "how fine you can paint".
 * **The low-poly reduction has a 200-polygon floor.** As a raw percentage a small cutter
   reduced to nothing and the output was empty (audit); `polyreduce` now targets
   `max(count × pct/100, 200)`.
