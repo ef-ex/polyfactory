@@ -430,7 +430,12 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
     foreach (int m; spans) M += m;
     if (closed && M % 2 == 1) { spans[-1] += 1; M += 1; }   // zipper caps need an even ring
     int W = closed ? M : M + 1;
-    // the mid-surface grid P[i * W + j] and its radius
+    // the mid-surface grid P[i * W + j] and its radius: between two lines the
+    // radius runs straight from one to the other (Wrap 0) or follows the
+    // outer envelope of the two noodles - the circle of each line seen along
+    // the chord, zero in the gap between them (Wrap 1): a skin pressed into
+    // the cavity between the tubes
+    float wrap = chf("../wrap");
     vector P[]; float R[];
     for (int i = 0; i < n; i++) {
         float u = float(i) / (n - 1);
@@ -441,10 +446,14 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
             curve_sample(curves[c2], u, flips[c2], pb, rb);
             if (!haspointattrib(0, "pscale")) { ra = chf("../radius"); rb = ra; }
             int last = (!closed && c == npairs - 1);
+            float L = distance(pa, pb);
             for (int k = 0; k < spans[c] + last; k++) {
                 float t = float(k) / spans[c];
+                float straight = lerp(ra, rb, t);
+                float ea = sqrt(max(0.0, ra * ra - (t * L) * (t * L)));
+                float eb = sqrt(max(0.0, rb * rb - ((1 - t) * L) * ((1 - t) * L)));
                 append(P, lerp(pa, pb, t));
-                append(R, max(lerp(ra, rb, t), 1e-5));
+                append(R, max(lerp(straight, max(ea, eb), wrap), 1e-5));
             }
         }
     }
@@ -709,6 +718,13 @@ _spans.setHelp("Quads across a sheet or around a trunk, between each pair of its
                "picks as many as make the quads roughly square; set it to trade smoothness "
                "for face count, or to give branches smaller cells to attach to.")
 ptg.append(_spans)
+_wrap = hou.FloatParmTemplate("wrap", "Wrap", 1, (0.5,), min=0.0, max=1.0,
+                              min_is_strict=True, max_is_strict=True)
+_wrap.setHelp("How much a sheet or trunk surface follows the individual lines between them. "
+              "0 bridges straight from one line's radius to the next; 1 wraps the skin "
+              "around each line and presses it into the gap, so every line reads as a "
+              "noodle under the surface.")
+ptg.append(_wrap)
 _rad = hou.FloatParmTemplate("radius", "Radius", 1, (0.1,), min=0.001, max=1.0,
                              min_is_strict=True, max_is_strict=False)
 _rad.setHelp("Sphere radius used when the input points carry no pscale. A "
@@ -744,6 +760,6 @@ assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
 assert back.icon() == ICON and back.description() == TAB_LABEL
 assert back.sections()["MessageNodes"].contents().strip() == "report"
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
-for _p in ("subdivisions", "sheetspans", "radius"):
+for _p in ("subdivisions", "sheetspans", "wrap", "radius"):
     assert re.search(r'name\s+"%s"' % _p, saved), _p
 print("wrote " + HDA_PATH)

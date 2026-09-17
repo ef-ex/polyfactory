@@ -1,6 +1,6 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Twelve checks, twenty-three mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Twelve checks, twenty-four mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Four independent audit
 rounds, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
@@ -112,9 +112,21 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
    named arrays with `for` are correct. Same family as the skill's "array(...) inside foreach"
    trap.
 
+7. **Wrap** (2026-09-17, Hannes: "each spline is a noodle … like if you would wrap something
+   around and press it as much as you can into the cavities"). Between two loft lines the
+   radius used to run straight from one line's `pscale` to the next, so a trunk's
+   cross-section was a polygon. `Wrap` blends that straight bridge (0) towards the **outer
+   envelope of the two noodles** (1): at fraction *t* along the chord of length *L* the
+   envelope is max(√(rₐ² − (tL)²), √(r_b² − ((1−t)L)²)), the circle of each line seen along
+   the chord and zero in the gap, so every line reads as a tube under the skin and the skin
+   dips into the valleys between. Applies to sheets and trunks; default 0.5 (check c12: at
+   Wrap 1 the mid-chord point between two lines 0.866 apart at radius 0.1 sits on the chord,
+   0.25 from the axis; 0.35 at Wrap 0).
+
 **Parameters:** `Subdivisions` (0–4), `Loft Spans` (0 = square-ish quads, else quads across a
-sheet or around a trunk per curve pair — also the way to give branches smaller cells), and
-`Radius` (fallback when there is no `pscale`).
+sheet or around a trunk per curve pair — also the way to give branches smaller cells; with
+Wrap the spans are also what resolves the valleys), `Wrap` (0–1), and `Radius` (fallback when
+there is no `pscale`).
 
 **Limits, by construction:** a cube has six faces 90° apart, so connections bunched tighter
 than that cannot all leave through a face — the tool warns, it does not refuse (the mesh is
@@ -139,7 +151,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
 | c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |
-| c12 awkward trunk branches warn and stay closed | a branch aimed into the trunk is dropped, warns "no cell", 44 faces closed; two branches from the same station on the two lines of one wall, both heading out, want one cell: one keeps it, warning, 2 closed pieces; Loft Spans 1 on three lines at radius 0.5 with pscale 0.1 (odd ring) rounds up, caps close, 18 faces, surface reaches 0.6 | locality bound removed; resolve bypassed; odd ring allowed; trunk pscale ignored |
+| c12 awkward trunk branches warn and stay closed | a branch aimed into the trunk is dropped, warns "no cell", 44 faces closed; two branches from the same station on the two lines of one wall, both heading out, want one cell: one keeps it, warning, 2 closed pieces; Loft Spans 1 on three lines at radius 0.5 with pscale 0.1 (odd ring) rounds up, caps close, 18 faces, surface reaches 0.6 | locality bound removed; resolve bypassed; odd ring allowed; trunk pscale ignored; Wrap ignored |
 | c11 trunk with a branch is one mesh | four lines around a 1 × 1 square, one drawn the other way, `pf_trunk` 1, five stations; a branch from a middle station to a sphere: one closed, consistently wound, all-quad piece of 46 faces (32 ring cells − 1 taken + two 3-quad caps + 4 limb + 5 sphere caps), 37 faces `pf_trunk` 1, every trunk face's Houdini normal away from the box's centre | branch gets a cube instead; caps reversed; ring winding flipped; first facing cell instead of nearest |
 | c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 

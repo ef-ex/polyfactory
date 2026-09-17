@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Twelve checks, twenty-three mutations, each seen red.
+Twelve checks, twenty-four mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -247,8 +247,10 @@ def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
     warning (no limb through the far wall); two branches from adjacent
     lines wanting one wall cell keep one, warn, and stay closed; Loft Spans 1
     on three lines gives an odd ring that is rounded up to even so the caps
-    close, and its lines' pscale 0.1 pushes the surface out to 0.6 from the
-    axis. Every case closed, consistently wound, all quads."""
+    close, its lines' pscale 0.1 pushes the surface out to 0.6 from the
+    axis, and Wrap 1 presses the mid-chord point onto the chord (0.25 from
+    the axis, 0.35 at Wrap 0). Every case closed, consistently wound, all
+    quads."""
     def trunk4():
         lines = [[((x, 0.5 * i, z), 0.0) for i in range(5)] for x, z in ((0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))]
         return sum(lines, []), [[5 * k + i for i in range(5)] for k in range(4)]
@@ -269,10 +271,16 @@ def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
     # ...and the lines are sphere centres: pscale 0.1 on lines 0.5 from the axis puts the surface at 0.6
     tri = [[((0.5 * x, 0.5 * i, 0.5 * z), 0.1) for i in range(5)] for x, z in ((1, 0), (-0.5, 0.8660254), (-0.5, -0.8660254))]
     g = cook(subdivisions=0, sheetspans=1, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
-    reach = round(max(hou.Vector3(p.position()[0], 0, p.position()[2]).length() for p in g.points()), 3)
-    odd = (closed_quads(g), len(g.prims()), reach)
-    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18, 0.6)
-    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims, reach) %s want (True, 18, 0.6)" % (
+    radial = lambda g: [hou.Vector3(p.position()[0], 0, p.position()[2]).length() for p in g.points()]
+    reach = round(max(radial(g)), 3)
+    # Wrap 1: the mid-chord point between two lines 0.866 apart at radius 0.1 is pressed
+    # onto the chord itself, 0.25 from the axis; Wrap 0 keeps it at 0.35
+    valley0 = round(min(radial(g)), 3)
+    g = cook(subdivisions=0, sheetspans=1, wrap=1.0, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
+    valley1 = round(min(radial(g)), 3)
+    odd = (closed_quads(g), len(g.prims()), reach, valley0, valley1)
+    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18, 0.6, 0.35, 0.25)
+    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims, reach, valley at Wrap 0, at Wrap 1) %s want (True, 18, 0.6, 0.35, 0.25)" % (
         into, clash, odd)
 
 
@@ -401,7 +409,7 @@ def m_sheet_no_direction_check(net):
 
 
 def m_sheet_radius_not_interpolated(net):
-    _patch(net, "loft", "append(R, max(lerp(ra, rb, t), 1e-5));", "append(R, max(ra, 1e-5));")
+    _patch(net, "loft", "float straight = lerp(ra, rb, t);", "float straight = ra;")
 
 
 def m_sheet_spans_always_one(net):
@@ -438,6 +446,10 @@ def m_no_resolve(net):
 
 def m_trunk_ignores_pscale(net):
     _patch(net, "loft", "if (length(o) > 1e-9) P[i * W + j] += normalize(o) * R[i * W + j];", "")
+
+
+def m_wrap_ignored(net):
+    _patch(net, "loft", "append(R, max(lerp(straight, max(ea, eb), wrap), 1e-5));", "append(R, max(straight, 1e-5));")
 
 
 def m_odd_ring_allowed(net):
@@ -501,6 +513,7 @@ REGISTRY = [
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_no_resolve),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_odd_ring_allowed),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_trunk_ignores_pscale),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_wrap_ignored),
 ]
 
 
@@ -520,7 +533,7 @@ def main(seed=7):
     def cook(_asis=False, _nopscale=False, _graph=None, **parms):
         stash.parm("stash").set(_graph if _graph is not None else fixture(seed))
         node.setInput(0, strip if _nopscale else stash)
-        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0})
+        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0, "wrap": 0.0})
         node.setParms(parms)
         src = stash if _asis else node
         frozen = hou.Geometry()
