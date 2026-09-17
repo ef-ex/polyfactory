@@ -76,15 +76,6 @@ def directed_edges(geo):
     return seen
 
 
-def signed_volume(geo):
-    v = 0.0
-    for pr in geo.prims():
-        P = [x.point().position() for x in pr.vertices()]
-        for i in range(1, len(P) - 1):
-            v += P[0].dot(P[i].cross(P[i + 1]))
-    return v / 6.0
-
-
 def components(geo):
     parent = list(range(len(geo.points())))
 
@@ -120,9 +111,19 @@ def c2_closed_and_consistently_wound(cook):
 
 
 def c3_faces_point_outward(cook):
-    g = cook(subdivisions=0)
-    v = signed_volume(g)
-    return v > 0, "signed volume %.4f (want > 0)" % v
+    """Houdini's own prim normal (its winding convention, not ours) must
+    point away from the sphere a cap belongs to, on every cap."""
+    src, g = cook(_asis=True), cook(subdivisions=0)
+    centres = {p.number(): p.position() for p in src.points()}
+    inward = []
+    for pr in g.prims():
+        node = pr.attribValue("pf_node")
+        if node < 0:
+            continue
+        c = sum((v.point().position() for v in pr.vertices()), hou.Vector3()) / 4
+        if pr.normal().dot(c - centres[node]) <= 0:
+            inward.append(pr.number())
+    return not inward and len(g.prims()) > 0, "%d caps facing inward %s (want none)" % (len(inward), inward[:6])
 
 
 def c4_every_connection_joins_its_spheres(cook):
@@ -278,8 +279,8 @@ def m_bridge_reversed(net):
 
 
 def m_faces_inside_out(net):
-    _patch(net, "cage", "int k = pos ? i : (4 - i) % 4;", "int k = pos ? (4 - i) % 4 : i;")
-    _patch(net, "bridge", "int k = pos ? i : (4 - i) % 4;", "int k = pos ? (4 - i) % 4 : i;")
+    _patch(net, "cage", "int k = pos ? (4 - i) % 4 : i;", "int k = pos ? i : (4 - i) % 4;")
+    _patch(net, "bridge", "int k = pos ? (4 - i) % 4 : i;", "int k = pos ? i : (4 - i) % 4;")
 
 
 def m_no_bridge(net):

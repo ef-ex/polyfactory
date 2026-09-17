@@ -76,11 +76,12 @@ OUTPUT_LABEL = "Skin"
 INPUT_LABEL = "Spheres and Connections"
 ICON = "SOP_subdivide"
 
-# Shared by both wrangles: which 4 cube corners make face f, counter-clockwise
-# seen from OUTSIDE. Corner c has bit k set when it sits on the +axis-k side.
-# Face f: axis f/2, + side when f is even. u, v are the other two axes in
-# right-handed order, so the +face runs (+u,+v) (-u,+v) (-u,-v) (+u,-v) and
-# the -face the same corners in reverse.
+# Shared by both wrangles: which 4 cube corners make face f, CLOCKWISE seen
+# from OUTSIDE - Houdini's front face (a Box SOP winds this way; probed).
+# Corner c has bit k set when it sits on the +axis-k side. Face f: axis f/2,
+# + side when f is even. u, v are the other two axes in right-handed order,
+# so the +face runs (+u,+v) (+u,-v) (-u,-v) (-u,+v) and the -face the same
+# corners in reverse.
 FACE_VEX = r'''
 function int[] face_corners(int f) {
     int n = f / 2, pos = (f % 2 == 0);
@@ -90,7 +91,7 @@ function int[] face_corners(int f) {
     int bit[] = array(1, 2, 4);
     int out[];
     for (int i = 0; i < 4; i++) {
-        int k = pos ? i : (4 - i) % 4;
+        int k = pos ? (4 - i) % 4 : i;
         int c = (pos ? bit[n] : 0) + (su[k] > 0 ? bit[u] : 0) + (sv[k] > 0 ? bit[v] : 0);
         append(out, c);
     }

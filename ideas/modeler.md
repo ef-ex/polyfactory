@@ -79,7 +79,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 |---|---|---|
 | c1 every face is a quad | at subdivision 0 and 2, no prim has ≠ 4 vertices | bridge emits triangles |
 | c2 closed and consistently wound | every directed edge once, its reverse present | bridge quads reversed |
-| c3 faces point outward | signed volume > 0 | corner order inside out |
+| c3 faces point outward | Houdini's own `prim.normal()` points away from the owning sphere on every cap (Houdini front faces wind **clockwise** seen from outside; the first build wound them counter-clockwise and shipped inverted, found by Hannes in the viewport) | corner order inside out |
 | c4 every connection joins its spheres | each sphere has 8 corners at r√3; every segment's two spheres in one connected piece; 4 pieces | bridge bypassed |
 | c5 output contract | no `_*` attribute or group; `pf_node` int with −1 and ≥ 0 | cleanup bypassed |
 | c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded |
