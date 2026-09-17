@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Nine checks, nine mutations, each seen red.
+Nine checks, eleven mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -212,34 +212,41 @@ def c7_joints_do_not_self_intersect(cook):
 
 
 def c8_awkward_connectivity_stays_closed(cook):
-    """A seven-limb hub, the same pair linked twice, a two-sphere loop
-    written as [0, 1, 0]: every one must still be a closed, all-quad,
+    """An eight-limb hub (the seventh AND eighth must be dropped - resize
+    pads with 0, a taken face), the same pair linked twice, a two-sphere
+    loop written as [0, 1, 0]: every one must still be a closed, all-quad,
     consistently wound mesh (extras dropped, duplicates one limb)."""
     hub = [((0, 0, 0), 0.1)] + [((0.7 * x, 0.7 * y, 0.7 * z), 0.05) for x, y, z in
-                                [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1), (0.6, 0.8, 0)]]
+                                [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1),
+                                 (0.6, 0.8, 0), (0, 0.8, 0.6)]]
     sph = hub + [((3, 0, 0), 0.1), ((3.6, 0, 0), 0.1), ((5, 0, 0), 0.1), ((5.6, 0, 0), 0.1)]
-    links = [[0, 1 + i] for i in range(7)] + [[8, 9], [8, 9], [10, 11, 10]]
+    links = [[0, 1 + i] for i in range(8)] + [[8 + 1, 9 + 1], [9, 10], [11, 12, 11]]
     g = cook(subdivisions=0, _graph=graph(sph, links))
     de = directed_edges(g)
     bad = sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de)
     nonquad = sum(1 for p in g.prims() if len(p.vertices()) != 4)
-    want = 12 * 6 - 2 * 6 - 2 - 2 + 8 * 4   # cubes, minus the 8 limbs' faces, plus 8 limbs
+    want = 13 * 6 - 2 * 8 + 8 * 4   # cubes, minus the 8 limbs' two faces each, plus 8 limbs
     return bad == 0 and nonquad == 0 and len(g.prims()) == want, "%d bad edges, %d non-quads, %d prims (want 0, 0, %d)" % (
         bad, nonquad, len(g.prims()), want)
 
 
 def c9_bad_joint_warns_on_the_locked_instance(cook):
     """Five limbs within 20 degrees of each other cannot all leave through
-    a cube face: the artist must see a warning. A single limb must not."""
+    a cube face, and a seventh limb is dropped: the artist must see both
+    warnings. A single limb must see none."""
     import math
     fan = [((0, 0, 0), 0.1)] + [((0.7 * math.cos(a), 0.7 * math.sin(a), 0), 0.05)
                                 for a in (0, 0.087, 0.175, 0.262, 0.349)]
     cook(subdivisions=0, _graph=graph(fan, [[0, 1 + i] for i in range(5)]))
     warned = [w for w in cook.node.warnings() if "too close" in w]
+    axes = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1), (0.6, 0.8, 0)]
+    star = [((0, 0, 0), 0.1)] + [((0.7 * x, 0.7 * y, 0.7 * z), 0.05) for x, y, z in axes]
+    cook(subdivisions=0, _graph=graph(star, [[0, 1 + i] for i in range(7)]))
+    seven = [w for w in cook.node.warnings() if "more than six" in w]
     cook(subdivisions=0, _graph=graph(fan[:2], [[0, 1]]))
     clean = cook.node.warnings()
-    return bool(warned) and not clean, "fan warned %s, single limb warnings %s (want warned, none)" % (
-        bool(warned), list(clean))
+    return bool(warned) and bool(seven) and not clean, "fan warned %s, seven-limb warned %s, single limb warnings %s (want both, none)" % (
+        bool(warned), bool(seven), list(clean))
 
 
 def selfx(g):
@@ -292,12 +299,20 @@ def m_worst_twist(net):
     _patch(net, "bridge", "if (sum < best)", "if (sum > best)")
 
 
+def m_resize_pads_zero(net):
+    _patch(net, "cage", "for (int n = 6; n < k; n++) faces[n] = -1;", "")
+
+
 def m_no_cap_restored(net):
     _patch(net, "bridge", "if (fb < 0 && fa >= 0) cap(a, fa, ca);", "")
 
 
 def m_report_bypassed(net):
     net.node("report").bypass(True)
+
+
+def m_no_too_many_group(net):
+    _patch(net, "cage", 'if (k > 6) setpointgroup(0, "_too_many", @ptnum, 1);', "")
 
 
 REGISTRY = [
@@ -309,7 +324,9 @@ REGISTRY = [
     (c6_radius_parm_used_without_pscale, m_radius_hardcoded),
     (c7_joints_do_not_self_intersect, m_worst_twist),
     (c8_awkward_connectivity_stays_closed, m_no_cap_restored),
+    (c8_awkward_connectivity_stays_closed, m_resize_pads_zero),
     (c9_bad_joint_warns_on_the_locked_instance, m_report_bypassed),
+    (c9_bad_joint_warns_on_the_locked_instance, m_no_too_many_group),
 ]
 
 

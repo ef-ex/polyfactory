@@ -159,6 +159,7 @@ for (int p = 0; p < 720; p++) {
     if (score > best) { best = score; for (int n = 0; n < kk; n++) faces[n] = chosen[n]; }
 }
 resize(faces, k);
+for (int n = 6; n < k; n++) faces[n] = -1;   // resize pads with 0, a taken face
 i[]@_faces = faces;
 
 // a limb leaving through the side of its own cube is a bad joint

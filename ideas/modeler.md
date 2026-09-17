@@ -1,8 +1,8 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`. Nine mutation-paired checks
-green on five seeds (`tests/hda/run_modeler_checks.py`). One independent audit round done and
-its findings fixed (§4); the second round is what decides "done".
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`. Nine checks, eleven mutations,
+all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Two independent audit
+rounds done, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
 their blind spots, and what is deliberately not built yet (the interactive editor).
 **Origin:** Hannes wants the ZSpheres workflow — place spheres, connect them, get a quad base
@@ -109,8 +109,20 @@ assignment on the most-opposed-pair frame, cap restore, neighbour-list bridging,
 `pf_*`-only cleanup — and each has a check now (c5 tightened, c7–c9 new). Left as stated
 limits: bunched connections (warned, not refused), negative `pscale` (clamped).
 
-**Round 2:** pending on the fixed build. Until it reports, the honest status is
-**implemented, self-checked, round-1 findings closed**.
+**Round 2 (2026-09-17, same agent, on the fixed build).** Verdict **yes, sound enough to
+build the editor on**, with one bug: at eight or more connections `resize(faces, k)` pads
+with 0, a face already taken, so the eighth limb was built onto it — doubled edges, a limb
+through the cube, while the warning said "dropped". Fixed (entries past six set to −1), c8's
+hub is eight limbs now and the padding has its own mutation seen red; c9 also asserts the
+"more than six" warning, which no check had read. Re-measured by the auditor: warning fires
+exactly when an assigned dot ≤ 0.2 on 30/30 seeds; six axis-aligned limbs score 1.0 each;
+degree-7 hole, duplicate limb, coincident spheres, negative `pscale` all clean. Two things it
+named as unverified and are stated limits: the most-opposed-pair frame has no check of its own
+(c7's joints are symmetric, so reverting it to "first neighbour" stays green); and joints with
+every dot ≥ 0.28 can still self-intersect without a warning (five limbs within 20°: 12
+crossings, silent).
+
+**Status after round 2: audited; the round-2 fix is check-covered but not itself re-audited.**
 
 ## 5. Not built yet, in the order Hannes named it
 
