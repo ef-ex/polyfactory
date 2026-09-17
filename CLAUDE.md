@@ -48,7 +48,7 @@ own product by design. Do not treat a tool as a subsystem of another.
 
 - `tests/README.md` first. Numbers before renders; baselines record values, not pass/fail.
 - Fast pure-logic tests run under plain `python`; scene checks run headless under hython
-  (`"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"`), throwaway
+  (`"C:/Program Files/Side Effects Software/Houdini 22.0.442/bin/hython.exe"`), throwaway
   sessions, never saving a .hip.
 - The live MCP bridge is Hannes' GUI session: serial access, leave no trace, never save.
 

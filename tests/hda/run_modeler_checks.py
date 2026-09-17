@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Twelve checks, twenty-two mutations, each seen red.
+Twelve checks, twenty-three mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -247,7 +247,8 @@ def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
     warning (no limb through the far wall); two branches from adjacent
     lines wanting one wall cell keep one, warn, and stay closed; Loft Spans 1
     on three lines gives an odd ring that is rounded up to even so the caps
-    close. Every case closed, consistently wound, all quads."""
+    close, and its lines' pscale 0.1 pushes the surface out to 0.6 from the
+    axis. Every case closed, consistently wound, all quads."""
     def trunk4():
         lines = [[((x, 0.5 * i, z), 0.0) for i in range(5)] for x, z in ((0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))]
         return sum(lines, []), [[5 * k + i for i in range(5)] for k in range(4)]
@@ -265,11 +266,13 @@ def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
     g = cook(subdivisions=0, sheetspans=1, _graph=graph(
         sph + [((1.5, 0.6, 0.5), 0.08), ((1.5, 0.6, -0.5), 0.08)], links + [[1, 20], [16, 21]], trunks=(1, 1, 1, 1, 0, 0)))
     clash = (closed_quads(g), len(set(components(g).values())), any("same surface cell" in w for w in cook.node.warnings()))
-    tri = [[((0.5 * x, 0.5 * i, 0.5 * z), 0.0) for i in range(5)] for x, z in ((1, 0), (-0.5, 0.87), (-0.5, -0.87))]
+    # ...and the lines are sphere centres: pscale 0.1 on lines 0.5 from the axis puts the surface at 0.6
+    tri = [[((0.5 * x, 0.5 * i, 0.5 * z), 0.1) for i in range(5)] for x, z in ((1, 0), (-0.5, 0.8660254), (-0.5, -0.8660254))]
     g = cook(subdivisions=0, sheetspans=1, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
-    odd = (closed_quads(g), len(g.prims()))
-    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18)
-    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims) %s want (True, 18)" % (
+    reach = round(max(hou.Vector3(p.position()[0], 0, p.position()[2]).length() for p in g.points()), 3)
+    odd = (closed_quads(g), len(g.prims()), reach)
+    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18, 0.6)
+    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims, reach) %s want (True, 18, 0.6)" % (
         into, clash, odd)
 
 
@@ -433,6 +436,10 @@ def m_no_resolve(net):
     net.node("resolve").bypass(True)
 
 
+def m_trunk_ignores_pscale(net):
+    _patch(net, "loft", "if (length(o) > 1e-9) P[i * W + j] += normalize(o) * R[i * W + j];", "")
+
+
 def m_odd_ring_allowed(net):
     _patch(net, "loft", "if (closed && M % 2 == 1) { spans[-1] += 1; M += 1; }", "")
 
@@ -493,6 +500,7 @@ REGISTRY = [
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_no_locality),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_no_resolve),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_odd_ring_allowed),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_trunk_ignores_pscale),
 ]
 
 

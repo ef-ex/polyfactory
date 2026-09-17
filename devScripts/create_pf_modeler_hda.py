@@ -38,7 +38,8 @@ Curves that share a value of an int prim attribute `pf_sheet` (> 0) are
 not tubes: they are lofted, in prim order, into ONE closed slab whose
 thickness follows their pscale - a wing between two bones. Curves sharing
 a `pf_trunk` value are lofted AROUND into one tube whose cross-section is
-the polygon they describe - an art-directed trunk - with zipper quad caps.
+the polygon they describe, pushed out by their pscale - an art-directed
+trunk whose pressure bulges show - with zipper quad caps.
 The `loft` wrangle (detail, one execution, runs first) builds both:
 stations along, spans across (square-ish quads, or `Loft Spans`). A
 branch curve whose first point lies on a loft curve takes the nearest
@@ -322,8 +323,9 @@ LOFT_VEX = r"""
 // lofted in prim order into one closed slab (thickness = interpolated
 // pscale, both ways along the sheet normal); curves sharing a pf_trunk
 // value are lofted AROUND, in prim order, into one tube whose cross-section
-// is the polygon the curves describe (their pscale is ignored: the lines
-// ARE the surface), with zipper quad caps at both ends. Every face is a
+// is the polygon the curves describe, pushed outward by their pscale (the
+// lines are sphere centres, as everywhere), with zipper quad caps at both
+// ends. Every face is a
 // quad wound clockwise from outside (Houdini's front face), and every face
 // carries _loftsheet / _lofttrunk = id so a branch can take it (cage).
 // Curves are sampled by ARC LENGTH from their points, never primuv: on a
@@ -448,6 +450,16 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
     }
     if (closed) {
         for (int i = 0; i < n; i++) if (ring_crosses(P, i, W)) setdetailattrib(0, "_trunk_order", 1, "set");
+        // the lines are sphere centres, as everywhere else: the surface is
+        // the ring pushed outward from its centre by the interpolated pscale
+        for (int i = 0; i < n; i++) {
+            vector rc = 0;
+            for (int j = 0; j < W; j++) rc += P[i * W + j] / W;
+            for (int j = 0; j < W; j++) {
+                vector o = P[i * W + j] - rc;
+                if (length(o) > 1e-9) P[i * W + j] += normalize(o) * R[i * W + j];
+            }
+        }
         int ring[];
         for (int i = 0; i < n; i++) for (int j = 0; j < W; j++) append(ring, addpoint(0, P[i * W + j]));
         // which way round: the ring's cross product against the outward
