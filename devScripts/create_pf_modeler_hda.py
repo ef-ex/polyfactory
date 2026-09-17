@@ -109,14 +109,17 @@ function int[] face_corners(int f) {
 
 CAGE_VEX = FACE_VEX + r"""
 // pf_modeler cage - one cube per sphere, one face reserved per neighbour.
-float r = max(haspointattrib(0, "pscale") ? f@pscale : chf("../radius"), 1e-5);
+// point(), not f@pscale: the binding would CREATE pscale = 0 on the stream
+// and the sheet wrangle would then read zeros instead of Radius
+float r = max(haspointattrib(0, "pscale") ? float(point(0, "pscale", @ptnum)) : chf("../radius"), 1e-5);
 setpointgroup(0, "_graph", @ptnum, 1);
 i@_node = -1;
 // neighbours through the connections only - a curve marked pf_sheet is
 // lofted by the sheet wrangle and makes no cubes and no limbs
 int nbs[], onsheet = 0;
 foreach (int pr; pointprims(0, @ptnum)) {
-    if (prim(0, "pf_sheet", pr) > 0) { onsheet = 1; continue; }
+    int sid = prim(0, "pf_sheet", pr);
+    if (sid > 0 && findattribvalcount(0, "prim", "pf_sheet", sid) >= 2) { onsheet = 1; continue; }
     int pts[] = primpoints(0, pr);
     int n = len(pts), closed = primintrinsic(0, "closed", pr);
     for (int s = 0; s < n; s++) {
@@ -269,6 +272,36 @@ SHEET_VEX = r"""
 // spans across, pushed out both ways along the sheet normal by the
 // interpolated pscale. Top, bottom and the four walls are quads, wound
 // clockwise from outside (Houdini's front face). One execution, all sheets.
+// Curves are sampled by ARC LENGTH from their points, never primuv: on a
+// polyline primuv is uniform per segment (uneven points slant the rungs)
+// and on a closed polygon it is the polygon's surface (the slab collapses).
+function void curve_sample(int pr; float u; int flip; export vector P; export float r) {
+    int pts[] = primpoints(0, pr);
+    int n = len(pts);
+    float cum[] = array(0.0);
+    for (int i = 1; i < n; i++) {
+        vector a = point(0, "P", pts[i - 1]), b = point(0, "P", pts[i]);
+        append(cum, cum[-1] + distance(a, b));
+    }
+    float target = (flip ? 1 - u : u) * cum[-1];
+    int i = 1;
+    while (i < n - 1 && cum[i] < target) i++;
+    float seg = cum[i] - cum[i - 1];
+    float t = seg > 1e-9 ? clamp((target - cum[i - 1]) / seg, 0, 1) : 0;
+    vector pa = point(0, "P", pts[i - 1]), pb = point(0, "P", pts[i]);
+    P = lerp(pa, pb, t);
+    float ra = point(0, "pscale", pts[i - 1]), rb = point(0, "pscale", pts[i]);
+    r = lerp(ra, rb, t);
+}
+function float curve_length(int pr) {
+    int pts[] = primpoints(0, pr);
+    float L = 0;
+    for (int i = 1; i < len(pts); i++) {
+        vector a = point(0, "P", pts[i - 1]), b = point(0, "P", pts[i]);
+        L += distance(a, b);
+    }
+    return L;
+}
 int ids[];
 for (int pr = 0; pr < nprimitives(0); pr++) {
     int sid = prim(0, "pf_sheet", pr);
@@ -283,30 +316,36 @@ foreach (int sid; ids) {
         if (prim(0, "pf_sheet", pr) == sid) append(curves, pr);
     int nc = len(curves);
     if (nc < 2) { i@_sheet_alone = 1; continue; }
+    foreach (int pr; curves) if (primintrinsic(0, "closed", pr)) i@_sheet_closed = 1;
     // stations: the longest curve's point count
     int n = 2;
     foreach (int pr; curves) n = max(n, len(primpoints(0, pr)));
+    // direction: a curve whose chord opposes the previous one is walked backwards
+    int flips[] = array(0);
+    for (int c = 1; c < nc; c++) {
+        vector a0, a1, b0, b1; float rr;
+        curve_sample(curves[c - 1], 0, flips[c - 1], a0, rr);
+        curve_sample(curves[c - 1], 1, flips[c - 1], a1, rr);
+        curve_sample(curves[c], 0, 0, b0, rr);
+        curve_sample(curves[c], 1, 0, b1, rr);
+        append(flips, dot(a1 - a0, b1 - b0) < 0);
+    }
     // spans per pair: roughly square quads unless Sheet Spans says otherwise
     int spans[];
-    float along = 0;   // mean curve length, from the points (the perimeter intrinsic is 0 on an open polyline)
-    foreach (int pr; curves) {
-        int pts[] = primpoints(0, pr);
-        for (int i = 1; i < len(pts); i++) {
-            vector p0 = point(0, "P", pts[i - 1]), p1 = point(0, "P", pts[i]);
-            along += distance(p0, p1) / nc;
-        }
-    }
+    float along = 0;
+    foreach (int pr; curves) along += curve_length(pr) / nc;
     float step = along / (n - 1);
     for (int c = 0; c < nc - 1; c++) {
         float across = 0;
         for (int i = 0; i < n; i++) {
             float u = float(i) / (n - 1);
-            vector pa = primuv(0, "P", curves[c], set(u, 0, 0));
-            vector pb = primuv(0, "P", curves[c + 1], set(u, 0, 0));
+            vector pa, pb; float rr;
+            curve_sample(curves[c], u, flips[c], pa, rr);
+            curve_sample(curves[c + 1], u, flips[c + 1], pb, rr);
             across += distance(pa, pb) / n;
         }
         int m = chi("../sheetspans") > 0 ? chi("../sheetspans") : int(rint(across / max(step, 1e-6)));
-        append(spans, clamp(m, 1, 64));
+        append(spans, clamp(m, 1, 32));
     }
     int M = 0;
     foreach (int m; spans) M += m;
@@ -315,10 +354,9 @@ foreach (int sid; ids) {
     for (int i = 0; i < n; i++) {
         float u = float(i) / (n - 1);
         for (int c = 0; c < nc - 1; c++) {
-            vector pa = primuv(0, "P", curves[c], set(u, 0, 0));
-            vector pb = primuv(0, "P", curves[c + 1], set(u, 0, 0));
-            float ra = primuv(0, "pscale", curves[c], set(u, 0, 0));
-            float rb = primuv(0, "pscale", curves[c + 1], set(u, 0, 0));
+            vector pa, pb; float ra, rb;
+            curve_sample(curves[c], u, flips[c], pa, ra);
+            curve_sample(curves[c + 1], u, flips[c + 1], pb, rb);
             if (!haspointattrib(0, "pscale")) { ra = chf("../radius"); rb = ra; }
             int last = (c == nc - 2);
             for (int k = 0; k < spans[c] + last; k++) {
@@ -423,7 +461,7 @@ sheet.parm("snippet").set(SHEET_VEX)
 report = _place(net.createNode("error", "report"), 0, 5,
                 "Warnings the artist can see (a locked asset hides VEX warnings).")
 report.setInput(0, sheet)
-report.parm("numerror").set(5)
+report.parm("numerror").set(6)
 report.parm("severity1").set("warn")
 report.parm("enable1").setExpression('npointsgroup(opinputpath(".", 0), "_bad_joint")')
 report.parm("errormsg1").set("Some spheres have connections too close together for a cube "
@@ -443,6 +481,10 @@ report.parm("errormsg4").set("A pf_sheet value is on only one curve; a sheet nee
 report.parm("severity5").set("warn")
 report.parm("enable5").setExpression('detail(opinputpath(".", 0), "_sheet_bad_type", 0)')
 report.parm("errormsg5").set("pf_sheet must be an integer primitive attribute.")
+report.parm("severity6").set("warn")
+report.parm("enable6").setExpression('detail(opinputpath(".", 0), "_sheet_closed", 0)')
+report.parm("errormsg6").set("A sheet curve is a closed polyline; it is lofted as if open, "
+                             "without its closing segment.")
 
 blast = _place(net.createNode("blast", "blast"), 0, 4.5, "The input graph goes.")
 blast.setInput(0, report)

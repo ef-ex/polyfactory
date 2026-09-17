@@ -1,8 +1,8 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets added the same day (§2.4, audit pending). Ten checks, twelve mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets added the same day (§2.4, audited, round 3). Ten checks, fifteen mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Two independent audit
-rounds done, every finding fixed (§4).
+rounds on the cage and one on the sheet, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
 their blind spots, and what is deliberately not built yet (the interactive editor).
 **Origin:** Hannes wants the ZSpheres workflow — place spheres, connect them, get a quad base
@@ -64,15 +64,24 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
 4. **`sheet`** (detail wrangle, one execution, added 2026-09-17 on Hannes' "two parallel
    curves" question). Curves sharing a value of an **int prim attribute `pf_sheet`** (> 0) are
    not tubes: they are lofted, in prim order, into **one closed slab** — the Dust3D
-   "stitching" idea. Stations along = the longest curve's point count (sampled by `primuv`);
-   spans across = as many as make the quads roughly square from the mean curve length and the
-   mean gap, or `Sheet Spans` when set; every grid point is pushed both ways along the sheet
-   normal by the interpolated `pscale`, so thickness follows the curves' radii. Top, bottom
-   and the four walls are quads wound clockwise from outside (check c10). Three or more
-   curves loft as one sheet with a span count per pair. Those curves' points get no cube. A
-   point that is on a sheet curve **and** has a connection still gets a cube, which overlaps
-   the slab — joining limbs to sheets is the next step, and the node warns until then. Output
-   prim attribute **`pf_sheet`** (int): the sheet id, 0 on cubes and limbs.
+   "stitching" idea. Stations along = the longest curve's point count, each curve sampled **by
+   arc length from its own points** — never `primuv`, which is uniform per segment on a
+   polyline (uneven points slant the rungs) and is the *surface* parametrisation on a closed
+   polygon (the slab collapsed to a line; audit round 3). A curve whose chord opposes the
+   previous curve's is walked backwards, so the artist may draw the curves either way (a
+   reversed pair was a silent inside-out bow-tie before). Spans across = as many as make the
+   quads roughly square from the mean curve length and the mean gap, or `Sheet Spans` when
+   set; every grid point is pushed both ways along the sheet normal by the interpolated
+   `pscale`, so thickness follows the curves' radii. Top, bottom and the four walls are quads
+   wound clockwise from outside (check c10). Three or more curves loft as one sheet with a
+   span count per pair. Those curves' points get no cube; a `pf_sheet` value on a single curve
+   is not a sheet (that curve stays a tube, with a warning). A point that is on a sheet curve
+   **and** has a connection still gets a cube, which overlaps the slab — joining limbs to
+   sheets is the next step, and the node warns until then. A closed polyline as a sheet curve
+   is lofted as if open, with a warning. Output prim attribute **`pf_sheet`** (int): the sheet
+   id, 0 on cubes and limbs. **Trap found on the way:** reading `f@pscale` in the cage wrangle
+   *creates* `pscale = 0` on the stream when the input has none, so the sheet read zeros where
+   `Radius` should apply; the cage reads it with `point()` now.
 
 **Parameters:** `Subdivisions` (0–4), `Sheet Spans` (0 = square-ish quads, else quads across
 per curve pair), and `Radius` (fallback when there is no `pscale`).
@@ -99,7 +108,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded |
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
-| c10 two curves loft to one slab | two parallel five-point curves, `pf_sheet` 1, radii 0.1 and 0.05: one closed, consistently wound, all-quad piece, every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre | top faces reversed |
+| c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |
 | c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 
 Verified by eye 2026-09-17 on a wireframe (`hython` + PIL, 94 cage quads / 1 504 subdivided
@@ -138,6 +147,24 @@ every dot ≥ 0.28 can still self-intersect without a warning (five limbs within
 crossings, silent).
 
 **Status after round 2: audited; the round-2 fix is check-covered but not itself re-audited.**
+
+**Round 3 (2026-09-17, same agent, the sheet).** Verdict "sound as a first step" on every
+legal input (3-vs-9 points, two to four curves, a displaced middle curve, two sheets with any
+ids, sheet plus tubes, Spans 1/32/auto), with three findings, all fixed: a **reversed second
+curve** lofted into a silent inside-out bow-tie that neither Intersection Analysis nor any
+warning saw (stations were paired by parameter with no direction check); a **closed polyline**
+as a sheet curve collapsed the slab, because `primuv` on a closed polygon is its surface
+parametrisation, and uneven points slanted the rungs because `primuv` is uniform per segment
+(own arc-length sampler now, closed curves warn); **no `pscale` on the input** gave a
+0.00002-thick sheet, because the cage's `f@pscale` binding had created the attribute as zero
+(read with `point()` now, c6 measures a sheet). Two c10 mutations had stayed green — radius
+not interpolated, span rule disabled — and c10 measures both now. Left as stated limits: a
+leaf whose curves share their end points has zero-length walls there (Catmull-Clark pinches);
+a float `pf_sheet` lofts, warns, and leaves the output attribute float; curves given out of
+order fold the loft back on itself with no warning.
+
+**Status after round 3: sheet audited; the round-3 fixes are check-covered but not themselves
+re-audited.**
 
 ## 5. Not built yet, in the order Hannes named it
 

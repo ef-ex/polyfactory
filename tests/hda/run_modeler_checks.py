@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Ten checks, twelve mutations, each seen red.
+Ten checks, fifteen mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -162,7 +162,9 @@ def c5_output_contract(cook):
                    for a in cls)
     a = g.findPrimAttrib("pf_node")
     vals = set(p.attribValue("pf_node") for p in g.prims()) if a else set()
-    ok = not leaked and names == ["P", "pf_node", "pf_sheet"] and a.dataType() == hou.attribData.Int and -1 in vals and max(vals) >= 0
+    sh = g.findPrimAttrib("pf_sheet")
+    ok = (not leaked and names == ["P", "pf_node", "pf_sheet"] and a.dataType() == hou.attribData.Int
+          and sh.dataType() == hou.attribData.Int and -1 in vals and max(vals) >= 0)
     return ok, "leaked %s, attributes %s (want P, pf_node, pf_sheet only), pf_node %s values %s" % (
         leaked, names, a and a.dataType(), sorted(vals)[:4])
 
@@ -173,7 +175,12 @@ def c6_radius_parm_used_without_pscale(cook):
     outpts = list(g.points())
     short = [sp.number() for sp in src.points() if sum(
         1 for p in outpts if abs((p.position() - sp.position()).length() - r * 3 ** 0.5) < 1e-4) != 8]
-    return not short, "spheres without 8 corners at Radius %s: %s (want none)" % (r, short)
+    a = [((0.5 * i, 0, 0), 0.0) for i in range(4)]
+    b = [((0.5 * i, 0, 1.0), 0.0) for i in range(4)]
+    sheet = cook(subdivisions=0, radius=r, _nopscale=True, _graph=graph(a + b, [[0, 1, 2, 3], [4, 5, 6, 7]], (1, 1)))
+    half = sorted(set(round(abs(p.position()[1]), 4) for p in sheet.points()))
+    return not short and half == [r], "spheres without 8 corners at Radius %s: %s (want none); sheet half-thickness %s (want [%s])" % (
+        r, short, half, r)
 
 
 def graph(spheres, links, sheets=()):
@@ -200,13 +207,19 @@ def graph(spheres, links, sheets=()):
 
 
 def c10_two_curves_loft_to_one_slab(cook):
-    """Two parallel five-point curves marked pf_sheet 1 (radius 0.1 on one,
-    0.05 on the other): one closed, consistently wound, all-quad shell,
-    every face pf_sheet 1, no cubes for the curve points, Houdini's own
-    prim normal pointing away from the slab's centre on every face."""
-    a = [((0.5 * i, 0, 0), 0.1) for i in range(5)]
-    b = [((0.5 * i, 0, 1.2), 0.05) for i in range(5)]
-    g = cook(subdivisions=0, _graph=graph(a + b, [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]], (1, 1)))
+    """Two parallel curves 2 long and 1.2 apart marked pf_sheet 1 - the
+    first with uneven points and radius 0.1, the second drawn the OTHER
+    WAY with three points and radius 0.05: one closed, consistently wound,
+    all-quad shell of 28 faces (5 stations, 2 spans: square-ish quads),
+    every face pf_sheet 1, Houdini's own prim normal away from the slab's
+    centre on every face, 0.2 thick along the first curve and 0.1 along
+    the second."""
+    a = [((x, 0, 0), 0.1) for x in (0, 0.1, 0.2, 0.3, 2.0)]
+    b = [((2.0 - 1.0 * i, 0, 1.2), 0.05) for i in range(3)]
+    g = cook(subdivisions=0, _graph=graph(a + b, [[0, 1, 2, 3, 4], [5, 6, 7]], (1, 1)))
+    ys = {z: sorted(set(round(abs(p.position()[1]), 4) for p in g.points() if abs(p.position()[2] - z) < 1e-4))
+          for z in (0.0, 1.2)}
+    thick = ys == {0.0: [0.1], 1.2: [0.05]}
     de = directed_edges(g)
     bad = sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de)
     nonquad = sum(1 for p in g.prims() if len(p.vertices()) != 4)
@@ -215,9 +228,9 @@ def c10_two_curves_loft_to_one_slab(cook):
     inward = sum(1 for p in g.prims() if p.normal().dot(
         sum((v.point().position() for v in p.vertices()), hou.Vector3()) / 4 - centre) <= 0)
     pieces = len(set(components(g).values()))
-    ok = bad == 0 and nonquad == 0 and tags == {1} and inward == 0 and pieces == 1 and len(g.prims()) > 0
-    return ok, "%d bad edges, %d non-quads, pf_sheet %s, %d inward, %d pieces (want 0, 0, {1}, 0, 1)" % (
-        bad, nonquad, sorted(tags), inward, pieces)
+    ok = bad == 0 and nonquad == 0 and tags == {1} and inward == 0 and pieces == 1 and len(g.prims()) == 28 and thick
+    return ok, "%d bad edges, %d non-quads, pf_sheet %s, %d inward, %d pieces, %d prims, half-thickness by side %s (want 0, 0, {1}, 0, 1, 28, {0.0: [0.1], 1.2: [0.05]})" % (
+        bad, nonquad, sorted(tags), inward, pieces, len(g.prims()), ys)
 
 
 def c7_joints_do_not_self_intersect(cook):
@@ -313,6 +326,18 @@ def m_no_bridge(net):
     net.node("bridge").bypass(True)
 
 
+def m_sheet_no_direction_check(net):
+    _patch(net, "sheet", "append(flips, dot(a1 - a0, b1 - b0) < 0);", "append(flips, 0);")
+
+
+def m_sheet_radius_not_interpolated(net):
+    _patch(net, "sheet", "append(R, max(lerp(ra, rb, t), 1e-5));", "append(R, max(ra, 1e-5));")
+
+
+def m_sheet_spans_always_one(net):
+    _patch(net, "sheet", "append(spans, clamp(m, 1, 32));", "append(spans, 1);")
+
+
 def m_sheet_top_reversed(net):
     _patch(net, "sheet", 'addprim(0, "poly", top[a], top[d], top[c], top[b])',
            'addprim(0, "poly", top[a], top[b], top[c], top[d])')
@@ -360,6 +385,9 @@ REGISTRY = [
     (c9_bad_joint_warns_on_the_locked_instance, m_report_bypassed),
     (c9_bad_joint_warns_on_the_locked_instance, m_no_too_many_group),
     (c10_two_curves_loft_to_one_slab, m_sheet_top_reversed),
+    (c10_two_curves_loft_to_one_slab, m_sheet_no_direction_check),
+    (c10_two_curves_loft_to_one_slab, m_sheet_radius_not_interpolated),
+    (c10_two_curves_loft_to_one_slab, m_sheet_spans_always_one),
 ]
 
 
