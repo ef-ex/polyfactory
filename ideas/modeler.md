@@ -1,6 +1,6 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets added the same day (§2.4, audited, round 3). Ten checks, fifteen mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6; trunks and attachment: audit pending). Eleven checks, eighteen mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Two independent audit
 rounds on the cage and one on the sheet, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
@@ -31,7 +31,7 @@ The input is ordinary Houdini geometry, so any stock tool can author it for now:
 No `pf_` attributes are required on the input. Output prim attribute **`pf_node`** (int): the
 sphere a face came from, `-1` on a limb.
 
-## 2. Method — the Adaptive Skin cube cage, in two wrangles
+## 2. Method — the Adaptive Skin cube cage, plus lofts
 
 Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean, no remesh.
 
@@ -76,15 +76,40 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
    wound clockwise from outside (check c10). Three or more curves loft as one sheet with a
    span count per pair. Those curves' points get no cube; a `pf_sheet` value on a single curve
    is not a sheet (that curve stays a tube, with a warning). A point that is on a sheet curve
-   **and** has a connection still gets a cube, which overlaps the slab — joining limbs to
-   sheets is the next step, and the node warns until then. A closed polyline as a sheet curve
+   with one connection is a branch and joins the slab (§2.6); with two or more it still gets
+   a cube, which overlaps the slab, and the node warns. A closed polyline as a sheet curve
    is lofted as if open, with a warning. Output prim attribute **`pf_sheet`** (int): the sheet
    id, 0 on cubes and limbs. **Trap found on the way:** reading `f@pscale` in the cage wrangle
    *creates* `pscale = 0` on the stream when the input has none, so the sheet read zeros where
    `Radius` should apply; the cage reads it with `point()` now.
 
-**Parameters:** `Subdivisions` (0–4), `Sheet Spans` (0 = square-ish quads, else quads across
-per curve pair), and `Radius` (fallback when there is no `pscale`).
+5. **Trunks** (same `loft` wrangle, added 2026-09-17 for Hannes' tree: "a nice art-directed
+   trunk and branch off, one mesh"). Curves sharing an **int prim attribute `pf_trunk`** (> 0,
+   three or more curves) are lofted **around**, in prim order, into one tube whose
+   cross-section at every station is the polygon the curves describe — their `pscale` is
+   ignored, the lines *are* the surface. Same sampler, direction check and span rule as
+   sheets, with the span total rounded up to even so the two ends can be closed by **zipper
+   caps**: opposite ring points paired into a strip of W/2 − 1 quads, no pole, no triangle.
+   The ring's winding is decided per trunk from the cross product against the outward
+   direction, so the curves may run either way round (check c11). Output prim attribute
+   **`pf_trunk`** (int): the trunk id, 0 elsewhere.
+6. **Branches join the surface** (cage + `resolve` + bridge). A sphere that lies on a sheet
+   or trunk curve **and** has exactly one connection gets no cube: in the cage it picks the
+   nearest surface cell whose Houdini normal faces the branch (dot > 0.2); a `resolve` pass
+   gives a cell wanted by two branches to the lower-numbered one; the bridge then uses that
+   cell's four corners exactly as it uses a cube face — least-twist pairing, four quads,
+   cell removed — so trunk, branches and branches-of-branches are **one closed quad mesh**.
+   A branch that faces into the surface finds no cell and is dropped with a warning; a
+   sphere on a surface with two or more connections still gets a cube (overlapping, warned).
+   **Trap found on the way:** `foreach (int pr; findattribval(...))` with a nested
+   `foreach (int pt; primpoints(pr))` returned the *first* facing cell instead of the nearest
+   (the branches sprouted from the trunk's base, seen in the wireframe); the same loops over
+   named arrays with `for` are correct. Same family as the skill's "array(...) inside foreach"
+   trap.
+
+**Parameters:** `Subdivisions` (0–4), `Loft Spans` (0 = square-ish quads, else quads across a
+sheet or around a trunk per curve pair — also the way to give branches smaller cells), and
+`Radius` (fallback when there is no `pscale`).
 
 **Limits, by construction:** a cube has six faces 90° apart, so connections bunched tighter
 than that cannot all leave through a face — the tool warns, it does not refuse (the mesh is
@@ -109,6 +134,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
 | c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |
+| c11 trunk with a branch is one mesh | four lines around a 1 × 1 square, one drawn the other way, `pf_trunk` 1, five stations; a branch from a middle station to a sphere: one closed, consistently wound, all-quad piece of 46 faces (32 ring cells − 1 taken + two 3-quad caps + 4 limb + 5 sphere caps), 37 faces `pf_trunk` 1, every trunk face's Houdini normal away from the box's centre | branch gets a cube instead; caps reversed; ring winding flipped |
 | c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 
 Verified by eye 2026-09-17 on a wireframe (`hython` + PIL, 94 cage quads / 1 504 subdivided
@@ -166,13 +192,14 @@ order fold the loft back on itself with no warning.
 **Status after round 3: sheet audited; the round-3 fixes are check-covered but not themselves
 re-audited.**
 
+**Round 4:** pending — trunks (§2.5) and branch attachment (§2.6).
+
 ## 5. Not built yet, in the order Hannes named it
 
-0. **Limbs joining a sheet.** A sheet's wall at a station is a face 2r high, the same as a
-   cube face, so a limb from a sheet point can take that wall face (or the top/bottom cell)
-   exactly as it takes a cube face today. Until then such a point gets a cube overlapping the
-   slab and a warning. Also open: merged cubes for overlapping spheres (the other answer to
-   "one mesh", weaker for flat parts).
+0. ~~Limbs joining a sheet~~ — **built** (§2.6), for sheets and trunks alike. Still open: a
+   surface point with two or more connections (a branch that continues *through* the trunk
+   line, or two branches from one point) — it gets a cube today; merged cubes for
+   overlapping spheres (the other answer to "one mesh", weaker for flat parts).
 1. **Interactive placement** — a Python viewer state: click to add a sphere as child of the
    selected one, drag its radius, link two spheres. This is the ZSpheres feel and the larger
    piece of work; the skin behind it is done.

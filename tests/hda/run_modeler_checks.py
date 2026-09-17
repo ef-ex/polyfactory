@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Ten checks, fifteen mutations, each seen red.
+Eleven checks, eighteen mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -163,9 +163,9 @@ def c5_output_contract(cook):
     a = g.findPrimAttrib("pf_node")
     vals = set(p.attribValue("pf_node") for p in g.prims()) if a else set()
     sh = g.findPrimAttrib("pf_sheet")
-    ok = (not leaked and names == ["P", "pf_node", "pf_sheet"] and a.dataType() == hou.attribData.Int
+    ok = (not leaked and names == ["P", "pf_node", "pf_sheet", "pf_trunk"] and a.dataType() == hou.attribData.Int
           and sh.dataType() == hou.attribData.Int and -1 in vals and max(vals) >= 0)
-    return ok, "leaked %s, attributes %s (want P, pf_node, pf_sheet only), pf_node %s values %s" % (
+    return ok, "leaked %s, attributes %s (want P, pf_node, pf_sheet, pf_trunk only), pf_node %s values %s" % (
         leaked, names, a and a.dataType(), sorted(vals)[:4])
 
 
@@ -183,13 +183,15 @@ def c6_radius_parm_used_without_pscale(cook):
         r, short, half, r)
 
 
-def graph(spheres, links, sheets=()):
-    """spheres: [(pos, r)], links: [[i, j, ...]] open polylines; sheets:
-    pf_sheet value per polyline (0 = a connection)."""
+def graph(spheres, links, sheets=(), trunks=()):
+    """spheres: [(pos, r)], links: [[i, j, ...]] open polylines; sheets /
+    trunks: pf_sheet / pf_trunk value per polyline (0 = a connection)."""
     g = hou.Geometry()
     g.addAttrib(hou.attribType.Point, "pscale", 0.0)
     if sheets:
         g.addAttrib(hou.attribType.Prim, "pf_sheet", 0)
+    if trunks:
+        g.addAttrib(hou.attribType.Prim, "pf_trunk", 0)
     pts = []
     for pos, r in spheres:
         p = g.createPoint()
@@ -203,7 +205,37 @@ def graph(spheres, links, sheets=()):
             pl.addVertex(pts[i])
         if sheets:
             pl.setAttribValue("pf_sheet", sheets[k])
+        if trunks:
+            pl.setAttribValue("pf_trunk", trunks[k])
     return g
+
+
+def c11_trunk_with_a_branch_is_one_mesh(cook):
+    """Four lines around a 1 x 1 square, five stations over 2 units, marked
+    pf_trunk 1, one of them drawn the other way; a branch curve from a
+    trunk point (its middle station) out to a sphere 1 unit away. One
+    closed, consistently wound, all-quad piece of 46 faces: 4 x 8 ring
+    cells minus the one the branch took, two 3-quad zipper caps, 4 limb
+    quads and the branch sphere's 5 caps; every trunk face's Houdini
+    normal away from the trunk's centre; pf_trunk 1 on exactly 37 faces."""
+    lines = [[((x, 0.5 * i, z), 0.0) for i in range(5)] for x, z in ((0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))]
+    lines[2] = lines[2][::-1]
+    sph = sum(lines, []) + [((1.5, 1.0, 0.5), 0.08)]
+    links = [[5 * k + i for i in range(5)] for k in range(4)] + [[2, 20]]
+    g = cook(subdivisions=0, _graph=graph(sph, links, trunks=(1, 1, 1, 1, 0)))
+    de = directed_edges(g)
+    bad = sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de)
+    nonquad = sum(1 for p in g.prims() if len(p.vertices()) != 4)
+    pieces = len(set(components(g).values()))
+    trunk = [p for p in g.prims() if p.attribValue("pf_trunk") == 1]
+    inward = 0
+    for p in trunk:
+        c = sum((v.point().position() for v in p.vertices()), hou.Vector3()) / 4
+        if p.normal().dot(c - hou.Vector3(0, 1.0, 0)) <= 0:   # the box is convex: away from its centre
+            inward += 1
+    ok = bad == 0 and nonquad == 0 and pieces == 1 and len(g.prims()) == 46 and len(trunk) == 37 and inward == 0
+    return ok, "%d bad edges, %d non-quads, %d pieces, %d prims, %d trunk faces, %d inward, warnings %s (want 0, 0, 1, 46, 37, 0)" % (
+        bad, nonquad, pieces, len(g.prims()), len(trunk), inward, list(cook.node.warnings()))
 
 
 def c10_two_curves_loft_to_one_slab(cook):
@@ -327,20 +359,35 @@ def m_no_bridge(net):
 
 
 def m_sheet_no_direction_check(net):
-    _patch(net, "sheet", "append(flips, dot(a1 - a0, b1 - b0) < 0);", "append(flips, 0);")
+    _patch(net, "loft", "append(flips, dot(a1 - a0, b1 - b0) < 0);", "append(flips, 0);")
 
 
 def m_sheet_radius_not_interpolated(net):
-    _patch(net, "sheet", "append(R, max(lerp(ra, rb, t), 1e-5));", "append(R, max(ra, 1e-5));")
+    _patch(net, "loft", "append(R, max(lerp(ra, rb, t), 1e-5));", "append(R, max(ra, 1e-5));")
 
 
 def m_sheet_spans_always_one(net):
-    _patch(net, "sheet", "append(spans, clamp(m, 1, 32));", "append(spans, 1);")
+    _patch(net, "loft", "append(spans, clamp(m, 1, 32));", "append(spans, 1);")
 
 
 def m_sheet_top_reversed(net):
-    _patch(net, "sheet", 'addprim(0, "poly", top[a], top[d], top[c], top[b])',
-           'addprim(0, "poly", top[a], top[b], top[c], top[d])')
+    _patch(net, "loft", 'quad(top[a], top[d], top[c], top[b], tag, id)',
+           'quad(top[a], top[b], top[c], top[d], tag, id)')
+
+
+def m_trunk_caps_reversed(net):
+    _patch(net, "loft", 'if (fwd) { quad(ring[v0], ring[v1], ring[v2], ring[v3], tag, id);',
+           'if (fwd) { quad(ring[v3], ring[v2], ring[v1], ring[v0], tag, id);')
+    _patch(net, "loft", 'else     { quad(ring[v1], ring[v0], ring[v3], ring[v2], tag, id);',
+           'else     { quad(ring[v2], ring[v3], ring[v0], ring[v1], tag, id);')
+
+
+def m_trunk_ring_flipped(net):
+    _patch(net, "loft", "int fwd = sign < 0;", "int fwd = sign > 0;")
+
+
+def m_branch_gets_a_cube(net):
+    _patch(net, "cage", "if (onsheet && len(nbs) == 1) {", "if (0) {")
 
 
 def m_no_cleanup(net):
@@ -388,6 +435,9 @@ REGISTRY = [
     (c10_two_curves_loft_to_one_slab, m_sheet_no_direction_check),
     (c10_two_curves_loft_to_one_slab, m_sheet_radius_not_interpolated),
     (c10_two_curves_loft_to_one_slab, m_sheet_spans_always_one),
+    (c11_trunk_with_a_branch_is_one_mesh, m_branch_gets_a_cube),
+    (c11_trunk_with_a_branch_is_one_mesh, m_trunk_caps_reversed),
+    (c11_trunk_with_a_branch_is_one_mesh, m_trunk_ring_flipped),
 ]
 
 
