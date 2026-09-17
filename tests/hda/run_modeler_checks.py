@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Twelve checks, twenty-six mutations, each seen red.
+Thirteen checks, twenty-seven mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -389,6 +389,27 @@ def selfx(g):
     return n
 
 
+def c13_branch_attaches_where_it_leaves_the_shell(cook):
+    """The square trunk with pscale 0.2 on its lines (shell at 0.7); a branch
+    stroke from a trunk point with spheres at x 0.55 and 0.65 (inside the
+    shell), then 1.0 and 1.5 outside. The two buried spheres get no cube -
+    no output point within 0.1 of them - and the limb leaves the cell for
+    the sphere at 1.0; one closed, consistently wound, all-quad piece."""
+    lines = [[((x, 0.5 * i, z), 0.2) for i in range(5)] for x, z in ((0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))]
+    sph = sum(lines, []) + [((0.55, 1.0, 0.5), 0.03), ((0.65, 1.0, 0.5), 0.03), ((1.0, 1.0, 0.5), 0.06), ((1.5, 1.0, 0.5), 0.06)]
+    links = [[5 * k + i for i in range(5)] for k in range(4)] + [[2, 20, 21, 22, 23]]
+    g = cook(subdivisions=0, _graph=graph(sph, links, trunks=(1, 1, 1, 1, 0)))
+    de = directed_edges(g)
+    bad = sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de)
+    pieces = len(set(components(g).values()))
+    buried = [i for i, x in ((20, 0.55), (21, 0.65)) if any((p.position() - hou.Vector3(x, 1.0, 0.5)).length() < 0.1 for p in g.points())]
+    limb = [p for p in g.prims() if p.attribValue("pf_node") == -1 and p.attribValue("pf_trunk") == 0]
+    reaches = any(min((v.point().position() - hou.Vector3(1.0, 1.0, 0.5)).length() for v in p.vertices()) < 0.06 * 3 ** 0.5 + 1e-4 for p in limb)
+    ok = bad == 0 and pieces == 1 and not buried and reaches and any("never leaves" not in w for w in [""]) and not cook.node.warnings()
+    return ok, "%d bad edges, %d pieces, cubes on buried spheres %s, limb reaches the first clear sphere %s, warnings %s (want 0, 1, [], True, [])" % (
+        bad, pieces, buried, reaches, list(cook.node.warnings()))
+
+
 def _patch(net, node, old, new):
     p = net.node(node).parm("snippet")
     src = p.eval()
@@ -471,6 +492,10 @@ def m_radius_scale_ignored(net):
     _patch(net, "cage", 'float(point(0, "pscale", @ptnum)) * chf("../radius")', 'float(point(0, "pscale", @ptnum))')
 
 
+def m_no_burial(net):
+    _patch(net, "resolve", "if (dot(P - cc, nrm) >= r) break;", "break;")
+
+
 def m_odd_ring_allowed(net):
     _patch(net, "loft", "if (closed && M % 2 == 1) { spans[-1] += 1; M += 1; }", "")
 
@@ -535,6 +560,7 @@ REGISTRY = [
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_trunk_ignores_pscale),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_wrap_ignored),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_wrap_clamped),
+    (c13_branch_attaches_where_it_leaves_the_shell, m_no_burial),
 ]
 
 

@@ -1,6 +1,6 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Twelve checks, twenty-six mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Thirteen checks, twenty-seven mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Four independent audit
 rounds, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
@@ -106,6 +106,12 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
    cell removed — so trunk, branches and branches-of-branches are **one closed quad mesh**.
    A branch that faces into the surface finds no cell and is dropped with a warning; a
    sphere on a surface with two or more connections still gets a cube (overlapping, warned).
+   **Buried spheres** (Hannes, 2026-09-17: "the connected branch does not respect the outer
+   shell of the trunk"): once the shell sits outside its lines, the first spheres of a branch
+   stroke lie inside it. The `resolve` pass walks each branch outward from its cell — a sphere
+   behind the cell's plane by less than its own radius is buried, its cube is removed — and the
+   cell bridges to the first sphere that stands clear (check c13). A branch that never
+   clears the shell before a fork or its end is joined where it ends, with a warning.
    **Trap found on the way:** `foreach (int pr; findattribval(...))` with a nested
    `foreach (int pt; primpoints(pr))` returned the *first* facing cell instead of the nearest
    (the branches sprouted from the trunk's base, seen in the wireframe); the same loops over
@@ -160,6 +166,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |
 | c12 awkward trunk branches warn and stay closed | a branch aimed into the trunk is dropped, warns "no cell", 44 faces closed; two branches from the same station on the two lines of one wall, both heading out, want one cell: one keeps it, warning, 2 closed pieces; Loft Spans 1 on three lines at radius 0.5 with pscale 0.1 (odd ring) rounds up, caps close, 18 faces, surface reaches 0.6 | locality bound removed; resolve bypassed; odd ring allowed; trunk pscale ignored; Wrap ignored |
 | c11 trunk with a branch is one mesh | four lines around a 1 × 1 square, one drawn the other way, `pf_trunk` 1, five stations; a branch from a middle station to a sphere: one closed, consistently wound, all-quad piece of 46 faces (32 ring cells − 1 taken + two 3-quad caps + 4 limb + 5 sphere caps), 37 faces `pf_trunk` 1, every trunk face's Houdini normal away from the box's centre | branch gets a cube instead; caps reversed; ring winding flipped; first facing cell instead of nearest |
+| c13 branch attaches where it leaves the shell | square trunk with pscale 0.2 (shell at 0.7), a branch stroke with spheres at 0.55 and 0.65 (inside) then 1.0 and 1.5: no cube on the buried two, the limb reaches the sphere at 1.0, one closed piece, no warning | burial walk disabled |
 | c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 
 Verified by eye 2026-09-17 on a wireframe (`hython` + PIL, 94 cage quads / 1 504 subdivided

@@ -290,6 +290,7 @@ function int[] face_of(int b; int f) {
     return B;
 }
 int a = @ptnum;
+if (i@_skip) return;                            // buried inside a shell: no cube, no limb
 if (i@_attach) {
     // a branch on a loft surface: its cell stands in for a cube face
     int cell = i@_cell;
@@ -554,7 +555,10 @@ foreach (string attr; loftattrs) {
 
 RESOLVE_VEX = r"""
 // pf_modeler resolve - two branches that chose the same surface cell:
-// the lower-numbered keeps it, the other is dropped with a warning.
+// the lower-numbered keeps it, the other is dropped with a warning. Then
+// each branch is walked outward: spheres still INSIDE the shell (behind
+// the cell's plane by less than their own radius) are buried - their cubes
+// go - and the cell bridges to the first sphere that stands clear.
 int taken[];
 int attach[] = findattribval(0, "point", "_attach", 1);
 for (int k = 0; k < len(attach); k++) {
@@ -563,8 +567,31 @@ for (int k = 0; k < len(attach); k++) {
     if (point(0, "_attach", nbs[0])) setpointgroup(0, "_attach_pair", pt, 1);   // surface to surface: no limb
     int c = point(0, "_cell", pt);
     if (c < 0) continue;
-    if (find(taken, c) >= 0) { setpointattrib(0, "_cell", pt, -1); setpointgroup(0, "_cell_clash", pt, 1); }
-    else append(taken, c);
+    if (find(taken, c) >= 0) { setpointattrib(0, "_cell", pt, -1); setpointgroup(0, "_cell_clash", pt, 1); continue; }
+    append(taken, c);
+    vector nrm = prim_normal(0, c, 0.5, 0.5), cc = 0;
+    int cp[] = primpoints(0, c);
+    for (int q = 0; q < len(cp); q++) { vector pp = point(0, "P", cp[q]); cc += pp / len(cp); }
+    int prev = pt, cur = nbs[0];
+    while (1) {
+        vector P = point(0, "P", cur);
+        float r = haspointattrib(0, "pscale") ? float(point(0, "pscale", cur)) * chf("../radius") : chf("../radius");
+        if (dot(P - cc, nrm) >= r) break;                       // clear of the shell
+        int cn[] = point(0, "_nbs", cur);
+        if (len(cn) != 2 || point(0, "_attach", cur)) { setpointgroup(0, "_buried", pt, 1); break; }
+        int nxt = cn[0] == prev ? cn[1] : cn[0];
+        setpointattrib(0, "_skip", cur, 1);
+        int corners[] = findattribval(0, "point", "_node", cur);
+        for (int q = 0; q < len(corners); q++) removepoint(0, corners[q], 1);
+        prev = cur; cur = nxt;
+    }
+    if (cur != nbs[0]) {
+        int only[] = array(cur);
+        setpointattrib(0, "_nbs", pt, only);
+        int cn[] = point(0, "_nbs", cur);
+        for (int q = 0; q < len(cn); q++) if (cn[q] == prev) cn[q] = pt;   // its face for the buried one is ours now
+        setpointattrib(0, "_nbs", cur, cn);
+    }
 }
 """
 
@@ -633,7 +660,7 @@ bridge.parm("snippet").set(BRIDGE_VEX)
 report = _place(net.createNode("error", "report"), 0, 5,
                 "Warnings the artist can see (a locked asset hides VEX warnings).")
 report.setInput(0, bridge)
-report.parm("numerror").set(12)
+report.parm("numerror").set(13)
 report.parm("severity1").set("warn")
 report.parm("enable1").setExpression('npointsgroup(opinputpath(".", 0), "_bad_joint")')
 report.parm("errormsg1").set("Some spheres have connections too close together for a cube "
@@ -682,6 +709,11 @@ report.parm("severity12").set("warn")
 report.parm("enable12").setExpression('detail(opinputpath(".", 0), "_trunk_order", 0)')
 report.parm("errormsg12").set("Trunk lines are not in order around the trunk: the ring crosses "
                               "itself. Renumber the curves to go around.")
+report.parm("severity13").set("warn")
+report.parm("enable13").setExpression('npointsgroup(opinputpath(".", 0), "_buried")')
+report.parm("errormsg13").set("A branch never leaves its trunk or sheet: every sphere up to a "
+                              "fork or its end lies inside the shell. It is joined where it "
+                              "ends; move it outward.")
 
 blast = _place(net.createNode("blast", "blast"), 0, 4.5, "The input graph goes.")
 blast.setInput(0, report)
