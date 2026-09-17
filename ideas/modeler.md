@@ -24,7 +24,7 @@ The input is ordinary Houdini geometry, so any stock tool can author it for now:
 
 | Thing | In the input |
 |---|---|
-| a sphere | a point; `pscale` is its radius (the `Radius` parm when there is no `pscale`) |
+| a sphere | a point; `pscale` × `Radius` is its radius (`Radius` alone when there is no `pscale`) |
 | a connection | a polyline segment — every consecutive pair of points on a polyline; closed polylines close the loop |
 | a sphere on a limb | a point shared by two segments (one polyline through it, or two fused) |
 
@@ -131,9 +131,9 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
 
 **Parameters:** `Subdivisions` (0–4), `Loft Spans` (0 = square-ish quads, else quads across a
 sheet or around a trunk per curve pair — also the way to give branches smaller cells; with
-Wrap the spans are also what resolves the valleys), `Wrap` (unbounded, 0.5), `Radius Scale`
-(multiplies every radius — spheres, sheets, trunks; added when Hannes found `Radius` doing
-nothing on a stroke that carried `pscale`), and `Radius` (used only when there is no `pscale`).
+Wrap the spans are also what resolves the valleys), `Wrap` (unbounded, 0.5), and `Radius` (default 1: multiplies every
+`pscale` — spheres, sheets, trunks — and *is* the radius where the input has none; it was two
+sliders for an hour, a fallback and a scale, until Hannes asked why).
 
 **Limits, by construction:** a cube has six faces 90° apart, so connections bunched tighter
 than that cannot all leave through a face — the tool warns, it does not refuse (the mesh is
@@ -154,7 +154,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c3 faces point outward | Houdini's own `prim.normal()` points away from the owning sphere on every cap (Houdini front faces wind **clockwise** seen from outside; the first build wound them counter-clockwise and shipped inverted, found by Hannes in the viewport) | corner order inside out |
 | c4 every connection joins its spheres | each sphere has 8 corners at r√3; every segment's two spheres in one connected piece; 4 pieces | bridge bypassed |
 | c5 output contract | no `_*` attribute or group; `pf_node` int with −1 and ≥ 0 | cleanup bypassed |
-| c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded; Radius Scale ignored |
+| c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded; Radius not multiplying pscale |
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
 | c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |

@@ -3,8 +3,8 @@ all-quad mesh out.
 
     hython devScripts/create_pf_modeler_hda.py
 
-Input: points are the spheres (`pscale` is the radius, or the Radius parm
-when there is no pscale), polylines are the connections - every polyline
+Input: points are the spheres (`pscale` times the Radius parm is the radius,
+or Radius alone when there is no pscale), polylines are the connections - every polyline
 segment joins its two points. The way ZBrush's Adaptive Skin does it: each
 sphere becomes a CUBE, each connection takes one face of the cube at either
 end and is bridged with four quads, the faces nothing uses stay as caps,
@@ -110,7 +110,8 @@ CAGE_VEX = FACE_VEX + r"""
 // point(), not f@pscale: the binding would CREATE pscale = 0 on the stream
 // and the sheet wrangle would then read zeros instead of Radius
 if (i@_loftpt) return;                       // a point the loft made, not a sphere
-float r = max((haspointattrib(0, "pscale") ? float(point(0, "pscale", @ptnum)) : chf("../radius")) * chf("../radiusscale"), 1e-5);
+// one Radius: it multiplies pscale where there is one, and IS the radius where there is none
+float r = max(haspointattrib(0, "pscale") ? float(point(0, "pscale", @ptnum)) * chf("../radius") : chf("../radius"), 1e-5);
 setpointgroup(0, "_graph", @ptnum, 1);
 i@_node = -1;
 // neighbours through the connections only - a curve marked pf_sheet or
@@ -445,8 +446,8 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
             vector pa, pb; float ra, rb;
             curve_sample(curves[c], u, flips[c], pa, ra);
             curve_sample(curves[c2], u, flips[c2], pb, rb);
-            if (!haspointattrib(0, "pscale")) { ra = chf("../radius"); rb = ra; }
-            ra *= chf("../radiusscale"); rb *= chf("../radiusscale");
+            if (haspointattrib(0, "pscale")) { ra *= chf("../radius"); rb *= chf("../radius"); }
+            else { ra = chf("../radius"); rb = ra; }
             int last = (!closed && c == npairs - 1);
             float L = distance(pa, pb);
             for (int k = 0; k < spans[c] + last; k++) {
@@ -730,15 +731,11 @@ _wrap.setHelp("How much a sheet or trunk surface follows the individual lines be
               "would allow; negative values push the skin out into hills between the "
               "lines instead. No limit either way.")
 ptg.append(_wrap)
-_rs = hou.FloatParmTemplate("radiusscale", "Radius Scale", 1, (1.0,), min=0.0, max=4.0,
-                            min_is_strict=True, max_is_strict=False)
-_rs.setHelp("Multiplies every radius - each sphere's pscale, and the thickness of sheets "
-            "and trunks - so the whole model can be fattened or slimmed at once.")
-ptg.append(_rs)
-_rad = hou.FloatParmTemplate("radius", "Radius", 1, (0.1,), min=0.001, max=1.0,
+_rad = hou.FloatParmTemplate("radius", "Radius", 1, (1.0,), min=0.0, max=4.0,
                              min_is_strict=True, max_is_strict=False)
-_rad.setHelp("Sphere radius used only when the input points carry no pscale. A pscale "
-             "attribute on the points always wins; use Radius Scale to change those.")
+_rad.setHelp("Multiplies every radius - each sphere's pscale, and the thickness of sheets "
+             "and trunks - so the whole model fattens or slims at once. If the input points "
+             "carry no pscale, this IS the sphere radius.")
 ptg.append(_rad)
 defn.setParmTemplateGroup(ptg)
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
@@ -770,6 +767,6 @@ assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
 assert back.icon() == ICON and back.description() == TAB_LABEL
 assert back.sections()["MessageNodes"].contents().strip() == "report"
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
-for _p in ("subdivisions", "sheetspans", "wrap", "radiusscale", "radius"):
+for _p in ("subdivisions", "sheetspans", "wrap", "radius"):
     assert re.search(r'name\s+"%s"' % _p, saved), _p
 print("wrote " + HDA_PATH)

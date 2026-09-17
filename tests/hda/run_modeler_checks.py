@@ -179,12 +179,12 @@ def c6_radius_parm_used_without_pscale(cook):
     b = [((0.5 * i, 0, 1.0), 0.0) for i in range(4)]
     sheet = cook(subdivisions=0, radius=r, _nopscale=True, _graph=graph(a + b, [[0, 1, 2, 3], [4, 5, 6, 7]], (1, 1)))
     half = sorted(set(round(abs(p.position()[1]), 4) for p in sheet.points()))
-    # Radius Scale multiplies pscale too: the fixture's spheres at scale 2 have corners at 2 r sqrt3
-    g2 = cook(subdivisions=0, radiusscale=2.0)
+    # with pscale present the same Radius multiplies it: at 2 the corners sit at 2 r sqrt3
+    g2 = cook(subdivisions=0, radius=2.0)
     out2 = list(g2.points())
     unscaled = [sp.number() for sp in src.points() if sum(
         1 for p in out2 if abs((p.position() - sp.position()).length() - 2 * sp.attribValue("pscale") * 3 ** 0.5) < 1e-4) != 8]
-    return not short and half == [r] and not unscaled, "spheres without 8 corners at Radius %s: %s (want none); sheet half-thickness %s (want [%s]); spheres not doubled by Radius Scale 2: %s (want none)" % (
+    return not short and half == [r] and not unscaled, "spheres without 8 corners at Radius %s: %s (want none); sheet half-thickness %s (want [%s]); spheres not doubled by Radius 2: %s (want none)" % (
         r, short, half, r, unscaled)
 
 
@@ -468,7 +468,7 @@ def m_wrap_clamped(net):
 
 
 def m_radius_scale_ignored(net):
-    _patch(net, "cage", '* chf("../radiusscale")', "")
+    _patch(net, "cage", 'float(point(0, "pscale", @ptnum)) * chf("../radius")', 'float(point(0, "pscale", @ptnum))')
 
 
 def m_odd_ring_allowed(net):
@@ -484,7 +484,7 @@ def m_no_cleanup(net):
 
 
 def m_radius_hardcoded(net):
-    _patch(net, "cage", 'chf("../radius")', "0.1")
+    _patch(net, "cage", ': chf("../radius"), 1e-5)', ": 0.1, 1e-5)")
 
 
 def m_worst_twist(net):
@@ -554,7 +554,7 @@ def main(seed=7):
     def cook(_asis=False, _nopscale=False, _graph=None, **parms):
         stash.parm("stash").set(_graph if _graph is not None else fixture(seed))
         node.setInput(0, strip if _nopscale else stash)
-        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0, "wrap": 0.0, "radiusscale": 1.0})
+        node.setParms({"subdivisions": 2, "radius": 1.0, "sheetspans": 0, "wrap": 0.0})
         node.setParms(parms)
         src = stash if _asis else node
         frozen = hou.Geometry()
