@@ -1,6 +1,6 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Twelve checks, twenty-four mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets, trunks and branch attachment added the same day (§2.4–2.6, all audited). Twelve checks, twenty-six mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Four independent audit
 rounds, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
@@ -119,14 +119,21 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
    envelope of the two noodles** (1): at fraction *t* along the chord of length *L* the
    envelope is max(√(rₐ² − (tL)²), √(r_b² − ((1−t)L)²)), the circle of each line seen along
    the chord and zero in the gap, so every line reads as a tube under the skin and the skin
-   dips into the valleys between. Applies to sheets and trunks; default 0.5 (check c12: at
-   Wrap 1 the mid-chord point between two lines 0.866 apart at radius 0.1 sits on the chord,
-   0.25 from the axis; 0.35 at Wrap 0).
+   dips into the valleys between. Applies to sheets and trunks; default 0.5. **Unbounded, both
+   ways** (Hannes: "push into both directions in and out"): past 1 the dip is exaggerated
+   beyond the envelope, and on a trunk it may push past the chord; negative values turn the
+   valley into a hill. A sheet keeps a positive thickness whatever Wrap says. Check c12: the
+   mid-chord point between two lines 0.866 apart at radius 0.1 sits 0.35 from the axis at
+   Wrap 0, 0.25 (on the chord) at 1, 0.45 at −1, 0.15 at 2. **On overlapping noodles there is
+   little to press into**: Hannes' trunk had lines 0.13 apart with pscale 0.25, and the deepest
+   physical valley there is 0.01 — the tubes must be about as thick as their spacing for the
+   ribs to read, or Wrap has to exaggerate.
 
 **Parameters:** `Subdivisions` (0–4), `Loft Spans` (0 = square-ish quads, else quads across a
 sheet or around a trunk per curve pair — also the way to give branches smaller cells; with
-Wrap the spans are also what resolves the valleys), `Wrap` (0–1), and `Radius` (fallback when
-there is no `pscale`).
+Wrap the spans are also what resolves the valleys), `Wrap` (unbounded, 0.5), `Radius Scale`
+(multiplies every radius — spheres, sheets, trunks; added when Hannes found `Radius` doing
+nothing on a stroke that carried `pscale`), and `Radius` (used only when there is no `pscale`).
 
 **Limits, by construction:** a cube has six faces 90° apart, so connections bunched tighter
 than that cannot all leave through a face — the tool warns, it does not refuse (the mesh is
@@ -147,7 +154,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c3 faces point outward | Houdini's own `prim.normal()` points away from the owning sphere on every cap (Houdini front faces wind **clockwise** seen from outside; the first build wound them counter-clockwise and shipped inverted, found by Hannes in the viewport) | corner order inside out |
 | c4 every connection joins its spheres | each sphere has 8 corners at r√3; every segment's two spheres in one connected piece; 4 pieces | bridge bypassed |
 | c5 output contract | no `_*` attribute or group; `pf_node` int with −1 and ≥ 0 | cleanup bypassed |
-| c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded |
+| c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded; Radius Scale ignored |
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
 | c10 two curves loft to one slab | two curves 2 long, 1.2 apart, `pf_sheet` 1: the first unevenly spaced at radius 0.1, the second drawn the other way with three points at 0.05 — one closed, consistently wound, all-quad piece of 28 faces (5 stations × 2 spans), every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre, half-thickness 0.1 along the first curve and 0.05 along the second | top faces reversed; direction check removed; radius not interpolated; spans forced to 1 |

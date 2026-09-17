@@ -110,7 +110,7 @@ CAGE_VEX = FACE_VEX + r"""
 // point(), not f@pscale: the binding would CREATE pscale = 0 on the stream
 // and the sheet wrangle would then read zeros instead of Radius
 if (i@_loftpt) return;                       // a point the loft made, not a sphere
-float r = max(haspointattrib(0, "pscale") ? float(point(0, "pscale", @ptnum)) : chf("../radius"), 1e-5);
+float r = max((haspointattrib(0, "pscale") ? float(point(0, "pscale", @ptnum)) : chf("../radius")) * chf("../radiusscale"), 1e-5);
 setpointgroup(0, "_graph", @ptnum, 1);
 i@_node = -1;
 // neighbours through the connections only - a curve marked pf_sheet or
@@ -434,7 +434,8 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
     // radius runs straight from one to the other (Wrap 0) or follows the
     // outer envelope of the two noodles - the circle of each line seen along
     // the chord, zero in the gap between them (Wrap 1): a skin pressed into
-    // the cavity between the tubes
+    // the cavity between the tubes. Past 1 the dip is exaggerated, below 0
+    // it turns into a hill: the difference is simply scaled by Wrap
     float wrap = chf("../wrap");
     vector P[]; float R[];
     for (int i = 0; i < n; i++) {
@@ -445,6 +446,7 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
             curve_sample(curves[c], u, flips[c], pa, ra);
             curve_sample(curves[c2], u, flips[c2], pb, rb);
             if (!haspointattrib(0, "pscale")) { ra = chf("../radius"); rb = ra; }
+            ra *= chf("../radiusscale"); rb *= chf("../radiusscale");
             int last = (!closed && c == npairs - 1);
             float L = distance(pa, pb);
             for (int k = 0; k < spans[c] + last; k++) {
@@ -453,7 +455,7 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
                 float ea = sqrt(max(0.0, ra * ra - (t * L) * (t * L)));
                 float eb = sqrt(max(0.0, rb * rb - ((1 - t) * L) * ((1 - t) * L)));
                 append(P, lerp(pa, pb, t));
-                append(R, max(lerp(straight, max(ea, eb), wrap), 1e-5));
+                append(R, lerp(straight, max(ea, eb), wrap));   // may go negative on a trunk: Wrap past 1
             }
         }
     }
@@ -504,8 +506,9 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
         vector across_d = P[i * W + min(j + 1, W - 1)] - P[i * W + max(j - 1, 0)];
         vector N = -normalize(cross(along_d, across_d));   // sign chosen so the faces wind clockwise from outside (c10)
         vector q = P[i * W + j];
-        append(top, addpoint(0, q + N * R[i * W + j]));
-        append(bot, addpoint(0, q - N * R[i * W + j]));
+        float h = max(R[i * W + j], 1e-5);
+        append(top, addpoint(0, q + N * h));
+        append(bot, addpoint(0, q - N * h));
     }
     for (int i = 0; i < n - 1; i++) for (int j = 0; j < W - 1; j++) {
         int a = i * W + j, b = a + 1, c = a + W + 1, d = a + W;
@@ -718,17 +721,24 @@ _spans.setHelp("Quads across a sheet or around a trunk, between each pair of its
                "picks as many as make the quads roughly square; set it to trade smoothness "
                "for face count, or to give branches smaller cells to attach to.")
 ptg.append(_spans)
-_wrap = hou.FloatParmTemplate("wrap", "Wrap", 1, (0.5,), min=0.0, max=1.0,
-                              min_is_strict=True, max_is_strict=True)
+_wrap = hou.FloatParmTemplate("wrap", "Wrap", 1, (0.5,), min=-3.0, max=3.0,
+                              min_is_strict=False, max_is_strict=False)
 _wrap.setHelp("How much a sheet or trunk surface follows the individual lines between them. "
               "0 bridges straight from one line's radius to the next; 1 wraps the skin "
               "around each line and presses it into the gap, so every line reads as a "
-              "noodle under the surface.")
+              "noodle under the surface. Past 1 the valleys deepen beyond what the tubes "
+              "would allow; negative values push the skin out into hills between the "
+              "lines instead. No limit either way.")
 ptg.append(_wrap)
+_rs = hou.FloatParmTemplate("radiusscale", "Radius Scale", 1, (1.0,), min=0.0, max=4.0,
+                            min_is_strict=True, max_is_strict=False)
+_rs.setHelp("Multiplies every radius - each sphere's pscale, and the thickness of sheets "
+            "and trunks - so the whole model can be fattened or slimmed at once.")
+ptg.append(_rs)
 _rad = hou.FloatParmTemplate("radius", "Radius", 1, (0.1,), min=0.001, max=1.0,
                              min_is_strict=True, max_is_strict=False)
-_rad.setHelp("Sphere radius used when the input points carry no pscale. A "
-             "pscale attribute on the points always wins.")
+_rad.setHelp("Sphere radius used only when the input points carry no pscale. A pscale "
+             "attribute on the points always wins; use Radius Scale to change those.")
 ptg.append(_rad)
 defn.setParmTemplateGroup(ptg)
 defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
@@ -760,6 +770,6 @@ assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
 assert back.icon() == ICON and back.description() == TAB_LABEL
 assert back.sections()["MessageNodes"].contents().strip() == "report"
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
-for _p in ("subdivisions", "sheetspans", "wrap", "radius"):
+for _p in ("subdivisions", "sheetspans", "wrap", "radiusscale", "radius"):
     assert re.search(r'name\s+"%s"' % _p, saved), _p
 print("wrote " + HDA_PATH)

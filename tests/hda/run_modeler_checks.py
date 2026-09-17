@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Twelve checks, twenty-four mutations, each seen red.
+Twelve checks, twenty-six mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -179,8 +179,13 @@ def c6_radius_parm_used_without_pscale(cook):
     b = [((0.5 * i, 0, 1.0), 0.0) for i in range(4)]
     sheet = cook(subdivisions=0, radius=r, _nopscale=True, _graph=graph(a + b, [[0, 1, 2, 3], [4, 5, 6, 7]], (1, 1)))
     half = sorted(set(round(abs(p.position()[1]), 4) for p in sheet.points()))
-    return not short and half == [r], "spheres without 8 corners at Radius %s: %s (want none); sheet half-thickness %s (want [%s])" % (
-        r, short, half, r)
+    # Radius Scale multiplies pscale too: the fixture's spheres at scale 2 have corners at 2 r sqrt3
+    g2 = cook(subdivisions=0, radiusscale=2.0)
+    out2 = list(g2.points())
+    unscaled = [sp.number() for sp in src.points() if sum(
+        1 for p in out2 if abs((p.position() - sp.position()).length() - 2 * sp.attribValue("pscale") * 3 ** 0.5) < 1e-4) != 8]
+    return not short and half == [r] and not unscaled, "spheres without 8 corners at Radius %s: %s (want none); sheet half-thickness %s (want [%s]); spheres not doubled by Radius Scale 2: %s (want none)" % (
+        r, short, half, r, unscaled)
 
 
 def graph(spheres, links, sheets=(), trunks=()):
@@ -278,9 +283,15 @@ def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
     valley0 = round(min(radial(g)), 3)
     g = cook(subdivisions=0, sheetspans=1, wrap=1.0, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
     valley1 = round(min(radial(g)), 3)
-    odd = (closed_quads(g), len(g.prims()), reach, valley0, valley1)
-    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18, 0.6, 0.35, 0.25)
-    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims, reach, valley at Wrap 0, at Wrap 1) %s want (True, 18, 0.6, 0.35, 0.25)" % (
+    # Wrap -1 mirrors the dip into a hill (0.45, still under the 0.6 line points); Wrap 2 pushes
+    # the mid-chord point 0.1 past the chord, to 0.15 from the axis
+    g = cook(subdivisions=0, sheetspans=1, wrap=-1.0, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
+    hill = round(min(radial(g)), 3)
+    g = cook(subdivisions=0, sheetspans=1, wrap=2.0, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
+    deep = round(min(radial(g)), 3)
+    odd = (closed_quads(g), len(g.prims()), reach, valley0, valley1, hill, deep)
+    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18, 0.6, 0.35, 0.25, 0.45, 0.15)
+    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims, reach, mid-chord at Wrap 0 / 1 / -1 / 2) %s want (True, 18, 0.6, 0.35, 0.25, 0.45, 0.15)" % (
         into, clash, odd)
 
 
@@ -449,7 +460,15 @@ def m_trunk_ignores_pscale(net):
 
 
 def m_wrap_ignored(net):
-    _patch(net, "loft", "append(R, max(lerp(straight, max(ea, eb), wrap), 1e-5));", "append(R, max(straight, 1e-5));")
+    _patch(net, "loft", "append(R, lerp(straight, max(ea, eb), wrap));", "append(R, straight);")
+
+
+def m_wrap_clamped(net):
+    _patch(net, "loft", 'float wrap = chf("../wrap");', 'float wrap = clamp(chf("../wrap"), 0, 1);')
+
+
+def m_radius_scale_ignored(net):
+    _patch(net, "cage", '* chf("../radiusscale")', "")
 
 
 def m_odd_ring_allowed(net):
@@ -496,6 +515,7 @@ REGISTRY = [
     (c4_every_connection_joins_its_spheres, m_no_bridge),
     (c5_output_contract, m_no_cleanup),
     (c6_radius_parm_used_without_pscale, m_radius_hardcoded),
+    (c6_radius_parm_used_without_pscale, m_radius_scale_ignored),
     (c7_joints_do_not_self_intersect, m_worst_twist),
     (c8_awkward_connectivity_stays_closed, m_no_cap_restored),
     (c8_awkward_connectivity_stays_closed, m_resize_pads_zero),
@@ -514,6 +534,7 @@ REGISTRY = [
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_odd_ring_allowed),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_trunk_ignores_pscale),
     (c12_trunk_awkward_branches_warn_and_stay_closed, m_wrap_ignored),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_wrap_clamped),
 ]
 
 
@@ -533,7 +554,7 @@ def main(seed=7):
     def cook(_asis=False, _nopscale=False, _graph=None, **parms):
         stash.parm("stash").set(_graph if _graph is not None else fixture(seed))
         node.setInput(0, strip if _nopscale else stash)
-        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0, "wrap": 0.0})
+        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0, "wrap": 0.0, "radiusscale": 1.0})
         node.setParms(parms)
         src = stash if _asis else node
         frozen = hou.Geometry()
