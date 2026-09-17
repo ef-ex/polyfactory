@@ -34,8 +34,16 @@ no boolean, no remesh (ideas/modeler.md).
       cleanup [attribdelete+groupdelete]  only pf_* leaves (conventions 1, 2, 5)
       OUT
 
-Output prim attribute `pf_node` (int): the sphere a face came from, -1 on
-a limb.
+Curves that share a value of an int prim attribute `pf_sheet` (> 0) are not
+tubes: they are lofted, in prim order, into ONE closed slab whose thickness
+follows their pscale - a torso between two spines, a wing between two
+bones. The `sheet` wrangle (detail, one execution) builds it: stations
+along, spans across (square-ish quads, or `Sheet Spans`), pushed out both
+ways along the sheet normal. Limbs meeting a sheet curve are not joined
+to it yet (they get a cube, and a warning).
+
+Output prim attributes `pf_node` (int): the sphere a face came from, -1 on
+a limb or sheet; `pf_sheet` (int): the sheet a face belongs to, 0 otherwise.
 
 Faces are assigned by the best of all 720 orderings (summed dot), on a
 frame taken from the most opposed pair of connections. A limb that still
@@ -102,7 +110,27 @@ function int[] face_corners(int f) {
 CAGE_VEX = FACE_VEX + r"""
 // pf_modeler cage - one cube per sphere, one face reserved per neighbour.
 float r = max(haspointattrib(0, "pscale") ? f@pscale : chf("../radius"), 1e-5);
-int nbs[] = sort(neighbours(0, @ptnum));
+setpointgroup(0, "_graph", @ptnum, 1);
+i@_node = -1;
+// neighbours through the connections only - a curve marked pf_sheet is
+// lofted by the sheet wrangle and makes no cubes and no limbs
+int nbs[], onsheet = 0;
+foreach (int pr; pointprims(0, @ptnum)) {
+    if (prim(0, "pf_sheet", pr) > 0) { onsheet = 1; continue; }
+    int pts[] = primpoints(0, pr);
+    int n = len(pts), closed = primintrinsic(0, "closed", pr);
+    for (int s = 0; s < n; s++) {
+        if (pts[s] != @ptnum) continue;
+        if (s > 0 || closed) append(nbs, pts[(s - 1 + n) % n]);
+        if (s < n - 1 || closed) append(nbs, pts[(s + 1) % n]);
+    }
+}
+nbs = sort(nbs);
+int uniq[];
+foreach (int nb; nbs) if (nb != @ptnum && (len(uniq) == 0 || uniq[-1] != nb)) append(uniq, nb);
+nbs = uniq;
+if (onsheet && len(nbs) == 0) return;
+if (onsheet) setpointgroup(0, "_sheet_limb", @ptnum, 1);
 vector d[];
 foreach (int nb; nbs) {
     vector q = point(0, "P", nb) - @P;
@@ -128,7 +156,6 @@ vector axes[] = array(x, y, z);
 
 // corners - tagged, not numbered: addpoint's return is only valid inside
 // this cook of this point, so the bridge finds them by _node/_corner
-i@_node = -1;
 for (int c = 0; c < 8; c++) {
     vector off = ((c & 1) ? 1 : -1) * x + ((c & 2) ? 1 : -1) * y + ((c & 4) ? 1 : -1) * z;
     int pt = addpoint(0, @P + r * off);
@@ -176,7 +203,6 @@ if (k > 6) setpointgroup(0, "_too_many", @ptnum, 1);
 int caps[];
 for (int f = 0; f < 6; f++) if (!used[f]) append(caps, f);
 i[]@_capfaces = caps;
-setpointgroup(0, "_graph", @ptnum, 1);
 """
 
 BRIDGE_VEX = FACE_VEX + r"""
@@ -202,8 +228,10 @@ function void cap(int a; int f; int ca[]) {
     int fc[] = face_corners(f);
     int pr = addprim(0, "poly", ca[fc[0]], ca[fc[1]], ca[fc[2]], ca[fc[3]]);
     setprimattrib(0, "pf_node", pr, a);
+    setprimattrib(0, "pf_sheet", pr, 0);
 }
 int a = @ptnum;
+if (len(i[]@_capfaces) == 0 && len(i[]@_nbs) == 0) return;   // a sheet-only point
 int ca[] = corners_of(a);
 foreach (int f; i[]@_capfaces) cap(a, f, ca);
 foreach (int b; i[]@_nbs) {
@@ -230,6 +258,109 @@ foreach (int b; i[]@_nbs) {
         int j = (i + 1) % 4;
         int pr = addprim(0, "poly", A[i], A[j], B[(bestr - j + 4) % 4], B[(bestr - i + 4) % 4]);
         setprimattrib(0, "pf_node", pr, -1);
+        setprimattrib(0, "pf_sheet", pr, 0);
+    }
+}
+"""
+
+SHEET_VEX = r"""
+// pf_modeler sheet - the curves sharing a pf_sheet value, lofted in prim
+// order into one closed slab: a grid of stations along the curves and
+// spans across, pushed out both ways along the sheet normal by the
+// interpolated pscale. Top, bottom and the four walls are quads, wound
+// clockwise from outside (Houdini's front face). One execution, all sheets.
+int ids[];
+for (int pr = 0; pr < nprimitives(0); pr++) {
+    int sid = prim(0, "pf_sheet", pr);
+    if (sid > 0 && find(ids, sid) < 0) append(ids, sid);
+}
+ids = sort(ids);
+if (hasprimattrib(0, "pf_sheet") && attribtype(0, "prim", "pf_sheet") != 0)
+    i@_sheet_bad_type = 1;
+foreach (int sid; ids) {
+    int curves[];
+    for (int pr = 0; pr < nprimitives(0); pr++)
+        if (prim(0, "pf_sheet", pr) == sid) append(curves, pr);
+    int nc = len(curves);
+    if (nc < 2) { i@_sheet_alone = 1; continue; }
+    // stations: the longest curve's point count
+    int n = 2;
+    foreach (int pr; curves) n = max(n, len(primpoints(0, pr)));
+    // spans per pair: roughly square quads unless Sheet Spans says otherwise
+    int spans[];
+    float along = 0;   // mean curve length, from the points (the perimeter intrinsic is 0 on an open polyline)
+    foreach (int pr; curves) {
+        int pts[] = primpoints(0, pr);
+        for (int i = 1; i < len(pts); i++) {
+            vector p0 = point(0, "P", pts[i - 1]), p1 = point(0, "P", pts[i]);
+            along += distance(p0, p1) / nc;
+        }
+    }
+    float step = along / (n - 1);
+    for (int c = 0; c < nc - 1; c++) {
+        float across = 0;
+        for (int i = 0; i < n; i++) {
+            float u = float(i) / (n - 1);
+            vector pa = primuv(0, "P", curves[c], set(u, 0, 0));
+            vector pb = primuv(0, "P", curves[c + 1], set(u, 0, 0));
+            across += distance(pa, pb) / n;
+        }
+        int m = chi("../sheetspans") > 0 ? chi("../sheetspans") : int(rint(across / max(step, 1e-6)));
+        append(spans, clamp(m, 1, 64));
+    }
+    int M = 0;
+    foreach (int m; spans) M += m;
+    // the mid-surface grid P[i][j] and its radius, then the two skins
+    vector P[]; float R[];
+    for (int i = 0; i < n; i++) {
+        float u = float(i) / (n - 1);
+        for (int c = 0; c < nc - 1; c++) {
+            vector pa = primuv(0, "P", curves[c], set(u, 0, 0));
+            vector pb = primuv(0, "P", curves[c + 1], set(u, 0, 0));
+            float ra = primuv(0, "pscale", curves[c], set(u, 0, 0));
+            float rb = primuv(0, "pscale", curves[c + 1], set(u, 0, 0));
+            if (!haspointattrib(0, "pscale")) { ra = chf("../radius"); rb = ra; }
+            int last = (c == nc - 2);
+            for (int k = 0; k < spans[c] + last; k++) {
+                float t = float(k) / spans[c];
+                append(P, lerp(pa, pb, t));
+                append(R, max(lerp(ra, rb, t), 1e-5));
+            }
+        }
+    }
+    int W = M + 1;
+    int top[], bot[];
+    for (int i = 0; i < n; i++) for (int j = 0; j < W; j++) {
+        vector along_d = P[min(i + 1, n - 1) * W + j] - P[max(i - 1, 0) * W + j];
+        vector across_d = P[i * W + min(j + 1, W - 1)] - P[i * W + max(j - 1, 0)];
+        vector N = -normalize(cross(along_d, across_d));   // sign chosen so the faces wind clockwise from outside (c10)
+        vector q = P[i * W + j];
+        append(top, addpoint(0, q + N * R[i * W + j]));
+        append(bot, addpoint(0, q - N * R[i * W + j]));
+    }
+    // faces
+    for (int i = 0; i < n - 1; i++) for (int j = 0; j < W - 1; j++) {
+        int a = i * W + j, b = a + 1, c = a + W + 1, d = a + W;
+        int pr = addprim(0, "poly", top[a], top[d], top[c], top[b]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
+        pr = addprim(0, "poly", bot[a], bot[b], bot[c], bot[d]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
+    }
+    for (int i = 0; i < n - 1; i++) {
+        int a = i * W, d = a + W;                    // j = 0 wall
+        int pr = addprim(0, "poly", top[a], bot[a], bot[d], top[d]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
+        a = i * W + W - 1; d = a + W;                // j = W-1 wall
+        pr = addprim(0, "poly", top[a], top[d], bot[d], bot[a]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
+    }
+    for (int j = 0; j < W - 1; j++) {
+        int a = j, b = a + 1;                        // i = 0 wall
+        int pr = addprim(0, "poly", top[a], top[b], bot[b], bot[a]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
+        a = (n - 1) * W + j; b = a + 1;              // i = n-1 wall
+        pr = addprim(0, "poly", top[a], bot[a], bot[b], top[b]);
+        setprimattrib(0, "pf_sheet", pr, sid); setprimattrib(0, "pf_node", pr, -1);
     }
 }
 """
@@ -283,10 +414,16 @@ bridge.parm("group").set("_graph")
 bridge.parm("grouptype").set("points")
 bridge.parm("snippet").set(BRIDGE_VEX)
 
+sheet = _place(net.createNode("attribwrangle", "sheet"), 0, 5.5,
+               "Curves sharing a pf_sheet value, lofted into one slab.")
+sheet.setInput(0, bridge)
+sheet.parm("class").set("detail")
+sheet.parm("snippet").set(SHEET_VEX)
+
 report = _place(net.createNode("error", "report"), 0, 5,
                 "Warnings the artist can see (a locked asset hides VEX warnings).")
-report.setInput(0, bridge)
-report.parm("numerror").set(2)
+report.setInput(0, sheet)
+report.parm("numerror").set(5)
 report.parm("severity1").set("warn")
 report.parm("enable1").setExpression('npointsgroup(opinputpath(".", 0), "_bad_joint")')
 report.parm("errormsg1").set("Some spheres have connections too close together for a cube "
@@ -296,6 +433,16 @@ report.parm("severity2").set("warn")
 report.parm("enable2").setExpression('npointsgroup(opinputpath(".", 0), "_too_many")')
 report.parm("errormsg2").set("A sphere has more than six connections; the seventh and later "
                              "are dropped (a cube has six faces).")
+report.parm("severity3").set("warn")
+report.parm("enable3").setExpression('npointsgroup(opinputpath(".", 0), "_sheet_limb")')
+report.parm("errormsg3").set("A connection meets a sheet curve: its sphere gets a cube that "
+                             "overlaps the sheet. Joining limbs to sheets is not built yet.")
+report.parm("severity4").set("warn")
+report.parm("enable4").setExpression('detail(opinputpath(".", 0), "_sheet_alone", 0)')
+report.parm("errormsg4").set("A pf_sheet value is on only one curve; a sheet needs two or more.")
+report.parm("severity5").set("warn")
+report.parm("enable5").setExpression('detail(opinputpath(".", 0), "_sheet_bad_type", 0)')
+report.parm("errormsg5").set("pf_sheet must be an integer primitive attribute.")
 
 blast = _place(net.createNode("blast", "blast"), 0, 4.5, "The input graph goes.")
 blast.setInput(0, report)
@@ -330,6 +477,11 @@ _sub.setHelp("How many times the cube cage is subdivided. 0 shows the raw cage "
              "of cubes and bridges; 2 is a smooth base mesh; every step "
              "quadruples the face count.")
 ptg.append(_sub)
+_spans = hou.IntParmTemplate("sheetspans", "Sheet Spans", 1, (0,), min=0, max=32,
+                             min_is_strict=True, max_is_strict=False)
+_spans.setHelp("Quads across a sheet, between each pair of its curves. 0 picks as many as "
+               "make the quads roughly square; set it to trade smoothness for face count.")
+ptg.append(_spans)
 _rad = hou.FloatParmTemplate("radius", "Radius", 1, (0.1,), min=0.001, max=1.0,
                              min_is_strict=True, max_is_strict=False)
 _rad.setHelp("Sphere radius used when the input points carry no pscale. A "
@@ -365,6 +517,6 @@ assert "Poly Factory/Modeling" in back.sections()["Tools.shelf"].contents()
 assert back.icon() == ICON and back.description() == TAB_LABEL
 assert back.sections()["MessageNodes"].contents().strip() == "report"
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved
-for _p in ("subdivisions", "radius"):
+for _p in ("subdivisions", "sheetspans", "radius"):
     assert re.search(r'name\s+"%s"' % _p, saved), _p
 print("wrote " + HDA_PATH)

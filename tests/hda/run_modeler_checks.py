@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Nine checks, eleven mutations, each seen red.
+Ten checks, twelve mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -162,8 +162,8 @@ def c5_output_contract(cook):
                    for a in cls)
     a = g.findPrimAttrib("pf_node")
     vals = set(p.attribValue("pf_node") for p in g.prims()) if a else set()
-    ok = not leaked and names == ["P", "pf_node"] and a.dataType() == hou.attribData.Int and -1 in vals and max(vals) >= 0
-    return ok, "leaked %s, attributes %s (want P and pf_node only), pf_node %s values %s" % (
+    ok = not leaked and names == ["P", "pf_node", "pf_sheet"] and a.dataType() == hou.attribData.Int and -1 in vals and max(vals) >= 0
+    return ok, "leaked %s, attributes %s (want P, pf_node, pf_sheet only), pf_node %s values %s" % (
         leaked, names, a and a.dataType(), sorted(vals)[:4])
 
 
@@ -176,22 +176,48 @@ def c6_radius_parm_used_without_pscale(cook):
     return not short, "spheres without 8 corners at Radius %s: %s (want none)" % (r, short)
 
 
-def graph(spheres, links):
-    """spheres: [(pos, r)], links: [[i, j, ...]] open polylines."""
+def graph(spheres, links, sheets=()):
+    """spheres: [(pos, r)], links: [[i, j, ...]] open polylines; sheets:
+    pf_sheet value per polyline (0 = a connection)."""
     g = hou.Geometry()
     g.addAttrib(hou.attribType.Point, "pscale", 0.0)
+    if sheets:
+        g.addAttrib(hou.attribType.Prim, "pf_sheet", 0)
     pts = []
     for pos, r in spheres:
         p = g.createPoint()
         p.setPosition(hou.Vector3(*pos))
         p.setAttribValue("pscale", r)
         pts.append(p)
-    for lk in links:
+    for k, lk in enumerate(links):
         pl = g.createPolygon()
         pl.setIsClosed(False)
         for i in lk:
             pl.addVertex(pts[i])
+        if sheets:
+            pl.setAttribValue("pf_sheet", sheets[k])
     return g
+
+
+def c10_two_curves_loft_to_one_slab(cook):
+    """Two parallel five-point curves marked pf_sheet 1 (radius 0.1 on one,
+    0.05 on the other): one closed, consistently wound, all-quad shell,
+    every face pf_sheet 1, no cubes for the curve points, Houdini's own
+    prim normal pointing away from the slab's centre on every face."""
+    a = [((0.5 * i, 0, 0), 0.1) for i in range(5)]
+    b = [((0.5 * i, 0, 1.2), 0.05) for i in range(5)]
+    g = cook(subdivisions=0, _graph=graph(a + b, [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]], (1, 1)))
+    de = directed_edges(g)
+    bad = sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de)
+    nonquad = sum(1 for p in g.prims() if len(p.vertices()) != 4)
+    tags = set(p.attribValue("pf_sheet") for p in g.prims())
+    centre = sum((p.position() for p in g.points()), hou.Vector3()) / len(g.points())
+    inward = sum(1 for p in g.prims() if p.normal().dot(
+        sum((v.point().position() for v in p.vertices()), hou.Vector3()) / 4 - centre) <= 0)
+    pieces = len(set(components(g).values()))
+    ok = bad == 0 and nonquad == 0 and tags == {1} and inward == 0 and pieces == 1 and len(g.prims()) > 0
+    return ok, "%d bad edges, %d non-quads, pf_sheet %s, %d inward, %d pieces (want 0, 0, {1}, 0, 1)" % (
+        bad, nonquad, sorted(tags), inward, pieces)
 
 
 def c7_joints_do_not_self_intersect(cook):
@@ -287,6 +313,11 @@ def m_no_bridge(net):
     net.node("bridge").bypass(True)
 
 
+def m_sheet_top_reversed(net):
+    _patch(net, "sheet", 'addprim(0, "poly", top[a], top[d], top[c], top[b])',
+           'addprim(0, "poly", top[a], top[b], top[c], top[d])')
+
+
 def m_no_cleanup(net):
     net.node("cleanup").bypass(True)
 
@@ -328,6 +359,7 @@ REGISTRY = [
     (c8_awkward_connectivity_stays_closed, m_resize_pads_zero),
     (c9_bad_joint_warns_on_the_locked_instance, m_report_bypassed),
     (c9_bad_joint_warns_on_the_locked_instance, m_no_too_many_group),
+    (c10_two_curves_loft_to_one_slab, m_sheet_top_reversed),
 ]
 
 

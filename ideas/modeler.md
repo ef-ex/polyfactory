@@ -1,6 +1,6 @@
 # Modeler — ZSphere-style skinning: spheres and connections in, quads out
 
-**Status:** groundwork built 2026-09-17 on branch `pf-modeler`. Nine checks, eleven mutations,
+**Status:** groundwork built 2026-09-17 on branch `pf-modeler`; lofted sheets added the same day (§2.4, audit pending). Ten checks, twelve mutations,
 all seen red, green on five seeds (`tests/hda/run_modeler_checks.py`). Two independent audit
 rounds done, every finding fixed (§4).
 **This file owns:** `pf_modeler` — the representation, the skinning method, the checks and
@@ -61,7 +61,21 @@ Quads by construction: the cage is quads, Catmull-Clark keeps quads. No boolean,
    deleted — input attributes would otherwise ride out on the new points as zeros
    (`pscale = 0` on a skin mesh; audit finding).
 
-**Parameters:** `Subdivisions` (0–4) and `Radius` (fallback when there is no `pscale`).
+4. **`sheet`** (detail wrangle, one execution, added 2026-09-17 on Hannes' "two parallel
+   curves" question). Curves sharing a value of an **int prim attribute `pf_sheet`** (> 0) are
+   not tubes: they are lofted, in prim order, into **one closed slab** — the Dust3D
+   "stitching" idea. Stations along = the longest curve's point count (sampled by `primuv`);
+   spans across = as many as make the quads roughly square from the mean curve length and the
+   mean gap, or `Sheet Spans` when set; every grid point is pushed both ways along the sheet
+   normal by the interpolated `pscale`, so thickness follows the curves' radii. Top, bottom
+   and the four walls are quads wound clockwise from outside (check c10). Three or more
+   curves loft as one sheet with a span count per pair. Those curves' points get no cube. A
+   point that is on a sheet curve **and** has a connection still gets a cube, which overlaps
+   the slab — joining limbs to sheets is the next step, and the node warns until then. Output
+   prim attribute **`pf_sheet`** (int): the sheet id, 0 on cubes and limbs.
+
+**Parameters:** `Subdivisions` (0–4), `Sheet Spans` (0 = square-ish quads, else quads across
+per curve pair), and `Radius` (fallback when there is no `pscale`).
 
 **Limits, by construction:** a cube has six faces 90° apart, so connections bunched tighter
 than that cannot all leave through a face — the tool warns, it does not refuse (the mesh is
@@ -85,6 +99,7 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded |
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
 | c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
+| c10 two curves loft to one slab | two parallel five-point curves, `pf_sheet` 1, radii 0.1 and 0.05: one closed, consistently wound, all-quad piece, every face `pf_sheet` 1, every Houdini prim normal away from the slab's centre | top faces reversed |
 | c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 
 Verified by eye 2026-09-17 on a wireframe (`hython` + PIL, 94 cage quads / 1 504 subdivided
@@ -126,6 +141,11 @@ crossings, silent).
 
 ## 5. Not built yet, in the order Hannes named it
 
+0. **Limbs joining a sheet.** A sheet's wall at a station is a face 2r high, the same as a
+   cube face, so a limb from a sheet point can take that wall face (or the top/bottom cell)
+   exactly as it takes a cube face today. Until then such a point gets a cube overlapping the
+   slab and a warning. Also open: merged cubes for overlapping spheres (the other answer to
+   "one mesh", weaker for flat parts).
 1. **Interactive placement** — a Python viewer state: click to add a sphere as child of the
    selected one, drag its radius, link two spheres. This is the ZSpheres feel and the larger
    piece of work; the skin behind it is done.
