@@ -84,8 +84,8 @@ four-sphere chain as one polyline, an isolated sphere. Each check has a mutation
 | c5 output contract | no `_*` attribute or group; `pf_node` int with −1 and ≥ 0 | cleanup bypassed |
 | c6 Radius parm without pscale | 8 corners per sphere at Radius·√3 | radius hard-coded |
 | c7 joints do not self-intersect | Intersection Analysis SOP reports 0 on a straight chain, a 90° bend, a tetrahedral hub, a six-limb hub | worst-twist rotation |
-| c8 awkward connectivity stays closed | seven-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 88 prims | cap restore removed |
-| c9 bad joint warns on the locked instance | five limbs within 20° warn; a single limb does not | report node bypassed |
+| c8 awkward connectivity stays closed | eight-limb hub, a pair linked twice, a loop written `[0, 1, 0]`: closed, all quads, 94 prims | cap restore removed; resize padding restored |
+| c9 warnings reach the locked instance | five limbs within 20° warn "too close"; a seventh limb warns "more than six"; a single limb warns nothing | report node bypassed; `_too_many` group removed |
 
 Verified by eye 2026-09-17 on a wireframe (`hython` + PIL, 94 cage quads / 1 504 subdivided
 quads counted against the geometry): smooth tubes with edge loops running along each limb,
