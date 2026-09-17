@@ -140,18 +140,22 @@ if (onsheet && len(nbs) == 1) {
     i[]@_nbs = nbs;
     i[]@_faces = array(-1);
     vector d = normalize(point(0, "P", nbs[0]) - @P);
-    int best = -1; float bestd = 1e30;
+    // ...and it must be LOCAL: no farther than twice the nearest cell of
+    // any facing, or a branch aimed into a trunk would take the far wall
+    int best = -1; float bestd = 1e30, nearest = 1e30;
     int cells[] = findattribval(0, "prim", loftattr, loftid);
     for (int ci = 0; ci < len(cells); ci++) {
         int pr = cells[ci];
-        vector nrm = prim_normal(0, pr, 0.5, 0.5);
-        if (dot(nrm, d) <= 0.2) continue;
         int cp[] = primpoints(0, pr);
         vector c = 0;
         for (int q = 0; q < len(cp); q++) { vector pp = point(0, "P", cp[q]); c += pp / len(cp); }
         float dd = distance(c, @P);
+        nearest = min(nearest, dd);
+        vector nrm = prim_normal(0, pr, 0.5, 0.5);
+        if (dot(nrm, d) <= 0.2) continue;
         if (dd < bestd) { bestd = dd; best = pr; }
     }
+    if (best >= 0 && bestd > 2 * nearest + 1e-6) best = -1;
     i@_cell = best;
     if (best < 0) setpointgroup(0, "_no_cell", @ptnum, 1);
     return;
@@ -362,6 +366,30 @@ function int quad(int a; int b; int c; int d; string tag; int id) {
     setprimattrib(0, tag == "sheet" ? "_loftsheet" : "_lofttrunk", pr, id);
     return pr;
 }
+// a ring that crosses itself: the lines are not in order around the trunk
+function int ring_crosses(vector P[]; int i; int W) {
+    vector rc = 0;
+    for (int j = 0; j < W; j++) rc += P[i * W + j] / W;
+    vector nrm = 0;
+    for (int j = 0; j < W; j++) nrm += cross(P[i * W + j] - rc, P[i * W + (j + 1) % W] - rc);
+    if (length(nrm) < 1e-9) return 0;
+    vector u = normalize(cross(nrm, abs(dot(normalize(nrm), {0, 1, 0})) > 0.9 ? {1, 0, 0} : {0, 1, 0}));
+    vector v = normalize(cross(nrm, u));
+    for (int a = 0; a < W; a++) for (int b = a + 2; b < W; b++) {
+        if (a == 0 && b == W - 1) continue;
+        vector2 p1 = set(dot(P[i * W + a] - rc, u), dot(P[i * W + a] - rc, v));
+        vector2 p2 = set(dot(P[i * W + (a + 1) % W] - rc, u), dot(P[i * W + (a + 1) % W] - rc, v));
+        vector2 q1 = set(dot(P[i * W + b] - rc, u), dot(P[i * W + b] - rc, v));
+        vector2 q2 = set(dot(P[i * W + (b + 1) % W] - rc, u), dot(P[i * W + (b + 1) % W] - rc, v));
+        vector2 r = p2 - p1, s2 = q2 - q1;
+        float den = r.x * s2.y - r.y * s2.x;
+        if (abs(den) < 1e-12) continue;
+        float t = ((q1.x - p1.x) * s2.y - (q1.y - p1.y) * s2.x) / den;
+        float w = ((q1.x - p1.x) * r.y - (q1.y - p1.y) * r.x) / den;
+        if (t > 1e-6 && t < 1 - 1e-6 && w > 1e-6 && w < 1 - 1e-6) return 1;
+    }
+    return 0;
+}
 function void build_loft(int curves[]; int closed; int id; string tag) {
     int nc = len(curves);
     foreach (int pr; curves) if (primintrinsic(0, "closed", pr)) setdetailattrib(0, "_sheet_closed", 1, "set");
@@ -419,6 +447,7 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
         }
     }
     if (closed) {
+        for (int i = 0; i < n; i++) if (ring_crosses(P, i, W)) setdetailattrib(0, "_trunk_order", 1, "set");
         int ring[];
         for (int i = 0; i < n; i++) for (int j = 0; j < W; j++) append(ring, addpoint(0, P[i * W + j]));
         // which way round: the ring's cross product against the outward
@@ -475,6 +504,8 @@ function void build_loft(int curves[]; int closed; int id; string tag) {
         quad(top[a], bot[a], bot[b], top[b], tag, id);
     }
 }
+for (int pr = 0; pr < nprimitives(0); pr++)
+    if (prim(0, "pf_sheet", pr) > 0 && prim(0, "pf_trunk", pr) > 0) setdetailattrib(0, "_both_tags", 1, "set");
 string loftattrs[] = array("pf_sheet", "pf_trunk");
 foreach (string attr; loftattrs) {
     if (!hasprimattrib(0, attr)) continue;
@@ -500,7 +531,11 @@ RESOLVE_VEX = r"""
 // pf_modeler resolve - two branches that chose the same surface cell:
 // the lower-numbered keeps it, the other is dropped with a warning.
 int taken[];
-foreach (int pt; findattribval(0, "point", "_attach", 1)) {
+int attach[] = findattribval(0, "point", "_attach", 1);
+for (int k = 0; k < len(attach); k++) {
+    int pt = attach[k];
+    int nbs[] = point(0, "_nbs", pt);
+    if (point(0, "_attach", nbs[0])) setpointgroup(0, "_attach_pair", pt, 1);   // surface to surface: no limb
     int c = point(0, "_cell", pt);
     if (c < 0) continue;
     if (find(taken, c) >= 0) { setpointattrib(0, "_cell", pt, -1); setpointgroup(0, "_cell_clash", pt, 1); }
@@ -573,7 +608,7 @@ bridge.parm("snippet").set(BRIDGE_VEX)
 report = _place(net.createNode("error", "report"), 0, 5,
                 "Warnings the artist can see (a locked asset hides VEX warnings).")
 report.setInput(0, bridge)
-report.parm("numerror").set(9)
+report.parm("numerror").set(12)
 report.parm("severity1").set("warn")
 report.parm("enable1").setExpression('npointsgroup(opinputpath(".", 0), "_bad_joint")')
 report.parm("errormsg1").set("Some spheres have connections too close together for a cube "
@@ -601,7 +636,8 @@ report.parm("errormsg6").set("A sheet curve is a closed polyline; it is lofted a
 report.parm("severity7").set("warn")
 report.parm("enable7").setExpression('detail(opinputpath(".", 0), "_trunk_thin", 0)')
 report.parm("errormsg7").set("A pf_trunk value is on fewer than three curves; a trunk needs "
-                             "three or more lines around it.")
+                             "three or more lines around it. Those curves are treated as "
+                             "connections.")
 report.parm("severity8").set("warn")
 report.parm("enable8").setExpression('npointsgroup(opinputpath(".", 0), "_no_cell")')
 report.parm("errormsg8").set("A branch on a sheet or trunk points into the surface, so no "
@@ -610,6 +646,17 @@ report.parm("severity9").set("warn")
 report.parm("enable9").setExpression('npointsgroup(opinputpath(".", 0), "_cell_clash")')
 report.parm("errormsg9").set("Two branches want the same surface cell; the later one is "
                              "dropped. Move it along, or raise Loft Spans.")
+report.parm("severity10").set("warn")
+report.parm("enable10").setExpression('npointsgroup(opinputpath(".", 0), "_attach_pair")')
+report.parm("errormsg10").set("A connection joins two surface points (trunk or sheet lines); "
+                              "no limb is built between them.")
+report.parm("severity11").set("warn")
+report.parm("enable11").setExpression('detail(opinputpath(".", 0), "_both_tags", 0)')
+report.parm("errormsg11").set("A curve carries both pf_sheet and pf_trunk; it is lofted twice.")
+report.parm("severity12").set("warn")
+report.parm("enable12").setExpression('detail(opinputpath(".", 0), "_trunk_order", 0)')
+report.parm("errormsg12").set("Trunk lines are not in order around the trunk: the ring crosses "
+                              "itself. Renumber the curves to go around.")
 
 blast = _place(net.createNode("blast", "blast"), 0, 4.5, "The input graph goes.")
 blast.setInput(0, report)

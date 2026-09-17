@@ -5,7 +5,7 @@
 Fixture: a seeded random tree of spheres (every sphere after the first
 hangs off an earlier one, degrees up to six), a closed three-sphere loop,
 a straight chain, and one isolated sphere - random positions and radii.
-Eleven checks, eighteen mutations, each seen red.
+Twelve checks, twenty-two mutations, each seen red.
 
 What these checks CANNOT see: whether the limbs look good (twist, pinching
 at sharp bends) - that is Hannes' viewport; limbs crossing each other away
@@ -233,9 +233,44 @@ def c11_trunk_with_a_branch_is_one_mesh(cook):
         c = sum((v.point().position() for v in p.vertices()), hou.Vector3()) / 4
         if p.normal().dot(c - hou.Vector3(0, 1.0, 0)) <= 0:   # the box is convex: away from its centre
             inward += 1
-    ok = bad == 0 and nonquad == 0 and pieces == 1 and len(g.prims()) == 46 and len(trunk) == 37 and inward == 0
-    return ok, "%d bad edges, %d non-quads, %d pieces, %d prims, %d trunk faces, %d inward, warnings %s (want 0, 0, 1, 46, 37, 0)" % (
-        bad, nonquad, pieces, len(g.prims()), len(trunk), inward, list(cook.node.warnings()))
+    # the limb must leave from the branch point's own cell, not any facing cell
+    P = hou.Vector3(0.5, 1.0, 0.5)
+    limbs = [p for p in g.prims() if p.attribValue("pf_node") == -1 and p.attribValue("pf_trunk") == 0]
+    far = [p.number() for p in limbs if min((v.point().position() - P).length() for v in p.vertices()) > 0.6]
+    ok = bad == 0 and nonquad == 0 and pieces == 1 and len(g.prims()) == 46 and len(trunk) == 37 and inward == 0 and not far
+    return ok, "%d bad edges, %d non-quads, %d pieces, %d prims, %d trunk faces, %d inward, limb quads away from the branch point %s, warnings %s (want 0, 0, 1, 46, 37, 0, [])" % (
+        bad, nonquad, pieces, len(g.prims()), len(trunk), inward, far, list(cook.node.warnings()))
+
+
+def c12_trunk_awkward_branches_warn_and_stay_closed(cook):
+    """Same square trunk: a branch aimed INTO the trunk is dropped with a
+    warning (no limb through the far wall); two branches from adjacent
+    lines wanting one wall cell keep one, warn, and stay closed; Loft Spans 1
+    on three lines gives an odd ring that is rounded up to even so the caps
+    close. Every case closed, consistently wound, all quads."""
+    def trunk4():
+        lines = [[((x, 0.5 * i, z), 0.0) for i in range(5)] for x, z in ((0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))]
+        return sum(lines, []), [[5 * k + i for i in range(5)] for k in range(4)]
+
+    def closed_quads(g):
+        de = directed_edges(g)
+        return (sum(1 for c in de.values() if c != 1) + sum(1 for e in de if (e[1], e[0]) not in de) == 0
+                and all(len(p.vertices()) == 4 for p in g.prims()))
+
+    sph, links = trunk4()
+    g = cook(subdivisions=0, _graph=graph(sph + [((0, 1.0, 0), 0.08)], links + [[2, 20]], trunks=(1, 1, 1, 1, 0)))
+    into = (closed_quads(g), len(g.prims()), any("no cell" in w for w in cook.node.warnings()))
+    sph, links = trunk4()
+    # two branches from the same station on the two lines of the +x wall, both heading +x: one cell
+    g = cook(subdivisions=0, sheetspans=1, _graph=graph(
+        sph + [((1.5, 0.6, 0.5), 0.08), ((1.5, 0.6, -0.5), 0.08)], links + [[1, 20], [16, 21]], trunks=(1, 1, 1, 1, 0, 0)))
+    clash = (closed_quads(g), len(set(components(g).values())), any("same surface cell" in w for w in cook.node.warnings()))
+    tri = [[((0.5 * x, 0.5 * i, 0.5 * z), 0.0) for i in range(5)] for x, z in ((1, 0), (-0.5, 0.87), (-0.5, -0.87))]
+    g = cook(subdivisions=0, sheetspans=1, _graph=graph(sum(tri, []), [[5 * k + i for i in range(5)] for k in range(3)], trunks=(1, 1, 1)))
+    odd = (closed_quads(g), len(g.prims()))
+    ok = into == (True, 44, True) and clash == (True, 2, True) and odd == (True, 18)
+    return ok, "into-trunk (closed, prims, warned) %s want (True, 44, True); clash (closed, pieces, warned) %s want (True, 2, True); odd ring (closed, prims) %s want (True, 18)" % (
+        into, clash, odd)
 
 
 def c10_two_curves_loft_to_one_slab(cook):
@@ -386,6 +421,22 @@ def m_trunk_ring_flipped(net):
     _patch(net, "loft", "int fwd = sign < 0;", "int fwd = sign > 0;")
 
 
+def m_first_facing_cell(net):
+    _patch(net, "cage", "if (dd < bestd) { bestd = dd; best = pr; }", "if (best < 0) { bestd = dd; best = pr; }")
+
+
+def m_no_locality(net):
+    _patch(net, "cage", "if (best >= 0 && bestd > 2 * nearest + 1e-6) best = -1;", "")
+
+
+def m_no_resolve(net):
+    net.node("resolve").bypass(True)
+
+
+def m_odd_ring_allowed(net):
+    _patch(net, "loft", "if (closed && M % 2 == 1) { spans[-1] += 1; M += 1; }", "")
+
+
 def m_branch_gets_a_cube(net):
     _patch(net, "cage", "if (onsheet && len(nbs) == 1) {", "if (0) {")
 
@@ -438,6 +489,10 @@ REGISTRY = [
     (c11_trunk_with_a_branch_is_one_mesh, m_branch_gets_a_cube),
     (c11_trunk_with_a_branch_is_one_mesh, m_trunk_caps_reversed),
     (c11_trunk_with_a_branch_is_one_mesh, m_trunk_ring_flipped),
+    (c11_trunk_with_a_branch_is_one_mesh, m_first_facing_cell),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_no_locality),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_no_resolve),
+    (c12_trunk_awkward_branches_warn_and_stay_closed, m_odd_ring_allowed),
 ]
 
 
@@ -457,7 +512,7 @@ def main(seed=7):
     def cook(_asis=False, _nopscale=False, _graph=None, **parms):
         stash.parm("stash").set(_graph if _graph is not None else fixture(seed))
         node.setInput(0, strip if _nopscale else stash)
-        node.setParms({"subdivisions": 2, "radius": 0.1})
+        node.setParms({"subdivisions": 2, "radius": 0.1, "sheetspans": 0})
         node.setParms(parms)
         src = stash if _asis else node
         frozen = hou.Geometry()
