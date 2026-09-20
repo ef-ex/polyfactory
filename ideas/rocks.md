@@ -3,7 +3,9 @@
 **Status:** research complete (2026-08-21), feasibility assessed, no design spec, no build.
 Build is parked until citygen ships — this document exists so the findings and the argument
 survive the wait.
-**This file owns:** the vision, the feasibility verdict, and the terrain-integration architecture.
+**This file owns:** the vision, the feasibility verdict, the terrain-integration architecture, and
+(§6) the one rock tool that DOES exist: `pf_stylized_rock`, the small clip-loop stylized rock —
+a separate product from the formation-based generator above, not its first stage.
 **It does not own:** the literature, tool audit, and geomorphology rulebook — those live in the
 reference library at `polyfactory/resources/rocks/README.md` (gitignored, local only; this file
 does not restate it). A solver design spec (`pf_rockgen` or similar) does not exist yet and
@@ -123,3 +125,67 @@ the vertical parts of a terrain). Division of labor:
 4. Competitor is the Fab scan library: win on **art direction and coherence** ("same lithology,
    different block"), not raw surface fidelity — and embrace scan/detail projection as the last
    mile rather than fighting it.
+
+## 6. `pf_stylized_rock` — shipped 2026-09-20 (the clip-loop stylized rock)
+
+**Not the formation generator.** A separate, deliberately small product: the "rocks by Clip SOP"
+trick Hannes remembered from an HDA he found around 2018–2020 — the look of Stoyan Dimitrov's
+[Houdini Rock Generator (2019)](https://stoyan3d.wordpress.com/2019/05/13/houdini-rock-generator/)
+and Poly Doorway's [Procedural Stylized Rocks (2022)](https://polydoorway.gumroad.com/l/StylizedRocks).
+Neither is usable: Stoyan's was never published, Poly Doorway's is `.hdanc` (non-commercial).
+So it was rebuilt. It does not use noise at all — every face is flat, which is the look.
+
+**Where:** `polyfactory/otls/pf_stylized_rock.hda`, built by
+`devScripts/create_pf_stylized_rock_hda.py` (the network, every probed fact and the reasons are
+in its docstring); checks in `tests/hda/run_stylized_rock_checks.py`. TAB menu: Poly Factory /
+Modeling / PF Stylized Rock.
+
+**What it does:** optional input (your own blockout) or a built-in Box / Sphere / Cylinder →
+normalised to a unit cube → *Big Cuts* (N feedback iterations: random direction, plane just
+inside the surface, `clip::2.0` keep-below with fill) → *Small Chips* (same loop, shallower) →
+optional *Flat Bottom* → optional *Bevel* → stretched to *Size*, centred in XZ, standing on
+y = 0 → `_*` swept → vertex normals with a 5° cusp so the facets shade flat.
+
+**Contract (each line is a check that has been seen to fail):** closed and consistently wound
+on every base and with Flat Bottom (c1); every face planar to 1e-5 (c2); cuts remove ≥ 10 % of
+the volume and every seed is a different rock (c3); output bbox is exactly Size with ymin = 0,
+the tool adds nothing but `N` and nothing `_*` leaves (c4, c12 — a wired input's own
+attributes and `pf_*` groups pass through, its `_*` groups are swept); Flat Bottom gives
+exactly one face on y = 0 (c5); no setting collapses the rock — 64 half-depth cuts + 200 chips
+still ship ≥ 8 prims and ≥ 0.08 thick before Size on every base (c6; audited floor 0.091 over 480 rocks); a
+wired input replaces the base (c7); Bevel only adds faces when > 0 (c8); chip directions cover
+the sphere rather than the (r, r) spiral (c9); Chips, both Depths and Depth Variation each
+change the rock (c10); same settings → bit-identical rock on two different frames (c11).
+
+**What the checks cannot see:** whether it looks like a rock (viewport — the defaults were
+tuned by looking: 8 cuts at 0.2 read as a chipped box, 12 at 0.3 + 30 chips at 0.08 read as a
+rock, and cusp 20° hid the facets); a wired OPEN mesh (a grid) is garbage in — it ships
+off-contract with no warning; Flat Bottom 0.5 on a rock that 64 half-depth cuts already
+thinned to ~0.09 leaves a 4-prim wedge stretched to Size (the artist asked for both; a clamp
+was tried and silently disabled Flat Bottom 0.2 on ordinary rocks, so it was removed);
+`fit`'s per-axis normalisation (no fixture is far from uniform); a round Bevel fillet is not planar (c2 runs bevel 0); the cusp
+angle (shading only); UVs (none — by design, for now).
+
+**Decisions worth keeping:**
+- *Depth is a fraction of the rock's size, per axis.* The base is normalised to a unit cube
+  (non-uniform), so the same Depth means the same thing on a box, a sphere, or a wired
+  3 × 1 × 1 blockout; `Size` decides the final proportions in every case.
+- *A real thickness floor, not a skip rule.* A cut is shortened or skipped so the rock stays
+  ≥ 0.25 of its unit size thick along the cut direction. The first version capped each cut at
+  90 % of what was left and skipped directions already under 0.25 — the audit showed that is
+  exponential shrink with a skip: 64 half-depth cuts left a 0.006-thick tetrahedron that
+  `place` stretched back to full Size, and the check (`prims ≥ 4`) literally asserted that a
+  tetrahedron survives.
+- *Two loops, not one with a ramp.* Big Cuts / Small Chips is how Stoyan described his process
+  and it is what an artist can aim: silhouette, then edges.
+- *No `filled` group ships.* `clip::2.0` emits one by default; conventions §5 says a group that
+  leaves is `pf_*` or nothing.
+- **Trap recorded:** `vector2 u = rand(seed)` is two independent numbers; `vector2(rand(seed))`
+  is `(r, r)` and puts every chip direction on one pole-to-pole spiral. c9 exists because of it.
+- **Trap recorded:** the final non-uniform stretch depends on the post-cut bbox, so face
+  normals of the same base rotate by a different amount per cook — anything comparing normals
+  across cooks must read the geometry before `place`.
+
+**Not built, on purpose (say so before adding):** UVs, a noise/displacement pass, per-face
+`pf_*` attributes (cut vs base face), Bevel that only rounds the big edges, a scatter/variant
+mode. Each is a scope question for Hannes; the tool as shipped is the thing he asked for.

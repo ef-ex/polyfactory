@@ -1145,6 +1145,22 @@
    ]
   }
  },
+ "pf_stylized_rock": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": [
+    "N"
+   ]
+  }
+ },
  "upstream/PF::split_poly::1.0": {
   "0": {
    "survives": []
@@ -1395,6 +1411,11 @@
   }
  },
  "upstream/pf_polychain": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf_stylized_rock": {
   "0": {
    "survives": []
   }
