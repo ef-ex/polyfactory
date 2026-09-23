@@ -13,6 +13,10 @@ Run with no argument it is a CHECK and exits non-zero on anything that would
 move, so it can go in the gate; `--apply` is the only thing that writes.
 Idempotent either way - `PF Box` maps to itself.
 
+Tools in main that are still subject to change carry ` (alpha)` at the end of
+the label - see ALPHA below. Taking a tool out of that tuple and re-running
+`--apply` removes the suffix again.
+
 ⚠️ `hou.HDADefinition.setDescription()` WRITES THROUGH TO THE .hda FILE
 IMMEDIATELY - verified here by setting a probe value and reading it back in a
 separate process. There is no separate save step and no undo, so the check
@@ -36,14 +40,22 @@ OTLS = os.path.join(_POLYFACTORY, "otls").replace("\\", "/")
 PREFIX = "PF "
 FOREIGN = ("efex::",)
 
+# In main but NOT settled: the node types here carry ` (alpha)` in the TAB menu
+# so nobody builds on them expecting a stable interface (Hannes, 2026-09-23:
+# the worldengine tools - CityGen - and polyChain, which is built but not yet
+# tested by him). Remove a prefix from this tuple when its tool is signed off.
+ALPHA_SUFFIX = " (alpha)"
+ALPHA = ("pf_citygen_", "pf_polychain")
 
-def wanted(description):
+
+def wanted(description, name=""):
     """The label this tool should carry. Idempotent, and it repairs a prefix
     that is present but miscased (`Pf Save Asset`)."""
     d = description.strip()
-    if d[:3].lower() == PREFIX.lower():
-        return PREFIX + d[3:].lstrip()
-    return PREFIX + d
+    if d.endswith(ALPHA_SUFFIX):
+        d = d[:-len(ALPHA_SUFFIX)].rstrip()
+    d = PREFIX + d[3:].lstrip() if d[:3].lower() == PREFIX.lower() else PREFIX + d
+    return d + ALPHA_SUFFIX if name.startswith(ALPHA) else d
 
 
 def main():
@@ -57,7 +69,7 @@ def main():
                 skipped.append((name, defn.description()))
                 continue
             cur = defn.description()
-            new = wanted(cur)
+            new = wanted(cur, name)
             if new == cur:
                 kept += 1
                 continue
@@ -82,14 +94,15 @@ def main():
             for defn in hou.hda.definitionsInFile(path.replace("\\", "/")):
                 if any(defn.nodeTypeName().startswith(f) for f in FOREIGN):
                     continue
-                if not defn.description().startswith(PREFIX):
+                if defn.description() != wanted(defn.description(), defn.nodeTypeName()):
                     bad.append((defn.nodeTypeName(), defn.description()))
         if bad:
             print("\nSTILL WRONG AFTER WRITING:")
             for name, desc in bad:
                 print("  %-34s %r" % (name, desc))
             return 1
-        print("verified on disk: every polyfactory label starts with %r" % PREFIX)
+        print("verified on disk: every polyfactory label starts with %r, alpha tools end with %r"
+              % (PREFIX, ALPHA_SUFFIX))
         return 0
 
     return 1 if moves else 0
