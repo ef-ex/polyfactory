@@ -71,19 +71,29 @@ def cell(n, which, comp, size=False):
 def mix(n):
     return index(n)[2]
 
-def make_count(n):
+def make_end(n):
+    """Last frame handed to Time Pack: Range End (never before Range Start), nudged (by a thousandth of a step: Time Pack
+    keeps its range as float32) so a fractional step that lands on it (1..2 step 0.1) keeps the end frame."""
     step = max(1e-6, n.evalParm("step"))
-    return max(1, int(math.floor((n.evalParm("rangeend") - n.evalParm("rangestart")) / step + 1e-6)) + 1)
+    return max(n.evalParm("rangeend"), n.evalParm("rangestart")) + 1e-3 * step
+
+def make_count(n):
+    """Frames Time Pack will sample: the same count formula as Time Pack, on make_end."""
+    step = max(1e-6, n.evalParm("step"))
+    return int(math.floor((make_end(n) - n.evalParm("rangestart")) / step)) + 1
 
 def make_cols(n):
     count = make_count(n)
     c = int(n.evalParm("makecols"))
-    return c if c > 0 else int(math.ceil(math.sqrt(count)))
+    return min(c, count) if c > 0 else int(math.ceil(math.sqrt(count)))
 
 def make_info(n):
     count, cols = make_count(n), make_cols(n)
-    return "%d frames in %d column%s x %d row%s" % (count, cols, "" if cols == 1 else "s",
-                                                    -(-count // cols), "" if -(-count // cols) == 1 else "s")
+    rows = -(-count // cols)
+    text = "%d frame%s in %d column%s x %d row%s" % (count, "" if count == 1 else "s", cols, "" if cols == 1 else "s", rows, "" if rows == 1 else "s")
+    if n.evalParm("rangeend") < n.evalParm("rangestart"):
+        text = "Range End is before Range Start: " + text
+    return text
 
 def read_grid(kwargs):
     """Button: take cols / rows / frames / speed from <sheet>.atlas.json or the sheet's entry in manifest.json."""
@@ -133,8 +143,10 @@ sheet plays smoothly on a fast timeline.
 
 *Make Sprite Sheet* samples whatever is wired into the input at every frame of a range and packs the frames
 into one sheet. Size the cells with *Resize Cells*. The result is an ordinary Copernicus layer (premultiplied, like
-every RGBA layer here): wire an *Image ROP* to it to write the PNG, and set the ROP's PNG/TGA alpha option to match
-what you want in the file (Premultiplied for flipbook textures shot on black).
+every RGBA layer here). To write it, wire an *Image ROP* to it: set the ROP's _PNG/TGA alpha_ option to *Raw* to
+get a premultiplied file (flipbook textures, and what Colour In File = Premultiplied reads back unchanged), or to
+*Unpremultiply if needed* for an ordinary straight-alpha PNG (read it back with Colour In File = Straight).
+Use the same colour space on the ROP and on the File that reads it again.
 
 The sheet is a file, or any layer wired into the input. If a `.atlas.json` sits beside the file, or the folder has a
 `manifest.json` listing it, *Read Grid from Sheet JSON* fills Columns, Rows, Frames and Speed.
@@ -176,15 +188,21 @@ The sheet is a file, or any layer wired into the input. If a `.atlas.json` sits 
     Frame:
         #id: frame
         The cell to extract, counting from 0 (top-left, reading order).
-    Range Start / End:
+    Range Start:
         #id: rangestart
-        The timeline frames to pack.
+        The first timeline frame to pack.
+    Range End:
+        #id: rangeend
+        The last timeline frame to pack. It defaults to the end of the playback range, so set it before making a sheet.
     Step:
         #id: step
         Frames between samples.
     Columns (0 = auto):
         #id: makecols
-        Cells per row of the new sheet; 0 makes it about square.
+        Cells per row of the new sheet; 0 makes it about square. Never more than the number of frames.
+    Cell Size:
+        #id: cellres
+        The size every frame is scaled to when Resize Cells is on.
     Resize Cells:
         #id: cellresize
         Scale every frame to the Cell Size before packing.
@@ -219,6 +237,8 @@ def _ptg():
     g.append(cond(hou.IntParmTemplate("cols", "Columns", 1, default_value=(8,), min=1, max=64, min_is_strict=True), "{ mode == 2 }"))
     g.append(cond(hou.IntParmTemplate("rows", "Rows", 1, default_value=(8,), min=1, max=64, min_is_strict=True), "{ mode == 2 }"))
     g.append(cond(hou.IntParmTemplate("frames", "Frames Used (0 = all)", 1, default_value=(0,), min=0, max=4096, min_is_strict=True), "{ mode == 2 }"))
+    hint = hou.LabelParmTemplate("nofile", "Sheet File", column_labels=("Pick a Sheet File - or set Sheet From to Input and wire a layer in.",))
+    g.append(cond(hint, "{ mode == 2 } { source != 0 } { file != \"\" }"))
     b = hou.ButtonParmTemplate("readgrid", "Read Grid from Sheet JSON")
     b.setScriptCallback("hou.phm().read_grid(kwargs)")
     b.setScriptCallbackLanguage(hou.scriptLanguage.Python)
@@ -335,7 +355,7 @@ def create():
     tp.parm("mode").set(1)
     tp.parm("method").set(0)
     _hs(tp, "absrangeframe1", 'ch("../rangestart")')
-    _hs(tp, "absrangeframe2", 'ch("../rangeend")')
+    _py(tp, "absrangeframe2", 'hou.node("..").hdaModule().make_end(hou.node(".."))')
     _hs(tp, "stepframe", 'ch("../step")')
     cs = hda.createNode("contactsheet", "sheet_grid")
     cs.setInput(0, tp)

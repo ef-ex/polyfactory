@@ -26,6 +26,18 @@ MUTATIONS = {
     "blend_inputs_swapped": ("swap", "blend_cells"),
     "file_premult_inverted": ("expr", "sheet_file", "premultiplied", '1 - ch("../premult")'),
     "frames_used_ignored": ("py", "used = int(n.evalParm(\"frames\")) or cols * rows", "used = cols * rows"),
+    "loop_b_is_a": ("py", "b = (a + 1) % used", "b = a"),
+    "pingpong_b_is_a": ("py", "b = min(a + 1, last)", "b = a", 1),
+    "hold_b_is_a": ("py", "b = min(a + 1, last)", "b = a", 2),
+    "loop_ignores_frames_used": ("py", "u = t % used", "u = t % (cols * rows)"),
+    "pingpong_hold_ignore_frames_used": ("py", "last = used - 1", "last = cols * rows - 1"),
+    "frames_used_not_clamped": ("py", "max(1, min(used, cols * rows))", "max(1, used)"),
+    "pingpong_negative_time_clamped": ("py", "t % period", "max(t, 0) % period"),
+    "read_grid_swaps_cols_rows": ("py", 'n.parm("cols").set(cols)', 'n.parm("cols").set(rows)'),
+    "make_info_miscounts": ("py", "count, cols = make_count(n), make_cols(n)", "count, cols = make_count(n) + 1, make_cols(n)"),
+    "make_cols_uncapped": ("py", "return min(c, count) if c > 0", "return c if c > 0"),
+    "make_end_not_nudged": ("expr", "pack_frames", "absrangeframe2", 'ch("../rangeend")'),
+    "make_end_before_start_unguarded": ("py", "return max(n.evalParm(\"rangeend\"), n.evalParm(\"rangestart\")) + 1e-3 * step", "return n.evalParm(\"rangeend\") + 1e-3 * step"),
 }
 
 CELL_W, CELL_H, COLS, ROWS = 16, 12, 4, 3
@@ -78,8 +90,12 @@ def inner(mutation):
     if m and m[0] == "py":
         d = nt.definition()
         src = d.sections()["PythonModule"].contents()
-        assert m[1] in src, "mutation target missing: " + m[1]
-        d.addSection("PythonModule", src.replace(m[1], m[2], 1))
+        nth = m[3] if len(m) > 3 else 1
+        at_ = -1
+        for _ in range(nth):
+            at_ = src.find(m[1], at_ + 1)
+            assert at_ >= 0, "mutation target missing: " + m[1]
+        d.addSection("PythonModule", src[:at_] + m[2] + src[at_ + len(m[1]):])
     sheet = os.path.join(work, "sheet.png")
     make_sheet(sheet)
     cn = (hou.node("/img") or hou.node("/").createNode("img", "img")).createNode("copnet", "t")
@@ -157,22 +173,40 @@ def inner(mutation):
     pl.parm("mode").set(0); pl.parm("file").set(sheet); pl.parm("premult").set(1)
     pl.parm("cols").set(COLS); pl.parm("rows").set(ROWS); setc(pl, "startframe", 1); pl.parm("sheetfps").set(hou.fps()); pl.parm("blend").set(0)
 
+    reds = [cell_colour(i)[0] / 255.0 for i in range(11)] + [100 / 255.0 * 128 / 255.0]     # cell 11 is the half-transparent one, read Straight
+
     def shown(frame):
         hou.setFrame(frame)
-        L = layer(pl)
-        r = at(L, CELL_W // 2, CELL_H // 2)[0] * 255.0
-        return min(range(12), key=lambda i: abs(cell_colour(i)[0] - r)) if i_ok(r) else None
+        r = at(layer(pl), CELL_W // 2, CELL_H // 2)[0]
+        best = min(range(12), key=lambda i: abs(reds[i] - r))
+        return best if abs(reds[best] - r) < 0.002 else None
 
-    def i_ok(r):
-        return any(abs(cell_colour(i)[0] - r) < 1.0 for i in range(11))
+    def seq(loop, frames):
+        pl.parm("loop").set(loop)
+        return [shown(f) for f in frames]
 
     pl.parm("loop").set(0)
-    check([shown(f) for f in (1, 2, 3, 11, 12, 13, 14)] == [0, 1, 2, 10, None, 0, 1], "loop order")      # cell 11 is the half-transparent one: not matched by red
+    got = [shown(f) for f in (1, 2, 3, 11, 12, 13, 14)]
+    check(got == [0, 1, 2, 10, 11, 0, 1], "loop order: %s" % got)
     pl.parm("loop").set(1)
     got = [shown(f) for f in (1, 11, 13, 14, 15, 23, 24, 25)]
     check(got == [0, 10, 10, 9, 8, 0, 1, 2], "ping-pong order: %s" % got)
     pl.parm("loop").set(2)
-    check([shown(f) for f in (1, 5, 11, 40)] == [0, 4, 10, None], "hold last frame")
+    got = [shown(f) for f in (1, 5, 11, 40)]
+    check(got == [0, 4, 10, 11], "hold last frame: %s" % got)
+    # negative time (before Start Frame 1)
+    for loop, want in ((0, [11, 10, 11]), (1, [1, 2, 9]), (2, [0, 0, 0])):
+        got = seq(loop, (0, -1, -12))
+        check(got == want, "loop mode %d before Start Frame: %s want %s" % (loop, got, want))
+    # Frames Used = 5 of 12 stops every mode at cell 4; 99 is clamped to the 12 cells
+    pl.parm("frames").set(5)
+    for loop, want in ((0, [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0]), (1, [0, 1, 2, 3, 4, 3, 2, 1, 0, 1, 2]), (2, [0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4])):
+        got = seq(loop, range(1, 12))
+        check(got == want, "Frames Used 5, loop mode %d: %s want %s" % (loop, got, want))
+    pl.parm("frames").set(99)
+    got = seq(2, (14, 40))        # Hold: a Frames Used above the grid must stop at the last of the 12 cells (a wrap-around crop would hide a miss in Loop)
+    check(got == [11, 11], "Frames Used 99 is clamped to the 12 cells: %s" % got)
+    pl.parm("frames").set(0)
     pl.parm("loop").set(0); setc(pl, "startframe", 5)
     got = [shown(f) for f in (5, 6, 1)]
     check(got == [0, 1, 8], "Start Frame shifts the sheet (before it, a loop runs from the end): %s" % got)
@@ -182,6 +216,19 @@ def inner(mutation):
     near(at(layer(pl), CELL_W // 2, CELL_H // 2)[:1], ((a + b) / 2,), 0.003, "blend halfway between neighbouring cells")
     hou.setFrame(1)
     near(at(layer(pl), CELL_W // 2, CELL_H // 2)[:1], (a,), 0.003, "blend at a whole cell shows that cell")
+    # the neighbour cell at the loop wrap, the ping-pong turnaround and the hold end (half speed, Blend on)
+    def red_at(frame):
+        hou.setFrame(frame)
+        return at(layer(pl), CELL_W // 2, CELL_H // 2)[0]
+    mean = lambda i, j: (reds[i] + reds[j]) / 2.0
+    pl.parm("loop").set(0)
+    near((red_at(24),), (mean(11, 0),), 0.003, "loop wrap blends the last cell into the first")
+    pl.parm("loop").set(1)
+    near((red_at(24),), (mean(10, 11),), 0.003, "ping-pong turnaround blends back from the last cell")
+    pl.parm("loop").set(2)
+    near((red_at(22),), (mean(10, 11),), 0.003, "hold blends up to the last cell")
+    near((red_at(26),), (reds[11],), 0.003, "hold stays on the last cell")
+    pl.parm("loop").set(0)
     pl.parm("sheetfps").set(hou.fps() / 4.0)
     hou.setFrame(2)                                  # a quarter of the way from cell 0 to 1: closer to cell 0
     near(at(layer(pl), CELL_W // 2, CELL_H // 2)[:1], (a + 0.25 * (b - a),), 0.003, "blend a quarter way is nearer the first cell")
@@ -213,6 +260,26 @@ def inner(mutation):
     L = layer(mk)
     check(L.bufferResolution() == (120, 40), "Resize Cells 40 x 20, 3 x 2: %s" % (L.bufferResolution(),))
     mk.parm("cellresize").set(0)
+    # the number of cells Make produces equals what the label and the columns are computed from
+    mk.parm("cellresize").set(1); mk.parm("cellresx").set(16); mk.parm("cellresy").set(16)     # small cells: 91 of them stay under the size limit
+    kres = (16, 16)
+    mk.parm("makecols").set(1)
+    for rs, re_, st in ((1, 2, 0.1), (1, 10, 0.1), (1, 10, 3), (5, 5, 1), (1, 24, 0.5), (3, 9, 2.5), (1, 6, 1), (2, 3, 0.3)):
+        setc(mk, "rangestart", rs); setc(mk, "rangeend", re_); mk.parm("step").set(st)
+        L = layer(mk)
+        count = L.bufferResolution()[1] // kres[1]
+        check(count == mk.hdaModule().make_count(mk), "range %s..%s step %s: sheet has %d cells, make_count says %d" % (rs, re_, st, count, mk.hdaModule().make_count(mk)))
+        want_last = rs + (count - 1) * st
+        near(at(L, kres[0] // 2, kres[1] // 2), (want_last / 20.0, 0.5, 0.25, 1.0), 0.003, "range %s..%s step %s: last cell is frame %s" % (rs, re_, st, want_last))
+    setc(mk, "rangestart", 5); setc(mk, "rangeend", 2); mk.parm("step").set(1)                 # end before start: one cell, frame 5, not black
+    L = layer(mk)
+    check(L.bufferResolution() == tuple(kres), "end before start gives one cell: %s" % (L.bufferResolution(),))
+    near(at(L, 2, 2), (5 / 20.0, 0.5, 0.25, 1.0), 0.003, "end before start shows the start frame")
+    check(mk.hdaModule().make_info(mk).startswith("Range End is before Range Start"), "the label says so: %s" % mk.hdaModule().make_info(mk))
+    mk.parm("cellresize").set(0)
+    setc(mk, "rangeend", 5); mk.parm("makecols").set(5)
+    check(mk.hdaModule().make_info(mk) == "1 frame in 1 column x 1 row", "label with more columns than frames: %s" % mk.hdaModule().make_info(mk))
+    setc(mk, "rangestart", 1); setc(mk, "rangeend", 6); mk.parm("makecols").set(3)
 
     # union: the sheet made from the timeline, extracted again, is the same frames
     ex2 = sprite("again")
@@ -222,6 +289,42 @@ def inner(mutation):
         ex2.parm("frame").set(i)
         near(at(layer(ex2), 2, 2), ((i + 1) / 20.0, 0.5, 0.25, 1.0), 0.003, "make -> extract round trip, frame %d" % i)
 
+    # Read Grid button: sidecar first, then manifest.json; speed from duration
+    import json
+    rg = sprite("readgrid")
+    rg.parm("file").set(sheet)
+    json.dump({"file": "sheet.png", "cols": 2, "rows": 6, "frames": 11, "duration_s": 1.0}, open(os.path.join(work, "sheet.atlas.json"), "w"))
+    rg.parm("readgrid").pressButton()
+    got = (rg.parm("cols").eval(), rg.parm("rows").eval(), rg.parm("frames").eval(), round(rg.parm("sheetfps").eval(), 3))
+    check(got == (2, 6, 11, 11.0), "Read Grid from .atlas.json: %s" % (got,))
+    os.remove(os.path.join(work, "sheet.atlas.json"))
+    json.dump([{"file": "other.png", "cols": 9, "rows": 9}, {"file": "SHEET.png", "cols": 3, "rows": 4, "frames": 12, "duration_s": 2.0}], open(os.path.join(work, "manifest.json"), "w"))
+    rg.parm("readgrid").pressButton()
+    got = (rg.parm("cols").eval(), rg.parm("rows").eval(), rg.parm("frames").eval(), round(rg.parm("sheetfps").eval(), 3))
+    check(got == (3, 4, 0, 6.0), "Read Grid from manifest.json: %s" % (got,))
+
+    # Make -> Image ROP (PNG alpha option "Raw") -> file -> Extract (Premultiplied): a half-alpha pixel comes back unchanged
+    half = cn.createNode("constant", "half")
+    half.parm("signature").set("f4")
+    for p_, v in (("f4r", 0.2), ("f4g", 0.1), ("f4b", 0.05), ("f4a", 0.5)):
+        half.parm(p_).set(v)
+    one = sprite("one_frame")
+    one.setInput(0, half)
+    one.parm("mode").set(2); setc(one, "rangestart", 1); setc(one, "rangeend", 1)
+    rop = cn.createNode("rop_image", "w")
+    out_png = os.path.join(work, "made.png").replace("\\", "/")
+    rop.parm("coppath").set(one.path()); rop.parm("copoutput").set(out_png); rop.parm("trange").set(0)
+    labels = list(rop.parm("pngtga_alpha_multiplication").menuLabels())
+    rop.parm("pngtga_alpha_multiplication").set(labels.index("Raw"))
+    rop.parm("execute").pressButton()
+    check(os.path.isfile(out_png), "Image ROP wrote the PNG")
+    if os.path.isfile(out_png):
+        back = sprite("read_back")
+        back.node("sheet_file").parm("colorspace").set(0)        # the default decode, as the ROP encoded it
+        back.parm("mode").set(1); back.parm("file").set(out_png); back.parm("premult").set(0)
+        back.parm("cols").set(1); back.parm("rows").set(1)
+        near(at(layer(back), 4, 4), (0.2, 0.1, 0.05, 0.5), 0.004, "Make -> Image ROP (Raw) -> Extract (Premultiplied) round trip")
+
     print("checks failed: %d" % len(fails))
     return 1 if fails else 0
 
@@ -230,13 +333,17 @@ def main():
     if "--inner" in sys.argv:
         mut = sys.argv[sys.argv.index("--inner") + 1]
         sys.exit(inner(None if mut == "none" else mut))
+    only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
+
     def run(mut):
         r = subprocess.run([HYTHON, os.path.abspath(__file__), "--inner", mut or "none"], capture_output=True, text=True)
         return r.returncode, r.stdout + r.stderr
-    code, out = run(None)
+    code, out = (0, "") if only else run(None)
     print(out[-1500:] if code else "baseline: all checks pass")
     bad = code != 0
     for name in MUTATIONS:
+        if only and name not in only:
+            continue
         mc, mo = run(name)
         status = "red (good)" if mc != 0 else "STILL GREEN - the checks cannot see this"
         print("mutation %-24s %s" % (name, status))
