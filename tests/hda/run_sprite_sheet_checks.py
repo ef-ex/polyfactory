@@ -36,6 +36,11 @@ MUTATIONS = {
     "read_grid_swaps_cols_rows": ("py", 'n.parm("cols").set(cols)', 'n.parm("cols").set(rows)'),
     "make_info_miscounts": ("py", "count, cols = make_count(n), make_cols(n)", "count, cols = make_count(n) + 1, make_cols(n)"),
     "make_cols_uncapped": ("py", "return min(c, count) if c > 0", "return c if c > 0"),
+    "time_uses_F_not_FF": ("hdaexpr", "_t", '($F-ch("startframe"))/$FPS*ch("sheetfps")'),
+    "sheet_background_opaque": ("node", "sheet_grid", "backgrounda", 1),
+    "auto_cols_rounds": ("py", "int(math.ceil(math.sqrt(count)))", "int(round(math.sqrt(count)))"),
+    "auto_cols_floor_plus_one": ("py", "int(math.ceil(math.sqrt(count)))", "int(math.sqrt(count)) + 1"),
+    "info_never_plural": ("py", '"" if cols == 1 else "s"', '""'),
     "make_end_not_nudged": ("expr", "pack_frames", "absrangeframe2", 'ch("../rangeend")'),
     "make_end_before_start_unguarded": ("py", "return max(n.evalParm(\"rangeend\"), n.evalParm(\"rangestart\")) + 1e-3 * step", "return n.evalParm(\"rangeend\") + 1e-3 * step"),
 }
@@ -106,6 +111,8 @@ def inner(mutation):
         n.node("sheet_file").parm("colorspace").set(1)       # Raw: exact values (fixture decision)
         if m and m[0] == "node":
             n.node(m[1]).parm(m[2]).set(m[3])
+        if m and m[0] == "hdaexpr":
+            n.parm(m[1]).setExpression(m[2], language=hou.exprLanguage.Hscript)
         if m and m[0] == "expr":
             n.node(m[1]).parm(m[2]).setExpression(m[3], language=hou.exprLanguage.Hscript)
         if m and m[0] == "swap":
@@ -229,6 +236,8 @@ def inner(mutation):
     near((red_at(22),), (mean(10, 11),), 0.003, "hold blends up to the last cell")
     near((red_at(26),), (reds[11],), 0.003, "hold stays on the last cell")
     pl.parm("loop").set(0)
+    pl.parm("sheetfps").set(hou.fps())
+    near((red_at(2.5),), (mean(1, 2),), 0.003, "a fractional timeline frame (2.5) blends cells 1 and 2")
     pl.parm("sheetfps").set(hou.fps() / 4.0)
     hou.setFrame(2)                                  # a quarter of the way from cell 0 to 1: closer to cell 0
     near(at(layer(pl), CELL_W // 2, CELL_H // 2)[:1], (a + 0.25 * (b - a),), 0.003, "blend a quarter way is nearer the first cell")
@@ -271,6 +280,18 @@ def inner(mutation):
         check(count == mk.hdaModule().make_count(mk), "range %s..%s step %s: sheet has %d cells, make_count says %d" % (rs, re_, st, count, mk.hdaModule().make_count(mk)))
         want_last = rs + (count - 1) * st
         near(at(L, kres[0] // 2, kres[1] // 2), (want_last / 20.0, 0.5, 0.25, 1.0), 0.003, "range %s..%s step %s: last cell is frame %s" % (rs, re_, st, want_last))
+    mk.parm("step").set(1); setc(mk, "rangestart", 1); setc(mk, "rangeend", 5); mk.parm("makecols").set(3)       # 5 frames in 3 columns: the 6th cell is empty
+    L = layer(mk)
+    check(L.bufferResolution() == (48, 32), "5 frames in 3 columns of 16 px: %s" % (L.bufferResolution(),))
+    near(at(L, 40, 8), (0.0, 0.0, 0.0, 0.0), 0.001, "the unused cell is transparent")
+    mk.parm("makecols").set(0)
+    for count, want in ((1, 1), (2, 2), (4, 2), (5, 3), (7, 3), (10, 4)):
+        setc(mk, "rangeend", count)
+        got = (mk.hdaModule().make_cols(mk), layer(mk).bufferResolution()[0] // 16)
+        check(got == (want, want), "auto columns for %d frames: %s want %d" % (count, got, want))
+    setc(mk, "rangeend", 6); mk.parm("makecols").set(3)
+    check(mk.hdaModule().make_info(mk) == "6 frames in 3 columns x 2 rows", "label: %s" % mk.hdaModule().make_info(mk))
+    mk.parm("makecols").set(1)
     setc(mk, "rangestart", 5); setc(mk, "rangeend", 2); mk.parm("step").set(1)                 # end before start: one cell, frame 5, not black
     L = layer(mk)
     check(L.bufferResolution() == tuple(kres), "end before start gives one cell: %s" % (L.bufferResolution(),))

@@ -99,6 +99,8 @@ def read_grid(kwargs):
     """Button: take cols / rows / frames / speed from <sheet>.atlas.json or the sheet's entry in manifest.json."""
     n = kwargs["node"]
     path = hou.text.expandString(n.evalParm("file"))
+    if not path:
+        return False                       # nothing loaded: do not go looking for ./manifest.json
     folder, name = os.path.split(path)
     own = os.path.splitext(path)[0] + ".atlas.json"
     entry = None
@@ -114,7 +116,7 @@ def read_grid(kwargs):
                               "Set Columns and Rows by hand.", severity=hou.severityType.Warning) if hou.isUIAvailable() else None
         return False
     cols, rows = int(entry["cols"]), int(entry["rows"])
-    frames = int(entry.get("frames") or cols * rows)
+    frames = max(1, min(int(entry.get("frames") or cols * rows), cols * rows))
     n.parm("cols").set(cols)
     n.parm("rows").set(rows)
     n.parm("frames").set(frames if frames != cols * rows else 0)

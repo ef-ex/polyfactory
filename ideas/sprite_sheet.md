@@ -1,7 +1,7 @@
 # pf_sprite_sheet — play, extract and make sprite sheets in Copernicus
 
-**Status:** built 2026-10-30, checked by `tests/hda/run_sprite_sheet_checks.py` (baseline + 20 mutations, all red;
-`--only a,b` runs just those). Audit round 1 found 7 defects, all fixed (see the log at the bottom); round 2: see the resume pointer. **Owner of:** the `pf_sprite_sheet` COP HDA
+**Status:** built 2026-10-30, checked by `tests/hda/run_sprite_sheet_checks.py` (baseline + 25 mutations, all red;
+`--only a,b` runs just those). Audit round 1 found 7 defects, all fixed; round 2: verdict YES, its survivors killed. **Owner of:** the `pf_sprite_sheet` COP HDA
 (`polyfactory/otls/pf_sprite_sheet.hda`, built by `devScripts/create_pf_sprite_sheet_hda.py`).
 
 ## What it is
@@ -56,10 +56,13 @@ Everything touching pixels is native. No VEX, no OpenCL.
 
 ## What the checks cannot see
 
-The viewer's colour management; the Image ROP and the written PNG (the Make → ROP → file → Extract round trip is
-**not** tested yet — Make → Extract through the layer is); the Read Grid button and the GUI parameter layout;
-sheets whose size is not a multiple of the grid (Crop rounds); cook speed on large sheets; Play at fractional
-Start Frame with Blend off beyond the cases listed in the file.
+The viewer's colour management; whether the hint under Sheet File shows and hides at the right moments (needs one look in
+the GUI; hython ignores parameter conditions); the GUI layout of the parameters; the *Unpremultiply if needed* ROP option
+(only Raw is pinned); Make uses uniform cells from a square 1024 px Constant, so per-cell orientation inside Make is only
+covered through the Make → Extract round trip; Play is read at the centre pixel (the in-cell marker is checked in Extract);
+mutations that change only quality (Resample or Contact Sheet filters). The runner counts any non-zero exit of a mutated run
+as red, so a mutant that crashes the checks instead of failing one would look killed (audit 2 checked: all 25 fail on real
+FAIL lines). Measured, not in the suite: a Play cook on a 4096 x 3264 sheet takes 0.2 s the first time (file load), 2-8 ms after.
 
 ## Equivalent mutants (cannot go red, on purpose)
 
@@ -76,4 +79,11 @@ Start Frame with Blend off beyond the cases listed in the file.
 
 ## Resume pointer
 
-Branch `main`. Audit round 1 done (7 defects fixed, 12 survivors killed or shown equivalent). Next: audit round 2 on the fixed build, then push.
+Branch `main`. Audits 1 and 2 done (verdict yes). Pushed.
+
+## Measured by audit 2 (kept here, not all in the suite)
+
+Non-square grids and cells (5 x 3 of 20 x 14), a 12 x 12 sheet with Frames Used 100, and two real atlases (8 x 6 with 41 frames,
+12 x 12) are pixel-exact in Extract and Play; Make from a time-varying 36 x 20 input equals the input at each frame, and Resize Cells
+at the native size is an identity. **"Premultiplied leaves the file unchanged" holds in the Raw colour space only**; with the default
+OCIO decode every value goes through the sRGB decode (that is the intended behaviour: values round-trip through an Image ROP).
