@@ -604,6 +604,21 @@
    "vertex": [
     "N"
    ]
+  },
+  "1": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name",
+    "pf_enum"
+   ],
+   "vertex": [
+    "N"
+   ]
   }
  },
  "pf::pf_asset_place::1.0": {
