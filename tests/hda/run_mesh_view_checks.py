@@ -8,6 +8,9 @@ X and 3 in Z (the label sits 2 in front of each piece, so rows must clear it).
 Each case compares the centre of every piece with the cell it should be in; the
 row-pitch mutation must go red (a check that cannot fail is decoration).
 Cannot see: label placement, piece scale.
+Show Numbers: off leaves only the pieces, each identical (positions and every attribute but N, see dump())
+to the numbers-on view; on gives labels (counted by their cell). Cannot see: the parm's default (DialogScript), its
+place in the interface, marking/Marked with the numbers off (an audit forced it off for every later check: green).
 
 Marking: the viewer state turns a click into a layout position; `hm().piece_at` turns
 that into a piece number and `hm().toggle` edits the `marked` list. Checked: every
@@ -41,7 +44,7 @@ import tempfile
 import hou
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-HDA = os.path.join(REPO, "polyfactory", "otls", "pf_mesh_view.hda")
+HDA = os.environ.get("PF_MESH_VIEW_HDA") or os.path.join(REPO, "polyfactory", "otls", "pf_mesh_view.hda")  # override: test a build copy
 # PF_MESH_VIEW_MUTATE=<name>: one run with one deliberate break; a PythonModule break is
 # made in a throwaway COPY of the asset (setContents writes the file), never the shipped one
 MUT = os.environ.get("PF_MESH_VIEW_MUTATE", "")
@@ -105,6 +108,10 @@ NODE_MUTATIONS = {
     "leak0": ("scratch_delete", "primdel", "_*", "", ["leak, output 0"]),
     "leak0_plain": ("scratch_delete_view", "primdel", "_*", "", ["leak, output 0, highlight off"]),
     "click_cooks": ("highlight_switch", "input", 0, 1, ["click does not re-cook the view"]),
+    "numbers_always": ("numbers_switch", "input", 1, 1, ["Show Numbers off: only the pieces, same layout"]),
+    "numbers_never": ("numbers_switch", "input", 1, 0, ["Show Numbers on: every piece has its number"]),
+    "numbers_off_paints": ("no_numbers", "wire_cd", None, None, ["Show Numbers off: only the pieces, same layout"]),
+    "numbers_off_stray_point": ("no_numbers", "wire_pt", None, None, ["Show Numbers off: only the pieces, same layout"]),
     "leak1": ("scratch_delete_marked", "dtldel", "_*", "", ["leak, Marked laid out"]),
 }
 if MUT in SECTION_MUTATIONS:
@@ -210,6 +217,12 @@ if MUT in NODE_MUTATIONS:
     if _p == "snippet":
         assert _old in _w.parm("snippet").eval(), MUT
         _w.parm("snippet").set(_w.parm("snippet").eval().replace(_old, _new))
+    elif _p in ("wire_cd", "wire_pt"):     # the empty branch adds a point Cd (pieces turn black) or a stray point
+        _cd = mv.createNode("attribwrangle", "_mut_cd")
+        _cd.parm("class").set(0)
+        _cd.parm("snippet").set('addpointattrib(0, "Cd", {0, 0, 0});' if _p == "wire_cd" else 'addpoint(0, {0, 0, 0});')
+        _cd.setInput(0, _w)
+        mv.node("numbers_switch").setInput(0, _cd)
     elif _p == "input0":
         assert _w.inputs()[0].name() == _old, MUT
         _w.setInput(0, mv.node(_new))
@@ -291,6 +304,54 @@ def leaks(g):
 
 run("pick columns=0", picking(0))
 run("pick columns=4", picking(4))
+
+
+def dump(g):
+    """Every piece prim (isbox) in order: its prim attributes, its points' attributes, its vertices' attributes, at
+    full precision. N is left out on purpose: with the numbers on, merging the labels (which carry N) gives the
+    pieces an N the input did not have; with them off the pieces keep exactly the input's attributes (accepted)."""
+    names = [(c, sorted(a.name() for a in f() if a.name() != "N"))  # merge order of attributes is not a difference
+             for c, f in (("p", g.primAttribs), ("t", g.pointAttribs), ("v", g.vertexAttribs))]
+    out = []
+    for p in g.prims():
+        if p.attribValue("isbox"):
+            row = [p.attribValue(a) for a in names[0][1]]
+            row += [v.point().attribValue(a) for v in p.vertices() for a in names[1][1]]
+            row += [v.attribValue(a) for v in p.vertices() for a in names[2][1]]
+            out.append(row)
+    return names, out
+
+
+def numbers(on):
+    """Show Numbers: on = label prims next to the pieces; off = no prim but the pieces, every piece where it was."""
+    mv.parm("columns").set(4)
+    mv.parm("show_numbers").set(1)
+    with_labels = mv.geometry().freeze()
+    mv.parm("show_numbers").set(int(on))
+    g = mv.geometry()
+    labels = [p for p in g.prims() if not p.attribValue("isbox")]
+    bad = []
+    if on and len({int(round(centroid(p)[0] / 2.0)) + 100 * int(round(centroid(p)[2] / 3.0)) for p in labels}) < M:
+        bad.append("labels for fewer than %d pieces" % M)
+    if not on:
+        bad += ["%d label prims left" % len(labels)] if labels else []
+        used = len({v.point().number() for p in g.prims() for v in p.vertices()})
+        if g.intrinsicValue("pointcount") != used:
+            bad.append("%d points not on any piece" % (g.intrinsicValue("pointcount") - used))
+        detail = lambda x: sorted(a.name() for a in x.globalAttribs())
+        if detail(g) != detail(with_labels):
+            bad.append("detail attributes %s vs %s" % (detail(g), detail(with_labels)))
+        d_off, d_on = dump(g), dump(with_labels)
+        if d_off != d_on:
+            k = next((i for i, (x, y) in enumerate(zip(d_off[1], d_on[1])) if x != y), None)
+            bad.append("pieces changed when the numbers went off: attributes %s vs %s, first piece prim %s: %s vs %s" % (
+                d_off[0], d_on[0], k, d_off[1][k][:6] if k is not None else len(d_off[1]), d_on[1][k][:6] if k is not None else len(d_on[1])))
+    mv.parm("show_numbers").set(1)
+    return bad
+
+
+run("Show Numbers on: every piece has its number", numbers(True))
+run("Show Numbers off: only the pieces, same layout", numbers(False))
 
 mv.parm("marked").set("")
 for k in (5, 12, 5, 20):
