@@ -21,11 +21,16 @@ colours (never the highlight); no `_*` attribute on any class of either output; 
 newlines, leading zeros); a string enum attribute works too.
 Every one of those is re-run under its own mutation (MUTATIONS) and only the check(s)
 paired with it count: they must print FAIL.
-Cannot see: the viewer state itself (ray from a real click, needs the GUI), the
-object-transform inverse in it, the Clear button; a detail Cd on the input (the
-highlight's prim-Cd default from it is unexercised); points shared between pieces
-(each box here owns its points); whether a click re-cooks the per-piece loop (timed
-by hand, not asserted); `_*` groups on the outputs (attributes only).
+The viewer state's module runs with a stand-in viewer, drawable and template and with
+made-up events (press/release/Picked, drags, Alt/Ctrl, a moved and rotated object, a node
+that fails while marking); with Highlight Marked off (the default) a click must not
+re-cook `mark`.
+Cannot see: what a real viewport sends (event order of a real click, Space/Alt view
+navigation, whether Houdini calls onNodeChangeEvent/onDraw and draws a closed polygon as an
+outline: needs the GUI), whether a consumed click (return True) matters to the viewer, the
+prompt after Esc, the outlines' height (only X/Z centres are compared), the Clear button; a detail Cd on the input (the highlight's prim-Cd default from it is unexercised);
+points shared between pieces (each box here owns its points); `_*` groups on the outputs
+(attributes only).
 """
 import os
 import shutil
@@ -42,11 +47,46 @@ HDA = os.path.join(REPO, "polyfactory", "otls", "pf_mesh_view.hda")
 MUT = os.environ.get("PF_MESH_VIEW_MUTATE", "")
 LAID = ["Marked, laid out, columns=0", "Marked, laid out, columns=5"]
 ORIG = ["Marked, original scale, columns=0", "Marked, original scale, columns=5"]
-SECTION_MUTATIONS = {  # name -> (old, new, checks that must FAIL) in the PythonModule section
-    "piece_at_x": ("(pos[0] + 0.5)", "(pos[0])", ["pick columns=0", "pick columns=4"]),
-    "piece_at_row": ("pos[2] / 3.0", "pos[2] / 2.5", ["pick columns=4"]),
-    "toggle": ("^ {piece}", "| {piece}", ["toggle 5,12,5,20 -> '12 20'"]),
-    "py_parse": ('.replace(",", " ").split()', '.replace(",", " ").split(" ")', ["parse: mark == hm().marked()"]),
+SECTION_MUTATIONS = {  # name -> (section, old, new, checks that must FAIL)
+    "piece_at_x": ("PythonModule", "(pos[0] + 0.5)", "(pos[0])", ["pick columns=0", "pick columns=4"]),
+    "piece_at_row": ("PythonModule", "pos[2] / 3.0", "pos[2] / 2.5", ["pick columns=4"]),
+    "toggle": ("PythonModule", "^ {piece}", "| {piece}", ["toggle 5,12,5,20 -> '12 20'"]),
+    "py_parse": ("PythonModule", '.replace(",", " ").split()', '.replace(",", " ").split(" ")',
+                 ["parse: mark == hm().marked()"]),
+    "state_release": ("ViewerStateModule", "press, self.press = self.press, None", "press = self.press",
+                      ["state: press, Picked, release toggles once"]),
+    "state_slop": ("ViewerStateModule", "> SLOP:", "> 10 ** 6:", ["state: a drag does not toggle"]),
+    "state_stale_press": ("ViewerStateModule", "if reason == hou.uiEventReason.Changed:\n            if press is None:",
+                          "if press is not None:\n            if press is None:",
+                          ["state: a Picked after a stray press toggles"]),
+    "state_bind": ("ViewerStateModule", 'bindNodeParmChangeEvent(["marked", "columns"])',
+                   'bindNodeParmChangeEvent(["columns"])', ["state: outlines follow typed marks"]),
+    "state_click_refresh": ("ViewerStateModule", "toggle(node, piece)\n        self.refresh()",
+                            "toggle(node, piece)", ["state: outlines follow a click"]),
+    "state_enter_refresh": ("ViewerStateModule", "        self.refresh()\n        self.scene_viewer.setPromptMessage(PROMPT)\n\n    def onExit",
+                            "        self.scene_viewer.setPromptMessage(PROMPT)\n\n    def onExit", ["state: outlines of earlier marks on Enter"]),
+    "state_show": ("ViewerStateModule", "self.guide.show(True)", "self.guide.show(False)", ["state: outlines on Enter"]),
+    "state_miss": ("ViewerStateModule", "if hit < 0:\n            return False", "if False:\n            return False",
+                   ["state: a click on empty space marks nothing"]),
+    "state_ray_dir": ("ViewerStateModule", "direction = far - origin", "direction = direction",
+                      ["state: five clicks mark five pieces"]),
+    "state_guide_xform": ("ViewerStateModule", "self.guide.setTransform(obj.worldTransform() if",
+                          "self.guide.setTransform(hou.hmath.identityTransform() if", ["state: outlines in world space"]),
+    "state_draw": ("ViewerStateModule", "    def onDraw(self, kwargs):\n        self.guide.draw(",
+                   "    def onDraw(self, kwargs):\n        pass  # (", ["state: onDraw draws the outlines"]),
+    "state_invalid_geo": ("ViewerStateModule", "except (hou.InvalidGeometry, hou.GeometryPermissionError):",
+                          "except ZeroDivisionError:", ["state: failed cook while marking, no error"]),
+    "highlight_default": ("DialogScript", 'label   "Highlight Marked"\n        type    toggle\n        default { "0" }',
+                          'label   "Highlight Marked"\n        type    toggle\n        default { "1" }',
+                          ["Highlight Marked is off on a new node"]),
+    "state_alt": ("ViewerStateModule", "if dev.isAltKey() or dev.isCtrlKey():", "if False:",
+                  ["state: Alt or Ctrl click does not toggle"]),
+    "state_no_geo": ("ViewerStateModule", "if self.geo is None:  # the last cook", "if False:  # the last cook",
+                     ["state: no geometry, no error"]),
+    "state_one_geo": ("ViewerStateModule", "if self.geo is None:\n            self.geo = node.geometry()",
+                      "if True:\n            self.geo = node.geometry()", ["state: one geometry reference"]),
+    "state_guide": ("ViewerStateModule", "for k in node.hm().marked(node):", "for k in node.hm().marked(node)[1:]:",
+                    ["state: one outline per marked piece"]),
 }
 # name -> (node, parm, old, new, checks that must FAIL) on the edited instance; parm "snippet"
 # replaces text in it, "input0" rewires input 0 from node old to node new, else old/new are values
@@ -63,6 +103,8 @@ NODE_MUTATIONS = {
     "drop": ("drop_unmarked", "snippet", "if (!i@_mark)", "if (0)", LAID),
     "keep": ("keep_marked", "snippet", "if (!keep)", "if (keep)", ORIG),
     "leak0": ("scratch_delete", "primdel", "_*", "", ["leak, output 0"]),
+    "leak0_plain": ("scratch_delete_view", "primdel", "_*", "", ["leak, output 0, highlight off"]),
+    "click_cooks": ("highlight_switch", "input", 0, 1, ["click does not re-cook the view"]),
     "leak1": ("scratch_delete_marked", "dtldel", "_*", "", ["leak, Marked laid out"]),
 }
 if MUT in SECTION_MUTATIONS:
@@ -71,8 +113,8 @@ if MUT in SECTION_MUTATIONS:
     HDA = tmp
 hou.hda.installFile(HDA)
 if MUT in SECTION_MUTATIONS:
-    _sec = hou.hda.definitionsInFile(HDA)[0].sections()["PythonModule"]
-    _old, _new, _ = SECTION_MUTATIONS[MUT]
+    _name, _old, _new, _ = SECTION_MUTATIONS[MUT]
+    _sec = hou.hda.definitionsInFile(HDA)[0].sections()[_name]
     assert _old in _sec.contents(), MUT
     _sec.setContents(_sec.contents().replace(_old, _new))
 
@@ -173,6 +215,7 @@ if MUT in NODE_MUTATIONS:
         _w.setInput(0, mv.node(_new))
     else:
         assert _w.parm(_p).eval() == _old, MUT
+        _w.parm(_p).deleteAllKeyframes()      # an expression parm takes the value
         _w.parm(_p).set(_new)
 
 
@@ -254,6 +297,226 @@ for k in (5, 12, 5, 20):
     mv.hm().toggle(mv, k)
 run("toggle 5,12,5,20 -> '12 20'", [] if mv.evalParm("marked") == "12 20" else [mv.evalParm("marked")])
 
+# ---------------------------------------------------------------- the viewer state
+# Its module runs here with a stand-in viewer and drawable (hython has no viewport); the
+# events carry what Houdini sends: reason, mouse position, modifier keys, a world-space ray.
+# The object is moved so the world -> object ray transform is exercised.
+class _Viewer(object):
+    prompt = None
+
+    def setPromptMessage(self, msg, kind=None):
+        self.prompt = msg
+
+    def clearPromptMessage(self):
+        self.prompt = None
+
+    def curViewport(self):
+        return self
+
+    def draw(self):
+        pass
+
+
+class _Drawable(object):
+    geo = xform = None
+    draws = 0
+    shown = False
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def draw(self, handle):
+        self.draws += 1
+
+    def show(self, on):
+        self.shown = on
+
+    def setGeometry(self, g):
+        self.geo = g
+
+    def setTransform(self, m):
+        self.xform = m
+
+
+class _Template(object):                  # records what the state binds (hython has no viewer)
+    def __init__(self, *args):
+        self.binds = {}
+
+    def __getattr__(self, name):
+        return lambda *a, **k: self.binds.setdefault(name, a)
+
+
+class _Hou(object):                       # hou, with the drawable and template swapped for stand-ins
+    GeometryDrawable = _Drawable
+    ViewerStateTemplate = _Template
+
+    def __getattr__(self, name):
+        return getattr(hou, name)
+
+
+class _Dev(object):
+    def __init__(self, x, alt, ctrl=False):
+        self.x, self.alt, self.ctrl = x, alt, ctrl
+
+    def mouseX(self):
+        return self.x
+
+    def mouseY(self):
+        return 100
+
+    def isAltKey(self):
+        return self.alt
+
+    def isCtrlKey(self):
+        return self.ctrl
+
+
+class _Event(object):
+    """reason at screen x over piece k: the ray comes straight down (in the object's space)
+    onto its cell's centre, given in world space as a viewer gives it; up=True points it away."""
+    def __init__(self, reason, x, k, alt=False, ctrl=False, up=False):
+        self.r, self.d = reason, _Dev(x, alt, ctrl)
+        cols = mv.evalParm("columns")
+        col, row = (k % cols, k // cols) if cols else (k, 0)
+        w = geo.worldTransform()
+        self.origin = hou.Vector3(2 * col + 0.5, 50, 3 * row + 0.5) * w
+        self.dir = hou.Vector3(2 * col + 0.5, 51 if up else 49, 3 * row + 0.5) * w - self.origin
+
+    def reason(self):
+        return self.r
+
+    def device(self):
+        return self.d
+
+    def ray(self):
+        return self.origin, self.dir
+
+
+class _NoGeo(object):                     # the view after an interrupted cook
+    def __getattr__(self, name):
+        return getattr(mv, name)
+
+    def geometry(self):
+        return None
+
+
+_ns = {"kwargs": {}}
+exec(compile(mv.type().definition().sections()["ViewerStateModule"].contents(), "ViewerStateModule", "exec"), _ns)
+_ns["hou"] = _Hou()
+R = hou.uiEventReason
+geo.parmTuple("t").set((5, 0, -3))
+geo.parmTuple("r").set((30, 40, 10))
+mv.parm("columns").set(4)
+mv.parm("marked").set("1 3")
+st = _ns["State"]("pf::mesh_view::1.0.0", _Viewer())
+st.onEnter({"node": mv})
+run("state: outlines on Enter", [] if st.guide.shown else ["hidden"])
+n_out = len(st.guide.geo.prims()) if st.guide.geo else 0
+run("state: outlines of earlier marks on Enter", [] if n_out == 2 else ["%d outlines for 2 marks" % n_out])
+
+
+def events(*evs):
+    for e in evs:
+        st.onMouseEvent({"ui_event": e})
+    return mv.evalParm("marked")
+
+
+def click(k, x=10, alt=False, ctrl=False):
+    return events(_Event(R.Start, x, k, alt, ctrl), _Event(R.Changed, x + 1, k, alt, ctrl))
+
+
+mv.parm("marked").set("")
+for k in (1, 6, 9, 14, 22):
+    click(k)
+run("state: five clicks mark five pieces", [] if mv.evalParm("marked") == "1 6 9 14 22" else [mv.evalParm("marked")])
+
+mv.parm("marked").set("")
+bad = []
+got = events(_Event(R.Start, 10, 3), _Event(R.Picked, 10, 3), _Event(R.Changed, 10, 3))
+bad += [] if got == "3" else ["press, Picked, release -> %r" % got]
+got = events(_Event(R.Picked, 10, 3))
+bad += [] if got == "" else ["Picked alone -> %r" % got]
+run("state: press, Picked, release toggles once", bad)
+
+mv.parm("marked").set("")
+got = events(_Event(R.Start, 10, 3), _Event(R.Active, 30, 3), _Event(R.Changed, 40, 3))
+run("state: a drag does not toggle", [] if got == "" else [got])
+got = events(_Event(R.Picked, 10, 3, up=True))
+run("state: a click on empty space marks nothing", [] if got == "" else [got])
+bad = [] if click(3, alt=True) == "" else ["Alt -> %r" % mv.evalParm("marked")]
+bad += [] if click(3, ctrl=True) == "" else ["Ctrl -> %r" % mv.evalParm("marked")]
+run("state: Alt or Ctrl click does not toggle", bad)
+got = events(_Event(R.Start, 10, 3, alt=True), _Event(R.Picked, 400, 6))
+run("state: a Picked after a stray press toggles", [] if got == "6" else [got])
+mv.parm("marked").set("")
+
+_ns["kwargs"] = {"type": mv.type()}
+tpl = _ns["createViewerStateTemplate"]()
+run("state: outlines follow typed marks", [] if "marked" in tpl.binds.get("bindNodeParmChangeEvent", [[]])[0]
+    else ["binds %s" % tpl.binds])
+click(8)
+n_out = len(st.guide.geo.prims()) if st.guide.geo else 0
+run("state: outlines follow a click", [] if n_out == 1 else ["%d outlines after one click" % n_out])
+run("state: outlines in world space", [] if st.guide.xform == geo.worldTransform() else ["transform %s" % st.guide.xform])
+d0 = st.guide.draws
+st.onDraw({"draw_handle": None})
+st.onDrawInterrupt({"draw_handle": None})
+run("state: onDraw draws the outlines", [] if st.guide.draws == d0 + 2 else ["%d draws of 2" % (st.guide.draws - d0)])
+mv.parm("marked").set("")
+
+g0 = st.geo
+click(4)
+run("state: one geometry reference", [] if g0 is not None and st.geo is g0 else ["new reference per click"])
+
+mv.parm("marked").set("2 5 7")
+st.onNodeChangeEvent({"node": mv})
+bad = []
+polys = st.guide.geo.prims() if st.guide.geo else []
+centres_ = sorted((round(c[0], 4), round(c[2], 4)) for c in (centroid(p) for p in polys))
+want = sorted((2.0 * (k % 4) + 0.5, 3.0 * (k // 4) + 0.5) for k in (2, 5, 7))
+run("state: one outline per marked piece", [] if centres_ == want else ["outlines at %s want %s" % (centres_, want)])
+
+st2 = _ns["State"]("pf::mesh_view::1.0.0", _Viewer())
+st2.onEnter({"node": _NoGeo()})
+try:
+    out = st2.onMouseEvent({"ui_event": _Event(R.Picked, 10, 3)})
+    bad = [] if out is False and "no geometry" in st2.scene_viewer.prompt else ["returned %r, prompt %r" % (out, st2.scene_viewer.prompt)]
+except Exception as e:
+    bad = ["%s: %s" % (type(e).__name__, e)]
+run("state: no geometry, no error", bad)
+
+# the held reference goes bad when the node fails later (Esc during a cook, a broken input)
+broken = geo.createNode("attribwrangle")
+broken.parm("snippet").set("not vex;")
+mv.parm("marked").set("")
+click(2)
+mv.setInput(0, broken)
+try:
+    out = st.onMouseEvent({"ui_event": _Event(R.Picked, 10, 3)})
+    bad = [] if out is False and "no geometry" in st.scene_viewer.prompt else ["returned %r, prompt %r" % (out, st.scene_viewer.prompt)]
+except Exception as e:
+    bad = ["%s: %s" % (type(e).__name__, e)]
+mv.setInput(0, mk)
+bad += [] if click(5) == "2 5" else ["after the input is fixed: %r" % mv.evalParm("marked")]
+run("state: failed cook while marking, no error", bad)
+broken.destroy()
+geo.parmTuple("r").set((0, 0, 0))
+geo.parmTuple("t").set((0, 0, 0))
+
+fresh = geo.createNode("pf::mesh_view::1.0.0")
+run("Highlight Marked is off on a new node", [] if fresh.evalParm("highlight") == 0 else ["on"])
+fresh.destroy()
+
+# a click must not re-cook the view while Highlight Marked is off (its default): on a big kit
+# `mark` + `highlight` took 3.7 s per click; the state shows the marks itself
+mv.parm("highlight").set(0)
+mv.geometry()
+watch = ("mark", "foreach_end2", "scratch_delete_view", "highlight_switch")
+before = [mv.node(w).cookCount() for w in watch]
+mv.parm("marked").set("1 2")
+mv.geometry()
+run("click does not re-cook the view", ["%s re-cooked" % w for w, b in zip(watch, before) if mv.node(w).cookCount() != b])
+
 mv.parm("marked").set("3, 11 17")         # typed by hand, comma and space
 MARKED = {3, 11, 17}
 src = mk.geometry()
@@ -285,6 +548,8 @@ for cols in (0, 5):
 
 # highlight: on the class Cd lives on; unmarked pieces keep their input colour
 mv.parm("original_scale").set(0)
+run("leak, output 0, highlight off", leaks(mv.geometry()))
+mv.parm("highlight").set(1)
 for label, node, cls, base in (("no Cd", mk, "prim", WHITE), ("point Cd", cd_pt, "point", BLUE),
                                ("vertex Cd", cd_vtx, "vertex", GREEN)):
     mv.setInput(0, node)
