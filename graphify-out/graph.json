@@ -12210,7 +12210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 34,
+      "community": 317,
       "norm_label": "__init__.py"
     },
     {
@@ -12220,7 +12220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 34,
+      "community": 317,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -12280,7 +12280,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_settings",
-      "community": 184,
+      "community": 314,
       "norm_label": "json_settings.py"
     },
     {
@@ -12290,7 +12290,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "core_json_settings_settings",
-      "community": 184,
+      "community": 314,
       "norm_label": "settings"
     },
     {
@@ -12300,7 +12300,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_json_settings_settings_init",
-      "community": 184,
+      "community": 314,
       "norm_label": ".__init__()"
     },
     {
@@ -12310,7 +12310,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "core_json_settings_settings_serialize",
-      "community": 184,
+      "community": 314,
       "norm_label": ".serialize()"
     },
     {
@@ -12320,7 +12320,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_settings_settings_deserialize",
-      "community": 184,
+      "community": 314,
       "norm_label": ".deserialize()"
     },
     {
@@ -12470,7 +12470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 314,
+      "community": 184,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -12480,7 +12480,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 314,
+      "community": 184,
       "norm_label": "ui_mainpages"
     },
     {
@@ -12490,7 +12490,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 314,
+      "community": 184,
       "norm_label": ".setupui()"
     },
     {
@@ -12500,7 +12500,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 314,
+      "community": 184,
       "norm_label": ".retranslateui()"
     },
     {
@@ -14110,7 +14110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_div",
-      "community": 184,
+      "community": 34,
       "norm_label": "py_div.py"
     },
     {
@@ -14120,7 +14120,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv",
-      "community": 184,
+      "community": 34,
       "norm_label": "pydiv"
     },
     {
@@ -14130,7 +14130,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv_init",
-      "community": 184,
+      "community": 34,
       "norm_label": ".__init__()"
     },
     {
@@ -14140,7 +14140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar",
-      "community": 184,
+      "community": 34,
       "norm_label": "py_title_bar.py"
     },
     {
@@ -14480,7 +14480,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_init",
-      "community": 184,
+      "community": 314,
       "norm_label": "__init__.py"
     },
     {
@@ -14490,7 +14490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_py_window",
-      "community": 184,
+      "community": 314,
       "norm_label": "py_window.py"
     },
     {
@@ -14500,7 +14500,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow",
-      "community": 184,
+      "community": 314,
       "norm_label": "pywindow"
     },
     {
@@ -14520,7 +14520,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_init",
-      "community": 184,
+      "community": 314,
       "norm_label": ".__init__()"
     },
     {
@@ -14530,7 +14530,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_set_stylesheet",
-      "community": 184,
+      "community": 314,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -14540,7 +14540,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_styles",
-      "community": 184,
+      "community": 314,
       "norm_label": "styles.py"
     },
     {
@@ -14550,7 +14550,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "py_window_styles_styles",
-      "community": 184,
+      "community": 314,
       "norm_label": "styles"
     },
     {
@@ -40657,7 +40657,7 @@
       "label": "Goals",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L11",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_goals",
       "community": 46,
@@ -40667,7 +40667,7 @@
       "label": "Asset Browser Redesign",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L18",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_asset_browser_redesign",
       "community": 46,
@@ -40677,7 +40677,7 @@
       "label": "Pane Integration",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L20",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_pane_integration",
       "community": 46,
@@ -40687,7 +40687,7 @@
       "label": "Export Workflow",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L26",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_export_workflow",
       "community": 46,
@@ -40697,7 +40697,7 @@
       "label": "Browser Structure (Blender-Style Layout)",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L35",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_browser_structure_blender_style_layout",
       "community": 46,
@@ -40707,7 +40707,7 @@
       "label": "Asset Placement Workflow",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L86",
+      "source_location": "L88",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_asset_placement_workflow",
       "community": 46,
@@ -40717,7 +40717,7 @@
       "label": "Drag & Drop",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L88",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_drag_drop",
       "community": 46,
@@ -40727,7 +40727,7 @@
       "label": "Custom HDA Design",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L94",
+      "source_location": "L96",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_custom_hda_design",
       "community": 46,
@@ -40737,7 +40737,7 @@
       "label": "Python State Integration",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L101",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_python_state_integration",
       "community": 46,
@@ -40747,7 +40747,7 @@
       "label": "Technical Benefits",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L111",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_technical_benefits",
       "community": 46,
@@ -40757,7 +40757,7 @@
       "label": "Simplified Architecture",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L113",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_simplified_architecture",
       "community": 46,
@@ -40767,7 +40767,7 @@
       "label": "Python State Advantages",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L121",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_python_state_advantages",
       "community": 46,
@@ -40777,7 +40777,7 @@
       "label": "Implementation Notes",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L129",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_implementation_notes",
       "community": 46,
@@ -40787,7 +40787,7 @@
       "label": "HDA Placement Rules",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L131",
+      "source_location": "L133",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_hda_placement_rules",
       "community": 46,
@@ -40797,7 +40797,7 @@
       "label": "Asset Browser as Pane",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L137",
+      "source_location": "L139",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_asset_browser_as_pane",
       "community": 46,
@@ -40807,7 +40807,7 @@
       "label": "Open Questions",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L145",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_open_questions",
       "community": 46,
@@ -40817,7 +40817,7 @@
       "label": "Related Files",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L154",
+      "source_location": "L156",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_related_files",
       "community": 46,
@@ -40827,7 +40827,7 @@
       "label": "Next Steps",
       "file_type": "document",
       "source_file": "ideas/asset_library_redesign.md",
-      "source_location": "L165",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign_next_steps",
       "community": 46,
@@ -52705,7 +52705,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 34,
+      "community": 317,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -52831,7 +52831,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/py_div.py",
       "source_location": "L1",
-      "community": 184,
+      "community": 34,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_py_div_py"
     },
@@ -52840,7 +52840,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/__init__.py",
       "source_location": "L1",
-      "community": 184,
+      "community": 34,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_init_py"
     },
@@ -52867,7 +52867,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_window/__init__.py",
       "source_location": "L1",
-      "community": 184,
+      "community": 314,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_window_init_py"
     },
@@ -122120,9 +122120,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui",
-      "target": "ideas_artist_ui",
-      "confidence_score": 1.0
+      "target": "ideas_artist_ui"
     },
     {
       "relation": "references",
@@ -122387,11 +122387,11 @@
     {
       "relation": "references",
       "confidence": "EXTRACTED",
-      "source_file": "ideas/modelui.md",
-      "source_location": "L7",
+      "source_file": "ideas/asset_library_redesign.md",
+      "source_location": "L9",
       "weight": 1.0,
-      "source": "ideas_modelui",
-      "target": "ideas_asset_library_redesign",
+      "source": "ideas_asset_library_redesign",
+      "target": "ideas_modelui",
       "confidence_score": 1.0
     },
     {
@@ -128220,9 +128220,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui",
-      "target": "ideas_modeler",
-      "confidence_score": 1.0
+      "target": "ideas_modeler"
     },
     {
       "relation": "contains",
@@ -128280,9 +128280,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui",
-      "target": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine"
     },
     {
       "relation": "contains",
@@ -128290,9 +128290,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_decision_log_house_rule_2_why_python",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_decision_log_house_rule_2_why_python"
     },
     {
       "relation": "contains",
@@ -128300,9 +128300,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_decisions_hannes_2026_11_05",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_decisions_hannes_2026_11_05"
     },
     {
       "relation": "contains",
@@ -128310,9 +128310,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_feature_list",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_feature_list"
     },
     {
       "relation": "contains",
@@ -128320,9 +128320,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_framework_layers_shared_by_every_mode",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_framework_layers_shared_by_every_mode"
     },
     {
       "relation": "contains",
@@ -128330,9 +128330,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_goal",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_goal"
     },
     {
       "relation": "contains",
@@ -128340,9 +128340,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_mapping_to_houdini",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_mapping_to_houdini"
     },
     {
       "relation": "contains",
@@ -128350,9 +128350,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_references",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_references"
     },
     {
       "relation": "contains",
@@ -134549,5 +134549,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7d64163ba5d3f040cdd87c283ba1f118b23e099a"
+  "built_at_commit": "e687a55f4fe931196af99473c85bea1133de3a8c"
 }

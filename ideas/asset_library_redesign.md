@@ -5,6 +5,8 @@
 **Artist-facing UI:** [`artist_ui.md`](artist_ui.md) §6b (2026-08-21) audits this plan — the
 browser/grid/single-asset direction matches the evidence; the drag-drop placement state is the
 feature, not the polish. Read it before building.
+**Direct modeling:** the modelUI kitbash browser (drop a single mesh from a USD asset into the scene) builds on this
+plan; see [`modelui.md`](modelui.md).
 
 ---
 
