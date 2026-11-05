@@ -32,7 +32,10 @@ def apply(H=None):
     H = H or hou.hotkeys
     changes, failed = _changes(), []
     if changes:
-        return
+        # a record left by an apply that was never reverted: undo it first, so the record matches the live keys
+        revert(H)
+        if changes:
+            raise RuntimeError("modelUI keys: %d earlier change(s) could not be reverted" % len(changes))
     for ctx, sym, key in KEYS:
         for other in H.findConflicts(ctx, sym, key):
             octx, _, osym = other.partition("?")
@@ -49,17 +52,26 @@ def apply(H=None):
 
 
 def revert(H=None):
-    """Undo ``apply()`` exactly, newest first. Returns the number of changes undone."""
+    """Undo ``apply()`` exactly, newest first. Returns the number of changes undone; a change that could not be undone
+    is logged and stays in the record."""
     import hou
     H = H or hou.hotkeys
-    changes, n = _changes(), 0
+    changes, n, kept = _changes(), 0, []
     while changes:
         op, ctx, sym, key = changes.pop()
         try:
-            (H.removeAssignment if op == "add" else H.addAssignment)(ctx, sym, key)
-            n += 1
+            undo = H.removeAssignment if op == "add" else H.addAssignment
+            present = key in H.assignments(ctx, sym)
+            ok = present != (op == "add") or undo(ctx, sym, key)   # already in the undone state counts
         except Exception:  # noqa: BLE001 - revert the rest
-            LOG.exception("key revert failed: %s %s %s %s", op, ctx, sym, key)
+            LOG.exception("key revert raised: %s %s %s %s", op, ctx, sym, key)
+            ok = False
+        if ok:
+            n += 1
+        else:
+            LOG.error("modelUI key change not reverted: %s %s %s %s", op, ctx, sym, key)
+            kept.append((op, ctx, sym, key))
+    changes.extend(reversed(kept))
     return n
 
 
