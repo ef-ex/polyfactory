@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mainMenu>
+  <menuBar>
+    <subMenu id="polyfactory_menu">
+      <label>polyfactory</label>
+      <scriptItem id="h.pf_modelui_toggle">
+        <label>modelUI | Houdini</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import switch
+switch.toggle_later()
+]]></scriptCode>
+      </scriptItem>
+    </subMenu>
+  </menuBar>
+</mainMenu>
