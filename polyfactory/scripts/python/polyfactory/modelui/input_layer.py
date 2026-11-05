@@ -14,6 +14,7 @@ Hook API for features (all gestures see only input over a Scene Viewer of the cu
 ``kind`` is "press" (mouse button) or "key" (key press, not auto-repeat). Returning True takes ownership: the event is
 swallowed and the gesture gets every following event of that button or key ("move", "release" / "key" repeats,
 "keyup") with ``viewer`` None, all swallowed, until the release. Returning False passes the event on to Houdini.
+If the release never arrives (a move comes with the owned button up), the gesture gets "cancel" and ownership ends.
 The demo gesture (``DEMO``): Ctrl+Shift+LMB drag over a viewer is swallowed and reports its length.
 """
 import ctypes
@@ -67,6 +68,10 @@ class _Layer:
         if self.owner is not None:
             fn, (kind, which) = self.owner
             if kind == "mouse" and t == QE.MouseMove:
+                if not ev.buttons() & which:   # the release was lost (another window, a dialog): give the mouse back
+                    self.owner = None
+                    self._call(fn, "cancel", ev, None)
+                    return False
                 return self._call(fn, "move", ev, None) or True
             if kind == "mouse" and t == QE.MouseButtonRelease and ev.button() == which:
                 self.owner = None
@@ -130,7 +135,7 @@ class _AppFilter:
             raise RuntimeError("no QApplication")
 
     def detach(self):
-        if self.handle:
+        if getattr(self, "handle", None):   # __init__ may have failed before the filter existed
             self.lib.pf_uninstall(self.handle)
             self.handle = None
 

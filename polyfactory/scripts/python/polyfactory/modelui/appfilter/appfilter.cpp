@@ -28,6 +28,10 @@ public:
     {
         if (!enabled_ || types_.count(int(event->type())) == 0)
             return false;
+        // Qt runs application filters once per receiver of an event (the window, then the widget and its parents):
+        // input enters through its QWindow, so calling back only there gives every press and key exactly one call.
+        if (!receiver->isWindowType())
+            return false;
         return cb_(receiver, event, int(event->type())) != 0;
     }
 
