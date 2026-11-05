@@ -81,6 +81,30 @@ Next:
 - Quad menu on right-click; Create panel with interactive primitives (drag base, then height).
 - Mirror, Array, Boolean as stack entries; scene tabs; layers; materials; export to game/DCC.
 
+## Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)
+
+Library `F:/3d/kitbashLib` ($PF_ASSET_LIBRARY): 605 USD files, each one mesh (`/asset/mesh_0`, 10 to ~500 points).
+Pieces loaded with `usdimport` as polygons, one geometry object each, scattered over 100 x 100 units.
+Benches: `tests/modelui/bench_objects.py` (hython), `gui_bench.py` and `gui_bench2.py` (GUI, window off screen,
+`houdini.exe -foreground <script>`; exit through `hdefereval`, a direct `hou.exit` from a Qt timer crashes).
+
+| N objects | build | first cook | memory | list names | copy one | delete one |
+|---|---|---|---|---|---|---|
+| 100 | 0.2 s | 0.7 s | | 0.2 ms | 15 ms | 2.5 ms |
+| 500 | 0.9 s | 2.8 s | | 1.0 ms | 20 ms | 3.3 ms |
+| 2000 | 3.7 s | 10 s | +1.4 GB | 2.8 ms | 29 ms | 6.9 ms |
+| 5000 | 9.8 s | 24 s | +2.0 GB | 6.2 ms | 45 ms | 15 ms |
+
+Viewport, draw only (frame fixed, camera moved, single-frame flipbook 1280x720; the empty scene costs 58.7 ms of
+flipbook overhead, so the extra over it is the draw cost): 500 objects +24 ms, 2000 objects +101 ms,
+**the same 2000 pieces in one object +9 ms**. With a frame change (everything re-evaluates) 2000 objects cost
+~0.9 s per frame.
+
+Reading: per-object cost is about 0.05 ms per object per drawn frame. Up to ~500 objects tumbling stays fluid;
+at 2000 it drops to roughly 10 fps, while one object holding all pieces stays fast. Scene operations (list, copy,
+delete, select) are fast at every size. Open decision for Hannes: keep one object per piece, or keep plain kitbash
+pieces packed in a few container objects and give a piece its own object only when it gets its own stack.
+
 ## References
 
 - Maya surface for Houdini (Hannes' studio project, copy, read only): `F:\cache\houdini_maya_anim` (architecture:
