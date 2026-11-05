@@ -18,7 +18,8 @@ DESK = "ModelUI"
 FALLBACK_DESK = "Build"
 TOGGLE_SYMBOL = "h.pf_modelui_toggle"   # = the menu item id in MainMenuCommon.xml
 TOGGLE_KEY = "Alt+Ctrl+Shift+X"   # Houdini's own spelling (it reorders modifiers)
-FEATURES = ["polyfactory.modelui.keys", "polyfactory.modelui.input_layer"]   # install order; uninstall reverses
+FEATURES = ["polyfactory.modelui.keys", "polyfactory.modelui.input_layer",
+            "polyfactory.modelui.explorer"]   # install order; uninstall reverses
 
 _state = hou.session.__dict__.setdefault(
     "_pf_modelui_switch", {"on": False, "prev_desk": None, "done": [], "busy": False, "error": None})

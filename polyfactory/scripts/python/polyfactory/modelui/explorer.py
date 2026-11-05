@@ -7,6 +7,8 @@ pieces. It only talks to ``scene.current()``, so another scene backend needs no 
 from hutil.Qt import QtCore, QtWidgets
 from PySide6.QtGui import QShortcut   # not exposed by hutil.Qt
 
+import hou
+
 from polyfactory.modelui import scene as scene_mod
 
 Qt = QtCore.Qt
@@ -18,6 +20,7 @@ class Explorer(QtWidgets.QWidget):
         super().__init__(parent)
         self.model = model or scene_mod.current()
         self._syncing = False
+        self._watching = False
         self.list = QtWidgets.QListWidget()
         self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.list.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked | QtWidgets.QAbstractItemView.EditKeyPressed)
@@ -31,11 +34,20 @@ class Explorer(QtWidgets.QWidget):
         lay.addWidget(self.list)
         lay.addWidget(delete)
         self._timer = QtCore.QTimer(self, singleShot=True, interval=0, timeout=self.refresh)   # coalesce callbacks
-        self.model.watch(self._timer.start)
-        self.refresh()
+        self.set_watching(True)
+
+    def set_watching(self, on):
+        """Follow the scene (and refresh now) or stop following it: off while modelUI is off, so normal Houdini pays
+        nothing for a panel that is not shown."""
+        if on and not self._watching:
+            self.model.watch(self._timer.start)
+            self.refresh()
+        elif not on and self._watching:
+            self.model.unwatch(self._timer.start)
+        self._watching = on
 
     def close_down(self):
-        self.model.unwatch(self._timer.start)
+        self.set_watching(False)
 
     def _rows(self):
         return [self.list.item(i) for i in range(self.list.count())]
@@ -72,12 +84,18 @@ class Explorer(QtWidgets.QWidget):
         if self._syncing:
             return
         pid = it.data(ID_ROLE)
-        if it.text() != self.model.name(pid):
-            self.model.rename(pid, it.text())
-        hide = it.checkState() != Qt.Checked
-        if hide != self.model.hidden(pid):
-            self.model.set_hidden([pid], hide)
-        self._timer.start()   # show the name Houdini actually gave
+        try:
+            if it.text() != self.model.name(pid):
+                try:
+                    self.model.rename(pid, it.text())
+                except hou.Error as e:   # an invalid name ("my hull", ""): keep the old one, say why
+                    hou.ui.setStatusMessage("modelUI: cannot rename to %r: %s" % (it.text(), e.instanceMessage()),
+                                            hou.severityType.Warning)
+            hide = it.checkState() != Qt.Checked
+            if hide != self.model.hidden(pid):
+                self.model.set_hidden([pid], hide)
+        finally:
+            self._timer.start()   # show the name and state Houdini actually has
 
     def delete_selected(self):
         ids = self.selected_ids()
@@ -86,15 +104,29 @@ class Explorer(QtWidgets.QWidget):
 
 
 def create_interface():
-    import hou
     w = Explorer()
     hou.session._pf_modelui_explorer = w
     return w
 
 
 def destroy_interface(w):
-    import hou
     if w is not None:
         w.close_down()
     if getattr(hou.session, "_pf_modelui_explorer", None) is w:
         hou.session._pf_modelui_explorer = None
+
+
+def _panel():
+    return getattr(hou.session, "_pf_modelui_explorer", None)
+
+
+def install():
+    """Switch feature hook: the desk's panel (if Houdini built it already) follows the scene again."""
+    if _panel() is not None:
+        _panel().set_watching(True)
+
+
+def uninstall():
+    """Switch feature hook: the panel stops following the scene (no callbacks left while modelUI is off)."""
+    if _panel() is not None:
+        _panel().set_watching(False)
