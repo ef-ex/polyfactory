@@ -29,8 +29,8 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
     polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
     otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
-    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 44 checks green
-    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 44 paired source mutations
+    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 50 checks green
+    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 50 paired source mutations
     red, 1 exempt (`toggle_key_registered`: startup only). About 6 minutes; `PF_F1_QUICK=1` runs one baseline only
     (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
@@ -43,6 +43,11 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   (`OBSERVE`) and `later()` for Shift+drag clone; double-click covered; floating viewers (`hou.ui.paneTabs()`);
   ownership set before the gesture is called; Explorer survives a click on a just-deleted row; Explorer refresh
   rebuilds nothing when nothing changed.
+- Audit round 3 (2026-11-05): Shift+drag-on-handle answered yes (above). Fixed with checks: one owner per device
+  (a held key and a drag run together; the holder of a key gets "other" for other keys and clicks, and may swallow
+  them), a focus-window change cancels a held key but a popup does not, keys with focus outside the viewer are never
+  offered, hidden Scene View tabs are ignored; the unreachable double-click offer was removed (Qt 6 sends the press
+  first; the double-click is still swallowed under ownership). The GUI runner now fails a mutation it cannot apply.
 
 ## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
 
@@ -54,10 +59,17 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   back only for window receivers, where input enters, so every press and key reaches the gestures once.
 - `QApplication.widgetAt()` and `topLevelAt()` return None where no screen is (an off-screen test window, a point
   between monitors): the layer finds the top-level widget whose QWindow receives the event and asks `childAt()`.
-- Shift+LMB over the viewer (and Alt+LMB, a tumble) pass our window filter but the viewer widget's own filters never
-  see them: Houdini takes them earlier (assumed: its application filter at the widget). Observing gestures are
-  therefore checked at the window. Unverified: that a Shift+drag on a transform handle moves the handle while a
-  gesture observes it (needs a handle and a real state; F2 clone).
+- Shift+LMB / Alt+LMB on the default viewer state (object level, select) pass our window filter but the viewer
+  widget's own filters do not see them (Houdini takes them earlier there); this is NOT general: in the 'pose' state the
+  GL widget saw press, move and release (audit 3). Observing gestures are therefore checked at the window.
+- **Verified (audit 3, real path, 'pose' state): Shift+drag on a transform handle with an OBSERVE gesture.** The gesture
+  sees the whole drag, the handle moves, and a copy made with `later(copyNodesTo)` after the first move is the one the
+  handle then moves: the original stays at tx 0, the copy `a1` ends at tx 0.45. Shift is neutral on the handle in stock
+  H22 (Ctrl = grid snap).
+- For F2 (clone): store the original's transform at press and restore it after copying; which node the handle moves
+  depends on when the copy lands (timing, not guaranteed).
+- Unverified: Qt's shortcut-override event (type 51) path. Whether a key the layer swallows still fires a Houdini
+  hotkey can only be settled with a physical key press (synthetic events skip the platform shortcut path).
 - `hou.ui.paneTabs()` includes floating panels; `curDesktop().paneTabs()` does not. Floating panes ignore the
   position they are created with (one landed at (0, 1410)): tests move every visible window off screen.
 - The 18:56 crash (`crash.untitled.hannes_36228`, pf_appfilter.dll calling a freed callback) was a mutation run
