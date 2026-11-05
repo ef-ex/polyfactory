@@ -16,7 +16,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
-SCR = "F:/cache/modelui/f1/gui"
+SCR = os.environ.get("PF_F1_SCRATCH", "F:/cache/modelui/f1/gui")   # auditors: set your own folder
 HOUDINI = "C:/Program Files/Side Effects Software/Houdini 22.0.442/bin/houdini.exe"
 EXEMPT = {"toggle_key_registered": "registered by uiready.py at startup; a mutation needs a second launch"}
 

@@ -133,6 +133,8 @@ def visible_on_screen():
 def off_screen():
     """Every visible window to x < -5000 (floating panes ignore the position they are created with)."""
     mw = hou.qt.mainWindow()
+    if mw is None:   # not built yet (a fresh prefs folder starts slower)
+        return False
     if mw.geometry().x() > -5000:
         mw.showNormal()   # a maximized window ignores move()
         mw.setGeometry(-12000, 100, 1600, 1000)
@@ -276,6 +278,15 @@ def suite(out):
         QTest.keyRelease(win, Qt.Key_F9)
         app = QtGui.QGuiApplication.instance()
         owners = input_layer.layer().owners
+        target.setFocus()   # cancel also forgets what the holder swallowed: a fresh F7 then reaches Houdini whole
+        QTest.keyPress(win, Qt.Key_F9)
+        QTest.keyPress(win, Qt.Key_F7)   # swallowed via "other"; its release never comes
+        app.applicationStateChanged.emit(Qt.ApplicationInactive)
+        app.applicationStateChanged.emit(Qt.ApplicationActive)
+        eaten_empty = not input_layer.layer().eaten["key"]
+        seen = with_probe(win, lambda: keyclick(win, Qt.Key_F7))
+        out["cancel_clears_eaten"] = eaten_empty and seen.count(KP) == 1 and seen.count(KR) == 1
+        QTest.keyRelease(win, Qt.Key_F9)
         del got[:]
         QTest.keyPress(win, Qt.Key_F9)   # held; a menu pops up (TAB menu, RMB menu), then focus goes to another window
         menu = QtWidgets.QMenu()
@@ -671,6 +682,7 @@ MUTATIONS = [
     ("keys_not_applied_state", "max_keys_work", "keys", [('    for ctx, sym, key in KEYS:\n        if sym.startswith("-"):', '    for ctx, sym, key in KEYS[:0]:\n        if sym.startswith("-"):')]),
     ("no_q_binding", "w_then_q_selects", "keys", [('    (STATE, STATE + ".new_select", "Q"),', "")]),
     ("repeat_current_kept", "w_then_q_selects", "keys", [('    ("h.pane.gview", "-h.pane.gview.repeat_current", "Q"),', "")]),
+    ("cancel_keeps_eaten", "cancel_clears_eaten", IL, [('        self.eaten["mouse"].clear()\n        self.eaten["key"].clear()\n', "")]),
     ("drop_eaten", "swallowed_key_fully_hidden", IL, [('            self.eaten["mouse" if kind == "press" else "key"].add(which)', "            pass")]),
     ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
                                                                    '            self.owners["key"] = None\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
@@ -748,15 +760,39 @@ def pump(gen):
 
 
 def finish():
+    if LOGF.closed:
+        return
+    GUARD.stop()
     log("done")
     LOGF.close()
     hdefereval.executeDeferred(lambda: hou.exit(suppress_save_prompt=True))
 
 
-def start():
-    off_screen()
-    log("main window", hou.qt.mainWindow().geometry())
-    pump(driver())
+def guard():
+    """Every 200 ms: every visible window off screen, else stop the run (never input on Hannes' screen)."""
+    if hou.qt.mainWindow() is not None and not off_screen():
+        log("ABORT: windows on screen", [(type(w).__name__, w.frameGeometry()) for w in visible_on_screen()])
+        finish()
+
+
+GUARD = QtCore.QTimer(interval=200, timeout=guard)
+
+
+def start(tries=[0]):  # noqa: B006 - a counter across retries
+    try:
+        if hou.qt.mainWindow() is None:   # a fresh prefs folder: the main window may come later than 5 s
+            tries[0] += 1
+            if tries[0] > 60:
+                raise RuntimeError("no main window after 65 s")
+            QtCore.QTimer.singleShot(1000, start)
+            return
+        off_screen()
+        GUARD.start()
+        log("main window", hou.qt.mainWindow().geometry())
+        pump(driver())
+    except Exception:  # noqa: BLE001 - never hang with a window on screen
+        log(traceback.format_exc())
+        finish()
 
 
 QtCore.QTimer.singleShot(300, off_screen)
