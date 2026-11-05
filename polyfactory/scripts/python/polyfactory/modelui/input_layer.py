@@ -23,8 +23,9 @@ auto-repeat) when the receiving window's focus widget belongs to a Scene Viewer 
   starts and acts on release.
 - False: the event goes on to the next gesture, then to Houdini.
 Mouse and keyboard have one owner each, so a held key and a drag run side by side; while a key is owned,
-its gesture is told about every other key press and click first ("other", viewer None; True swallows it, and a second
-key is never offered to the other gestures). Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
+its gesture is told about every other key press and click first ("other", with the viewer under the click or holding
+the focus, else None; True swallows it with its repeats and release; a holder should only swallow clicks in a viewer).
+A second key is never offered to the other gestures, so two key gestures cannot chord (registration order decides). Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
 release never arrives: a move with the owned button up, the application or the focus window going away. Keys are
 paired by native scan code (Shift+2 pressed, "@" released is one key). The demo gesture (``DEMO``): Ctrl+Shift+LMB drag
 over a viewer is swallowed and reports its length.
@@ -115,6 +116,7 @@ SLOT = {"press": "mouse", "key": "key"}   # one owner per device: a held key and
 class _Layer:
     def __init__(self):
         self.owners = {"mouse": None, "key": None}   # slot -> [fn, button or key id, swallow]
+        self.eaten = {"mouse": set(), "key": set()}  # buttons / key ids a key holder swallowed via "other"
         self.backend = None   # "cpp" or "windows"
         self.attached = None
         app = QtGui.QGuiApplication.instance()
@@ -147,6 +149,8 @@ class _Layer:
 
     def cancel(self, ev=None):
         """Every owner loses its button or key (its release will not come)."""
+        self.eaten["mouse"].clear()
+        self.eaten["key"].clear()
         for slot in ("mouse", "key"):
             o = self.owners[slot]
             if o is not None:
@@ -158,10 +162,29 @@ class _Layer:
         t = ev.type()
         if t in (QE.MouseMove, QE.MouseButtonRelease, QE.MouseButtonDblClick):
             o = self.owners["mouse"]
-            return o is not None and self._follow_mouse(o, ev, t)
+            if o is not None:
+                return self._follow_mouse(o, ev, t)
+            eaten = self.eaten["mouse"]
+            if not eaten:
+                return False
+            if t == QE.MouseMove:
+                eaten.intersection_update([b for b in eaten if ev.buttons() & b])   # a lost release
+                return bool(eaten)
+            if ev.button() in eaten:
+                if t == QE.MouseButtonRelease:
+                    eaten.discard(ev.button())
+                return True
+            return False
         if t == QE.KeyRelease or (t == QE.KeyPress and ev.isAutoRepeat()):
+            kid = _key_id(ev)
             o = self.owners["key"]
-            return o is not None and _key_id(ev) == o[1] and self._follow_key(o, ev, t)
+            if o is not None and kid == o[1]:
+                return self._follow_key(o, ev, t)
+            if kid in self.eaten["key"]:   # the rest of a key the holder swallowed (outlives the holder's key-up)
+                if t == QE.KeyRelease and not ev.isAutoRepeat():
+                    self.eaten["key"].discard(kid)
+                return True
+            return False
         if t == QE.MouseButtonPress:
             if self.owners["mouse"] is not None:
                 return False   # another button during an owned drag: Houdini's
@@ -171,11 +194,8 @@ class _Layer:
         else:
             return False
         held = self.owners["key"]
-        if held is not None and self._call(held[0], "other", ev, None) is True:
-            return True   # the gesture holding a key took this key or click
-        slot = SLOT[kind]
-        if not _gestures or self.owners[slot] is not None:
-            return False   # a second key while one is held is only the holder's "other"
+        if held is None and not _gestures:
+            return False
         top = receiving_top(receiver)   # widgetAt() would need a screen under the point
         if kind == "press":
             w = top and (top.childAt(top.mapFromGlobal(ev.globalPosition().toPoint())) or top)
@@ -183,8 +203,12 @@ class _Layer:
         else:
             focus = top and top.focusWidget()
             viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)
-        if viewer is None:
-            return False
+        if held is not None and self._call(held[0], "other", ev, viewer) is True:
+            self.eaten["mouse" if kind == "press" else "key"].add(which)   # its repeats and release go too
+            return True   # the gesture holding a key took this key or click
+        slot = SLOT[kind]
+        if not _gestures or self.owners[slot] is not None or viewer is None:
+            return False   # a second key while one is held is only the holder's "other"
         for fn in list(_gestures.values()):
             owner = [fn, which, True]
             self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it
