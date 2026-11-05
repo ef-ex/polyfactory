@@ -1,0 +1,79 @@
+"""Run-time hotkeys of the modeling mode: applied with ``hou.hotkeys`` and reverted exactly.
+
+Nothing is saved: ``addAssignment`` / ``removeAssignment`` change memory only (``saveOverrides()`` would write the
+overrides file and is never called), and no keymap file is selected (that choice lives in ``hotkeys.pref``).
+``apply()`` records every add/remove, ``revert()`` undoes exactly that, newest first. Pattern: the Maya surface
+project's ``keymap.py``.
+"""
+import logging
+
+LOG = logging.getLogger(__name__)
+
+STATE = "h.pane.gview.state"   # every viewer state
+# (context, action symbol, key): 3ds Max transform keys.
+KEYS = [
+    (STATE, STATE + ".new_select", "Q"),
+    (STATE, STATE + ".new_move", "W"),
+    (STATE, STATE + ".new_rotate", "E"),
+    (STATE, STATE + ".new_scale", "R"),
+]
+
+
+def _changes():
+    """The change record, on ``hou.session`` so a module reload cannot lose what must be reverted."""
+    import hou
+    return hou.session.__dict__.setdefault("_pf_modelui_key_changes", [])
+
+
+def apply(H=None):
+    """Apply KEYS. A key first loses its other bindings in the same context. Raises when a row could not be applied
+    (the switch then rolls back, which reverts the rows that were)."""
+    import hou
+    H = H or hou.hotkeys
+    changes, failed = _changes(), []
+    if changes:
+        return
+    for ctx, sym, key in KEYS:
+        for other in H.findConflicts(ctx, sym, key):
+            octx, _, osym = other.partition("?")
+            if octx == ctx and osym != sym and key in H.assignments(ctx, osym) and H.removeAssignment(ctx, osym, key):
+                changes.append(("remove", ctx, osym, key))
+        if key in H.assignments(ctx, sym):
+            continue
+        if H.addAssignment(ctx, sym, key):
+            changes.append(("add", ctx, sym, key))
+        else:
+            failed.append("%s %s" % (sym, key))
+    if failed:
+        raise RuntimeError("modelUI keys not applied: " + ", ".join(failed))
+
+
+def revert(H=None):
+    """Undo ``apply()`` exactly, newest first. Returns the number of changes undone."""
+    import hou
+    H = H or hou.hotkeys
+    changes, n = _changes(), 0
+    while changes:
+        op, ctx, sym, key = changes.pop()
+        try:
+            (H.removeAssignment if op == "add" else H.addAssignment)(ctx, sym, key)
+            n += 1
+        except Exception:  # noqa: BLE001 - revert the rest
+            LOG.exception("key revert failed: %s %s %s %s", op, ctx, sym, key)
+    return n
+
+
+def snapshot(H=None):
+    """Every assignment of the contexts KEYS touches, {"ctx?symbol": sorted keys}: equal before and after = exact."""
+    import hou
+    H = H or hou.hotkeys
+    out = {}
+    for ctx in sorted({c for c, _, _ in KEYS}):
+        for b in H.commandBindingsInContext(ctx):
+            keys = tuple(sorted(H.assignments(ctx, b["symbol"])))
+            if keys:
+                out["%s?%s" % (ctx, b["symbol"])] = keys
+    return out
+
+
+install, uninstall = apply, revert   # switch feature hooks
