@@ -34,8 +34,8 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 ## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
 
 - **The C++ application filter works on Windows.** VS 2022 Build Tools (MSVC 14.44) + `$HFS/toolkit/include` +
-  `$HFS/custom/houdini/dsolib/Qt6Core.lib`; `appfilteruild.bat` builds `pf_appfilter.dll` (objects in
-  `F:\cache\modeluippfilter_build`; rebuild for every Houdini with another Qt). The per-window Python fallback is
+  `$HFS/custom/houdini/dsolib/Qt6Core.lib`; `appfilter/build.bat` builds `pf_appfilter.dll` (objects in
+  `F:/cache/modelui/appfilter_build`; rebuild for every Houdini with another Qt). The per-window Python fallback is
   kept and tested (fed through the top QWindow).
 - An `_AppFilter` dropped without `detach()` freed its ctypes callback while Qt still called it: Houdini died on the
   next event (seen under a test mutation). `__del__` detaches now.
