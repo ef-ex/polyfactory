@@ -29,8 +29,8 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
     polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
     otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
-    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 59 checks green
-    in the first and last baseline (the 2000-object Explorer checks only in warm runs; `max_keys_work` red after the first run, open defect), 59 paired source mutations
+    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 61 checks green
+    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 60 paired source mutations
     red, 1 exempt (`toggle_key_registered`: startup only). About 10 minutes (run it in the background); `PF_F1_QUICK=1` runs one baseline only
     (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
@@ -52,13 +52,24 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   repeats and release with it (also after the holder's own key-up); "other" carries the viewer under the click or
   focus (a holder should only swallow clicks in a viewer); a deactivation ends a drag too; keys are offered during a
   drag; a key-up never ends a drag. The runner credits a mutation only when its paired check itself is False.
-- **Open defect (found 2026-11-05 by `max_keys_work`):** the Max keys work in the first install of a session (Q:
-  objview -> select, W: select -> pose, on the real QtTest path) but not after modelUI was switched off and on again in
-  the same session: the assignments are back (`keys_applied`, exact `keys_reverted`), yet Q/W leave the state at
-  "objview" (59 of 61 runs). Not fixed yet; next: find what Houdini needs after removeAssignment + addAssignment
-  (or whether something else in the suite disables hotkeys), then make the check pass in both baselines.
-- Known limit: in the "pose" state Q stays in "pose" (a deeper state context binds Q; audit 4), so Max's W-then-Q does
-  not return to select there yet.
+- **Max keys after off/on: not a defect, a test artefact.** Houdini sends a hotkey to the viewer under the
+  cursor, not to Qt's focus widget. The check pressed keys without a cursor over the viewer, so after a desk switch they
+  went nowhere visible (59 of 61 runs). Probe `tests/modelui/keys_probe.py`: plain hou.hotkeys add/remove/add and
+  keys.apply/revert/apply work every time; switch on without a hover: Q/W do nothing; with the cursor over the viewer:
+  Q, W, Q = select, pose, select on every switch-on. The check now hovers first, as a person does.
+- **Hotkeys go to the viewer under the cursor, not to Qt's focus widget.** A check (or a feature) that presses keys
+  must have the cursor over the viewer; without it a key after a desk switch reaches no visible viewer.
+- **W then Q stayed in "pose" (root cause):** once the scene has objects, Houdini's own Q in the parent context
+  (`h.pane.gview.repeat_current`, repeat current tool) wins over our Q in `h.pane.gview.state` while in "pose"
+  (empty scene: ours wins). Probe `tests/modelui/keys_probe.py`, objects present, W then Q, keys only: Build and
+  ModelUI desk x `new_select` and `volatile_select`: with that binding removed always "select", with it always "pose".
+  Fix: a recorded "-" row in `keys.KEYS` unbinds it while modelUI is on (exact revert as for every change); Q stays
+  on `new_select`. Check `w_then_q_selects` (W, E, R, T, then Q; mutations `repeat_current_kept`, `no_q_binding`).
+- `max_keys_work` passed 58 of 61 runs: the 3 others were mutation runs that break keys (`demo_owns_keys` swallows
+  them, `no_q_binding`, `wrong_desk`), not flakes; both baselines passed.
+- Test hygiene: a mutation run can leave the session's hotkeys changed (`removals_not_reverted` deleted Houdini's Q
+  for the rest of the session, which made `repeat_current_kept` stay green). The GUI suite now restores the hotkeys of
+  the session start after every run.
 - F2: two key gestures cannot chord: registration order decides, and while a key is held a second gesture is never
   offered its own key (only the holder's "other").
 

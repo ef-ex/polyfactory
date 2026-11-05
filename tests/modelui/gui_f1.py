@@ -156,18 +156,21 @@ def suite(out):
         isinstance(t, hou.PythonPanel) and t.activeInterface() is not None
         and t.activeInterface().name() == "pf_modelui_explorer" for t in desk.paneTabs()) and getattr(
         hou.session, "_pf_modelui_explorer", None) is not None
-    out["keys_applied"] = all(k in hou.hotkeys.assignments(cx, s) for cx, s, k in keys.KEYS)
+    out["keys_applied"] = all((k not in hou.hotkeys.assignments(cx, s[1:])) if s.startswith("-")
+                              else (k in hou.hotkeys.assignments(cx, s)) for cx, s, k in keys.KEYS)
     lay = input_layer.layer()
     sv0, g0, t0 = viewer_point()
     states = []
-    sv0.setCurrentState("objview")   # in "pose", Q is shadowed by the state's own key (see the doc)
+    sv0.setCurrentState("objview")
+    hover(hou.qt.mainWindow().windowHandle(), g0)   # Houdini sends a hotkey to the viewer under the cursor
     yield 200
-    for k in (Qt.Key_Q, Qt.Key_W):   # stock Houdini: neither changes the object-level state
+    for k in (Qt.Key_Q, Qt.Key_W, Qt.Key_E, Qt.Key_R, Qt.Key_T, Qt.Key_Q):   # stock: none changes "objview"
         t0.setFocus()
         keyclick(hou.qt.mainWindow().windowHandle(), k)
         yield 250
         states.append(sv0.currentState())
-    out["max_keys_work"] = states == ["select", "pose"]
+    out["max_keys_work"] = states[:2] == ["select", "pose"]
+    out["w_then_q_selects"] = states[1] == "pose" and states[-1] == "select"   # Max: W, E, R, then Q back to select
     log("  Q/W states", states)
     out["input_cpp"] = lay is not None and lay.backend == "cpp"
     sv, g, target = viewer_point()
@@ -576,9 +579,25 @@ def _q(f):
         log("  cleanup:", traceback.format_exc().splitlines()[-1])
 
 
+def restore_keys():
+    """Back to the hotkeys of the session start: a mutation run may leave them changed (removals_not_reverted once
+    deleted Houdini's own Q for the rest of the session and hid repeat_current_kept)."""
+    now, snap = keys.snapshot(), STATE["keys0"]
+    for name in set(snap) | set(now):
+        ctx, _, sym = name.partition("?")
+        want, have = set(snap.get(name, ())), set(now.get(name, ()))
+        for k in have - want:
+            hou.hotkeys.removeAssignment(ctx, sym, k)
+        for k in want - have:
+            hou.hotkeys.addAssignment(ctx, sym, k)
+        if want != have:
+            log("  restored hotkey", name, sorted(have), "->", sorted(want))
+
+
 def cleanup():
     _q(switch.uninstall)
     _q(keys.revert)
+    _q(restore_keys)
     _q(input_layer.uninstall)
     for o in gc.get_objects():   # filters a mutated uninstall left attached
         if type(o).__name__ in ("_AppFilter", "_Windows"):
@@ -613,7 +632,7 @@ IL = "input_layer"
 MUTATIONS = [
     ("feature_fails", "install_on", "keys", [("    if failed:\n        raise", "    if True:\n        raise")]),
     ("wrong_desk", "desk_modelui_with_explorer", "switch", [('DESK = "ModelUI"', 'DESK = "Build"')]),
-    ("keys_not_applied", "keys_applied", "keys", [("in KEYS:\n        for other", "in KEYS[:0]:\n        for other")]),
+    ("keys_not_applied", "keys_applied", "keys", [('    for ctx, sym, key in KEYS:\n        if sym.startswith("-"):', '    for ctx, sym, key in KEYS[:0]:\n        if sym.startswith("-"):')]),
     ("saves_overrides", "prefs_untouched", "keys", [("    if failed:\n        raise", "    H.saveOverrides()\n    if failed:\n        raise")]),
     ("removals_not_reverted", "keys_reverted", "keys", [('undo = H.removeAssignment if op == "add" else H.addAssignment',
                                                          'undo = H.removeAssignment if op == "add" else (lambda *a: True)')]),
@@ -649,7 +668,9 @@ MUTATIONS = [
     ("hidden_tabs_count", "hidden_viewer_tab_ignored", IL, [("isinstance(t, hou.SceneViewer) and t.isCurrentTab()", "isinstance(t, hou.SceneViewer)")]),
     ("one_owner", "hold_then_click_reaches_mouse_gesture", IL, [('SLOT = {"press": "mouse", "key": "key"}', 'SLOT = {"press": "mouse", "key": "mouse"}')]),
     ("no_other_notice", "second_key_notifies_hold_owner", IL, [('        if held is not None and self._call(held[0], "other", ev, viewer) is True:', "        if False:")]),
-    ("keys_not_applied_state", "max_keys_work", "keys", [("in KEYS:\n        for other", "in KEYS[:0]:\n        for other")]),
+    ("keys_not_applied_state", "max_keys_work", "keys", [('    for ctx, sym, key in KEYS:\n        if sym.startswith("-"):', '    for ctx, sym, key in KEYS[:0]:\n        if sym.startswith("-"):')]),
+    ("no_q_binding", "w_then_q_selects", "keys", [('    (STATE, STATE + ".new_select", "Q"),', "")]),
+    ("repeat_current_kept", "w_then_q_selects", "keys", [('    ("h.pane.gview", "-h.pane.gview.repeat_current", "Q"),', "")]),
     ("drop_eaten", "swallowed_key_fully_hidden", IL, [('            self.eaten["mouse" if kind == "press" else "key"].add(which)', "            pass")]),
     ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
                                                                    '            self.owners["key"] = None\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
@@ -684,6 +705,7 @@ RESULTS = []
 
 def driver():
     STATE["desk0"] = hou.ui.curDesktop().name()
+    STATE["keys0"] = keys.snapshot()
     log("start desk", STATE["desk0"], "prefs", PREF)
     log("toggle assignments", hou.hotkeys.assignments("h", switch.TOGGLE_SYMBOL))
     for name, check, modname, pairs in RUNS:

@@ -20,7 +20,8 @@ OUT_DIR = "F:/cache/modelui/probe"
 DLL = "F:/cache/modelui/keyfeed/pf_keyfeed.dll"
 
 
-def launch():
+def launch(script=None):
+    """Run ``script`` (default: this file) in a throwaway off-screen Houdini; print its result.json."""
     here = os.path.dirname(os.path.abspath(__file__))
     repo = os.path.normpath(os.path.join(here, "..", ".."))
     shutil.rmtree(OUT_DIR, ignore_errors=True)
@@ -37,7 +38,7 @@ def launch():
     env.update(HOUDINI_USER_PREF_DIR=OUT_DIR + "/prefs/houdini__HVER__", HOUDINI_PACKAGE_DIR=pv + "/packages")
     exe = "C:/Program Files/Side Effects Software/Houdini 22.0.442/bin/houdini.exe"
     with open(OUT_DIR + "/console.txt", "w") as con:
-        p = subprocess.Popen([exe, "-foreground", os.path.abspath(__file__)], env=env, stdout=con, stderr=subprocess.STDOUT)
+        p = subprocess.Popen([exe, "-foreground", script or os.path.abspath(__file__)], env=env, stdout=con, stderr=subprocess.STDOUT)
         try:
             p.wait(timeout=240)
         except subprocess.TimeoutExpired:
