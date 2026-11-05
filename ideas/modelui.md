@@ -29,9 +29,9 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
     polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
     otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
-    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 50 checks green
-    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 50 paired source mutations
-    red, 1 exempt (`toggle_key_registered`: startup only). About 6 minutes; `PF_F1_QUICK=1` runs one baseline only
+    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 59 checks green
+    in the first and last baseline (the 2000-object Explorer checks only in warm runs; `max_keys_work` red after the first run, open defect), 59 paired source mutations
+    red, 1 exempt (`toggle_key_registered`: startup only). About 10 minutes (run it in the background); `PF_F1_QUICK=1` runs one baseline only
     (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
   receiver (3-4 calls per press) -> only for window receivers; lost release kept the mouse -> "cancel"; Explorer kept
@@ -48,6 +48,19 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   them), a focus-window change cancels a held key but a popup does not, keys with focus outside the viewer are never
   offered, hidden Scene View tabs are ignored; the unreachable double-click offer was removed (Qt 6 sends the press
   first; the double-click is still swallowed under ownership). The GUI runner now fails a mutation it cannot apply.
+- Audit round 4 (2026-11-05): fixed with checks: a key or click the key holder swallows via "other" takes its
+  repeats and release with it (also after the holder's own key-up); "other" carries the viewer under the click or
+  focus (a holder should only swallow clicks in a viewer); a deactivation ends a drag too; keys are offered during a
+  drag; a key-up never ends a drag. The runner credits a mutation only when its paired check itself is False.
+- **Open defect (found 2026-11-05 by `max_keys_work`):** the Max keys work in the first install of a session (Q:
+  objview -> select, W: select -> pose, on the real QtTest path) but not after modelUI was switched off and on again in
+  the same session: the assignments are back (`keys_applied`, exact `keys_reverted`), yet Q/W leave the state at
+  "objview" (59 of 61 runs). Not fixed yet; next: find what Houdini needs after removeAssignment + addAssignment
+  (or whether something else in the suite disables hotkeys), then make the check pass in both baselines.
+- Known limit: in the "pose" state Q stays in "pose" (a deeper state context binds Q; audit 4), so Max's W-then-Q does
+  not return to select there yet.
+- F2: two key gestures cannot chord: registration order decides, and while a key is held a second gesture is never
+  offered its own key (only the holder's "other").
 
 ## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
 
@@ -68,8 +81,11 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   H22 (Ctrl = grid snap).
 - For F2 (clone): store the original's transform at press and restore it after copying; which node the handle moves
   depends on when the copy lands (timing, not guaranteed).
-- Unverified: Qt's shortcut-override event (type 51) path. Whether a key the layer swallows still fires a Houdini
-  hotkey can only be settled with a physical key press (synthetic events skip the platform shortcut path).
+- Unverified: Qt's shortcut-override event (type 51) path. Tried (audit 4, option a): `tests/modelui/shortcut_probe.py`
+  feeds W through Qt's platform entry points with a test DLL (`tests/modelui/keyfeed/`: handleShortcutEvent, then
+  handleExtendedKeyEvent). Result: the owned W was seen by the gesture (key, keyup) and the state stayed "objview",
+  but the control (no gesture) did not switch the state either, so the probe cannot decide. Settling it needs a key
+  path that triggers Houdini's hotkeys (a physical key press, or posting WM_KEYDOWN: not done without Hannes' OK).
 - `hou.ui.paneTabs()` includes floating panels; `curDesktop().paneTabs()` does not. Floating panes ignore the
   position they are created with (one landed at (0, 1410)): tests move every visible window off screen.
 - The 18:56 crash (`crash.untitled.hannes_36228`, pf_appfilter.dll calling a freed callback) was a mutation run
