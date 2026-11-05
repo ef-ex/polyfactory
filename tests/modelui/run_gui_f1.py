@@ -56,7 +56,7 @@ def main():
     p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, "gui_f1.py")], env=env, stdout=console,
                          stderr=subprocess.STDOUT)
     try:
-        p.wait(timeout=585)
+        p.wait(timeout=900)
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)])
         print("TIMEOUT: killed the test Houdini (pid %d); log: %s" % (p.pid, SCR + "/result.json.log"))
@@ -81,7 +81,7 @@ def main():
         v = r["out"].get(r["check"])
         how = "red" if v is False else ("red by exception" if "_exception" in r["out"] else "red (%s)" % v)
         print("mutation %-26s -> %-28s %s" % (r["mutation"], r["check"], "STILL GREEN" if v is True else how))
-        if v is True or "mutation snippet not found" in r["out"].get("_exception", ""):
+        if v is not False:   # credited only when the paired check itself evaluated False (not an earlier exception)
             bad.append("mutation " + r["mutation"])   # a mutation that could not be applied proves nothing
         if "_exception" in r["out"]:
             print("    " + r["out"]["_exception"].strip().splitlines()[-1])

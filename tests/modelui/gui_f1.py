@@ -149,7 +149,7 @@ def suite(out):
     snap0, pref0, desk0 = keys.snapshot(), pref_listing(), hou.ui.curDesktop().name()
     out["toggle_key_registered"] = switch.TOGGLE_KEY in hou.hotkeys.assignments("h", switch.TOGGLE_SYMBOL)
     ok = switch.install()
-    yield 1200
+    yield 900
     desk = hou.ui.curDesktop()
     out["install_on"] = bool(ok and switch.is_on())
     out["desk_modelui_with_explorer"] = desk.name() == "ModelUI" and any(
@@ -158,6 +158,17 @@ def suite(out):
         hou.session, "_pf_modelui_explorer", None) is not None
     out["keys_applied"] = all(k in hou.hotkeys.assignments(cx, s) for cx, s, k in keys.KEYS)
     lay = input_layer.layer()
+    sv0, g0, t0 = viewer_point()
+    states = []
+    sv0.setCurrentState("objview")   # in "pose", Q is shadowed by the state's own key (see the doc)
+    yield 200
+    for k in (Qt.Key_Q, Qt.Key_W):   # stock Houdini: neither changes the object-level state
+        t0.setFocus()
+        keyclick(hou.qt.mainWindow().windowHandle(), k)
+        yield 250
+        states.append(sv0.currentState())
+    out["max_keys_work"] = states == ["select", "pose"]
+    log("  Q/W states", states)
     out["input_cpp"] = lay is not None and lay.backend == "cpp"
     sv, g, target = viewer_point()
     mw = hou.qt.mainWindow()
@@ -224,8 +235,10 @@ def suite(out):
         if kind == "key" and viewer is not None and ev.key() not in (Qt.Key_F9, Qt.Key_2):
             return False
         got.append(kind)
-        if kind == "other":   # while F9 is held: swallow F7, let everything else through
-            return ev.type() == QE.KeyPress and ev.key() == Qt.Key_F7
+        if kind == "other":   # while F9 is held: swallow F7 and Alt+clicks in a viewer, let everything else through
+            if ev.type() == QE.KeyPress:
+                return ev.key() == Qt.Key_F7
+            return bool(ev.modifiers() & Qt.AltModifier) and viewer is not None
         return True
     input_layer.add_gesture("test_tap", tap)
     target.setFocus()
@@ -255,6 +268,7 @@ def suite(out):
         del got[:]
         QTest.keyPress(win, Qt.Key_F9)   # owned; then the application loses activation (Alt+Tab while holding)
         QtGui.QGuiApplication.instance().applicationStateChanged.emit(Qt.ApplicationInactive)
+        QtGui.QGuiApplication.instance().applicationStateChanged.emit(Qt.ApplicationActive)   # Houdini listens too
         out["key_cancel_on_deactivate"] = got == ["key", "cancel"] and input_layer.layer().owner is None
         QTest.keyRelease(win, Qt.Key_F9)
         app = QtGui.QGuiApplication.instance()
@@ -275,18 +289,48 @@ def suite(out):
         out["key_cancel_on_focus_window"] = got[-1:] == ["cancel"] and owners["key"] is None
         other.close()
         other.deleteLater()
+        app.focusWindowChanged.emit(win)
         QTest.keyRelease(win, Qt.Key_F9)
         target.setFocus()
         del got[:]
         QTest.keyPress(win, Qt.Key_F9)   # held by tap
-        seen = with_probe(target, lambda: (keyclick(win, Qt.Key_F8), keyclick(win, Qt.Key_F7)))
-        out["second_key_notifies_hold_owner"] = got.count("other") == 2 and seen.count(KP) == 1
+        # leaks are seen on the window: Houdini may take a hotkey or Alt+LMB before the widget's own filters
+        seen = with_probe(win, lambda: (keyclick(win, Qt.Key_F8), QTest.keyPress(win, Qt.Key_F7),
+                                        send_key(win, QE.KeyPress, Qt.Key_F7, True)))
+        out["second_key_notifies_hold_owner"] = got.count("other") == 2 and seen == [KP, KR]   # F8 only, all of it
         log("  hold: got", got, "probe", seen)
         n0 = len(DEMO())
         hover(win, g)
         drag(win, g)
         out["hold_then_click_reaches_mouse_gesture"] = DEMO()[n0:] == [(50, sv.name())] and owners["key"] is not None
+        del got[:]   # Alt+click during the hold: the holder may swallow it in a viewer, never on the Explorer
+        seen = with_probe(win, lambda: click(win, g, Qt.AltModifier))
+        out["other_click_in_viewer_swallowable"] = got == ["other"] and not set(seen) & {PRESS, RELEASE}
+        out["other_click_on_explorer_passes"] = False
+        if panel is not None:
+            gp = panel.mapToGlobal(panel.rect().center())
+            pw = mw.childAt(mw.mapFromGlobal(gp))
+            seen = with_probe(pw, lambda: click(win, gp, Qt.AltModifier))
+            out["other_click_on_explorer_passes"] = PRESS in seen and RELEASE in seen
+        n0 = len(DEMO())   # a drag started during the hold survives the holder's key-up
+        hover(win, g)
+        QTest.mousePress(win, LMB, CS, L(win, g))
+        seen = with_probe(win, lambda: (QTest.keyRelease(win, Qt.Key_F9), QTest.keyRelease(win, Qt.Key_F7)))
+        out["swallowed_key_fully_hidden"] = seen == [] and not input_layer.layer().eaten["key"]
+        QTest.mouseMove(win, L(win, g, 30, 40))
+        QTest.mouseRelease(win, LMB, CS, L(win, g, 30, 40))
+        out["keyup_keeps_drag"] = DEMO()[n0:] == [(50, sv.name())]
+        hover(win, g)   # keys are offered during a drag; a deactivation ends the drag too
+        QTest.mousePress(win, LMB, CS, L(win, g))
+        del got[:]
+        target.setFocus()   # the Alt+click on the Explorer took the focus
+        QTest.keyPress(win, Qt.Key_F9)
+        out["key_offered_during_drag"] = got == ["key"] and owners["mouse"] is not None
         QTest.keyRelease(win, Qt.Key_F9)
+        app.applicationStateChanged.emit(Qt.ApplicationInactive)
+        app.applicationStateChanged.emit(Qt.ApplicationActive)   # Houdini listens too
+        out["cancel_ends_drag"] = owners["mouse"] is None
+        QTest.mouseRelease(win, LMB, NOM, L(win, g))
         if panel is not None:
             panel.list.setFocus()   # focus in the Explorer (outside the viewer)
             del got[:]
@@ -585,7 +629,7 @@ MUTATIONS = [
     ("no_window_cover_test", "window_over_viewer_passes", IL, [("        if g.contains(r) and tg.contains(g):", "        if g.contains(r):")]),
     ("receiver_ignored", "other_window_receiver_passes", IL, [("        top = receiving_top(receiver)   # widgetAt()", "        top = hou.qt.mainWindow()   # widgetAt()")]),
     ("keys_never_offered", "key_gesture_owned", IL, [("        elif t == QE.KeyPress:", "        elif False:")]),
-    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [("if t == QE.KeyRelease and not ev.isAutoRepeat():", "if t == QE.KeyRelease:")]),
+    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [('        if t == QE.KeyRelease and not ev.isAutoRepeat():\n            self.owners["key"] = None', '        if t == QE.KeyRelease:\n            self.owners["key"] = None')]),
     ("keys_paired_by_key", "key_pairs_by_scancode", IL, [("    return ev.nativeScanCode() or ev.key()", "    return ev.key()")]),
     ("demo_owns_keys", "unowned_key_passes", IL, [('        if kind == "key":\n            return False\n', "")]),
     ("text_fields_not_skipped", "text_field_keeps_keys", IL, [("viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)", "viewer = viewer_of(focus)")]),
@@ -604,7 +648,18 @@ MUTATIONS = [
     ("keys_any_focus", "key_outside_viewer_passes", IL, [("else viewer_of(focus)", "else (viewer_of(focus) or _viewers()[0])")]),
     ("hidden_tabs_count", "hidden_viewer_tab_ignored", IL, [("isinstance(t, hou.SceneViewer) and t.isCurrentTab()", "isinstance(t, hou.SceneViewer)")]),
     ("one_owner", "hold_then_click_reaches_mouse_gesture", IL, [('SLOT = {"press": "mouse", "key": "key"}', 'SLOT = {"press": "mouse", "key": "mouse"}')]),
-    ("no_other_notice", "second_key_notifies_hold_owner", IL, [('        if held is not None and self._call(held[0], "other", ev, None) is True:', "        if False:")]),
+    ("no_other_notice", "second_key_notifies_hold_owner", IL, [('        if held is not None and self._call(held[0], "other", ev, viewer) is True:', "        if False:")]),
+    ("keys_not_applied_state", "max_keys_work", "keys", [("in KEYS:\n        for other", "in KEYS[:0]:\n        for other")]),
+    ("drop_eaten", "swallowed_key_fully_hidden", IL, [('            self.eaten["mouse" if kind == "press" else "key"].add(which)', "            pass")]),
+    ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
+                                                                   '            self.owners["key"] = None\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
+    ("other_without_viewer", "other_click_in_viewer_swallowable", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, None)')]),
+    ("no_other_for_clicks", "other_click_in_viewer_swallowable", IL, [('        if held is not None and self._call(held[0], "other", ev, viewer)', '        if held is not None and kind == "key" and self._call(held[0], "other", ev, viewer)')]),
+    ("other_always_viewer", "other_click_on_explorer_passes", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, viewer or _viewers()[0])')]),
+    ("cancel_keeps_mouse", "cancel_ends_drag", IL, [('        for slot in ("mouse", "key"):\n            o = self.owners[slot]', '        for slot in ("key",):\n            o = self.owners[slot]')]),
+    ("drag_blocks_keys", "key_offered_during_drag", IL, [('        elif t == QE.KeyPress:\n            kind, which = "key", _key_id(ev)', '        elif t == QE.KeyPress:\n            if self.owners["mouse"] is not None:\n                return False\n            kind, which = "key", _key_id(ev)')]),
+    ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
+                                                  '            self.owners["key"] = None\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
     ("uninstall_keeps_filter", "input_off", IL, [('    remove_gesture("demo_drag")\n    lay = layer()\n    if lay is not None:\n        lay.attached.detach()\n        lay.shutdown()\n        setattr(hou.session, SESSION_ATTR, None)', "    pass")]),
     ("fallback_not_attached", "fallback_drag_owned", IL, [("            w.installEventFilter(self.filter)", "            pass")]),
     ("fallback_never_swallows", "fallback_swallowed", IL, [("return int(ev.type()) in _TYPES and self.lay.handle(ev, _ptr(obj))", "self.lay.handle(ev, _ptr(obj))\n            return False")]),
