@@ -1,0 +1,100 @@
+"""modelUI Scene Explorer (Python panel ``pf_modelui_explorer``): every piece by name; select, rename, hide, delete.
+
+Follows the selection both ways: clicking rows selects the pieces (and so the objects in the viewport), selecting in
+the viewport selects the rows. Double-click (or F2) renames, the check box shows/hides, Delete deletes the selected
+pieces. It only talks to ``scene.current()``, so another scene backend needs no change here.
+"""
+from hutil.Qt import QtCore, QtWidgets
+from PySide6.QtGui import QShortcut   # not exposed by hutil.Qt
+
+from polyfactory.modelui import scene as scene_mod
+
+Qt = QtCore.Qt
+ID_ROLE = Qt.UserRole
+
+
+class Explorer(QtWidgets.QWidget):
+    def __init__(self, model=None, parent=None):
+        super().__init__(parent)
+        self.model = model or scene_mod.current()
+        self._syncing = False
+        self.list = QtWidgets.QListWidget()
+        self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.list.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked | QtWidgets.QAbstractItemView.EditKeyPressed)
+        self.list.itemSelectionChanged.connect(self._rows_selected)
+        self.list.itemChanged.connect(self._row_changed)
+        delete = QtWidgets.QPushButton("Delete")
+        delete.clicked.connect(self.delete_selected)
+        QShortcut(Qt.Key_Delete, self.list, self.delete_selected, context=Qt.WidgetShortcut)
+        lay = QtWidgets.QVBoxLayout(self)
+        lay.setContentsMargins(2, 2, 2, 2)
+        lay.addWidget(self.list)
+        lay.addWidget(delete)
+        self._timer = QtCore.QTimer(self, singleShot=True, interval=0, timeout=self.refresh)   # coalesce callbacks
+        self.model.watch(self._timer.start)
+        self.refresh()
+
+    def close_down(self):
+        self.model.unwatch(self._timer.start)
+
+    def _rows(self):
+        return [self.list.item(i) for i in range(self.list.count())]
+
+    def refresh(self):
+        """Rebuild the rows from the model when pieces, names or visibility changed; then mirror its selection."""
+        self._syncing = True
+        try:
+            m = self.model
+            want = [(pid, m.name(pid), m.hidden(pid)) for pid in m.pieces()]
+            have = [(it.data(ID_ROLE), it.text(), it.checkState() != Qt.Checked) for it in self._rows()]
+            if want != have:
+                self.list.clear()
+                for pid, name, hidden in want:
+                    it = QtWidgets.QListWidgetItem(name)
+                    it.setData(ID_ROLE, pid)
+                    it.setFlags(it.flags() | Qt.ItemIsEditable | Qt.ItemIsUserCheckable)
+                    it.setCheckState(Qt.Unchecked if hidden else Qt.Checked)
+                    self.list.addItem(it)
+            sel = set(m.selected())
+            for it in self._rows():
+                it.setSelected(it.data(ID_ROLE) in sel)
+        finally:
+            self._syncing = False
+
+    def selected_ids(self):
+        return [it.data(ID_ROLE) for it in self.list.selectedItems()]
+
+    def _rows_selected(self):
+        if not self._syncing:
+            self.model.select(self.selected_ids())
+
+    def _row_changed(self, it):
+        if self._syncing:
+            return
+        pid = it.data(ID_ROLE)
+        if it.text() != self.model.name(pid):
+            self.model.rename(pid, it.text())
+        hide = it.checkState() != Qt.Checked
+        if hide != self.model.hidden(pid):
+            self.model.set_hidden([pid], hide)
+        self._timer.start()   # show the name Houdini actually gave
+
+    def delete_selected(self):
+        ids = self.selected_ids()
+        if ids:
+            self.model.delete(ids)
+
+
+def create_interface():
+    import hou
+    w = Explorer()
+    hou.session._pf_modelui_explorer = w
+    return w
+
+
+def destroy_interface(w):
+    import hou
+    if w is not None:
+        w.close_down()
+    if getattr(hou.session, "_pf_modelui_explorer", None) is w:
+        hou.session._pf_modelui_explorer = None

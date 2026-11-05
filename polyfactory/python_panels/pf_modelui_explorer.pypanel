@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pythonPanelDocument>
+  <interface name="pf_modelui_explorer" label="Scene Explorer (modelUI)" icon="MISC_python" showNetworkNavigationBar="false" help_url="">
+    <script><![CDATA[
+def onCreateInterface():
+    from polyfactory.modelui import explorer
+    return explorer.create_interface()
+
+
+def onDestroyInterface():
+    from polyfactory.modelui import explorer
+    explorer.destroy_interface(getattr(hou.session, "_pf_modelui_explorer", None))
+]]></script>
+    <includeInPaneTabMenu menu_position="0" create_separator="false"/>
+    <includeInToolbarMenu menu_position="0" create_separator="false"/>
+  </interface>
+</pythonPanelDocument>
