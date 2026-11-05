@@ -1,6 +1,6 @@
 # modelUI: comfortable direct modeling with Houdini as the engine
 
-**Status:** F1 framework core (mode switch, input layer, scene model, Scene Explorer) implemented, audit pending (2026-11-05). Branch `modelui`.
+**Status:** F1 framework core (mode switch, input layer, scene model, Scene Explorer) done: 5 independent audits, final verdict yes; merged into `main` (4aea050, from `modelui` fed05d1) on 2026-11-05. F2 waits for Hannes' backend choice (one object per piece or mixed). Branch `modelui`.
 **This file owns:** the modelUI framework and its modeling mode: goal, decisions, the mapping to Houdini, the
 feature list, and the references. Not to be confused with `pf_modeler` ([`modeler.md`](modeler.md), the
 ZSphere-style skinning tool). Kitbash browsing builds on the asset library plan in
@@ -16,7 +16,7 @@ copy/transform, clean game mesh).
 
 Why it matters: every time he reaches the modeling part he gets annoyed by the node workflow and does something else.
 
-## Resume pointer (F1 framework core)
+## Resume pointer (F1 framework core: done; F2 next)
 
 - Branch `modelui`; verify against `git log`. F1 code: `polyfactory/scripts/python/polyfactory/modelui/` (`switch.py`,
   `keys.py`, `input_layer.py`, `scene.py`, `explorer.py`, `appfilter/` with `appfilter.cpp`, `build.bat`,
@@ -26,13 +26,21 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 - Checks (all must exit 0):
   - `hython tests/modelui/check_scene_model.py`: 14 checks, 15 paired mutations red.
   - `hython tests/modelui/check_units.py`: keys record and filter construction, 4 checks, 4 paired mutations red.
-  - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
-    polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
-    otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
-    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 61 checks green
-    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 60 paired source mutations
-    red, 1 exempt (`toggle_key_registered`: startup only). About 10 minutes (run it in the background); `PF_F1_QUICK=1` runs one baseline only
-    (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
+  - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in its output folder, only the polyfactory
+    package; every visible window kept at x < -5000 by a 200 ms guard, the run stops otherwise; start waits for the
+    main window and exits on any start error). Input goes the real path (QtTest on the QWindow; sendEvent to the
+    window only for auto-repeat, scan codes and a lost release). It builds a mutated DLL (no window test) in
+    `F:/cache/modelui/f1/mut`. All checks green in the first baseline (58, cold) and the last (60: plus the two
+    2000-object Explorer checks, warm runs only), 62 paired source mutations red (credited only when the paired check itself is False; a
+    mutation that cannot be applied fails the run), 1 exempt (`toggle_key_registered`: startup only); hotkeys are
+    restored to the session start after every run. About 10 minutes: run it in the background; `PF_F1_QUICK=1` runs
+    one baseline only. Output folder `F:/cache/modelui/f1/gui` (log `result.json.log`), or `PF_F1_SCRATCH=<folder>`:
+    auditors set their own, a shared folder gets overwritten.
+  - Probes (evidence, not checks): `tests/modelui/keys_probe.py` (hotkey routing, Q in pose),
+    `tests/modelui/shortcut_probe.py` (shortcut override, inconclusive).
+- Audits: 5 independent rounds on 2026-11-05 (findings and fixes below); the fifth gave the verdict yes.
+- Next: F2 (Shift+drag clone with OBSERVE + later(), Clone dialog, Align, modifier stack panel) after Hannes chooses
+  the scene backend (one object per piece, or kitbash pieces packed in container objects).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
   receiver (3-4 calls per press) -> only for window receivers; lost release kept the mouse -> "cancel"; Explorer kept
   watching after uninstall -> it is a switch feature now; invalid rename raised -> status message; keys record and
