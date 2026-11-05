@@ -14,20 +14,22 @@ hotkey symbol); floating panes; Houdini builds other than the one it runs on.
 import gc
 import json
 import os
+import sys
+import time
 import traceback
 
 import hdefereval
 import hou
 from hutil.Qt import QtCore, QtGui, QtWidgets
 
-from polyfactory.modelui import explorer, input_layer, keys, switch
+from polyfactory.modelui import explorer, input_layer, keys, scene, switch
 
 OUT = os.environ["PF_F1_OUT"]
 LOGF = open(OUT + ".log", "w", buffering=1)
 QE, Qt = QtCore.QEvent, QtCore.Qt
 APP = QtWidgets.QApplication.instance()
 PREF = hou.text.expandString("$HOUDINI_USER_PREF_DIR")
-STATE = {"desk0": None}
+STATE = {"desk0": None, "perf": False}
 MOUSE_KEY = {int(QE.MouseButtonPress), int(QE.MouseButtonRelease), int(QE.MouseMove), int(QE.KeyPress),
              int(QE.KeyRelease)}
 
@@ -74,8 +76,10 @@ def with_probe(w, fn):
 
 
 def mouse(target, etype, g, button, buttons, mods):
-    local = QtCore.QPointF(target.mapFromGlobal(g))
-    APP.sendEvent(target, QtGui.QMouseEvent(etype, local, QtCore.QPointF(g), button, buttons, mods))
+    """Real input enters through the widget's QWindow (Qt then hands it to the widget under the point)."""
+    win = target.window().windowHandle()
+    local = QtCore.QPointF(win.mapFromGlobal(g))
+    APP.sendEvent(win, QtGui.QMouseEvent(etype, local, QtCore.QPointF(g), button, buttons, mods))
 
 
 def drag(target, g0, mods=Qt.ControlModifier | Qt.ShiftModifier):
@@ -86,7 +90,8 @@ def drag(target, g0, mods=Qt.ControlModifier | Qt.ShiftModifier):
 
 
 def key(target, etype, k, rep=False):
-    APP.sendEvent(target, QtGui.QKeyEvent(etype, k, Qt.NoModifier, "", rep))
+    target.setFocus()   # the window hands keys to its focus widget
+    APP.sendEvent(target.window().windowHandle(), QtGui.QKeyEvent(etype, k, Qt.NoModifier, "", rep))
 
 
 def viewer_point():
@@ -132,7 +137,9 @@ def suite(out):
     if panel is not None:
         gp = panel.mapToGlobal(panel.rect().center())
         n0 = len(input_layer.DEMO.log)
-        seen = with_probe(panel, lambda: drag(panel, gp))
+        mw = hou.qt.mainWindow()
+        pw = mw.childAt(mw.mapFromGlobal(gp))
+        seen = with_probe(pw, lambda: drag(pw, gp))
         out["outside_viewer_passes"] = len(input_layer.DEMO.log) == n0 and int(QE.MouseButtonPress) in seen
 
     got = []
@@ -152,9 +159,29 @@ def suite(out):
         log("  key gesture got", got, "probe", seen)
         seen = with_probe(target, lambda: (key(target, QE.KeyPress, Qt.Key_F8), key(target, QE.KeyRelease, Qt.Key_F8)))
         out["unowned_key_passes"] = int(QE.KeyPress) in seen
+        counts = {}
+
+        def count(kind, ev, viewer):   # declines everything, counts its calls
+            counts[kind] = counts.get(kind, 0) + 1
+            return False
+        input_layer.add_gesture("test_count", count)
+        mouse(target, QE.MouseButtonPress, g, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+        mouse(target, QE.MouseButtonRelease, g, Qt.LeftButton, Qt.NoButton, Qt.NoModifier)
+        key(target, QE.KeyPress, Qt.Key_F7)
+        key(target, QE.KeyRelease, Qt.Key_F7)
+        out["one_call_per_input"] = counts == {"press": 1, "key": 1}
+        log("  counts", counts)
     finally:
         input_layer.remove_gesture("test_tap")
+        input_layer.remove_gesture("test_count")
         input_layer.cursor_pos = old_cursor
+
+    mods = Qt.ControlModifier | Qt.ShiftModifier
+    mouse(target, QE.MouseButtonPress, g, Qt.LeftButton, Qt.LeftButton, mods)   # the demo owns it; no release follows
+    owned = input_layer.layer().owner is not None
+    win = target.window().windowHandle()
+    seen = with_probe(win, lambda: mouse(target, QE.MouseMove, g + QtCore.QPoint(5, 5), Qt.NoButton, Qt.NoButton, mods))
+    out["lost_release_cancels"] = owned and input_layer.layer().owner is None and int(QE.MouseMove) in seen
 
     w = explorer.Explorer()
     try:
@@ -173,6 +200,15 @@ def suite(out):
         b.setName("zz")
         yield 200
         out["rename_follows"] = rows()[1:2] == ["zz"]
+        caught = []
+        old_hook, sys.excepthook = sys.excepthook, (lambda *a: caught.append(a[0].__name__))
+        try:
+            w.list.item(1).setText("my hull")   # not a valid node name
+            yield 200
+        finally:
+            sys.excepthook = old_hook
+        out["invalid_rename_recovers"] = caught == [] and b.name() == "zz" and rows()[1:2] == ["zz"]
+        log("  invalid rename: caught", caught, "rows", rows())
         w.list.item(2).setCheckState(Qt.Unchecked)
         out["row_hides"] = not c.isDisplayFlagSet()
         w.list.clearSelection()
@@ -197,6 +233,35 @@ def suite(out):
     out["toggle_on_again"] = switch.is_on() and hou.ui.curDesktop().name() == "ModelUI"
     switch.uninstall()
     yield 300
+    s = scene.current()
+    nodes = [hou.node("/obj")] + list(hou.node("/obj").children())
+    out["no_callbacks_after_uninstall"] = (
+        not s._watchers and not any(cb[1] == s._event for n in nodes for cb in n.eventCallbacks())
+        and not any(cb == s._hip_event for cb in hou.hipFile.eventCallbacks()))
+    if STATE["perf"]:
+        obj = hou.node("/obj")
+        for i in range(2000):
+            obj.createNode("geo", "p%d" % i)
+        t0 = time.perf_counter()
+        w2 = explorer.Explorer()
+        t1 = time.perf_counter()
+        hou.node("/obj/p0").setName("q0")
+        t2 = time.perf_counter()
+        w2.refresh()
+        t3 = time.perf_counter()
+        w2.refresh()
+        t4 = time.perf_counter()
+        w2.list.selectAll()
+        t5 = time.perf_counter()
+        w2.close_down()
+        w2.deleteLater()
+        ms = {"build": 1000 * (t1 - t0), "after_rename": 1000 * (t3 - t2), "idle": 1000 * (t4 - t3),
+              "select_all": 1000 * (t5 - t4)}
+        log("  perf 2000 objects (ms)", {k: round(v, 1) for k, v in ms.items()})
+        # ceilings ~4x the measured values (2026-11-05, this PC, Hannes' Houdini running beside it: build 46,
+        # after rename 50, idle refresh 104, select all 146 ms; the audit measured 44 / 41 / 19 / 324 ms)
+        out["perf_explorer_2000"] = (ms["build"] < 200 and ms["after_rename"] < 200 and ms["idle"] < 400
+                                     and ms["select_all"] < 1500)
     pref1 = pref_listing()
     out["prefs_untouched"] = pref1 == pref0
     if pref1 != pref0:
@@ -215,9 +280,8 @@ def suite(out):
     yield 100
     lay = input_layer.layer()
     sv3, g3, t3 = viewer_point()
-    win = t3.window().windowHandle()
     n0 = len(input_layer.DEMO.log)
-    seen = with_probe(t3, lambda: drag(win, g3))
+    seen = with_probe(t3, lambda: drag(t3, g3))
     out["fallback_drag_owned"] = lay.backend == "windows" and input_layer.DEMO.log[n0:] == [(50, sv3.name())]
     out["fallback_swallowed"] = seen == []
     input_layer.uninstall()
@@ -238,6 +302,7 @@ def cleanup():
         if type(o).__name__ in ("_AppFilter", "_Windows"):
             _q(o.detach)
     _q(lambda: input_layer.remove_gesture("test_tap"))
+    _q(lambda: input_layer.remove_gesture("test_count"))
     _q(lambda: hou.ui.desktop(STATE["desk0"]).setAsCurrent())
     switch._state["on"] = False
 
@@ -264,8 +329,8 @@ MUTATIONS = [
     ("wrong_desk", "desk_modelui_with_explorer", "switch", [('DESK = "ModelUI"', 'DESK = "Build"')]),
     ("keys_not_applied", "keys_applied", "keys", [("in KEYS:\n        for other", "in KEYS[:0]:\n        for other")]),
     ("saves_overrides", "prefs_untouched", "keys", [("    if failed:\n        raise", "    H.saveOverrides()\n    if failed:\n        raise")]),
-    ("removals_not_reverted", "keys_reverted", "keys", [('(H.removeAssignment if op == "add" else H.addAssignment)',
-                                                         '(H.removeAssignment if op == "add" else (lambda *a: None))')]),
+    ("removals_not_reverted", "keys_reverted", "keys", [('undo = H.removeAssignment if op == "add" else H.addAssignment',
+                                                         'undo = H.removeAssignment if op == "add" else (lambda *a: True)')]),
     ("desk_not_restored", "toggle_off", "switch", [('_set_desk(hou.ui.desktop(_state["prev_desk"] or FALLBACK_DESK) or hou.ui.desktop(FALLBACK_DESK))', 'pass')]),
     ("toggle_only_off", "toggle_on_again", "switch", [('uninstall() if _state["on"] else install()', 'uninstall()')]),
     ("no_rollback", "rollback_off", "switch", [("        _rollback()\n        try:\n            hou.ui.setStatusMessage", "        try:\n            hou.ui.setStatusMessage")]),
@@ -287,6 +352,12 @@ MUTATIONS = [
     ("row_rename_ignored", "row_renames", "explorer", [("            self.model.rename(pid, it.text())", "            pass")]),
     ("row_hide_ignored", "row_hides", "explorer", [("            self.model.set_hidden([pid], hide)", "            pass")]),
     ("row_delete_ignored", "row_deletes", "explorer", [("            self.model.delete(ids)", "            pass")]),
+    ("cpp_every_receiver", "one_call_per_input", "input_layer", [('LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "appfilter", "pf_appfilter.dll")',
+                                                                  'LIB = "F:/cache/modelui/f1/mut/pf_appfilter_nowindow.dll"')]),
+    ("lost_release_kept", "lost_release_cancels", "input_layer", [("                if not ev.buttons() & which:", "                if False:")]),
+    ("explorer_keeps_watching", "no_callbacks_after_uninstall", "explorer", [("        _panel().set_watching(False)", "        pass")]),
+    ("invalid_rename_raises", "invalid_rename_recovers", "explorer", [("                except hou.Error as e:", "                except KeyError as e:")]),
+    ("slow_refresh", "perf_explorer_2000", "explorer", [("for pid in m.pieces()]", "for pid in m.pieces() if pid in m.pieces()]")]),
 ]
 RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
 RESULTS = []
@@ -299,6 +370,8 @@ def driver():
     log("toggle assignments", hou.hotkeys.assignments("h", switch.TOGGLE_SYMBOL))
     for name, check, modname, pairs in RUNS:
         cleanup()
+        # warm runs only: the first baseline measured ~10x slower (Houdini's start-up background work)
+        STATE["perf"] = (name is None and bool(RESULTS)) or (check or "").startswith("perf_")
         restore, out = None, {}
         try:
             if modname:

@@ -23,13 +23,18 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   `pf_appfilter.dll`), `polyfactory/desktop/ModelUI.desk`, `polyfactory/python_panels/pf_modelui_explorer.pypanel`,
   `polyfactory/MainMenuCommon.xml` (polyfactory > modelUI | Houdini), `polyfactory/python3.13libs/uiready.py`
   (toggle hotkey Alt+Ctrl+Shift+X, memory only).
-- Checks (both must exit 0):
-  - `hython tests/modelui/check_scene_model.py`: 14 checks, 14 paired mutations red (2026-11-05).
+- Checks (all must exit 0):
+  - `hython tests/modelui/check_scene_model.py`: 14 checks, 15 paired mutations red.
+  - `hython tests/modelui/check_units.py`: keys record and filter construction, 4 checks, 4 paired mutations red.
   - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
-    polyfactory package, window at x=-12000, aborts if it is not off screen), synthetic Qt events; 26 checks green in
-    the first and last baseline, 25 paired source mutations red, 1 exempt (`toggle_key_registered`: startup only).
-    About 3 minutes. Log `F:/cache/modelui/f1/gui/result.json.log`, console `console.txt`.
-- Next: independent audit (not run yet: everything is "implemented, unverified" until it has).
+    polyfactory package, window at x=-12000, aborts if it is not off screen), synthetic Qt events sent through the
+    window like real input; it also builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 30 checks green
+    (the 2000-object Explorer ceiling only in warm runs), 30 paired source mutations red, 1 exempt
+    (`toggle_key_registered`: startup only). About 5 minutes. Log `F:/cache/modelui/f1/gui/result.json.log`.
+- Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
+  receiver (3-4 calls per press) -> only for window receivers; lost release kept the mouse -> "cancel"; Explorer kept
+  watching after uninstall -> it is a switch feature now; invalid rename raised -> status message; keys record and
+  filter construction made strict; Explorer ceiling at 2000 objects.
 
 ## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
 
@@ -37,6 +42,8 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   `$HFS/custom/houdini/dsolib/Qt6Core.lib`; `appfilter/build.bat` builds `pf_appfilter.dll` (objects in
   `F:/cache/modelui/appfilter_build`; rebuild for every Houdini with another Qt). The per-window Python fallback is
   kept and tested (fed through the top QWindow).
+- Qt runs an application filter once per receiver of an event (window, widget, parents): the C++ filter calls
+  back only for window receivers, where input enters, so every press and key reaches the gestures once.
 - An `_AppFilter` dropped without `detach()` freed its ctypes callback while Qt still called it: Houdini died on the
   next event (seen under a test mutation). `__del__` detaches now.
 - Houdini spells hotkeys its own way: `Ctrl+Alt+Shift+X` is stored as `Alt+Ctrl+Shift+X`; compare in its spelling.
@@ -45,9 +52,15 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   built. ModelUI.desk drops it (explorer at 20 %).
 - Node selection: `setSelected(True)` fires `ChildSwitched` and `ChildSelectionChanged` on `/obj`; a deselect fires only
   `ChildSelectionChanged` (the scene model listens to that one).
+- **Viewer-state keys win in some tools, by design**: inside a tool that binds Q/W/E/R itself (sculpt, KineFX, the RBD
+  car rig, ...) the tool's own keys apply, not modelUI's (they live in a deeper hotkey context; audit round 1).
+- **Explorer cost at 2000 objects** (warm session): build 45 ms, refresh after a rename 42 ms, idle refresh 19 ms,
+  select all 138 ms. In the first minute of a fresh Houdini the same steps took ~10x longer (its start-up background
+  work), so the ceiling check (4x warm values) runs only in warm runs.
 - Preference files: the switch writes no keymap, hotkey or desktop file (checked; `saveOverrides()` would write
-  `Houdini.keymap2.overrides`, the mutation shows it). Houdini itself rewrites `animbar.pref`, `config/Dialogs/*.ui`
-  and its help cache while panes are built; the check logs those and does not judge them.
+  `Houdini.keymap2.overrides`, the mutation shows it). Houdini itself rewrites `animbar.pref` (on quit), `config/Dialogs/*.ui`
+  and its help cache on ANY desk switch (the audit saw it with a Build -> Animate switch without our code): not ours;
+  the check logs those and does not judge them.
 
 ## Decisions (Hannes, 2026-11-05)
 

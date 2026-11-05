@@ -73,7 +73,8 @@ def checks():
 
     s.unwatch(s._watchers[0])
     nodes = [hou.node("/obj")] + list(hou.node("/obj").children())
-    out["unwatch_stops"] = not any(cb[1] == s._event for n in nodes for cb in n.eventCallbacks())
+    out["unwatch_stops"] = (not any(cb[1] == s._event for n in nodes for cb in n.eventCallbacks())
+                            and not any(cb == s._hip_event for cb in hou.hipFile.eventCallbacks()))
     return out
 
 
@@ -110,7 +111,15 @@ MUTATIONS = {
     "delete_noop": ("delete", lambda: _patch(scene.ObjectScene, "delete", lambda self, pids: None)),
     "unwatch_keeps_callbacks": ("unwatch_stops", lambda: _patch(scene.ObjectScene, "_arm",
                                 _arm_only_on)),
+    "unwatch_keeps_hip_callback": ("unwatch_stops", lambda: _patch(scene.ObjectScene, "unwatch", _unwatch_keep_hip)),
 }
+
+
+def _unwatch_keep_hip(self, fn):
+    if fn in self._watchers:
+        self._watchers.remove(fn)
+        if not self._watchers:
+            self._arm(False)
 
 
 def _no_undo(fn):

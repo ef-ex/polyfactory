@@ -23,6 +23,23 @@ EXEMPT = {"toggle_key_registered": "registered by uiready.py at startup; a mutat
 
 def main():
     shutil.rmtree(SCR, ignore_errors=True)
+    # the C++ mutation: the filter without its window-receiver test, built beside the scratch folder
+    mut = os.path.normpath("F:/cache/modelui/f1/mut")
+    os.makedirs(mut, exist_ok=True)
+    afdir = os.path.join(REPO, "polyfactory", "scripts", "python", "polyfactory", "modelui", "appfilter")
+    with open(os.path.join(afdir, "appfilter.cpp")) as f:
+        src = f.read()
+    snip = "        if (!receiver->isWindowType())\n            return false;\n"
+    if src.count(snip) != 1:
+        print("C++ mutation snippet not found once")
+        return 1
+    with open(os.path.join(mut, "appfilter_nowindow.cpp"), "w") as f:
+        f.write(src.replace(snip, ""))
+    r = subprocess.run(["cmd", "/c", os.path.join(afdir, "build.bat"), os.path.join(mut, "appfilter_nowindow.cpp"),
+                        os.path.join(mut, "pf_appfilter_nowindow.dll")], capture_output=True, text=True)
+    if r.returncode:
+        print("mutated DLL build failed:", r.stdout[-2000:], r.stderr[-2000:])
+        return 1
     prefs = SCR + "/prefs/houdini__HVER__"
     pv = prefs.replace("__HVER__", "22.0")
     os.makedirs(pv + "/packages")
