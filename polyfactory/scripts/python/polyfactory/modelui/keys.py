@@ -10,9 +10,12 @@ import logging
 LOG = logging.getLogger(__name__)
 
 STATE = "h.pane.gview.state"   # every viewer state
-# (context, action symbol, key): 3ds Max transform keys.
+# (context, action symbol, key): 3ds Max transform keys; a symbol starting with "-" removes that binding instead.
 KEYS = [
     (STATE, STATE + ".new_select", "Q"),
+    # a "-" row unbinds: Houdini's own Q (repeat current tool) in the parent context wins over ours in "pose" once the
+    # scene has objects, on any desk and for any select action (probe: tests/modelui/keys_probe.py)
+    ("h.pane.gview", "-h.pane.gview.repeat_current", "Q"),
     (STATE, STATE + ".new_move", "W"),
     (STATE, STATE + ".new_rotate", "E"),
     (STATE, STATE + ".new_scale", "R"),
@@ -37,6 +40,10 @@ def apply(H=None):
         if changes:
             raise RuntimeError("modelUI keys: %d earlier change(s) could not be reverted" % len(changes))
     for ctx, sym, key in KEYS:
+        if sym.startswith("-"):
+            if key in H.assignments(ctx, sym[1:]) and H.removeAssignment(ctx, sym[1:], key):
+                changes.append(("remove", ctx, sym[1:], key))
+            continue
         for other in H.findConflicts(ctx, sym, key):
             octx, _, osym = other.partition("?")
             if octx == ctx and osym != sym and key in H.assignments(ctx, osym) and H.removeAssignment(ctx, osym, key):
