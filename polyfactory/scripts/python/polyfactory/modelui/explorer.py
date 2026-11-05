@@ -78,7 +78,10 @@ class Explorer(QtWidgets.QWidget):
 
     def _rows_selected(self):
         if not self._syncing:
-            self.model.select(self.selected_ids())
+            try:
+                self.model.select(self.selected_ids())
+            except KeyError:   # a row of a piece deleted a moment ago (its refresh is queued): show the scene now
+                self.refresh()
 
     def _row_changed(self, it):
         if self._syncing:
@@ -94,6 +97,8 @@ class Explorer(QtWidgets.QWidget):
             hide = it.checkState() != Qt.Checked
             if hide != self.model.hidden(pid):
                 self.model.set_hidden([pid], hide)
+        except KeyError:   # the piece was deleted a moment ago
+            pass
         finally:
             self._timer.start()   # show the name and state Houdini actually has
 
