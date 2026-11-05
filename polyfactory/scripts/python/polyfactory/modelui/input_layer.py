@@ -13,7 +13,7 @@ Hook API for features:
     remove_gesture(name)
     later(fn)                 run fn after the current event (do scene work there, not inside the event)
 
-A gesture is offered "press" (mouse button or double-click) when the widget under the point belongs to a Scene Viewer
+A gesture is offered "press" (mouse button) when the widget under the point belongs to a Scene Viewer
 (docked or floating) and the window receiving the event is that widget's window, and "key" (key press, not
 auto-repeat) when the receiving window's focus widget belongs to a Scene Viewer and is not a text input.
 - True: the gesture owns that button or key: this event and every following one of it ("move", "release" / "key"
@@ -22,7 +22,9 @@ auto-repeat) when the receiving window's focus widget belongs to a Scene Viewer 
   (and the press) still reach Houdini. Shift+drag clone is this: the handle moves, the gesture copies once a real drag
   starts and acts on release.
 - False: the event goes on to the next gesture, then to Houdini.
-Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
+Mouse and keyboard have one owner each, so a held key and a drag run side by side; while a key is owned,
+its gesture is told about every other key press and click first ("other", viewer None; True swallows it, and a second
+key is never offered to the other gestures). Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
 release never arrives: a move with the owned button up, the application or the focus window going away. Keys are
 paired by native scan code (Shift+2 pressed, "@" released is one key). The demo gesture (``DEMO``): Ctrl+Shift+LMB drag
 over a viewer is swallowed and reports its length.
@@ -107,14 +109,22 @@ def _key_id(ev):
     return ev.nativeScanCode() or ev.key()   # synthetic events have no scan code
 
 
+SLOT = {"press": "mouse", "key": "key"}   # one owner per device: a held key and a mouse drag run side by side
+
+
 class _Layer:
     def __init__(self):
-        self.owner = None     # [fn, (kind, which), swallow]
+        self.owners = {"mouse": None, "key": None}   # slot -> [fn, button or key id, swallow]
         self.backend = None   # "cpp" or "windows"
         self.attached = None
         app = QtGui.QGuiApplication.instance()
         app.focusWindowChanged.connect(self._focus_changed)
         app.applicationStateChanged.connect(self._state_changed)
+
+    @property
+    def owner(self):
+        """Any current owner (None when nothing is owned)."""
+        return self.owners["mouse"] or self.owners["key"]
 
     def shutdown(self):
         app = QtGui.QGuiApplication.instance()
@@ -136,78 +146,91 @@ class _Layer:
             self.cancel()
 
     def cancel(self, ev=None):
-        """The owner loses its button or key (its release will not come)."""
-        if self.owner is not None:
-            fn = self.owner[0]
-            self.owner = None
-            self._call(fn, "cancel", ev, None)
+        """Every owner loses its button or key (its release will not come)."""
+        for slot in ("mouse", "key"):
+            o = self.owners[slot]
+            if o is not None:
+                self.owners[slot] = None
+                self._call(o[0], "cancel", ev, None)
 
     def handle(self, ev, receiver):
         """True swallows ``ev``. ``receiver``: pointer of the QWindow receiving it."""
         t = ev.type()
-        if self.owner is not None:
-            return self._follow(ev, t)
-        if t in (QE.MouseButtonPress, QE.MouseButtonDblClick):
-            kind, token = "press", ("mouse", ev.button())
-            if not _gestures:
-                return False
-            top = receiving_top(receiver)   # widgetAt() would need a screen under the point
-            w = top and (top.childAt(top.mapFromGlobal(ev.globalPosition().toPoint())) or top)
-            viewer = viewer_of(w)
-        elif t == QE.KeyPress and not ev.isAutoRepeat():
-            kind, token = "key", ("key", _key_id(ev))
-            if not _gestures:
-                return False
-            top = receiving_top(receiver)
-            focus = top and top.focusWidget()
-            viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)
+        if t in (QE.MouseMove, QE.MouseButtonRelease, QE.MouseButtonDblClick):
+            o = self.owners["mouse"]
+            return o is not None and self._follow_mouse(o, ev, t)
+        if t == QE.KeyRelease or (t == QE.KeyPress and ev.isAutoRepeat()):
+            o = self.owners["key"]
+            return o is not None and _key_id(ev) == o[1] and self._follow_key(o, ev, t)
+        if t == QE.MouseButtonPress:
+            if self.owners["mouse"] is not None:
+                return False   # another button during an owned drag: Houdini's
+            kind, which = "press", ev.button()
+        elif t == QE.KeyPress:
+            kind, which = "key", _key_id(ev)
         else:
             return False
+        held = self.owners["key"]
+        if held is not None and self._call(held[0], "other", ev, None) is True:
+            return True   # the gesture holding a key took this key or click
+        slot = SLOT[kind]
+        if not _gestures or self.owners[slot] is not None:
+            return False   # a second key while one is held is only the holder's "other"
+        top = receiving_top(receiver)   # widgetAt() would need a screen under the point
+        if kind == "press":
+            w = top and (top.childAt(top.mapFromGlobal(ev.globalPosition().toPoint())) or top)
+            viewer = viewer_of(w)
+        else:
+            focus = top and top.focusWidget()
+            viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)
         if viewer is None:
             return False
         for fn in list(_gestures.values()):
-            owner = [fn, token, True]
-            self.owner = owner          # before the call: a nested event loop inside fn must see it
+            owner = [fn, which, True]
+            self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it
             res = self._call(fn, kind, ev, viewer)
             if res is True or res == OBSERVE:
                 if res == OBSERVE:
                     owner[2] = False
                 return res is True
-            if self.owner is owner:
-                self.owner = None
+            if self.owners[slot] is owner:
+                self.owners[slot] = None
         return False
 
-    def _follow(self, ev, t):
-        owner = self.owner
-        fn, (kind, which), swallow = owner
-        if kind == "mouse" and t == QE.MouseMove:
+    def _follow_mouse(self, o, ev, t):
+        fn, which, swallow = o
+        if t == QE.MouseMove:
             if not ev.buttons() & which:   # the release was lost (another window, a dialog): give the mouse back
-                self.cancel(ev)
+                self.owners["mouse"] = None
+                self._call(fn, "cancel", ev, None)
                 return False
             self._call(fn, "move", ev, None)
             return swallow
-        if kind == "mouse" and t == QE.MouseButtonDblClick and ev.button() == which:
-            return swallow   # Qt sends it after the second press of a double-click: part of the owned press
-        if kind == "mouse" and t == QE.MouseButtonRelease and ev.button() == which:
-            self.owner = None
+        if t == QE.MouseButtonDblClick:
+            return ev.button() == which and swallow   # Qt sends it after the second press of a double-click
+        if ev.button() == which:   # release
+            self.owners["mouse"] = None
             self._call(fn, "release", ev, None)
             return swallow
-        if kind == "key" and t in (QE.KeyPress, QE.KeyRelease) and _key_id(ev) == which:
-            if t == QE.KeyRelease and not ev.isAutoRepeat():
-                self.owner = None
-                self._call(fn, "keyup", ev, None)
-                return swallow
-            self._call(fn, "key", ev, None)
-            return swallow
         return False
+
+    def _follow_key(self, o, ev, t):
+        fn, which, swallow = o
+        if t == QE.KeyRelease and not ev.isAutoRepeat():
+            self.owners["key"] = None
+            self._call(fn, "keyup", ev, None)
+        else:
+            self._call(fn, "key", ev, None)
+        return swallow
 
     def _call(self, fn, kind, ev, viewer):
         try:
             return fn(kind, ev, viewer)
         except Exception:  # noqa: BLE001 - a broken gesture must never break Houdini input
             LOG.error("modelUI gesture failed\n%s", traceback.format_exc())
-            if self.owner is not None and self.owner[0] is fn:
-                self.owner = None
+            for slot, o in self.owners.items():
+                if o is not None and o[0] is fn:
+                    self.owners[slot] = None
             return False
 
 
