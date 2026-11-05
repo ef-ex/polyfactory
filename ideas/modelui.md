@@ -1,6 +1,6 @@
 # modelUI: comfortable direct modeling with Houdini as the engine
 
-**Status:** decisions and feature list only (2026-11-05, with Hannes). Nothing is built yet. Branch `modelui`.
+**Status:** F1 framework core (mode switch, input layer, scene model, Scene Explorer) implemented, audit pending (2026-11-05). Branch `modelui`.
 **This file owns:** the modelUI framework and its modeling mode: goal, decisions, the mapping to Houdini, the
 feature list, and the references. Not to be confused with `pf_modeler` ([`modeler.md`](modeler.md), the
 ZSphere-style skinning tool). Kitbash browsing builds on the asset library plan in
@@ -15,6 +15,39 @@ It is the base of his spaceship modeling tool (front/side/top/perspective views,
 copy/transform, clean game mesh).
 
 Why it matters: every time he reaches the modeling part he gets annoyed by the node workflow and does something else.
+
+## Resume pointer (F1 framework core)
+
+- Branch `modelui`; verify against `git log`. F1 code: `polyfactory/scripts/python/polyfactory/modelui/` (`switch.py`,
+  `keys.py`, `input_layer.py`, `scene.py`, `explorer.py`, `appfilter/` with `appfilter.cpp`, `build.bat`,
+  `pf_appfilter.dll`), `polyfactory/desktop/ModelUI.desk`, `polyfactory/python_panels/pf_modelui_explorer.pypanel`,
+  `polyfactory/MainMenuCommon.xml` (polyfactory > modelUI | Houdini), `polyfactory/python3.13libs/uiready.py`
+  (toggle hotkey Alt+Ctrl+Shift+X, memory only).
+- Checks (both must exit 0):
+  - `hython tests/modelui/check_scene_model.py`: 14 checks, 14 paired mutations red (2026-11-05).
+  - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
+    polyfactory package, window at x=-12000, aborts if it is not off screen), synthetic Qt events; 26 checks green in
+    the first and last baseline, 25 paired source mutations red, 1 exempt (`toggle_key_registered`: startup only).
+    About 3 minutes. Log `F:/cache/modelui/f1/gui/result.json.log`, console `console.txt`.
+- Next: independent audit (not run yet: everything is "implemented, unverified" until it has).
+
+## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
+
+- **The C++ application filter works on Windows.** VS 2022 Build Tools (MSVC 14.44) + `$HFS/toolkit/include` +
+  `$HFS/custom/houdini/dsolib/Qt6Core.lib`; `appfilteruild.bat` builds `pf_appfilter.dll` (objects in
+  `F:\cache\modeluippfilter_build`; rebuild for every Houdini with another Qt). The per-window Python fallback is
+  kept and tested (fed through the top QWindow).
+- An `_AppFilter` dropped without `detach()` freed its ctypes callback while Qt still called it: Houdini died on the
+  next event (seen under a test mutation). `__del__` detaches now.
+- Houdini spells hotkeys its own way: `Ctrl+Alt+Shift+X` is stored as `Alt+Ctrl+Shift+X`; compare in its spelling.
+- `hutil.Qt` exposes no `QShortcut`; it comes from `PySide6.QtGui`.
+- The `L` flag on a desk split (`split 0.118 H L` in Build.desk) collapses that pane: a Python panel there is never
+  built. ModelUI.desk drops it (explorer at 20 %).
+- Node selection: `setSelected(True)` fires `ChildSwitched` and `ChildSelectionChanged` on `/obj`; a deselect fires only
+  `ChildSelectionChanged` (the scene model listens to that one).
+- Preference files: the switch writes no keymap, hotkey or desktop file (checked; `saveOverrides()` would write
+  `Houdini.keymap2.overrides`, the mutation shows it). Houdini itself rewrites `animbar.pref`, `config/Dialogs/*.ui`
+  and its help cache while panes are built; the check logs those and does not judge them.
 
 ## Decisions (Hannes, 2026-11-05)
 
@@ -38,6 +71,9 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 - The whole tool is UI and parameter marshalling (panels, input gestures, node creation, selection). Geometry work
   stays in native SOP nodes, which is the point of the tool. Any geometry code that shows up later follows rule 2.
+- Input layer (F1): Python handles the gestures; the application-level filter itself is C++ (`appfilter.cpp`), because
+  a Python QApplication filter makes PySide wrap every receiving QObject and crashed Houdini in the Maya surface project.
+  The scene model and the Scene Explorer are Python: node selection, names and flags are HOM calls, no geometry.
 
 ## Framework (layers shared by every mode)
 
