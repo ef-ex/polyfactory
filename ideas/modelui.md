@@ -27,14 +27,22 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   - `hython tests/modelui/check_scene_model.py`: 14 checks, 15 paired mutations red.
   - `hython tests/modelui/check_units.py`: keys record and filter construction, 4 checks, 4 paired mutations red.
   - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
-    polyfactory package, window at x=-12000, aborts if it is not off screen), synthetic Qt events sent through the
-    window like real input; it also builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 30 checks green
-    (the 2000-object Explorer ceiling only in warm runs), 30 paired source mutations red, 1 exempt
-    (`toggle_key_registered`: startup only). About 5 minutes. Log `F:/cache/modelui/f1/gui/result.json.log`.
+    polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
+    otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
+    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 44 checks green
+    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 44 paired source mutations
+    red, 1 exempt (`toggle_key_registered`: startup only). About 6 minutes; `PF_F1_QUICK=1` runs one baseline only
+    (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
   receiver (3-4 calls per press) -> only for window receivers; lost release kept the mouse -> "cancel"; Explorer kept
   watching after uninstall -> it is a switch feature now; invalid rename raised -> status message; keys record and
   filter construction made strict; Explorer ceiling at 2000 objects.
+- Audit round 2 (2026-11-05): 7 findings + check upgrades, fixed (round 3 pending): gestures are offered only for
+  the window that receives the event and the widget under the point inside it (keys: its focus widget, never a text
+  input); owned keys pair by scan code and end with "cancel" on application/window deactivation; observe mode
+  (`OBSERVE`) and `later()` for Shift+drag clone; double-click covered; floating viewers (`hou.ui.paneTabs()`);
+  ownership set before the gesture is called; Explorer survives a click on a just-deleted row; Explorer refresh
+  rebuilds nothing when nothing changed.
 
 ## F1 findings (2026-11-05, Houdini 22.0.442, Windows)
 
@@ -44,6 +52,17 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   kept and tested (fed through the top QWindow).
 - Qt runs an application filter once per receiver of an event (window, widget, parents): the C++ filter calls
   back only for window receivers, where input enters, so every press and key reaches the gestures once.
+- `QApplication.widgetAt()` and `topLevelAt()` return None where no screen is (an off-screen test window, a point
+  between monitors): the layer finds the top-level widget whose QWindow receives the event and asks `childAt()`.
+- Shift+LMB over the viewer (and Alt+LMB, a tumble) pass our window filter but the viewer widget's own filters never
+  see them: Houdini takes them earlier (assumed: its application filter at the widget). Observing gestures are
+  therefore checked at the window. Unverified: that a Shift+drag on a transform handle moves the handle while a
+  gesture observes it (needs a handle and a real state; F2 clone).
+- `hou.ui.paneTabs()` includes floating panels; `curDesktop().paneTabs()` does not. Floating panes ignore the
+  position they are created with (one landed at (0, 1410)): tests move every visible window off screen.
+- The 18:56 crash (`crash.untitled.hannes_36228`, pf_appfilter.dll calling a freed callback) was a mutation run
+  (`uninstall_keeps_filter`) on the build before the `__del__` fix: that mutation dropped the filter object without
+  detaching it. The 19:47 `crash.broadside` file is from 2026-11-04, in the NVIDIA driver, not ours.
 - An `_AppFilter` dropped without `detach()` freed its ctypes callback while Qt still called it: Houdini died on the
   next event (seen under a test mutation). `__del__` detaches now.
 - Houdini spells hotkeys its own way: `Ctrl+Alt+Shift+X` is stored as `Alt+Ctrl+Shift+X`; compare in its spelling.

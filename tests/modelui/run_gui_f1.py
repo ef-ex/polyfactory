@@ -56,7 +56,7 @@ def main():
     p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, "gui_f1.py")], env=env, stdout=console,
                          stderr=subprocess.STDOUT)
     try:
-        p.wait(timeout=540)
+        p.wait(timeout=585)
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)])
         print("TIMEOUT: killed the test Houdini (pid %d); log: %s" % (p.pid, SCR + "/result.json.log"))
