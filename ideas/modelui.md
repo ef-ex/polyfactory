@@ -18,8 +18,21 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- Branch `modelui`. F2a implemented 2026-11-06, independent audit pending (then F2b Clone dialog, F2c stack panel,
-  F2d Align, F2e copy/paste between hips). Verify against `git log` first.
+- Branch `modelui`. F2a audit 1 (2026-11-06): NOT done; fixing. Committed: containers items 2/4/5/6/8 (`c79f8d8`,
+  check_containers 25 checks / 26 mutations red). UNCOMMITTED, in progress: `pieces_ui.py` redesign = one proxy null
+  per binding (bind() destroys the old null and creates a new one outside the undo history, so an undo of an old drag
+  can never write into the newly bound piece; the live null writes every change, so typed values work; the null is
+  removed before a save and all marked nulls on install/uninstall/load; containers selectable again on uninstall),
+  stale-callback filter compares nodes with != (a new hou.Node wrapper per callback: "is" never matched), the proxy
+  ray fallback in pick() removed; `gui_f2a.py` with new checks (no handle null until bound, container click taken at
+  the window, undo after rebind reads the live null, redo, typed t/r/s, saved hip without the null, uninstall with a
+  live null). Last full run: baseline0 all 22 green; baseline1 RED `shift_drag_copies` (the handle did not grab on the
+  Shift press; the copy gesture saw press, 6 moves, release) and `uninstall_clean` (a marked null left): session
+  state after the typed-values section (3 undos) or the save/load section. Mutations still green: save_keeps_null
+  (the load cleanup or uninstall order hides it: read the saved file another way), original_follows, copy_after_drag
+  (both in the run where the Shift drag failed). Next: log selected nodes + proxy path at the Shift press and before
+  uninstall in every run, fix, run the full suite twice, commit. Then audit items 9a (drag a piece's body like Max)
+  and 9b (multi-selection), still in F2a.
 - Code: `modelui/containers.py` (storage, promote), `scene.MixedScene` (`scene.current()`), `modelui/pieces_ui.py`
   (in `switch.FEATURES`: click pick, Houdini's handle on a proxy null, Shift+drag Copy, highlight).
 - Checks (all exit 0):
