@@ -20,7 +20,7 @@ Qt = QtCore.Qt
 PROXY_MARK = "pf_modelui_proxy"
 CLICK_PX = 3
 COPY_PX = 4
-_state = {"proxy": None, "bound": None, "writing": False, "drawable": None, "click": None, "clone": None}
+_state = {"on": False, "proxy": None, "bound": None, "writing": False, "drawable": None, "click": None, "drag": None}
 
 
 # --- pieces and objects alike --------------------------------------------------------------------------------------
@@ -86,6 +86,7 @@ def _ray_piece(vp, c, x, y):
     pos, nrm, uvw = hou.Vector3(), hou.Vector3(), hou.Vector3()
     prim = geo.intersect(o2, d2.normalized(), pos, nrm, uvw)
     _state["last_ray"] = (tuple(o2), tuple(d2.normalized()), prim)   # for diagnosis and checks
+    _state["last_hit"] = tuple(pos)   # in the container's space
     return ("piece", c.sessionId(), geo.prim(prim).attribValue("pf_piece")) if prim >= 0 else None
 
 
@@ -98,13 +99,8 @@ def pick(vp, x, y):
         hit = _ray_piece(vp, n, x, y)
     elif n is not None and n.type().name() == "geo":
         hit = n.sessionId()
-    elif n is not None and n.userData(PROXY_MARK) == "1":   # the handle's own object: the piece behind it
-        for c in containers.containers():
-            hit = _ray_piece(vp, c, x, y) if c.isDisplayFlagSet() else None
-            if hit is not None:
-                break
-        else:
-            hit = _state["bound"]
+    elif n is not None and n.userData(PROXY_MARK) == "1":   # the handle's own object: its piece stays picked
+        hit = _state["bound"]
     scene.current().select([hit] if hit is not None else [])
     return hit
 
@@ -154,41 +150,62 @@ def _click_gesture(kind, ev, viewer):
 
 def _pick_at(sv, g):
     """Pick at global point ``g`` in viewer ``sv``."""
+    if not _state["on"]:   # a deferred pick that outlived uninstall
+        return
     vp, x, y, _ = _under(sv, g)
     if vp is not None:
         pick(vp, x, y)
 
 
 # --- the proxy: Houdini's handle on a piece --------------------------------------------------------------------------
+# One proxy null per binding: binding another piece destroys the old proxy (outside the undo history) and makes a new
+# one. Houdini's undo entries for an old drag then point at a node that is gone, so undoing them restores only that
+# piece's own stash entry and can never write into the newly bound piece; the live proxy writes every change (handle
+# drags and typed values alike). The null is never saved (removed before a save) and never left behind (install and
+# uninstall delete every marked null).
+_EVENTS = (hou.nodeEventType.ParmTupleChanged,)
+
+
 def proxy():
+    """The live proxy null of the bound piece, or None."""
     p = _state["proxy"]
-    if p is not None:
+    try:
+        return p if p is not None and p.path() else None
+    except hou.ObjectWasDeleted:
+        _state["proxy"] = None
+        return None
+
+
+def _delete_marked():
+    with hou.undos.disabler():
+        for n in list(hou.node("/obj").children()):
+            if n.userData(PROXY_MARK) == "1":
+                n.destroy()
+    _state["proxy"] = None
+
+
+def _new_proxy(m):
+    with hou.undos.disabler():
+        n = hou.node("/obj").createNode("null", "modelui_handle")
+        n.setUserData(PROXY_MARK, "1")
+        if n.parm("controltype") is not None:
+            n.parm("controltype").set(0)   # draws nothing itself: Houdini's handle and our box show the piece
+        _state["writing"] = True
         try:
-            p.path()
-            return p
-        except hou.ObjectWasDeleted:
-            pass
-    for n in hou.node("/obj").children():
-        if n.userData(PROXY_MARK) == "1":
-            _state["proxy"] = n
-            break
-    else:
-        with hou.undos.disabler():
-            n = hou.node("/obj").createNode("null", "modelui_handle")
-            n.setUserData(PROXY_MARK, "1")
-            if n.parm("controltype") is not None:
-                n.parm("controltype").set(0)   # draws nothing itself: Houdini's handle and our box show the piece
-            n.addEventCallback((hou.nodeEventType.ParmTupleChanged,), _proxy_moved)
-        _state["proxy"] = n
-    return _state["proxy"]
+            n.setWorldTransform(m)
+        finally:
+            _state["writing"] = False
+        n.addEventCallback(_EVENTS, _proxy_moved)
+        n.setSelected(True, clear_all_selected=True)
+    return n
 
 
 def _proxy_moved(**kw):
-    pid = _state["bound"]
-    if pid is None or _state["writing"]:
+    if not _state["on"]:
         return
-    if QtWidgets.QApplication.mouseButtons() == Qt.NoButton:
-        return   # not the handle: an undo/redo put the proxy back (the piece has its own undo entry), never write it
+    pid = _state["bound"]
+    if pid is None or _state["writing"] or kw.get("node") != _state["proxy"]:   # a new wrapper each call: compare, never "is"
+        return
     _state["writes"] = _state.get("writes", 0) + 1
     try:
         set_xform(pid, kw["node"].worldTransform())
@@ -198,23 +215,36 @@ def _proxy_moved(**kw):
 
 
 def bind(pid):
-    """Bind the proxy (and so Houdini's handle) to piece ``pid``, or unbind with None."""
+    """Bind Houdini's handle to piece ``pid`` (a new proxy), or unbind with None."""
+    old = proxy()
     _state["bound"] = pid
-    p = proxy()
-    if pid is not None:
-        _state["writing"] = True
-        try:
-            with hou.undos.disabler():   # placing the proxy is not an edit
-                p.setWorldTransform(get_xform(pid))
-                p.setDisplayFlag(True)   # Houdini's handle needs a displayed object
-                p.setSelected(True, clear_all_selected=True)
-        finally:
-            _state["writing"] = False
-    else:
+    _state["proxy"] = None
+    if old is not None:
         with hou.undos.disabler():
-            p.setSelected(False)
-            p.setDisplayFlag(False)   # hidden while unbound: queryNodeAtPixel must reach the pieces
+            old.destroy()
+    if pid is not None:
+        _state["proxy"] = _new_proxy(get_xform(pid))
     _draw()
+
+
+def _hip_event(event_type):
+    if event_type == hou.hipFileEventType.BeforeSave:
+        _state["saved_bound"] = _state["bound"]
+        bind(None)   # the null never goes into a hip
+    elif event_type == hou.hipFileEventType.AfterSave:
+        if _state.pop("saved_bound", None) is not None:
+            input_layer.later(_follow_selection)
+    elif event_type in (hou.hipFileEventType.BeforeLoad, hou.hipFileEventType.BeforeClear):
+        _state.update(bound=None, proxy=None, click=None, drag=None)
+    elif event_type in (hou.hipFileEventType.AfterLoad, hou.hipFileEventType.AfterClear):
+        _delete_marked()   # a hip saved by an older version may carry one
+        _set_containers_selectable(False)
+
+
+def _set_containers_selectable(on):
+    with hou.undos.disabler():
+        for c in containers.containers():
+            c.setSelectableInViewport(on)
 
 
 def _draw():
@@ -243,6 +273,8 @@ def _scene_changed():
 
 
 def _follow_selection():
+    if not _state["on"]:   # a deferred follow that outlived uninstall must not create a handle null
+        return
     try:
         pieces = [p for p in scene.current().selected() if isinstance(p, tuple)]
     except hou.Error:
@@ -252,7 +284,7 @@ def _follow_selection():
         bind(want)
         return
     p = proxy()
-    if want is not None:   # after an undo or an edit elsewhere: the proxy sits on its piece again
+    if want is not None and p is not None:   # after an undo or an edit elsewhere: the proxy sits on its piece again
         m = get_xform(want)
         if any(abs(a - b) > 1e-5 for a, b in zip(m.asTuple(), p.worldTransform().asTuple())):
             _state["writing"] = True
@@ -264,75 +296,132 @@ def _follow_selection():
     _draw()
 
 
-# --- Shift+drag on the handle = Copy ---------------------------------------------------------------------------------
-def _copy_gesture(kind, ev, viewer):
+# --- dragging a piece like Max: its body (move tool), or Shift on the piece or its handle = Copy -------------------------
+# Ours, not Houdini's handle: on a plane through the grabbed point, facing the view. The preview runs outside the undo
+# history; the release puts the start state back and commits copy + move as ONE undo step. (Houdini's handle with
+# Shift was not reliable over a long session; plain drags on the handle stay Houdini's, with its axis constraints.)
+MOVE_STATES = ("pose",)
+
+
+def _plane_point(vp, x, y, origin, normal):
+    d, o = vp.mapToWorld(x, y)
+    d, o = hou.Vector3(d), hou.Vector3(o)
+    den = d.dot(normal)
+    if abs(den) < 1e-9:
+        return None
+    return o + d * ((origin - o).dot(normal) / den)
+
+
+def _drag_gesture(kind, ev, viewer):
     if kind == "press":
-        mods = ev.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier)
-        if viewer is None or _state["bound"] is None or ev.button() != Qt.LeftButton or mods != Qt.ShiftModifier:
+        mods = ev.modifiers() & ~Qt.KeypadModifier
+        if ev.button() != Qt.LeftButton or viewer is None or mods not in (Qt.NoModifier, Qt.ShiftModifier):
             return False
-        pid = _state["bound"]
-        _state["clone"] = {"orig": pid, "xform": get_xform(pid), "start": ev.globalPosition(), "done": False}
-        return input_layer.OBSERVE
-    st = _state["clone"]
+        g = ev.globalPosition().toPoint()
+        vp, x, y, n = _under(viewer, g)
+        if vp is None or n is None:
+            return False
+        shift = mods == Qt.ShiftModifier
+        if n.userData(PROXY_MARK) == "1" and shift and _state["bound"] is not None:
+            pid, grab = _state["bound"], get_xform(_state["bound"]).extractTranslates()   # Shift on the handle
+        elif containers.is_container(n) and (shift or viewer.currentState() in MOVE_STATES):
+            pid = _ray_piece(vp, n, x, y)
+            if pid is None:
+                return False
+            grab = hou.Vector3(_state["last_hit"]) * n.worldTransform()
+        else:
+            return False
+        normal = hou.Vector3(vp.mapToWorld(x, y)[0]).normalized()
+        _state["drag"] = {"vp": vp, "viewer": viewer, "pid": pid, "start": get_xform(pid), "grab": grab,
+                          "normal": normal, "p0": g, "shift": shift, "moving": None, "copy": None}
+        return True   # ours: Houdini never sees this drag
+    st = _state["drag"]
     if st is None:
         return False
-    if kind == "move" and not st["done"]:
-        d = ev.globalPosition() - st["start"]
-        if abs(d.x()) + abs(d.y()) > COPY_PX:
-            st["done"] = True
-            input_layer.later(_make_copy)
-    elif kind in ("release", "cancel"):
-        _state["clone"] = None
-    return False
+    if kind == "move":
+        g = ev.globalPosition().toPoint()
+        d = g - st["p0"]
+        if st["moving"] is None:
+            if abs(d.x()) + abs(d.y()) <= COPY_PX:
+                return True
+            with hou.undos.disabler():   # preview only: the release commits one undo step
+                st["moving"] = copy_of(st["pid"]) if st["shift"] else st["pid"]
+            st["copy"] = st["moving"] if st["shift"] else None
+        vp, x, y, _ = _under(st["viewer"], g)
+        if vp is None:
+            return True
+        p = _plane_point(vp, x, y, st["grab"], st["normal"])
+        if p is not None:
+            with hou.undos.disabler():
+                set_xform(st["moving"], st["start"] * hou.hmath.buildTranslate(p - st["grab"]))
+        return True
+    if kind in ("release", "cancel"):
+        _state["drag"] = None
+        if st["moving"] is None:
+            if kind == "release":   # a click: pick what was under it
+                input_layer.later(lambda: _pick_at(st["viewer"], st["p0"]))
+            return True
+        final = get_xform(st["moving"])
+        input_layer.later(lambda: _commit_drag(st, final, kind == "release"))
+        return True
+    return True
 
 
-def _make_copy():
-    st = _state["clone"]
-    if st is None or _state["bound"] != st["orig"]:
+def _commit_drag(st, final, keep):
+    """Undo the preview, then (on a release) copy + move as one undo step; the copy or the moved piece is selected."""
+    if not _state["on"]:
         return
-    moved = get_xform(st["orig"])
-    if all(abs(a - b) < 1e-9 for a, b in zip(moved.asTuple(), st["xform"].asTuple())):
-        # the handle has not moved the piece (yet): Houdini starts the handle drag a few events after the press.
-        # Look again while the Shift drag lasts; a Shift+drag beside the handle never moves it: no copy.
-        QtCore.QTimer.singleShot(30, _make_copy)
+    with hou.undos.disabler():
+        if st["copy"] is not None:
+            scene.current().delete([st["copy"]])
+        else:
+            set_xform(st["pid"], st["start"])
+    if not keep:
         return
-    new = copy_of(st["orig"])   # runs inside the drag: copy + restore + the rest of the move are one undo step
-    set_xform(st["orig"], st["xform"])
-    _state["bound"] = new
-    scene.current().select([new])
+    with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):
+        target = copy_of(st["pid"]) if st["shift"] else st["pid"]
+        set_xform(target, final)
+    scene.current().select([target])
 
 
 # --- switch feature hooks --------------------------------------------------------------------------------------------
 def install():
     """Idempotent: a second install replaces the first (one watcher, one drawable)."""
     scene.current().unwatch(_scene_changed)
+    try:
+        hou.hipFile.removeEventCallback(_hip_event)
+    except hou.OperationFailed:
+        pass
     if _state["drawable"] is not None:
         _state["drawable"].enable(False)
         _state["drawable"] = None
-    proxy()
+    _delete_marked()
+    _set_containers_selectable(False)
     sv = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.SceneViewer)
     if sv is not None:
         _state["drawable"] = hou.SimpleDrawable(sv, hou.Geometry(), "pf_modelui_selection")
         _state["drawable"].setWireframeColor(hou.Color(1.0, 0.8, 0.1))
         _state["drawable"].enable(True)
-    input_layer.add_gesture("modelui_copy_drag", _copy_gesture)
+    input_layer.add_gesture("modelui_drag", _drag_gesture)
     input_layer.add_gesture("modelui_click_pick", _click_gesture)
     scene.current().watch(_scene_changed)
+    hou.hipFile.addEventCallback(_hip_event)
+    _state["on"] = True
 
 
 def uninstall():
+    _state["on"] = False
     scene.current().unwatch(_scene_changed)
+    try:
+        hou.hipFile.removeEventCallback(_hip_event)
+    except hou.OperationFailed:
+        pass
     input_layer.remove_gesture("modelui_click_pick")
-    input_layer.remove_gesture("modelui_copy_drag")
+    input_layer.remove_gesture("modelui_drag")
     if _state["drawable"] is not None:
         _state["drawable"].show(False)
         _state["drawable"].enable(False)
         _state["drawable"] = None
-    p = _state["proxy"]
-    _state.update(proxy=None, bound=None, click=None, clone=None)
-    if p is not None:
-        try:
-            with hou.undos.disabler():
-                p.destroy()
-        except hou.ObjectWasDeleted:
-            pass
+    _state.update(bound=None, click=None, drag=None)
+    _delete_marked()
+    _set_containers_selectable(True)   # normal Houdini can click them again

@@ -18,21 +18,17 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- Branch `modelui`. F2a audit 1 (2026-11-06): NOT done; fixing. Committed: containers items 2/4/5/6/8 (`c79f8d8`,
-  check_containers 25 checks / 26 mutations red). UNCOMMITTED, in progress: `pieces_ui.py` redesign = one proxy null
-  per binding (bind() destroys the old null and creates a new one outside the undo history, so an undo of an old drag
-  can never write into the newly bound piece; the live null writes every change, so typed values work; the null is
-  removed before a save and all marked nulls on install/uninstall/load; containers selectable again on uninstall),
-  stale-callback filter compares nodes with != (a new hou.Node wrapper per callback: "is" never matched), the proxy
-  ray fallback in pick() removed; `gui_f2a.py` with new checks (no handle null until bound, container click taken at
-  the window, undo after rebind reads the live null, redo, typed t/r/s, saved hip without the null, uninstall with a
-  live null). Last full run: baseline0 all 22 green; baseline1 RED `shift_drag_copies` (the handle did not grab on the
-  Shift press; the copy gesture saw press, 6 moves, release) and `uninstall_clean` (a marked null left): session
-  state after the typed-values section (3 undos) or the save/load section. Mutations still green: save_keeps_null
-  (the load cleanup or uninstall order hides it: read the saved file another way), original_follows, copy_after_drag
-  (both in the run where the Shift drag failed). Next: log selected nodes + proxy path at the Shift press and before
-  uninstall in every run, fix, run the full suite twice, commit. Then audit items 9a (drag a piece's body like Max)
-  and 9b (multi-selection), still in F2a.
+- Branch `modelui`. F2a audit 1 (2026-11-06) fixes: containers (`c79f8d8`) and pieces_ui (this commit) done with
+  checks; 9b (multi-selection) NOT started yet; the F1 GUI regression must be rerun with the new pieces_ui (its last
+  pass was before this redesign). pieces_ui now: one proxy null per binding (destroyed/created outside the undo
+  history, so an old drag's undo restores only its own piece; the live null writes every change incl. typed values),
+  no null saved into a hip or left after uninstall/load, containers selectable again on uninstall, deferred actions
+  stop at uninstall, a piece's body drag in the move tool and every Shift+drag (piece or handle) are modelUI's own
+  (plane through the grabbed point facing the view; preview outside undo, ONE undo step at release; Houdini's handle
+  with Shift was unreliable after the session's first run), click gesture only for modifier-free clicks.
+  gui_f2a: 25 checks green in both baselines, 26 paired mutations red. Test-harness lesson: a mutation re-executes the
+  module, so callbacks of earlier versions stay registered: cleanup purges every pieces_ui callback.
+  Known limit: Shift+drag Copy moves in the view plane (no axis constraint); rotate/scale handle drags untested.
 - Code: `modelui/containers.py` (storage, promote), `scene.MixedScene` (`scene.current()`), `modelui/pieces_ui.py`
   (in `switch.FEATURES`: click pick, Houdini's handle on a proxy null, Shift+drag Copy, highlight).
 - Checks (all exit 0):
@@ -61,13 +57,14 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 |---|---|---|---|
 | 100 | 2.0 s | 0.6 s | +4.0 ms |
 | 500 | 1.2 s | 2.8 s | +11.7 ms |
-| 2000 | 7.7 s | 3.8 s | +12.1 ms |
+| 2000 | 7.7 s (0.9 s after the audit-1 fix) | 3.8 s | +12.1 ms |
+| 5000 | (1.0 s after the fix; 18.2 s before) | | |
 
 Draw: single-frame flipbooks 1280x720 while the camera orbits, median of 20 (the empty scene's 38.3 ms is flipbook
 overhead). Against the object-level numbers below: 2000 objects +101 ms, the same 2000 pieces as polygons in one
 object +9 ms; packed pieces in a container land next to the one-object number. In the GUI at 2000 pieces: move one
 piece 5.4 ms, copy one 5.0 ms, select one (including placing the handle proxy) 2.8 ms (edit + recook + redraw;
-target < 50 ms). Adding 2000 pieces once costs 7.7 s, mostly creating the 605 source chains. Measured once.
+target < 50 ms). The 7.7 s for adding 2000 pieces was not the source chains: names and sources were rescanned per piece (quadratic); after the audit-1 fix a bulk add of 2000 / 5000 pieces from all 605 files takes 0.9 / 1.0 s (check_containers ceiling 3.0 / 3.5 s). Measured once.
 
 ## F2a design: pieces packed in container objects (Hannes' choice: mixed backend)
 
