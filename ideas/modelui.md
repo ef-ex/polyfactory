@@ -43,15 +43,27 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   (fixed bug: the proxy wrote undo's reverted transform into the newly bound piece; now it writes only while a mouse
   button is down, and `_follow_selection` puts the proxy back on its piece). Test fix: QtTest does not run Qt timers
   between mouseMove calls, so `later()` ran only after the release: the drag loops yield 30 ms per move like real input.
-- OPEN (last full run): baseline0 `handle_drag_moves` FAILED once while the quick runs pass, and the drag distance
-  varies between runs (0.47 vs 2.84): a race, most likely Houdini's own click selecting the container AFTER our pick
-  (then the drag grabs no handle), which `_follow_selection` re-asserts only if its later() runs after Houdini's
-  selection. Next: log the selected nodes at drag start in every run; make the re-assert robust (e.g. also re-assert in
-  the click gesture's release path after a second later(), or on ChildSelectionChanged directly) and repeat the
-  quick baseline 3x before the full run. Mutations still green: `proxy_not_placed` (must remove BOTH placements: in
-  bind() and in _follow_selection), `container_keeps_selection` (same race), `copy_after_drag` (the copy still lands
-  inside an undo step: design a mutation that truly splits copy and drag, or drop the check's claim). Then: put
-  `polyfactory.modelui.pieces_ui` into FEATURES, rerun gui_f2a and the F1 GUI regression, commit, then benches.
+- Root causes found 2026-11-06 for the flaky handle drag (each from per-run logs of drag distance in screen pixels,
+  proxy callback count, undo labels, selected nodes, viewer state):
+  1. Test: the session's first entry into "pose" builds the handle; the press came 200 ms after W and Houdini took it
+     as a click. The test now waits for the state and a redraw (a person never presses that fast).
+  2. Test: a world-unit threshold depends on frameAll's camera (0.47 vs 2.84 units for one drag): the check now
+     measures the piece's on-screen movement (60 px drag).
+  3. PRODUCT: picking while the viewer is already in "pose" (W, then click another piece; every run after the first
+     starts in "pose"): Houdini's own click selects the whole container, our deferred re-select of the proxy then
+     leaves Houdini's handle following only the first mouse move (10 of 60 px, 13 instead of 28 proxy writes). Fix in
+     progress: the click gesture asks `queryNodeAtPixel` at the PRESS and, on a container, takes the click from
+     Houdini (owns press and release) and picks at the release; on the proxy, a loose object or empty space Houdini
+     keeps the click. Result: 15 of 21 runs drag the full 60 px (2 more 58 px) where only the first run did before.
+- OPEN: in the full run's first baseline Houdini still selected the container once ("Change Object Selection",
+  "MultiXform Handle Change", proxy writes 0): probably the press-time query found nothing yet (cold pick buffer), so
+  the click went to Houdini. Next: (a) keep an object-level re-select of the proxy as a safety net (only /obj
+  children, never while a mouse button is down: that variant earlier ended drags because it reacted to SOP nodes
+  inside the container and ran mid-drag); (b) log `_under()` at every press; (c) run the full suite twice; both
+  baselines must pass in both. Then commit `pieces_ui.py` + `gui_f2a.py`, put `pieces_ui` in `switch.FEATURES`, rerun
+  gui_f2a and the F1 GUI regression, then the benches (100/500/2000 pieces, all 605 files).
+- Shift+drag Copy, highlight, picking, undo after rebinding: green in every baseline of the last runs; mutations
+  red except the ones listed above as removed/redesigned.
 - Picking findings: at object level `queryPrimAtPixel` finds no primitives (pick buffer holds objects);
   `queryNodeAtPixel` reports drawn objects even when unselectable; `pick()` takes the object from
   `queryNodeAtPixel` and a container's piece from a ray through the pixel (`mapToWorld` returns (direction, origin)).
