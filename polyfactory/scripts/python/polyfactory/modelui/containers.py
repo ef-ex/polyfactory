@@ -6,6 +6,8 @@ per distinct source file (usdimport -> Attribute Create ``pf_source`` -> Pack) f
 every piece in one cook. Every edit here builds the new point set in Python and sets the stash once: one undo step,
 saved in the hip, no per-piece nodes or cooking (Python only marshals the edit: house rule 2).
 """
+import re
+
 import hou
 
 MARK = "pf_modelui_container"
@@ -209,3 +211,26 @@ def piece_rows(container):
     g = stash(container).geometry()
     return list(zip(g.pointIntAttribValues("pf_piece"), g.pointStringAttribValues("pf_name"),
                     g.pointIntAttribValues("pf_hidden")))
+
+
+def promote(container, piece):
+    """The piece becomes its own geometry object (its source, world transform and visibility; ready for a stack) and
+    leaves the container, in one undo step. Returns the new object."""
+    with hou.undos.group("modelUI: promote"):
+        geo = points(container)
+        p = _point(geo, piece)
+        src, name = p.stringAttribValue("pf_source"), p.stringAttribValue("pf_name")
+        hidden = p.intAttribValue("pf_hidden")
+        m = transform(container, piece) * container.worldTransform()
+        obj = container.parent().createNode("geo", re.sub(r"[^A-Za-z0-9_]", "_", name) or "piece")
+        u = obj.createNode("usdimport", "source")
+        u.parm("filepath1").set(src)
+        u.parm("input_unpack").set(1)
+        u.parm("unpack_geomtype").set(1)
+        u.setDisplayFlag(True)
+        u.setRenderFlag(True)
+        obj.setWorldTransform(m)
+        obj.setDisplayFlag(not hidden)
+        geo.deletePoints([p])
+        _commit(container, geo, "promote")
+    return obj

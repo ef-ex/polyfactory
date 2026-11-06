@@ -53,7 +53,7 @@ def main():
     env.pop("HOUDINI_PATH", None)
     env.update(HOUDINI_USER_PREF_DIR=prefs, HOUDINI_PACKAGE_DIR=pv + "/packages", PF_F1_OUT=SCR + "/result.json")
     console = open(SCR + "/console.txt", "w")
-    p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, "gui_f1.py")], env=env, stdout=console,
+    p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, os.environ.get("PF_GUI_SCRIPT", "gui_f1.py"))], env=env, stdout=console,
                          stderr=subprocess.STDOUT)
     try:
         p.wait(timeout=900)

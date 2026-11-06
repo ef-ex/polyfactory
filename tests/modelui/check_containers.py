@@ -73,6 +73,16 @@ def checks(out, perf):
     out["add_is_one_undo_step"] = (len(prims(c)) == 4
                                    and len([n for n in c.children() if n.type().name() == "usdimport"]) == n_before)
 
+    m_p = containers.transform(c, ids[1])
+    pobj = containers.promote(c, ids[1])
+    ppath = pobj.path()
+    rows = [r[0] for r in containers.piece_rows(c)]
+    out["promote_makes_object"] = (pobj.type().name() == "geo" and mclose(pobj.worldTransform(), m_p)
+                                   and ids[1] not in rows and pobj.node("source").parm("filepath1").eval() == FILES[1]
+                                   and len(pobj.displayNode().geometry().points()) > 0)
+    hou.undos.performUndo()
+    out["promote_one_undo"] = hou.node(ppath) is None and ids[1] in [r[0] for r in containers.piece_rows(c)]
+
     # --- the mixed scene backend (what the Scene Explorer uses) --------------------------------------------------------
     obj_piece = hou.node("/obj").createNode("geo", "loose")
     s = scene.MixedScene()
@@ -159,6 +169,8 @@ MUTATIONS = [   # (name, check, module, old, new)
     ("stash_not_watched", "mixed_stash_change_notifies", S, "            st.addEventCallback(_STASH_EVENTS, self._event)", "            pass"),
     ("hide_objects_only", "mixed_edits", S, "                containers.set_hidden(c, pieces, hide)", "                pass"),
     ("unwatch_keeps_stash", "mixed_unwatch_clean", S, "                    st.removeEventCallback(_STASH_EVENTS, self._event)", "                    pass"),
+    ("promote_keeps_point", "promote_makes_object", C, '        geo.deletePoints([p])\n        _commit(container, geo, "promote")', '        _commit(container, geo, "promote")'),
+    ("promote_split_undo", "promote_one_undo", C, '    with hou.undos.group("modelUI: promote"):', '    if True:'),
     ("display_not_set", "create_layout", C, "        cp.setDisplayFlag(True)", "        pass"),
     ("select_mixed_drops_pieces", "mixed_select_mixed", S, "        super().select([p for p in pids if not isinstance(p, tuple)])\n        if pieces != self._piece_sel:",
      "        super().select([p for p in pids if not isinstance(p, tuple)])\n        pieces = set()\n        if pieces != self._piece_sel:"),

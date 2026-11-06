@@ -22,14 +22,23 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   `modelui/containers.py` + `scene.MixedScene` (now `scene.current()`), checked by
   `hython tests/modelui/check_containers.py` (18 checks, 18 paired mutations red; 2000 pieces from 50 sources: move
   one 4 ms, copy one 6-7 ms, select 0.1 ms, list all names 35-56 ms). F1's headless checks still pass.
-- Pending before (2): the F1 GUI regression with MixedScene as `scene.current()` (`python tests/modelui/run_gui_f1.py`
-  was started in the background 2026-11-05; read `F:/cache/modelui/f1/gui_run.txt`; it must exit 0).
-- Next, in order: (2) object-level Python viewer state: click-pick pieces (`queryPrimAtPixel` on the container's
-  display node, or `Geometry.intersect` as in `asset_library/kitbash_placement_state.py`), selection drawable, xform
-  handle bound to the selected piece, Q/W/E/R modes, undo; (3) Shift+drag Copy through F1's OBSERVE + `later()`
-  (store the original's transform at press, restore after the copy); (4) promote on first modifier; (5) GUI benches at
-  100/500/2000 pieces from all 605 files (orbit draw vs the +9 ms one-object number; select/move/copy < 50 ms); then
-  report for the F2a audit.
+- F1 GUI regression with MixedScene as `scene.current()`: passed (62 mutations red), but it ran before the piece state
+  existed: run it again once `piece_state` is in the switch features.
+- Done in step (4): `containers.promote()` (own geometry object, world transform, visibility; one undo step), in
+  `check_containers.py` (now 20 checks, 20 mutations red).
+- Step (2), IN PROGRESS, uncommitted: `modelui/piece_state.py` (object-level Python state: pick, highlight, xform
+  handle, Q/W/E/R, Shift+drag Copy via OBSERVE + later()) and `tests/modelui/gui_f2a.py` (run:
+  `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`, add
+  `PF_F1_QUICK=1` for one baseline). It is NOT in `switch.FEATURES` (Hannes' Houdini loads this working tree).
+  Blocker: entering the state fails. `sv.setCurrentState("pf_modelui_pieces")` (Insert) ends in "showhandle" without
+  calling onEnter; with `generate=hou.stateGenerateMode.Enter` it raises "Failed setting state". Next: read the
+  Python-state docs on nodeless states and object-level states (probably a state must belong to an object node type
+  at OBJ level: then make the container a small OBJ digital asset or bind the state to `geo`), get onEnter to run, then
+  the quick baseline.
+- Picking findings (2026-11-06): at object level `queryPrimAtPixel` finds no primitives (the pick buffer holds
+  objects; 0 of a 24x24 grid while `queryNodeAtPixel` hit 29); `pick()` now takes the object from
+  `queryNodeAtPixel` and, for a container, the piece from a ray through the pixel (`mapToWorld`, then
+  `Geometry.intersect` in the container's space: hits packed prims, probe `F:/cache/modelui/f2/probe6.py`).
 - Shell-tool trap (cost 6 calls in F1/F2): a doubled backslash in a command reaches the shell as one; build escapes
   in patch scripts with `chr(92)`.
 
