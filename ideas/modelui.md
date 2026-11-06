@@ -16,6 +16,51 @@ copy/transform, clean game mesh).
 
 Why it matters: every time he reaches the modeling part he gets annoyed by the node workflow and does something else.
 
+## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
+
+- Branch `modelui`, F2a in progress (started 2026-11-05). Done: probes, storage design (below), step (1):
+  `modelui/containers.py` + `scene.MixedScene` (now `scene.current()`), checked by
+  `hython tests/modelui/check_containers.py` (18 checks, 18 paired mutations red; 2000 pieces from 50 sources: move
+  one 4 ms, copy one 6-7 ms, select 0.1 ms, list all names 35-56 ms). F1's headless checks still pass.
+- Pending before (2): the F1 GUI regression with MixedScene as `scene.current()` (`python tests/modelui/run_gui_f1.py`
+  was started in the background 2026-11-05; read `F:/cache/modelui/f1/gui_run.txt`; it must exit 0).
+- Next, in order: (2) object-level Python viewer state: click-pick pieces (`queryPrimAtPixel` on the container's
+  display node, or `Geometry.intersect` as in `asset_library/kitbash_placement_state.py`), selection drawable, xform
+  handle bound to the selected piece, Q/W/E/R modes, undo; (3) Shift+drag Copy through F1's OBSERVE + `later()`
+  (store the original's transform at press, restore after the copy); (4) promote on first modifier; (5) GUI benches at
+  100/500/2000 pieces from all 605 files (orbit draw vs the +9 ms one-object number; select/move/copy < 50 ms); then
+  report for the F2a audit.
+- Shell-tool trap (cost 6 calls in F1/F2): a doubled backslash in a command reaches the shell as one; build escapes
+  in patch scripts with `chr(92)`.
+
+## F2a design: pieces packed in container objects (Hannes' choice: mixed backend)
+
+Probes 2026-11-05 (hython, scratch `F:/cache/modelui/f2/probe*.py`):
+- Stash SOP: its `stash` data parm takes a whole `hou.Geometry`; setting it is one undo step (undo restored the
+  previous geometry) and it is saved with the hip.
+- Copy to Points 2.0 with `useidattrib` + `idattrib` copies, per target point, the source piece whose attribute
+  matches (control: sources a, b; points a, b, a -> three packed copies at the right positions). Target point
+  attributes reach the copies only through `targetattribs` with `applyto` = `prims`.
+- Real library, 2000 pieces over all 605 files: 2000 packed prims; build 1.1 s, first cook 14 s (loading 605 USD
+  files once), moving one piece (new stash geometry) + recook 0.8-2.8 ms.
+- Paths from `glob` carry backslashes on Windows; never put a path into VEX source text (it became escapes and
+  matched nothing): pass it as a string parameter.
+
+Layout of one container (a geometry object marked as a modelUI container):
+- `sources`: per DISTINCT source file one chain usdimport (polygons) -> Attribute Create (`pf_source`, the file path
+  as a string parameter) -> Pack; merged. A file used by 300 pieces is loaded once.
+- `pieces`: a Stash SOP holding ONE POINT PER PIECE: `P`, `orient`, `scale`, `pf_source` (string), `pf_name`
+  (string), `pf_piece` (int, unique in the container), `pf_hidden` (int).
+- `visible` (one wrangle over all points: drop hidden pieces) -> `copy` (Copy to Points, matched by `pf_source`,
+  `pf_*` onto the packed prims): the display and render output.
+- Why: native nodes and one batched cook for all pieces (rule 2/4); every edit (move, copy, hide, delete, rename) is
+  one new stash geometry: one undo step, saved in the hip, no per-piece nodes, no per-piece Python cooking (Python
+  only marshals the edit, house rule 2). Instance/Reference (F2b) can reuse the same points.
+- Piece ids for the panels: container pieces are `("piece", <container session id>, pf_piece)`; objects keep their
+  node session id. Piece selection is the scene model's own (pieces are not nodes); the viewport state draws it.
+- Promote (first modifier): the piece becomes its own geometry object (its source, object transform = the piece
+  transform) and its point leaves the stash, in one undo group.
+
 ## Resume pointer (F1 framework core: done; F2 next)
 
 - Branch `modelui`; verify against `git log`. F1 code: `polyfactory/scripts/python/polyfactory/modelui/` (`switch.py`,
