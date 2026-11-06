@@ -28,6 +28,8 @@ def create(name="pieces", parent="/obj"):
     with hou.undos.group("modelUI: new container"):
         obj = hou.node(parent).createNode("geo", name)
         obj.setUserData(MARK, "1")
+        obj.setSelectableInViewport(False)   # Houdini's own click must never select or drag the whole container:
+        # its pieces are picked by modelUI (queryNodeAtPixel still reports it, a ray finds the piece)
         src = obj.createNode("merge", "sources")
         st = obj.createNode("stash", "pieces")
         st.parm("stash").set(_empty())

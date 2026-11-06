@@ -38,6 +38,7 @@ def checks(out, perf):
     hou.hipFile.clear(suppress_save_prompt=True)
     c = containers.create()
     out["create_layout"] = containers.is_container(c) and c.displayNode().name() == "copy" and len(prims(c)) == 0
+    out["container_not_selectable"] = not c.isSelectableInViewport()
     m0, m1, m2 = xf((1, 2, 3)), xf((10, 0, 0), (30, 45, 10), (2, 1, 0.5)), xf((-5, 1, 0), (0, 90, 0))
     ids = containers.add_pieces(c, [(FILES[0], "hull", m0), (FILES[1], "wing", m1), (FILES[0], "hull", m2)])
     ps = {p.attribValue("pf_piece"): p for p in prims(c)}
@@ -171,6 +172,7 @@ MUTATIONS = [   # (name, check, module, old, new)
     ("unwatch_keeps_stash", "mixed_unwatch_clean", S, "                    st.removeEventCallback(_STASH_EVENTS, self._event)", "                    pass"),
     ("promote_keeps_point", "promote_makes_object", C, '        geo.deletePoints([p])\n        _commit(container, geo, "promote")', '        _commit(container, geo, "promote")'),
     ("promote_split_undo", "promote_one_undo", C, '    with hou.undos.group("modelUI: promote"):', '    if True:'),
+    ("container_selectable", "container_not_selectable", C, "        obj.setSelectableInViewport(False)", "        pass"),
     ("display_not_set", "create_layout", C, "        cp.setDisplayFlag(True)", "        pass"),
     ("select_mixed_drops_pieces", "mixed_select_mixed", S, "        super().select([p for p in pids if not isinstance(p, tuple)])\n        if pieces != self._piece_sel:",
      "        super().select([p for p in pids if not isinstance(p, tuple)])\n        pieces = set()\n        if pieces != self._piece_sel:"),
