@@ -26,19 +26,35 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   existed: run it again once `piece_state` is in the switch features.
 - Done in step (4): `containers.promote()` (own geometry object, world transform, visibility; one undo step), in
   `check_containers.py` (now 20 checks, 20 mutations red).
-- Step (2), IN PROGRESS, uncommitted: `modelui/piece_state.py` (object-level Python state: pick, highlight, xform
-  handle, Q/W/E/R, Shift+drag Copy via OBSERVE + later()) and `tests/modelui/gui_f2a.py` (run:
-  `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`, add
-  `PF_F1_QUICK=1` for one baseline). It is NOT in `switch.FEATURES` (Hannes' Houdini loads this working tree).
-  Blocker: entering the state fails. `sv.setCurrentState("pf_modelui_pieces")` (Insert) ends in "showhandle" without
-  calling onEnter; with `generate=hou.stateGenerateMode.Enter` it raises "Failed setting state". Next: read the
-  Python-state docs on nodeless states and object-level states (probably a state must belong to an object node type
-  at OBJ level: then make the container a small OBJ digital asset or bind the state to `geo`), get onEnter to run, then
-  the quick baseline.
-- Picking findings (2026-11-06): at object level `queryPrimAtPixel` finds no primitives (the pick buffer holds
-  objects; 0 of a 24x24 grid while `queryNodeAtPixel` hit 29); `pick()` now takes the object from
-  `queryNodeAtPixel` and, for a container, the piece from a ray through the pixel (`mapToWorld`, then
-  `Geometry.intersect` in the container's space: hits packed prims, probe `F:/cache/modelui/f2/probe6.py`).
+- Step (2), IN PROGRESS, uncommitted: `modelui/pieces_ui.py` + `tests/modelui/gui_f2a.py` (run:
+  `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`, plus
+  `PF_F1_QUICK=1` for one baseline). NOT in `switch.FEATURES` until verified (it creates a hidden proxy null in /obj and
+  Hannes' Houdini loads this working tree); the gui test installs it itself? NO: add `"polyfactory.modelui.pieces_ui"`
+  to FEATURES for the test run, or have gui_f2a call `pieces_ui.install()` (decide; the F1 GUI regression must then
+  run with it in FEATURES).
+- Why no Python viewer state (control probe `tests/modelui/state_probe.py`, 2026-11-06): states of every category
+  become current with the default generate mode, but entered without a node Houdini calls `onGenerate`, not
+  `onEnter`; `generate=Enter` raises; and the docs say "Handles cannot be bound to nodeless states". So the handle is
+  Houdini's own, on a hidden proxy null bound to the selected piece; picking is an OBSERVE click gesture.
+- State 2026-11-06 (uncommitted `pieces_ui.py`, `gui_f2a.py`; gui_f2a installs `pieces_ui` itself while it is not in
+  `switch.FEATURES`): handle drag works on the real path (the proxy callback fires 13-38 times per drag, the whole drag
+  is ONE undo entry "Transform Handle Change"); Shift+drag on the handle copies (original stays, copy selected, one
+  undo); clicks pick pieces/objects/nothing; undo after rebinding the handle to another piece leaves that piece alone
+  (fixed bug: the proxy wrote undo's reverted transform into the newly bound piece; now it writes only while a mouse
+  button is down, and `_follow_selection` puts the proxy back on its piece). Test fix: QtTest does not run Qt timers
+  between mouseMove calls, so `later()` ran only after the release: the drag loops yield 30 ms per move like real input.
+- OPEN (last full run): baseline0 `handle_drag_moves` FAILED once while the quick runs pass, and the drag distance
+  varies between runs (0.47 vs 2.84): a race, most likely Houdini's own click selecting the container AFTER our pick
+  (then the drag grabs no handle), which `_follow_selection` re-asserts only if its later() runs after Houdini's
+  selection. Next: log the selected nodes at drag start in every run; make the re-assert robust (e.g. also re-assert in
+  the click gesture's release path after a second later(), or on ChildSelectionChanged directly) and repeat the
+  quick baseline 3x before the full run. Mutations still green: `proxy_not_placed` (must remove BOTH placements: in
+  bind() and in _follow_selection), `container_keeps_selection` (same race), `copy_after_drag` (the copy still lands
+  inside an undo step: design a mutation that truly splits copy and drag, or drop the check's claim). Then: put
+  `polyfactory.modelui.pieces_ui` into FEATURES, rerun gui_f2a and the F1 GUI regression, commit, then benches.
+- Picking findings: at object level `queryPrimAtPixel` finds no primitives (pick buffer holds objects);
+  `queryNodeAtPixel` reports drawn objects even when unselectable; `pick()` takes the object from
+  `queryNodeAtPixel` and a container's piece from a ray through the pixel (`mapToWorld` returns (direction, origin)).
 - Shell-tool trap (cost 6 calls in F1/F2): a doubled backslash in a command reaches the shell as one; build escapes
   in patch scripts with `chr(92)`.
 
