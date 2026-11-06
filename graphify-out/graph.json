@@ -12590,7 +12590,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "polychain_plan_fit",
-      "community": 276,
+      "community": 261,
       "norm_label": "fit()"
     },
     {
@@ -12620,7 +12620,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "polychain_plan_cond_subject",
-      "community": 349,
+      "community": 276,
       "norm_label": "cond_subject()"
     },
     {
@@ -12630,7 +12630,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "polychain_plan_evaluate_cond",
-      "community": 349,
+      "community": 276,
       "norm_label": "evaluate_cond()"
     },
     {
@@ -12780,7 +12780,7 @@
       "source_location": "L849",
       "_origin": "ast",
       "id": "polychain_plan_plan_sections",
-      "community": 276,
+      "community": 345,
       "norm_label": "plan_sections()"
     },
     {
@@ -12840,7 +12840,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "polychain_plan_rationale_147",
-      "community": 276,
+      "community": 261,
       "norm_label": "how many units fit in `length`, and by how much they stretch.      `nominal` i"
     },
     {
@@ -12870,7 +12870,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "polychain_plan_rationale_291",
-      "community": 349,
+      "community": 276,
       "norm_label": "3.3's subject list. `markerdata:<k>` and `attr:<n>` read the ctx bags."
     },
     {
@@ -12880,7 +12880,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "polychain_plan_rationale_300",
-      "community": 349,
+      "community": 276,
       "norm_label": "a data condition, never code (d3). anything unreadable is false."
     },
     {
@@ -13000,7 +13000,7 @@
       "source_location": "L850",
       "_origin": "ast",
       "id": "polychain_plan_rationale_850",
-      "community": 276,
+      "community": 345,
       "norm_label": "every section's plan, in a deterministic order."
     },
     {
@@ -38930,7 +38930,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 172,
+      "community": 163,
       "norm_label": "section()"
     },
     {
@@ -38970,7 +38970,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 163,
+      "community": 282,
       "norm_label": ".style()"
     },
     {
@@ -39000,7 +39000,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -39010,7 +39010,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -39020,7 +39020,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -39120,7 +39120,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 172,
+      "community": 216,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -39260,7 +39260,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -39270,7 +39270,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -39290,7 +39290,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -39300,7 +39300,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 163,
+      "community": 282,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -39420,7 +39420,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 172,
+      "community": 247,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -39490,7 +39490,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 163,
+      "community": 282,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         cor"
     },
     {
@@ -39500,7 +39500,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 163,
+      "community": 282,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it ha"
     },
     {
@@ -39510,7 +39510,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 163,
+      "community": 282,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -39570,7 +39570,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 172,
+      "community": 216,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit h"
     },
     {
@@ -39650,7 +39650,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 172,
+      "community": 247,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -46080,7 +46080,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 333,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -46090,7 +46090,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 333,
       "norm_label": "what the literature adds"
     },
     {
@@ -46100,7 +46100,7 @@
       "source_location": "L1876",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 333,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -46110,7 +46110,7 @@
       "source_location": "L1913",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 333,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -46120,7 +46120,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 333,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -46130,7 +46130,7 @@
       "source_location": "L2068",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 333,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -46140,7 +46140,7 @@
       "source_location": "L2094",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 333,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -48617,7 +48617,7 @@
       "label": "Decision log (house rule 2: why Python)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L149",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "ideas_modelui_decision_log_house_rule_2_why_python",
       "community": 312,
@@ -48627,7 +48627,7 @@
       "label": "Framework (layers shared by every mode)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L157",
+      "source_location": "L160",
       "_origin": "ast",
       "id": "ideas_modelui_framework_layers_shared_by_every_mode",
       "community": 312,
@@ -48637,7 +48637,7 @@
       "label": "Mapping to Houdini",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L170",
+      "source_location": "L173",
       "_origin": "ast",
       "id": "ideas_modelui_mapping_to_houdini",
       "community": 312,
@@ -48647,7 +48647,7 @@
       "label": "Feature list",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L182",
+      "source_location": "L185",
       "_origin": "ast",
       "id": "ideas_modelui_feature_list",
       "community": 312,
@@ -48657,7 +48657,7 @@
       "label": "Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L199",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "ideas_modelui_measurements_one_object_per_piece_2026_11_05_houdini_22_0_442_windows_hannes_kitbash_library",
       "community": 312,
@@ -48667,7 +48667,7 @@
       "label": "References",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L223",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "ideas_modelui_references",
       "community": 312,
@@ -49170,7 +49170,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 282,
+      "community": 144,
       "norm_label": "3. data contracts"
     },
     {
@@ -49180,7 +49180,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 282,
+      "community": 144,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -49190,7 +49190,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 282,
+      "community": 144,
       "norm_label": "3.2 kit format"
     },
     {
@@ -49200,7 +49200,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 282,
+      "community": 144,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -49210,7 +49210,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 282,
+      "community": 144,
       "norm_label": "3.3 style payload"
     },
     {
@@ -49220,7 +49220,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 282,
+      "community": 144,
       "norm_label": "3.4 output"
     },
     {
@@ -52960,7 +52960,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 144,
+      "community": 339,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -52970,7 +52970,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 144,
+      "community": 339,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -52980,7 +52980,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 144,
+      "community": 339,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -52990,7 +52990,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 144,
+      "community": 339,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -53000,7 +53000,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 144,
+      "community": 339,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -53010,7 +53010,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 144,
+      "community": 339,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -105400,9 +105400,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L771",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1",
-      "target": "modelui_gui_f1_guard",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_guard"
     },
     {
       "relation": "contains",
@@ -105623,9 +105623,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L774",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_guard",
-      "target": "modelui_gui_f1_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_log"
     },
     {
       "relation": "calls",
@@ -105894,9 +105894,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L774",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_guard",
-      "target": "modelui_gui_f1_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_visible_on_screen"
     },
     {
       "relation": "calls",
@@ -105927,9 +105927,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L773",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_guard",
-      "target": "modelui_gui_f1_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_off_screen"
     },
     {
       "relation": "calls",
@@ -106013,9 +106013,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L594",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_rationale_594",
-      "target": "modelui_gui_f1_restore_keys",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_restore_keys"
     },
     {
       "relation": "calls",
@@ -106112,9 +106112,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L775",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_guard",
-      "target": "modelui_gui_f1_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_finish"
     },
     {
       "relation": "calls",
@@ -106133,9 +106133,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L772",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_rationale_772",
-      "target": "modelui_gui_f1_guard",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_guard"
     },
     {
       "relation": "contains",
@@ -134199,9 +134199,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next"
     },
     {
       "relation": "contains",
@@ -140398,5 +140398,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fed05d12e3478ac7c38eb59fa15866f47452ea9d"
+  "built_at_commit": "a60d6840bc309c95432fbbdaf46b9111d1819146"
 }

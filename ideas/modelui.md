@@ -144,6 +144,9 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 - **Align tools are a must** (he used them all the time).
 - **Framework first:** the core must carry other modes later (texturing named, others likely).
 - Piece count per scene is unknown (he never got far enough); measure object-level performance early.
+- **Scene backend: mixed (Hannes, 2026-11-05, "definitely b").** Plain kitbash pieces live packed together in a few
+  container objects (fast viewport with thousands of pieces); a piece becomes its own object with its own stack the
+  moment it gets a modifier. The Scene Explorer and viewport selection still show every piece separately.
 - The Maya surface project (`F:\cache\houdini_maya_anim`) is a **read-only reference**: never write code there.
 
 ## Decision log (house rule 2: why Python)
