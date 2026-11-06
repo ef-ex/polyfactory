@@ -129,8 +129,8 @@ def _click_gesture(kind, ev, viewer):
     Houdini keeps the click and we pick after it. Box selections never pick up a container: containers are not
     selectable in the viewport."""
     if kind == "press":
-        mods = ev.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier)
-        if ev.button() != Qt.LeftButton or mods or viewer is None:
+        mods = ev.modifiers() & ~Qt.KeypadModifier
+        if ev.button() != Qt.LeftButton or mods != Qt.NoModifier or viewer is None:   # any modifier: not a plain click
             return False
         g = ev.globalPosition().toPoint()
         n = _under(viewer, g)[3]
@@ -304,6 +304,11 @@ def _make_copy():
 
 # --- switch feature hooks --------------------------------------------------------------------------------------------
 def install():
+    """Idempotent: a second install replaces the first (one watcher, one drawable)."""
+    scene.current().unwatch(_scene_changed)
+    if _state["drawable"] is not None:
+        _state["drawable"].enable(False)
+        _state["drawable"] = None
     proxy()
     sv = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.SceneViewer)
     if sv is not None:
