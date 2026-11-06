@@ -1,0 +1,397 @@
+"""GUI checks of modelUI F2a (pieces_ui: click pick, Houdini's handle on a proxy, Shift+drag Copy), run INSIDE a
+throwaway Houdini.
+
+Start it with:  PF_GUI_SCRIPT=gui_f2a.py python tests/modelui/run_gui_f1.py   (own prefs, only the polyfactory package,
+every window off screen, exits by itself, never saves a .hip). Input goes the real path: QtTest on the viewer's
+QWindow, at the pixel where the viewport shows the piece (``mapToScreen``). Baseline, one run per mutation in
+MUTATIONS (a source edit exec'd into the live module), baseline again; results to $PF_F1_OUT.
+
+What it cannot see: the look of the handle and the highlight (no image is judged), rotate/scale drags (only the
+translate drag is driven; E/R are checked as modes), multi-viewport layouts (single perspective view), hip reload.
+"""
+import glob
+import json
+import os
+import traceback
+
+import hdefereval
+import hou
+from hutil.Qt import QtCore, QtWidgets
+from PySide6.QtTest import QTest
+
+from polyfactory.modelui import containers, input_layer, pieces_ui, scene, switch
+
+OUT = os.environ["PF_F1_OUT"]
+LOGF = open(OUT + ".log", "w", buffering=1)
+Qt = QtCore.Qt
+LMB, NOM, SHIFT = Qt.LeftButton, Qt.NoModifier, Qt.ShiftModifier
+FILES = sorted(f.replace("\\", "/") for f in glob.glob("F:/3d/kitbashLib/*/*.usd"))
+STATE = {"desk0": None}
+
+
+def log(*a):
+    LOGF.write(" ".join(str(x) for x in a) + "\n")
+
+
+def visible_on_screen():
+    return [w for w in QtWidgets.QApplication.topLevelWidgets() if w.isVisible() and w.frameGeometry().right() > -5000]
+
+
+def off_screen():
+    mw = hou.qt.mainWindow()
+    if mw is None:
+        return False
+    if mw.geometry().x() > -5000:
+        mw.showNormal()
+        mw.setGeometry(-12000, 100, 1600, 1000)
+    for i, w in enumerate(visible_on_screen()):
+        w.move(-9000, 100 + 60 * i)
+    return not visible_on_screen()
+
+
+def viewer():
+    sv = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.SceneViewer)
+    mw = hou.qt.mainWindow()
+    r = sv.qtScreenGeometry()
+    gl = mw.childAt(mw.mapFromGlobal(r.center()))
+    return sv, gl
+
+
+def screen_point(sv, gl, world):
+    """Global Qt point where the viewport draws ``world`` (viewport pixels: origin bottom left, device pixels)."""
+    vp = sv.curViewport()
+    v = vp.mapToScreen(hou.Vector3(world))
+    size = vp.size()
+    h = size[-1]
+    dpr = gl.devicePixelRatioF()
+    return gl.mapToGlobal(QtCore.QPoint(int(round(v[0] / dpr)), int(round((h - v[1]) / dpr)))), (int(v[0]), int(v[1]))
+
+
+def L(win, g, dx=0, dy=0):
+    return win.mapFromGlobal(g) + QtCore.QPoint(dx, dy)
+
+
+def xf(t=(0, 0, 0)):
+    return hou.hmath.buildTranslate(t)
+
+
+def tr(pid):
+    return pieces_ui.get_xform(pid).extractTranslates()
+
+
+def suite(out):
+    hou.hipFile.clear(suppress_save_prompt=True)
+    c = containers.create()
+    big = hou.hmath.buildScale(10, 10, 10)   # the library piece is 1 x 0.17 x 0.25: make it a target a click can hit
+    ids = containers.add_pieces(c, [(FILES[3], "left", big * xf((-15, 0, 0))), (FILES[3], "mid", big),
+                                    (FILES[3], "right", big * xf((15, 0, 0)))])
+    loose = hou.node("/obj").createNode("geo", "loose")
+    loose.createNode("box").parm("scale").set(2)
+    loose.parmTuple("t").set((0, 0, 9))
+    mid, left = ("piece", c.sessionId(), ids[1]), ("piece", c.sessionId(), ids[0])
+    yield 100
+    ok = switch.install()
+    if "polyfactory.modelui.pieces_ui" not in switch.FEATURES:   # until it ships in the switch (then F1 reruns with it)
+        pieces_ui.install()
+    yield 1200
+    sv, gl = viewer()
+    sv.setViewportLayout(hou.geometryViewportLayout.Single)
+    vp = sv.curViewport()
+    vp.changeType(hou.geometryViewportType.Perspective)
+    yield 300
+    vp.frameAll()
+    yield 400
+    win = gl.window().windowHandle()
+    out["proxy_ready"] = bool(ok) and pieces_ui.proxy() is not None and pieces_ui._state["drawable"] is not None
+    s = scene.current()
+
+    def click_at(world, mods=NOM):
+        g, px = screen_point(sv, gl, world)
+        QTest.mouseMove(win, L(win, g))
+        QTest.mouseClick(win, LMB, mods, L(win, g))
+        return px
+
+    pr_mid = [p for p in c.displayNode().geometry().prims() if p.attribValue("pf_piece") == ids[1]][0]
+    centre = pr_mid.boundingBox().center()
+    px = click_at(centre)
+    yield 300
+    log("  pick mid at", px, "selected", s.selected(), "bound", pieces_ui._state["bound"], "last pick",
+        pieces_ui._state.get("last_pick"), "ray", pieces_ui._state.get("last_ray"), "bbox", centre)
+    out["pick_piece"] = s.selected() == [mid]
+    panel = getattr(hou.session, "_pf_modelui_explorer", None)
+    out["explorer_follows_pick"] = panel is not None and panel.selected_ids() == [mid]
+    box, want_box = pieces_ui._state.get("shown_box"), pieces_ui.bounds(mid)
+    out["highlight_shows_pick"] = (box is not None and want_box is not None
+                                   and (box.minvec() - want_box.minvec()).length() < 1e-4
+                                   and (box.maxvec() - want_box.maxvec()).length() < 1e-4)
+    pr_left = [p for p in c.displayNode().geometry().prims() if p.attribValue("pf_piece") == ids[0]][0]
+    click_at(pr_left.boundingBox().center())
+    yield 300
+    px_ = pieces_ui.proxy()
+    out["proxy_bound_to_pick"] = (pieces_ui._state["bound"] == left and px_.isSelected()
+                                  and (px_.worldTransform().extractTranslates() - tr(left)).length() < 1e-4)
+    click_at(loose.worldTransform().extractTranslates() + hou.Vector3(0, 0, 0))
+    yield 300
+    out["pick_object"] = s.selected() == [loose.sessionId()]
+    g0 = gl.mapToGlobal(QtCore.QPoint(6, 6))   # a viewport corner: nothing there
+    QTest.mouseMove(win, L(win, g0))
+    QTest.mouseClick(win, LMB, NOM, L(win, g0))
+    yield 300
+    log("  empty click: last pick", pieces_ui._state.get("last_pick"), "selected", s.selected())
+    out["pick_empty_clears"] = s.selected() == []
+    out["highlight_hidden_when_empty"] = pieces_ui._state.get("shown_box") is None
+    sv.setCurrentState("select")   # a box selection over the pieces must not pick up the whole container
+    yield 300
+    ga, _ = screen_point(sv, gl, (-30, 0, 0))
+    gb, _ = screen_point(sv, gl, (30, 0, 0))
+    ga, gb = ga + QtCore.QPoint(0, -40), gb + QtCore.QPoint(0, 40)
+    QTest.mouseMove(win, L(win, ga))
+    QTest.mousePress(win, LMB, NOM, L(win, ga))
+    for k in range(1, 9):
+        QTest.mouseMove(win, L(win, ga + (gb - ga) * k / 8))
+        yield 30
+    QTest.mouseRelease(win, LMB, NOM, L(win, gb))
+    yield 300
+    out["box_select_skips_container"] = not c.isSelected()
+    log("  box select: selected objects", [n.path() for n in hou.node("/obj").children() if n.isSelected()])
+
+    # --- handle drag (W) on the selected piece, one undo step ----------------------------------------------------------
+    click_at(centre)
+    yield 300
+    log("  before W: bound", pieces_ui._state["bound"],
+        "selected", [n.path() for n in hou.node("/obj").children() if n.isSelected()], "state", sv.currentState())
+    QTest.keyClick(win, Qt.Key_W)
+    for _ in range(20):   # the session's first entry into "pose" builds the handle: press only once it is up
+        if sv.currentState() == "pose":
+            break
+        yield 100
+    vp.draw()
+    yield 500
+    t0 = tr(mid)
+    c0 = c.worldTransform()
+    p0 = pieces_ui.proxy().worldTransform().extractTranslates()
+    w0, u0 = pieces_ui._state.get("writes", 0), len(hou.undos.undoLabels())
+    g, _ = screen_point(sv, gl, t0)
+    QTest.mouseMove(win, L(win, g))
+    QTest.mousePress(win, LMB, NOM, L(win, g))
+    for k in range(1, 7):
+        QTest.mouseMove(win, L(win, g, 10 * k, 0))
+        yield 30   # real input: Houdini's event loop runs between mouse moves (timers, later())
+    QTest.mouseRelease(win, LMB, NOM, L(win, g, 60, 0))
+    yield 400
+    t1 = tr(mid)
+    log("  drag mid", tuple(t0), "->", tuple(t1), "proxy", tuple(p0), "->",
+        tuple(pieces_ui.proxy().worldTransform().extractTranslates()), "proxy writes", pieces_ui._state.get("writes", 0) - w0,
+        "undo entries", len(hou.undos.undoLabels()) - u0, hou.undos.undoLabels()[:3], "selected nodes",
+        [n.path() for n in hou.selectedNodes()], "state", sv.currentState())
+    # the PIECE moved through the proxy: the container itself stays where it was (Houdini's handle on the container
+    # would also move the piece's world position)
+    # the handle follows the cursor on screen: the piece moves most of the 60 px drag (world distance depends on how
+    # far frameAll puts the camera, which varies between runs: 0.47 or 2.84 units for the same drag)
+    q0, q1 = screen_point(sv, gl, t0)[1], screen_point(sv, gl, t1)[1]
+    drag_px = ((q1[0] - q0[0]) ** 2 + (q1[1] - q0[1]) ** 2) ** 0.5
+    log("  drag on screen %.1f px" % drag_px)
+    out["handle_drag_moves"] = (drag_px > 30 and pieces_ui._state.get("writes", 0) > w0
+                                and all(abs(a - b) < 1e-9 for a, b in zip(c.worldTransform().asTuple(), c0.asTuple())))
+    tl = tr(left)
+    click_at(pr_left.boundingBox().center())   # the handle goes to another piece, then undo
+    yield 300
+    hou.undos.performUndo()
+    yield 300
+    out["handle_drag_one_undo"] = (tr(mid) - t0).length() < 1e-3
+    out["undo_after_rebind_keeps_other"] = (tr(left) - tl).length() < 1e-4 and pieces_ui._state["bound"] == left
+    log("  undo after rebind: mid", tuple(tr(mid)), "left", tuple(tl), "->", tuple(tr(left)))
+    click_at(centre)
+    yield 300
+    log("  state after W", sv.currentState())
+
+    # --- Shift+drag on the handle = Copy; the original stays ----------------------------------------------------------
+    n0 = len(containers.piece_rows(c))
+    t0 = tr(mid)
+    spy = []
+    orig_g = input_layer._gestures.get("modelui_copy_drag")
+
+    def spy_g(kind, ev, viewer):
+        r = orig_g(kind, ev, viewer)
+        spy.append((kind, int(ev.modifiers().value) if hasattr(ev.modifiers(), "value") else str(ev.modifiers()),
+                    viewer is not None, pieces_ui._state["bound"], r))
+        return r
+    if orig_g is not None:
+        input_layer._gestures["modelui_copy_drag"] = spy_g
+    g, _ = screen_point(sv, gl, t0)
+    QTest.mouseMove(win, L(win, g))
+    QTest.mousePress(win, LMB, SHIFT, L(win, g))
+    for k in range(1, 7):
+        QTest.mouseMove(win, L(win, g, 10 * k, 0))
+        yield 30   # real input: Houdini's event loop runs between mouse moves (timers, later())
+    QTest.mouseRelease(win, LMB, SHIFT, L(win, g, 60, 0))
+    yield 400
+    if orig_g is not None:
+        input_layer._gestures["modelui_copy_drag"] = orig_g
+    log("  copy gesture calls", spy[:8], "gestures", list(input_layer._gestures), "clone", pieces_ui._state["clone"])
+    rows = containers.piece_rows(c)
+    new = [r[0] for r in rows if r[0] not in ids]
+    sel = s.selected()
+    log("  shift drag: pieces", n0, "->", len(rows), "selected", sel, "orig", tuple(t0), "->", tuple(tr(mid)))
+    out["shift_drag_copies"] = len(rows) == n0 + 1 and len(new) == 1 and sel == [("piece", c.sessionId(), new[0])] \
+        and (tr(sel[0]) - t0).length() > 0.5
+    out["shift_drag_original_stays"] = (tr(mid) - t0).length() < 1e-3
+    hou.undos.performUndo()
+    yield 200
+    out["shift_drag_one_undo"] = len(containers.piece_rows(c)) == n0 and (tr(mid) - t0).length() < 1e-3
+    s.select([mid])
+    yield 200
+    g, _ = screen_point(sv, gl, tr(mid))
+    QTest.mouseMove(win, L(win, g))
+    QTest.mousePress(win, LMB, SHIFT, L(win, g))
+    QTest.mouseMove(win, L(win, g, 1, 0))
+    yield 30
+    QTest.mouseMove(win, L(win, g, 2, 1))   # a click's jitter
+    yield 30
+    QTest.mouseRelease(win, LMB, SHIFT, L(win, g, 2, 1))
+    yield 300
+    out["shift_click_no_copy"] = len(containers.piece_rows(c)) == n0
+    if "polyfactory.modelui.pieces_ui" not in switch.FEATURES:
+        pieces_ui.uninstall()
+    switch.uninstall()
+    yield 300
+    out["uninstall_clean"] = (not any(n.userData(pieces_ui.PROXY_MARK) == "1" for n in hou.node("/obj").children())
+                              and "modelui_click_pick" not in input_layer._gestures)
+
+
+def _q(f):
+    try:
+        f()
+    except Exception:  # noqa: BLE001
+        log("  cleanup:", traceback.format_exc().splitlines()[-1])
+
+
+def cleanup():
+    _q(pieces_ui.uninstall)
+    _q(switch.uninstall)
+    _q(lambda: hou.ui.desktop(STATE["desk0"]).setAsCurrent())
+    switch._state["on"] = False
+
+
+MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers}
+
+
+def mutate(modname, pairs):
+    mod = MODS[modname]
+    with open(mod.__file__, encoding="utf-8") as f:
+        src = f.read()
+    new = src
+    for old, rep in pairs:
+        if new.count(old) != 1:
+            raise RuntimeError("mutation snippet not found exactly once: %r" % old)
+        new = new.replace(old, rep)
+    exec(compile(new, mod.__file__, "exec"), mod.__dict__)
+    return lambda: exec(compile(src, mod.__file__, "exec"), mod.__dict__)
+
+
+PS = "pieces_ui"
+MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
+    ("no_proxy", "proxy_ready", PS, [('        _state["drawable"].enable(True)', '        _state["drawable"] = None')]),
+    ("proxy_drawn", "pick_piece", PS, [                                        ("        for c in containers.containers():\n            hit = _ray_piece(vp, c, x, y) if c.isDisplayFlagSet() else None",
+                                         "        for c in []:\n            hit = _ray_piece(vp, c, x, y) if c.isDisplayFlagSet() else None")]),
+    ("no_piece_pick", "pick_piece", PS, [('    return ("piece", c.sessionId(), geo.prim(prim).attribValue("pf_piece")) if prim >= 0 else None', "    return None")]),
+    ("pick_not_shared", "explorer_follows_pick", PS, [("    scene.current().select([hit] if hit is not None else [])\n    return hit",
+                                                       "    _state['bound'] = hit\n    return hit")]),
+    ("proxy_not_placed", "proxy_bound_to_pick", PS, [("                p.setWorldTransform(get_xform(pid))", "                pass"),
+                                                      ("                    p.setWorldTransform(m)", "                    pass")]),
+    ("highlight_never_shown", "highlight_shows_pick", PS, [("    d.setGeometry(g)\n    d.show(True)\n    _state[\"shown_box\"] = b", "    pass")]),
+    ("highlight_never_hidden", "highlight_hidden_when_empty", PS, [("        d.show(False)\n        _state[\"shown_box\"] = None\n        return", "        return")]),
+    ("no_object_pick", "pick_object", PS, [("        hit = n.sessionId()", "        hit = None")]),
+    ("empty_keeps_selection", "pick_empty_clears", PS, [("    scene.current().select([hit] if hit is not None else [])\n    return hit",
+                                                         "    scene.current().select([hit]) if hit is not None else None\n    return hit")]),
+    ("container_selectable_gui", "box_select_skips_container", "containers", [("        obj.setSelectableInViewport(False)", "        pass")]),
+    ("houdini_gets_container_clicks", "handle_drag_moves", PS, [("        return True if n is not None and containers.is_container(n) else input_layer.OBSERVE", "        return input_layer.OBSERVE")]),
+    ("proxy_not_followed", "handle_drag_moves", PS, [('        set_xform(pid, kw["node"].worldTransform())', "        pass")]),
+    ("drag_write_no_undo", "handle_drag_one_undo", PS, [('        set_xform(pid, kw["node"].worldTransform())',
+                                                         '        with hou.undos.disabler():\n            set_xform(pid, kw["node"].worldTransform())')]),
+    ("no_copy", "shift_drag_copies", PS, [("            input_layer.later(_make_copy)", "            pass")]),
+    ("original_follows", "shift_drag_original_stays", PS, [('    set_xform(st["orig"], st["xform"])', "    pass")]),
+    ("copy_after_drag", "shift_drag_one_undo", PS, [("            input_layer.later(_make_copy)", "            QtCore.QTimer.singleShot(350, _make_copy)"),
+                                                     ('    elif kind in ("release", "cancel"):\n        _state["clone"] = None\n    return False\n\n\ndef _make_copy',
+                                                      '    elif kind == "cancel":\n        _state["clone"] = None\n    return False\n\n\ndef _make_copy')]),
+    ("write_on_any_change", "undo_after_rebind_keeps_other", PS, [("    if QtWidgets.QApplication.mouseButtons() == Qt.NoButton:", "    if False:")]),
+    ("no_threshold", "shift_click_no_copy", PS, [("COPY_PX = 4", "COPY_PX = 0"), ("    if all(abs(a - b) < 1e-9 for a, b in zip(moved.asTuple(), st[\"xform\"].asTuple())):", "    if False:")]),
+    ("proxy_kept", "uninstall_clean", PS, [("                p.destroy()", "                pass")]),
+]
+RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
+if os.environ.get("PF_F1_QUICK"):
+    RUNS = RUNS[:1]
+RESULTS = []
+
+
+def driver():
+    STATE["desk0"] = hou.ui.curDesktop().name()
+    for name, check, modname, pairs in RUNS:
+        cleanup()
+        restore, out = None, {}
+        try:
+            if modname:
+                restore = mutate(modname, pairs)
+            yield from suite(out)
+        except Exception:  # noqa: BLE001
+            out["_exception"] = traceback.format_exc()
+        finally:
+            if restore:
+                restore()
+            cleanup()
+        RESULTS.append({"mutation": name, "check": check, "out": out})
+        log(name or "baseline", check, out.get(check) if check else out)
+        yield 200
+    with open(OUT, "w") as f:
+        json.dump(RESULTS, f, indent=1)
+
+
+def pump(gen):
+    try:
+        delay = next(gen)
+    except StopIteration:
+        finish()
+        return
+    except Exception:  # noqa: BLE001
+        log(traceback.format_exc())
+        finish()
+        return
+    QtCore.QTimer.singleShot(delay, lambda: pump(gen))
+
+
+def finish():
+    if LOGF.closed:
+        return
+    GUARD.stop()
+    log("done")
+    LOGF.close()
+    hdefereval.executeDeferred(lambda: hou.exit(suppress_save_prompt=True))
+
+
+def guard():
+    if hou.qt.mainWindow() is not None and not off_screen():
+        log("ABORT: windows on screen", [(type(w).__name__, w.frameGeometry()) for w in visible_on_screen()])
+        finish()
+
+
+GUARD = QtCore.QTimer(interval=200, timeout=guard)
+
+
+def start(tries=[0]):  # noqa: B006
+    try:
+        if hou.qt.mainWindow() is None:
+            tries[0] += 1
+            if tries[0] > 60:
+                raise RuntimeError("no main window after 65 s")
+            QtCore.QTimer.singleShot(1000, start)
+            return
+        off_screen()
+        GUARD.start()
+        pump(driver())
+    except Exception:  # noqa: BLE001
+        log(traceback.format_exc())
+        finish()
+
+
+QtCore.QTimer.singleShot(300, off_screen)
+QtCore.QTimer.singleShot(5000, start)
