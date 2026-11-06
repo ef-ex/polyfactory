@@ -18,9 +18,15 @@ def is_container(node):
     return node is not None and node.userData(MARK) == "1"
 
 
+def is_intact(node):
+    """A container whose storage and output nodes are there (one deleted by hand breaks only that container)."""
+    return is_container(node) and node.node("pieces") is not None and node.node("copy") is not None
+
+
 def containers(root="/obj"):
+    """Intact containers (broken ones are skipped, never break the whole scene)."""
     r = hou.node(root)
-    return [] if r is None else [n for n in r.children() if is_container(n)]
+    return [] if r is None else [n for n in r.children() if is_intact(n)]
 
 
 def create(name="pieces", parent="/obj"):
@@ -64,7 +70,10 @@ def _empty():
 
 
 def stash(container):
-    return container.node("pieces")
+    st = container.node("pieces")
+    if st is None:
+        raise RuntimeError("modelUI container %s lost its 'pieces' node" % container.path())
+    return st
 
 
 def points(container):
@@ -84,13 +93,30 @@ def _point(geo, piece):
     raise KeyError("piece %r is not in this container" % piece)
 
 
-def _ensure_source(container, path):
-    """The source chain for ``path`` (created once per distinct file)."""
+def _source_packs(container):
+    """{file: its Pack node} for the container's intact source chains; broken chains (a node deleted by hand) are
+    removed so they get rebuilt."""
+    out = {}
+    for pk in container.node("sources").inputs():
+        if pk is None or pk.parm("pf_source_path") is None:
+            continue
+        ac = pk.inputs()[0] if pk.inputs() else None
+        if ac is None or not ac.inputs() or ac.inputs()[0] is None:
+            with hou.undos.disabler():
+                if ac is not None:
+                    ac.destroy()
+                pk.destroy()
+            continue
+        out[pk.parm("pf_source_path").eval()] = pk
+    return out
+
+
+def _ensure_source(container, path, packs):
+    """The source chain for ``path`` (created once per distinct file); ``packs`` from _source_packs, kept current."""
     path = path.replace("\\", "/")
+    if path in packs:
+        return
     merge = container.node("sources")
-    for node in merge.inputs():
-        if node is not None and node.parm("pf_source_path") is not None and node.parm("pf_source_path").eval() == path:
-            return
     u = container.createNode("usdimport")
     u.parm("filepath1").set(path)
     u.parm("input_unpack").set(1)
@@ -108,16 +134,22 @@ def _ensure_source(container, path):
     tg.append(hou.StringParmTemplate("pf_source_path", "pf source path", 1, (path,)))
     pk.setParmTemplateGroup(tg)
     merge.setNextInput(pk)
+    packs[path] = pk
 
 
-def _unique_name(geo, name):
-    names = {p.stringAttribValue("pf_name") for p in geo.points()}
-    if name not in names:
-        return name
-    i = 1
-    while "%s_%d" % (name, i) in names:
-        i += 1
-    return "%s_%d" % (name, i)
+def _unique_name(names, name):
+    """A name not in ``names`` (a set, built once per edit), added to it."""
+    if name in names:
+        i = 1
+        while "%s_%d" % (name, i) in names:
+            i += 1
+        name = "%s_%d" % (name, i)
+    names.add(name)
+    return name
+
+
+def _names(geo):
+    return set(geo.pointStringAttribValues("pf_name"))
 
 
 def _set_xform(p, m):
@@ -128,7 +160,9 @@ def _set_xform(p, m):
 
 
 def transform(container, piece):
-    """The piece's transform (scale, then orient, then P: what Copy to Points applies)."""
+    """The piece's transform (scale, then orient, then P: what Copy to Points applies). Limit: a piece stores no shear,
+    so a piece rotated inside a container with a non-uniform scale loses the shear that combination makes (keep
+    container scales uniform)."""
     p = _point(stash(container).geometry(), piece)
     q = hou.Quaternion(p.attribValue("orient"))
     s = hou.hmath.buildScale(p.attribValue("scale"))
@@ -141,11 +175,12 @@ def add_pieces(container, items):
         geo = points(container)
         nxt = geo.intAttribValue("pf_next_piece")
         ids = []
+        names, packs = _names(geo), _source_packs(container)   # once per call: a bulk add stays linear
         for path, name, m in items:
-            _ensure_source(container, path)
+            _ensure_source(container, path, packs)
             p = geo.createPoint()
             p.setAttribValue("pf_source", path.replace("\\", "/"))
-            p.setAttribValue("pf_name", _unique_name(geo, name))
+            p.setAttribValue("pf_name", _unique_name(names, name))
             p.setAttribValue("pf_piece", nxt)
             _set_xform(p, m or hou.hmath.identityTransform())
             ids.append(nxt)
@@ -168,13 +203,14 @@ def copy_pieces(container, pieces):
     geo = points(container)
     nxt = geo.intAttribValue("pf_next_piece")
     ids = []
+    names = _names(geo)
     for piece in pieces:
         src = _point(geo, piece)
         p = geo.createPoint()
         p.setPosition(src.position())
         for n in ("orient", "scale", "pf_source", "pf_hidden"):
             p.setAttribValue(n, src.attribValue(n))
-        p.setAttribValue("pf_name", _unique_name(geo, src.stringAttribValue("pf_name")))
+        p.setAttribValue("pf_name", _unique_name(names, src.stringAttribValue("pf_name")))
         p.setAttribValue("pf_piece", nxt)
         ids.append(nxt)
         nxt += 1
@@ -195,7 +231,9 @@ def rename_piece(container, piece, name):
     p = _point(geo, piece)
     if p.stringAttribValue("pf_name") == name:
         return name
-    name = _unique_name(geo, name)
+    names = _names(geo)
+    names.discard(p.stringAttribValue("pf_name"))
+    name = _unique_name(names, name)
     p.setAttribValue("pf_name", name)
     _commit(container, geo, "rename")
     return name

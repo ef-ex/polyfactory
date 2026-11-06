@@ -16,7 +16,7 @@ import time
 import hou
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "polyfactory", "scripts", "python"))
-from polyfactory.modelui import containers, scene  # noqa: E402
+from polyfactory.modelui import containers, pieces_ui, scene  # noqa: E402
 
 FILES = sorted(f.replace("\\", "/") for f in glob.glob("F:/3d/kitbashLib/*/*.usd"))
 TOL = 1e-4   # float32 P/orient/scale at |values| <= 50
@@ -74,7 +74,10 @@ def checks(out, perf):
     out["add_is_one_undo_step"] = (len(prims(c)) == 4
                                    and len([n for n in c.children() if n.type().name() == "usdimport"]) == n_before)
 
-    m_p = containers.transform(c, ids[1])
+    with hou.undos.disabler():   # a moved and rotated container: promote must keep the WORLD transform
+        c.parmTuple("t").set((3, 1, -2))
+        c.parmTuple("r").set((0, 30, 0))
+    m_p = containers.transform(c, ids[1]) * c.worldTransform()
     pobj = containers.promote(c, ids[1])
     ppath = pobj.path()
     rows = [r[0] for r in containers.piece_rows(c)]
@@ -83,6 +86,32 @@ def checks(out, perf):
                                    and len(pobj.displayNode().geometry().points()) > 0)
     hou.undos.performUndo()
     out["promote_one_undo"] = hou.node(ppath) is None and ids[1] in [r[0] for r in containers.piece_rows(c)]
+    pid1 = ("piece", c.sessionId(), ids[1])
+    mw = xf((7, 2, 1), (10, 20, 30), (1.5, 1.5, 1.5))
+    pieces_ui.set_xform(pid1, mw)
+    pr1 = [p for p in prims(c) if p.attribValue("pf_piece") == ids[1]][0]
+    out["world_xform_roundtrip"] = (mclose(pieces_ui.get_xform(pid1), mw)
+                                    and mclose(pr1.fullTransform() * c.worldTransform(), mw))
+    with hou.undos.disabler():
+        c.parmTuple("t").set((0, 0, 0))
+        c.parmTuple("r").set((0, 0, 0))
+    containers.set_transforms(c, {ids[1]: m1})
+    c2 = containers.create("broken")
+    containers.add_pieces(c2, [(FILES[0], "x", None)])
+    c2.node("pieces").destroy()
+    try:
+        listed = scene.MixedScene().pieces()
+        out["broken_container_skipped"] = not any(isinstance(p, tuple) and p[1] == c2.sessionId() for p in listed)
+    except Exception:  # noqa: BLE001 - the whole scene failing is the defect
+        out["broken_container_skipped"] = False
+    c2.destroy()
+    u0 = [n for n in c.children() if n.type().name() == "usdimport" and n.parm("filepath1").eval() == FILES[0]][0]
+    u0.destroy()   # by hand: the pieces of FILES[0] lose their geometry
+    containers.add_pieces(c, [(FILES[0], "again", None)])
+    want_n = sum(1 for _, s_, _ in [(0, p.attribValue("pf_source"), 0) for p in containers.stash(c).geometry().points()] if s_ == FILES[0])
+    got_n = sum(1 for p in prims(c) if p.attribValue("pf_source") == FILES[0])
+    out["broken_chain_repaired"] = want_n == got_n and want_n > 0
+    hou.undos.performUndo()
 
     # --- the mixed scene backend (what the Scene Explorer uses) --------------------------------------------------------
     obj_piece = hou.node("/obj").createNode("geo", "loose")
@@ -130,6 +159,18 @@ def checks(out, perf):
         copy = ms(lambda: (containers.copy_pieces(big, [bid[8]]), len(prims(big))))
         sel = ms(lambda: s2.select([("piece", big.sessionId(), bid[9])]))
         listing = ms(lambda: [(s2.name(p), s2.hidden(p)) for p in s2.pieces()])
+        for n_bulk in (2000, 5000):
+            hou.hipFile.clear(suppress_save_prompt=True)
+            cb = containers.create("bulk")
+            items = [(FILES[i % len(FILES)], "b%d" % i, xf((i % 70, 0, i // 70))) for i in range(n_bulk)]
+            t = time.perf_counter()
+            containers.add_pieces(cb, items)
+            out_t = time.perf_counter() - t
+            out.setdefault("_bulk", {})[n_bulk] = out_t
+        print("  bulk add (605 files, no cook): 2000 %.2f s, 5000 %.2f s" % (out["_bulk"][2000], out["_bulk"][5000]))
+        bulk = out.pop("_bulk")
+        # ~3x the measured 0.90 s / 1.01 s (2026-11-06; the audit's quadratic version: 18.2 s for 5000)
+        out["perf_bulk_add"] = bulk[2000] < 3.0 and bulk[5000] < 3.5
         print("  perf 2000 pieces: add all %.2f s, move one %.1f ms, copy one %.1f ms, select one %.1f ms, "
               "list names %.1f ms" % (t_add, move, copy, sel, listing))
         # target from the brief: select/move/copy one piece under ~50 ms at 2000 pieces
@@ -149,17 +190,22 @@ def mutate(mod, old, new):
     return lambda: exec(compile(src, path, "exec"), mod.__dict__)
 
 
-C, S = containers, scene
+C, S, P = containers, scene, pieces_ui
 MUTATIONS = [   # (name, check, module, old, new)
     ("no_source_on_point", "add_pieces_places", C, 'p.setAttribValue("pf_source", path.replace("\\\\", "/"))', 'p.setAttribValue("pf_source", "")'),
-    ("chain_per_piece", "one_source_chain_per_file", C, "            return\n    u = container.createNode", "            pass\n    u = container.createNode"),
+    ("chain_per_piece", "one_source_chain_per_file", C, "    if path in packs:\n        return", "    if False:\n        return"),
     ("rotate_order_mismatch", "transform_roundtrip", C, 'hou.hmath.buildRotate(parts["rotate"])', 'hou.hmath.buildRotate(parts["rotate"], "zyx")'),
     ("commit_no_undo", "transform_one_undo_step", C, '    with hou.undos.group("modelUI: " + label):\n        stash(container).parm("stash").set(geo)',
      '    with hou.undos.disabler():\n        stash(container).parm("stash").set(geo)'),
-    ("copy_keeps_name", "copy_piece", C, 'p.setAttribValue("pf_name", _unique_name(geo, src.stringAttribValue("pf_name")))',
+    ("copy_keeps_name", "copy_piece", C, 'p.setAttribValue("pf_name", _unique_name(names, src.stringAttribValue("pf_name")))',
      'p.setAttribValue("pf_name", src.stringAttribValue("pf_name"))'),
     ("hide_ignored", "hide_show", C, '"if (i@pf_hidden) removepoint(0, @ptnum);"', '"// hide ignored"'),
-    ("rename_not_unique", "rename_unique", C, "    name = _unique_name(geo, name)\n    p.setAttribValue", "    p.setAttribValue"),
+    ("rename_not_unique", "rename_unique", C, "    name = _unique_name(names, name)\n    p.setAttribValue", "    p.setAttribValue"),
+    ("promote_ignores_container", "promote_makes_object", C, "        m = transform(container, piece) * container.worldTransform()", "        m = transform(container, piece)"),
+    ("world_xform_local", "world_xform_roundtrip", P, "        containers.set_transforms(c, {piece: m * c.worldTransform().inverted()})", "        containers.set_transforms(c, {piece: m})"),
+    ("broken_container_listed", "broken_container_skipped", C, "    return [] if r is None else [n for n in r.children() if is_intact(n)]", "    return [] if r is None else [n for n in r.children() if is_container(n)]"),
+    ("broken_chain_kept", "broken_chain_repaired", C, "        if ac is None or not ac.inputs() or ac.inputs()[0] is None:", "        if False:"),
+    ("bulk_add_rescans", "perf_bulk_add", C, "            _ensure_source(container, path, packs)", "            _ensure_source(container, path, _source_packs(container))"),
     ("next_id_not_kept", "ids_never_reused", C, '        geo.setGlobalAttribValue("pf_next_piece", nxt)\n        _commit(container, geo, "add pieces")',
      '        _commit(container, geo, "add pieces")'),
     ("add_split_undo", "add_is_one_undo_step", C, '    with hou.undos.group("modelUI: add pieces"):\n        geo = points(container)',
@@ -180,7 +226,7 @@ MUTATIONS = [   # (name, check, module, old, new)
      '        stash(container).parm("stash").set(geo)\n        [n.parm("reload").pressButton() for n in container.children() if n.type().name() == "usdimport"]'),
     ("rows_never_cached", "perf_2000_listing", S, "        if hit is None or hit[0] != st.cookCount():", "        if True:"),
 ]
-PERF = {"perf_2000_edits_under_50ms", "perf_2000_listing"}
+PERF = {"perf_2000_edits_under_50ms", "perf_2000_listing", "perf_bulk_add"}
 
 
 def run(perf):
