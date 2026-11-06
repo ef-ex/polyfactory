@@ -18,57 +18,43 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- Branch `modelui`, F2a in progress (started 2026-11-05). Done: probes, storage design (below), step (1):
-  `modelui/containers.py` + `scene.MixedScene` (now `scene.current()`), checked by
-  `hython tests/modelui/check_containers.py` (18 checks, 18 paired mutations red; 2000 pieces from 50 sources: move
-  one 4 ms, copy one 6-7 ms, select 0.1 ms, list all names 35-56 ms). F1's headless checks still pass.
-- F1 GUI regression with MixedScene as `scene.current()`: passed (62 mutations red), but it ran before the piece state
-  existed: run it again once `piece_state` is in the switch features.
-- Done in step (4): `containers.promote()` (own geometry object, world transform, visibility; one undo step), in
-  `check_containers.py` (now 20 checks, 20 mutations red).
-- Step (2), IN PROGRESS, uncommitted: `modelui/pieces_ui.py` + `tests/modelui/gui_f2a.py` (run:
-  `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`, plus
-  `PF_F1_QUICK=1` for one baseline). NOT in `switch.FEATURES` until verified (it creates a hidden proxy null in /obj and
-  Hannes' Houdini loads this working tree); the gui test installs it itself? NO: add `"polyfactory.modelui.pieces_ui"`
-  to FEATURES for the test run, or have gui_f2a call `pieces_ui.install()` (decide; the F1 GUI regression must then
-  run with it in FEATURES).
-- Why no Python viewer state (control probe `tests/modelui/state_probe.py`, 2026-11-06): states of every category
-  become current with the default generate mode, but entered without a node Houdini calls `onGenerate`, not
-  `onEnter`; `generate=Enter` raises; and the docs say "Handles cannot be bound to nodeless states". So the handle is
-  Houdini's own, on a hidden proxy null bound to the selected piece; picking is an OBSERVE click gesture.
-- State 2026-11-06 (uncommitted `pieces_ui.py`, `gui_f2a.py`; gui_f2a installs `pieces_ui` itself while it is not in
-  `switch.FEATURES`): handle drag works on the real path (the proxy callback fires 13-38 times per drag, the whole drag
-  is ONE undo entry "Transform Handle Change"); Shift+drag on the handle copies (original stays, copy selected, one
-  undo); clicks pick pieces/objects/nothing; undo after rebinding the handle to another piece leaves that piece alone
-  (fixed bug: the proxy wrote undo's reverted transform into the newly bound piece; now it writes only while a mouse
-  button is down, and `_follow_selection` puts the proxy back on its piece). Test fix: QtTest does not run Qt timers
-  between mouseMove calls, so `later()` ran only after the release: the drag loops yield 30 ms per move like real input.
-- Root causes found 2026-11-06 for the flaky handle drag (each from per-run logs of drag distance in screen pixels,
-  proxy callback count, undo labels, selected nodes, viewer state):
-  1. Test: the session's first entry into "pose" builds the handle; the press came 200 ms after W and Houdini took it
-     as a click. The test now waits for the state and a redraw (a person never presses that fast).
-  2. Test: a world-unit threshold depends on frameAll's camera (0.47 vs 2.84 units for one drag): the check now
-     measures the piece's on-screen movement (60 px drag).
-  3. PRODUCT: picking while the viewer is already in "pose" (W, then click another piece; every run after the first
-     starts in "pose"): Houdini's own click selects the whole container, our deferred re-select of the proxy then
-     leaves Houdini's handle following only the first mouse move (10 of 60 px, 13 instead of 28 proxy writes). Fix in
-     progress: the click gesture asks `queryNodeAtPixel` at the PRESS and, on a container, takes the click from
-     Houdini (owns press and release) and picks at the release; on the proxy, a loose object or empty space Houdini
-     keeps the click. Result: 15 of 21 runs drag the full 60 px (2 more 58 px) where only the first run did before.
-- OPEN: in the full run's first baseline Houdini still selected the container once ("Change Object Selection",
-  "MultiXform Handle Change", proxy writes 0): probably the press-time query found nothing yet (cold pick buffer), so
-  the click went to Houdini. Next: (a) keep an object-level re-select of the proxy as a safety net (only /obj
-  children, never while a mouse button is down: that variant earlier ended drags because it reacted to SOP nodes
-  inside the container and ran mid-drag); (b) log `_under()` at every press; (c) run the full suite twice; both
-  baselines must pass in both. Then commit `pieces_ui.py` + `gui_f2a.py`, put `pieces_ui` in `switch.FEATURES`, rerun
-  gui_f2a and the F1 GUI regression, then the benches (100/500/2000 pieces, all 605 files).
-- Shift+drag Copy, highlight, picking, undo after rebinding: green in every baseline of the last runs; mutations
-  red except the ones listed above as removed/redesigned.
-- Picking findings: at object level `queryPrimAtPixel` finds no primitives (pick buffer holds objects);
-  `queryNodeAtPixel` reports drawn objects even when unselectable; `pick()` takes the object from
-  `queryNodeAtPixel` and a container's piece from a ray through the pixel (`mapToWorld` returns (direction, origin)).
-- Shell-tool trap (cost 6 calls in F1/F2): a doubled backslash in a command reaches the shell as one; build escapes
-  in patch scripts with `chr(92)`.
+- Branch `modelui`. F2a implemented 2026-11-06, independent audit pending (then F2b Clone dialog, F2c stack panel,
+  F2d Align, F2e copy/paste between hips). Verify against `git log` first.
+- Code: `modelui/containers.py` (storage, promote), `scene.MixedScene` (`scene.current()`), `modelui/pieces_ui.py`
+  (in `switch.FEATURES`: click pick, Houdini's handle on a proxy null, Shift+drag Copy, highlight).
+- Checks (all exit 0):
+  - `hython tests/modelui/check_containers.py`: 21 checks, 21 paired mutations red.
+  - `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`: 17 checks
+    green in both baselines, 19 paired mutations red; passed twice in a row (about 6 minutes, run in the background).
+  - `python tests/modelui/run_gui_f1.py` (F1 suite, with `pieces_ui` installed by the switch): 59 checks per
+    baseline, 62 paired mutations red.
+  - Bench: `python tests/modelui/bench_f2a.py` (numbers below).
+- Probes (evidence): `tests/modelui/state_probe.py` (why no Python viewer state), `keys_probe.py`, `shortcut_probe.py`.
+- Why no Python viewer state: a node-less state cannot carry a handle (Houdini docs) and is entered through
+  onGenerate, so Houdini's own handle runs on a proxy null bound to the selected piece.
+- Root causes of the earlier flaky handle drag (per-run logs of on-screen drag, proxy writes, undo labels,
+  selection, state): the session's first entry into "pose" needs a moment before a press grabs the handle (the test
+  waits); a world-unit threshold depended on the camera (now on-screen pixels); an unselectable proxy was dropped by
+  "pose" on entry (the proxy is selectable now); Houdini's own click on a container raced our pick (now Houdini never
+  gets clicks on containers, and containers are not selectable in the viewport, so box selections skip them too).
+- Known limits: plain LMB clicks over a viewer are observed by the pick gesture (a later plain-click gesture must be
+  registered before it); a drag that starts on a piece but not on the handle does nothing (Houdini never sees clicks
+  on containers); only translate drags are driven by the checks (rotate/scale are Houdini's own handle modes);
+  promote has no caller yet (F2c's first modifier); copy/paste between hips is F2e.
+
+## F2a measurements (2026-11-06, `tests/modelui/bench_f2a.py`, all 605 library files, one container)
+
+| Pieces | add (one edit) | first cook | draw over the empty scene |
+|---|---|---|---|
+| 100 | 2.0 s | 0.6 s | +4.0 ms |
+| 500 | 1.2 s | 2.8 s | +11.7 ms |
+| 2000 | 7.7 s | 3.8 s | +12.1 ms |
+
+Draw: single-frame flipbooks 1280x720 while the camera orbits, median of 20 (the empty scene's 38.3 ms is flipbook
+overhead). Against the object-level numbers below: 2000 objects +101 ms, the same 2000 pieces as polygons in one
+object +9 ms; packed pieces in a container land next to the one-object number. In the GUI at 2000 pieces: move one
+piece 5.4 ms, copy one 5.0 ms, select one (including placing the handle proxy) 2.8 ms (edit + recook + redraw;
+target < 50 ms). Adding 2000 pieces once costs 7.7 s, mostly creating the 605 source chains. Measured once.
 
 ## F2a design: pieces packed in container objects (Hannes' choice: mixed backend)
 
