@@ -439,10 +439,40 @@ def suite(out):
         copies[0] = 0
         QTest.mouseClick(win, LMB, Qt.ShiftModifier, L(win, g, 40, 0))
         yield 50
-        out["observe_click_no_copy_and_ends"] = copies[0] == 0 and input_layer.layer().owner is None
+        out["observe_click_no_copy_and_ends"] = (copies[0] == 0 and input_layer.layer().owner is None
+                                                 and not input_layer.layer().watchers["mouse"])
     finally:
         input_layer.remove_gesture("test_clone")
         input_layer.layer().owners.update(mouse=None, key=None)
+
+    obs = {"a": [], "b": []}   # two observing gestures share one Shift press
+
+    def observer(k):
+        def g(kind, ev, viewer):
+            if kind == "press":
+                mods = ev.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier)
+                if ev.button() != LMB or mods != Qt.ShiftModifier:
+                    return False
+            obs[k].append(kind)
+            return input_layer.OBSERVE
+        return g
+    input_layer.add_gesture("test_obs_a", observer("a"))
+    input_layer.add_gesture("test_obs_b", observer("b"))
+    try:
+        hover(win, g)
+
+        def shift_drag2():
+            QTest.mousePress(win, LMB, Qt.ShiftModifier, L(win, g))
+            for d in (4, 10, 16):
+                QTest.mouseMove(win, L(win, g, d, d))
+            QTest.mouseRelease(win, LMB, Qt.ShiftModifier, L(win, g, 16, 16))
+        wseen2 = with_probe(win, shift_drag2)
+        out["two_observers_share_press"] = (obs["a"][:1] == ["press"] and obs["a"] == obs["b"]
+                                            and obs["a"][-1:] == ["release"] and PRESS in wseen2)
+        log("  two observers", obs, "window", wseen2)
+    finally:
+        input_layer.remove_gesture("test_obs_a")
+        input_layer.remove_gesture("test_obs_b")
 
     fp = desk.createFloatingPaneTab(hou.paneTabType.SceneViewer, position=(-11000, 300), size=(600, 450))
     yield 300
@@ -613,7 +643,7 @@ def cleanup():
     for o in gc.get_objects():   # filters a mutated uninstall left attached
         if type(o).__name__ in ("_AppFilter", "_Windows"):
             _q(o.detach)
-    for name in ("test_tap", "test_count", "test_nested", "test_clone"):
+    for name in ("test_tap", "test_count", "test_nested", "test_clone", "test_obs_a", "test_obs_b"):
         _q(lambda: input_layer.remove_gesture(name))
     for p in hou.ui.floatingPanels():
         if any(isinstance(t, hou.SceneViewer) for t in p.paneTabs()):
@@ -659,7 +689,7 @@ MUTATIONS = [
     ("no_window_cover_test", "window_over_viewer_passes", IL, [("        if g.contains(r) and tg.contains(g):", "        if g.contains(r):")]),
     ("receiver_ignored", "other_window_receiver_passes", IL, [("        top = receiving_top(receiver)   # widgetAt()", "        top = hou.qt.mainWindow()   # widgetAt()")]),
     ("keys_never_offered", "key_gesture_owned", IL, [("        elif t == QE.KeyPress:", "        elif False:")]),
-    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [('        if t == QE.KeyRelease and not ev.isAutoRepeat():\n            self.owners["key"] = None', '        if t == QE.KeyRelease:\n            self.owners["key"] = None')]),
+    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [('        if t == QE.KeyRelease and not ev.isAutoRepeat():\n            self._end("key", o)', '        if t == QE.KeyRelease:\n            self._end("key", o)')]),
     ("keys_paired_by_key", "key_pairs_by_scancode", IL, [("    return ev.nativeScanCode() or ev.key()", "    return ev.key()")]),
     ("demo_owns_keys", "unowned_key_passes", IL, [('        if kind == "key":\n            return False\n', "")]),
     ("text_fields_not_skipped", "text_field_keeps_keys", IL, [("viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)", "viewer = viewer_of(focus)")]),
@@ -669,9 +699,9 @@ MUTATIONS = [
     ("lost_release_kept", "lost_release_cancels", IL, [("            if not ev.buttons() & which:", "            if False:")]),
     ("owner_after_call", "nested_release_not_stuck", IL, [("            self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it\n            res = self._call(fn, kind, ev, viewer)",
                                                            "            res = self._call(fn, kind, ev, viewer)\n            self.owners[slot] = owner")]),
-    ("observe_swallows", "observe_drag_passes_through", IL, [("                return res is True", "                return True")]),
+    ("observe_swallows", "observe_drag_passes_through", IL, [("                watchers.append([fn, which, False])   # observers share", "                return True   # observers share")]),
     ("later_runs_now", "later_defers", IL, [("    QtCore.QTimer.singleShot(0, run)", "    run()")]),
-    ("observe_release_kept", "observe_click_no_copy_and_ends", IL, [("        if ev.button() == which:   # release\n            self.owners[\"mouse\"] = None", "        if ev.button() == which:   # release\n            pass")]),
+    ("observe_release_kept", "observe_click_no_copy_and_ends", IL, [('        if ev.button() == which:   # release\n            self._end("mouse", o)', '        if ev.button() == which:   # release\n            pass')]),
     ("docked_viewers_only", "floating_viewer_gesture", IL, [("[t for t in hou.ui.paneTabs() if", "[t for t in hou.ui.curDesktop().paneTabs() if")]),
     ("no_focus_cancel", "key_cancel_on_focus_window", IL, [("        app.focusWindowChanged.connect(self._focus_changed)\n", "")]),
     ("popup_cancels", "popup_keeps_held_key", IL, [("        if w is not None and w.type() in (Qt.Popup, Qt.ToolTip):", "        if False:")]),
@@ -684,15 +714,14 @@ MUTATIONS = [
     ("repeat_current_kept", "w_then_q_selects", "keys", [('    ("h.pane.gview", "-h.pane.gview.repeat_current", "Q"),', "")]),
     ("cancel_keeps_eaten", "cancel_clears_eaten", IL, [('        self.eaten["mouse"].clear()\n        self.eaten["key"].clear()\n', "")]),
     ("drop_eaten", "swallowed_key_fully_hidden", IL, [('            self.eaten["mouse" if kind == "press" else "key"].add(which)', "            pass")]),
-    ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
-                                                                   '            self.owners["key"] = None\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
+    ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self._end("key", o)\n            self._call(fn, "keyup", ev, None)', '            self._end("key", o)\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
     ("other_without_viewer", "other_click_in_viewer_swallowable", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, None)')]),
     ("no_other_for_clicks", "other_click_in_viewer_swallowable", IL, [('        if held is not None and self._call(held[0], "other", ev, viewer)', '        if held is not None and kind == "key" and self._call(held[0], "other", ev, viewer)')]),
     ("other_always_viewer", "other_click_on_explorer_passes", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, viewer or _viewers()[0])')]),
     ("cancel_keeps_mouse", "cancel_ends_drag", IL, [('        for slot in ("mouse", "key"):\n            o = self.owners[slot]', '        for slot in ("key",):\n            o = self.owners[slot]')]),
     ("drag_blocks_keys", "key_offered_during_drag", IL, [('        elif t == QE.KeyPress:\n            kind, which = "key", _key_id(ev)', '        elif t == QE.KeyPress:\n            if self.owners["mouse"] is not None:\n                return False\n            kind, which = "key", _key_id(ev)')]),
-    ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
-                                                  '            self.owners["key"] = None\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
+    ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self._end("key", o)\n            self._call(fn, "keyup", ev, None)', '            self._end("key", o)\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
+    ("first_observer_only", "two_observers_share_press", IL, [("                watchers.append([fn, which, False])   # observers share the press; every later gesture is still asked", "                watchers.append([fn, which, False])\n                break")]),
     ("uninstall_keeps_filter", "input_off", IL, [('    remove_gesture("demo_drag")\n    lay = layer()\n    if lay is not None:\n        lay.attached.detach()\n        lay.shutdown()\n        setattr(hou.session, SESSION_ATTR, None)', "    pass")]),
     ("fallback_not_attached", "fallback_drag_owned", IL, [("            w.installEventFilter(self.filter)", "            pass")]),
     ("fallback_never_swallows", "fallback_swallowed", IL, [("return int(ev.type()) in _TYPES and self.lay.handle(ev, _ptr(obj))", "self.lay.handle(ev, _ptr(obj))\n            return False")]),
