@@ -11,6 +11,7 @@ translate drag is driven; E/R are checked as modes), multi-viewport layouts (sin
 """
 import glob
 import json
+import math
 import os
 import traceback
 
@@ -130,6 +131,7 @@ def suite(out):
     seen = []
     flt = _Probe(seen)
     win.installEventFilter(flt)   # an object filter on the window: it sees what our application filter let through
+    n_undo = len(hou.undos.undoLabels())
     px = click_at(centre)
     win.removeEventFilter(flt)
     out["container_click_taken"] = int(QtCore.QEvent.MouseButtonPress) not in seen
@@ -172,6 +174,9 @@ def suite(out):
     yield 300
     log("  empty click: last pick", pieces_ui._state.get("last_pick"), "selected", s.selected())
     out["pick_empty_clears"] = s.selected() == []
+    # A4: the select([mid]) above took the object out of Houdini's node selection; that must not be an undo entry
+    # that restores only the node part (pieces cannot be undone)
+    out["pick_adds_no_undo_entry"] = "modelUI: select" not in hou.undos.undoLabels()
     out["highlight_hidden_when_empty"] = pieces_ui._state.get("shown_box") is None
 
     # --- handle drag (W) on the selected piece, one undo step ----------------------------------------------------------
@@ -436,6 +441,9 @@ def suite(out):
     yield 300
     log("  toggle 2:", s.selected(), "press under", pieces_ui._state.get("last_pick"), "bound", pieces_ui._state["bound"])
     out["ctrl_shift_click_toggles"] = t1_ and sorted(s.selected()) == sorted([left, mid])
+    gl.setFocus()
+    QTest.keyClick(win, Qt.Key_W)
+    yield 400
     s.select([mid])
     yield 300
 
@@ -523,14 +531,61 @@ def suite(out):
     yield 400
     s.select([])   # no handle on mid: the press must reach the piece's body
     yield 300
+    cpl, rpl = sv.constructionPlane(), sv.referencePlane()
+    cp_vis, rp_cell = cpl.isVisible(), rpl.cellSize()
+    cpl.setIsVisible(False)
+    rpl.setCellSize((0.5, 0.5))   # the grid the user sees: Ctrl moves by its cell
+    step = 0.5
+    yield 200
     m0 = tr(mid)
     yield from press_drag(at(mid), Qt.ControlModifier, steps=4, dx=13, dy=7)
     dmv = tr(mid) - m0
-    step = pieces_ui._grid_step(sv)
+    cpl.setIsVisible(cp_vis)
+    rpl.setCellSize(rp_cell)
     out["ctrl_drag_snaps"] = dmv.length() > 0.1 and all(abs(v / step - round(v / step)) < 1e-3 for v in dmv)
     log("  snapped drag", tuple(dmv), "step", step)
     hou.undos.performUndo()
     yield 200
+    # E: a body drag turns the selection about the view axis through its pivot; R: scales it uniformly (Max)
+    s.select([])
+    yield 200
+    s.select([left, mid])
+    yield 300
+    gl.setFocus()
+    QTest.keyClick(win, Qt.Key_E)
+    yield 600
+    bxs2 = [wbox(i) for i in (left, mid)]
+    piv = hou.Vector3([(min(b_[0][k] for b_ in bxs2) + max(b_[1][k] for b_ in bxs2)) / 2.0 for k in range(3)])
+    _vx, _vy, vw_, vh_ = vp.size()
+    axis = (piv - hou.Vector3(vp.mapToWorld(vw_ // 2, vh_ // 2)[1])).normalized()
+    p_b = {i: tr(i) for i in (left, mid)}
+    yield from press_drag(at(mid), NOM, steps=6, dx=10, dy=0)
+    oks = []
+    for i, pb in p_b.items():
+        a_, b2 = pb - piv, tr(i) - piv
+        a_p, b_p = a_ - axis * a_.dot(axis), b2 - axis * b2.dot(axis)
+        ang = math.degrees(math.acos(max(-1.0, min(1.0, a_p.normalized().dot(b_p.normalized())))))
+        oks.append(abs(a_.length() - b2.length()) < 1e-3 and abs((tr(i) - pb).dot(axis)) < 1e-3 and abs(ang - 30) < 1.5)
+        log("  E drag", i, "angle %.2f" % ang, "radius", a_.length(), b2.length())
+    out["e_body_drag_rotates"] = all(oks)
+    hou.undos.performUndo()
+    yield 200
+    gl.setFocus()
+    QTest.keyClick(win, Qt.Key_R)
+    yield 600
+    p_b = {i: tr(i) for i in (left, mid)}
+    s_b = {i: pieces_ui.get_xform(i).explode()["scale"] for i in (left, mid)}
+    yield from press_drag(at(mid), NOM, steps=6, dx=10, dy=0)
+    ratio = (tr(left) - piv).length() / (p_b[left] - piv).length()
+    uni = all(abs(pieces_ui.get_xform(i).explode()["scale"][k] / s_b[i][k] - ratio) < 1e-3 for i in (left, mid) for k in range(3))
+    out["r_body_drag_scales"] = (ratio > 1.2 and abs((tr(mid) - piv).length() / (p_b[mid] - piv).length() - ratio) < 1e-3
+                                 and uni)
+    log("  R drag ratio %.4f" % ratio, "uniform", uni)
+    hou.undos.performUndo()
+    yield 200
+    gl.setFocus()
+    QTest.keyClick(win, Qt.Key_W)
+    yield 400
     s.select([])
     yield 200
     lo0 = tr(lid)
@@ -639,7 +694,25 @@ def _purge_stale():
                 n.destroy()
 
 
+def undo_open():
+    """None when undo works; else Houdini's error (an undo group left open, e.g. by an unfinished handle drag)."""
+    n = hou.node("/obj").createNode("null", "pf_undo_probe")
+    try:
+        hou.undos.performUndo()
+    except hou.Error as e:
+        if hou.node("/obj/pf_undo_probe") is not None:
+            with hou.undos.disabler():
+                n.destroy()
+        return e.instanceMessage().strip().splitlines()[-1]
+    return None if hou.node("/obj/pf_undo_probe") is None else "undo did not remove the probe"
+
+
 def cleanup():
+    leak = undo_open()
+    if leak:
+        mw = hou.qt.mainWindow()
+        QTest.mouseRelease(mw.windowHandle(), LMB, NOM, QtCore.QPoint(5, 5))   # ends an unfinished drag, if any
+        log("  UNDO LEAK before cleanup:", leak, "-> after a mouse release:", undo_open())
     _q(pieces_ui.uninstall)
     _q(_purge_stale)
     _q(switch.uninstall)
@@ -647,7 +720,7 @@ def cleanup():
     switch._state["on"] = False
 
 
-MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers}
+MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers, "scene": scene}
 
 
 def mutate(modname, pairs):
@@ -660,7 +733,15 @@ def mutate(modname, pairs):
             raise RuntimeError("mutation snippet not found exactly once: %r" % old)
         new = new.replace(old, rep)
     exec(compile(new, mod.__file__, "exec"), mod.__dict__)
-    return lambda: exec(compile(src, mod.__file__, "exec"), mod.__dict__)
+    inst = getattr(hou.session, "_pf_modelui_scene", None) if modname == "scene" else None
+    if inst is not None:   # the cached scene object (the Explorer holds it too) takes the mutant's class
+        inst.__class__ = mod.MixedScene
+
+    def restore():
+        exec(compile(src, mod.__file__, "exec"), mod.__dict__)
+        if inst is not None:
+            inst.__class__ = mod.MixedScene
+    return restore
 
 
 PS = "pieces_ui"
@@ -695,9 +776,14 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("only_bound_box", "highlight_all_selected", PS, [("        boxes = [bounds(p) for p in scene.current().selected()]", "        boxes = [b]")]),
     ("handle_on_first_item", "pivot_at_selection_centre", PS, [("    if len(items) == 1:\n        return get_xform(items[0])\n    boxes", "    if True:\n        return get_xform(items[0])\n    boxes")]),
     ("objects_not_driven", "mixed_rotate_about_pivot", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
-    ("objects_not_driven_drag", "handle_moves_selected_object", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
+    ("offsets_wrong", "handle_moves_selected_object", PS, [("    _state[\"rel\"] = {o: get_xform(o) * inv for o in items}", "    _state[\"rel\"] = {o: get_xform(o) for o in items}")]),
+    ("select_recorded", "pick_adds_no_undo_entry", "scene", [('hou.undos.disabler():   # not an undo entry: piece selection cannot be undone, so neither is this', 'hou.undos.group("modelUI: select"):')]),
     ("view_plane_in_persp", "body_drag_on_ground", PS, [("        normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view", "        normal = view")]),
     ("ground_in_ortho", "ortho_drag_view_plane", PS, [("        normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view", "        normal = hou.Vector3(0, 1, 0)")]),
+    ("grid_hardcoded", "ctrl_drag_snaps", PS, [("        return float(sv.referencePlane().cellSize()[0]) or 1.0", "        return 0.1")]),
+    ("e_drag_moves", "e_body_drag_rotates", PS, [('        if st["xmode"] in ("rotate", "scale"):', '        if False:')]),
+    ("mode_keys_ignored", "e_body_drag_rotates", PS, [('        _state["xmode"] = XMODES[ev.text().upper()]', '        pass')]),
+    ("r_not_uniform", "r_body_drag_scales", PS, [("                k = hou.hmath.buildScale(f, f, f)", "                k = hou.hmath.buildScale(f, 1, 1)")]),
     ("no_snap", "ctrl_drag_snaps", PS, [('            if st["snap"]:', '            if False:')]),
     ("objects_not_draggable", "body_drag_moves_object", PS, [('        elif n.type().name() == "geo" and n.userData(PROXY_MARK) != "1" and moving:', '        elif False:')]),
     ("q_drag_not_box", "q_drag_on_piece_boxes", PS, [('            st["box"] = st["empty"] or st["own"]', '            st["box"] = st["empty"]')]),
@@ -721,6 +807,8 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
 RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
 if os.environ.get("PF_F1_QUICK"):
     RUNS = RUNS[:1]
+if os.environ.get("PF_F2A_ONLY"):   # diagnosis: one baseline and the named mutations
+    RUNS = [RUNS[0]] + [m for m in MUTATIONS if m[0] in os.environ["PF_F2A_ONLY"].split(",")]
 if os.environ.get("PF_F2A_TWICE"):   # diagnosis: two baselines in one session, no mutations
     RUNS = [RUNS[0], RUNS[-1]]
 RESULTS = []

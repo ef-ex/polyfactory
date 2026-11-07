@@ -35,8 +35,11 @@ def main():
         return 1
     with open(os.path.join(mut, "appfilter_nowindow.cpp"), "w") as f:
         f.write(src.replace(snip, ""))
-    r = subprocess.run(["cmd", "/c", os.path.join(afdir, "build.bat"), os.path.join(mut, "appfilter_nowindow.cpp"),
-                        os.path.join(mut, "pf_appfilter_nowindow.dll")], capture_output=True, text=True)
+    if os.environ.get("PF_GUI_SCRIPT", "gui_f1.py") != "gui_f1.py":
+        r = subprocess.CompletedProcess([], 0)   # only the F1 suite uses the mutated DLL (build.bat's objects are shared)
+    else:
+        r = subprocess.run(["cmd", "/c", os.path.join(afdir, "build.bat"), os.path.join(mut, "appfilter_nowindow.cpp"),
+                            os.path.join(mut, "pf_appfilter_nowindow.dll")], capture_output=True, text=True)
     if r.returncode:
         print("mutated DLL build failed:", r.stdout[-2000:], r.stderr[-2000:])
         return 1

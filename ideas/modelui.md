@@ -18,11 +18,13 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- RESUME HERE (2026-11-07): audit-3 items 1, 3, 6 committed (02e7f66). Items 2, 4, 5 below are implemented but
-  UNCOMMITTED: quick baseline 50/50 green and the F1 suite passes (61 / 64), but the full gui_f2a run failed in its
-  LAST baseline: handle_drag_moves, shift_drag_copies_all and 'Cannot undo within an undo group' (gui_f2a line ~422):
-  an undo group left open late in a long session (suspects: the A4 change to scene.select's undo, or a mutation run's
-  unfinished handle drag). Next: log hou.undos state at each suite step in the last baseline, fix, rerun, commit.
+- 2026-11-07: all F2a audit-3 items are in; F2a audit 4 pending. gui_f2a: 50 checks per baseline, 55 paired
+  mutations red; F1 suite 61 / 64. The "Cannot undo within an undo group" failure of one earlier full run did not
+  come back in three full runs; every run's cleanup now probes undo (a throwaway null, then undo) and, on a leak, logs
+  it and sends a mouse release (an unfinished Houdini handle drag holds an undo group open). Found while pairing
+  checks: Houdini's TRANSLATE handle also moves node-selected objects (scale moved only the null, rotate_ring_probe);
+  modelUI's offset write is the one that counts (mutation offsets_wrong turns handle_moves_selected_object red). A
+  mutation of scene.py must give the cached scene object the mutant class (the Explorer holds that object).
   Audit 3 (agent-179), each with a check in gui_f2a:
   1 a body drag past the horizon keeps its last valid point (no point behind the camera or beyond 20x the grab
   distance); 3 in Q, Shift+drag from a piece adds by box, copy only in W/E/R; 6 highlight checked for every selected

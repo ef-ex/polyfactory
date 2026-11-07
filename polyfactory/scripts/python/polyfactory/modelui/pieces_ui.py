@@ -11,6 +11,8 @@ Shift+drag Copy: an OBSERVE gesture stores the bound piece's transform at the pr
 really moving (the handle is being dragged), ``later()`` copies the piece, puts the original back and binds the
 proxy to the copy, so the handle carries the copy (verified for the pose handle in F1 audit 3).
 """
+import math
+
 import hou
 from hutil.Qt import QtCore, QtWidgets
 
@@ -281,14 +283,11 @@ def _box_at(sv, g0, g1, mode, ours=False):
     boxed = [pid for pid, (x, y) in piece_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]
     sc = scene.current()
     cur = sc.selected()
-    held = sc.held()
     pieces = [p for p in cur if isinstance(p, tuple)]
     objs = [p for p in cur if not isinstance(p, tuple)]
     if ours:
         boxed_objs = [o for o, (x, y) in _object_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]
         objs = _apply(mode, objs, boxed_objs)
-    elif mode == "replace":
-        objs = [o for o in objs if o not in held]   # Houdini's box replaced the node selection
     sc.select(objs + _apply(mode, pieces, boxed))
 
 
@@ -331,7 +330,8 @@ def _new_proxy(m):
         finally:
             _state["writing"] = False
         n.addEventCallback(_EVENTS, _proxy_moved)
-        n.setSelected(True)   # alone: objects of a mixed selection are held (scene.hold), the handle drives them
+        n.setSelected(True)   # Houdini's handle moves only this null (probe: rotate_ring_probe.py); the selected
+        # pieces and objects follow it by their offsets (_set_rel)
     return n
 
 
@@ -450,8 +450,6 @@ def _follow_selection():
     pieces = [p for p in sel if isinstance(p, tuple)]
     objs = [p for p in sel if not isinstance(p, tuple)]
     items = pieces + objs if pieces else []
-    if len(items) > 1 and objs:
-        sc.hold(objs)   # driven by the handle with the pieces, around one pivot
     want = pieces[0] if pieces else None
     if QtWidgets.QApplication.mouseButtons() != Qt.NoButton and want == _state["bound"]:
         _draw()   # mid-drag: never move the handle or re-measure offsets (float32 storage would pull it back)
@@ -495,11 +493,29 @@ def _plane_point(vp, x, y, origin, normal):
     return o + d * t
 
 
-def _grid_step(sv):
+def _grid_step(sv, vp=None):
+    """Ctrl's step: the cell of the grid the user sees (Houdini's handle Translate Step is not readable from HOM):
+    an orthographic view's own grid, else the construction plane when it is shown, else the reference grid."""
     try:
-        return float(sv.constructionPlane().cellSize()[0]) or 1.0
+        if vp is not None and vp.type() != hou.geometryViewportType.Perspective:
+            return float(vp.settings().orthoGridSpacing()[0]) or 1.0
+        cp = sv.constructionPlane()
+        if cp.isVisible():
+            return float(cp.cellSize()[0]) or 1.0
+        return float(sv.referencePlane().cellSize()[0]) or 1.0
     except (AttributeError, TypeError, IndexError, hou.Error):
         return 1.0
+
+
+XMODES = {"W": "move", "E": "rotate", "R": "scale"}
+
+
+def _key_gesture(kind, ev, viewer):
+    """Remembers the transform mode (W/E/R, Houdini's handle keys) for body drags; never takes a key."""
+    if (kind == "key" and viewer is not None and not ev.isAutoRepeat()
+            and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.NoModifier and ev.text().upper() in XMODES):
+        _state["xmode"] = XMODES[ev.text().upper()]
+    return False
 
 
 def _ray_object(vp, n, x, y):
@@ -548,10 +564,13 @@ def _drag_gesture(kind, ev, viewer):
         normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view
         sel = scene.current().selected()
         items = sel if pid in sel else [pid]   # the whole selection when the grabbed piece is in it
+        pivot = _handle_xform(items).extractTranslates()   # E/R turn and scale about the handle's pivot
         _state["drag"] = {"vp": vp, "viewer": viewer, "pid": pid, "items": items,
                           "start": {i: get_xform(i) for i in items}, "grab": grab, "normal": normal, "p0": g,
                           "shift": shift, "mode": MODES[mods], "snap": bool(mods & Qt.ControlModifier),
-                          "step": _grid_step(viewer), "moving": None, "copies": None}
+                          "step": _grid_step(viewer, vp), "moving": None, "copies": None,
+                          "xmode": _state.get("xmode", "move"), "pivot": pivot,
+                          "axis": (pivot - hou.Vector3(vp.mapToWorld(x, y)[1])).normalized()}
         return True   # ours: Houdini never sees this drag
     st = _state["drag"]
     if st is None:
@@ -565,6 +584,17 @@ def _drag_gesture(kind, ev, viewer):
             with hou.undos.disabler():   # preview only: the release commits one undo step
                 st["moving"] = {i: copy_of(i) for i in st["items"]} if st["shift"] else {i: i for i in st["items"]}
             st["copies"] = list(st["moving"].values()) if st["shift"] else None
+        if st["xmode"] in ("rotate", "scale"):   # E: about the view axis through the pivot; R: uniform (Max)
+            dx = g.x() - st["p0"].x()
+            if st["xmode"] == "rotate":
+                k = hou.hmath.buildRotateAboutAxis(st["axis"], -0.5 * dx)
+            else:
+                f = max(0.01, math.exp(0.01 * dx))
+                k = hou.hmath.buildScale(f, f, f)
+            dm = hou.hmath.buildTranslate(st["pivot"] * -1.0) * k * hou.hmath.buildTranslate(st["pivot"])
+            with hou.undos.disabler():
+                set_xforms({st["moving"][i]: st["start"][i] * dm for i in st["items"]})
+            return True
         vp, x, y, _ = _under(st["viewer"], g)
         if vp is None:
             return True
@@ -625,6 +655,7 @@ def install():
         _state["drawable"] = hou.SimpleDrawable(sv, hou.Geometry(), "pf_modelui_selection")
         _state["drawable"].setWireframeColor(hou.Color(1.0, 0.8, 0.1))
         _state["drawable"].enable(True)
+    input_layer.add_gesture("modelui_mode_keys", _key_gesture)
     input_layer.add_gesture("modelui_drag", _drag_gesture)
     input_layer.add_gesture("modelui_click_pick", _click_gesture)
     scene.current().watch(_scene_changed)
@@ -641,6 +672,7 @@ def uninstall():
         pass
     input_layer.remove_gesture("modelui_click_pick")
     input_layer.remove_gesture("modelui_drag")
+    input_layer.remove_gesture("modelui_mode_keys")
     if _state["drawable"] is not None:
         _state["drawable"].show(False)
         _state["drawable"].enable(False)
