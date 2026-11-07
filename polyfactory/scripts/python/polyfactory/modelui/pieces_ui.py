@@ -422,7 +422,8 @@ def _draw():
         boxes = [bounds(p) for p in scene.current().selected()]   # held objects are not highlighted by Houdini
     except hou.Error:
         boxes = [b]
-    for bb in [x for x in boxes if x is not None] or [b]:
+    _state["shown_boxes"] = [x for x in boxes if x is not None] or [b]   # what is drawn (for tools and checks)
+    for bb in _state["shown_boxes"]:
         lo, hi = bb.minvec(), bb.maxvec()
         pts = g.createPoints([(x, y, z) for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
         for i, j in ((0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7), (0, 4), (1, 5), (2, 6), (3, 7)):
@@ -481,12 +482,17 @@ MODES = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: 
 
 
 def _plane_point(vp, x, y, origin, normal):
+    """Where the ray through pixel (x, y) meets the plane, or None: parallel, behind the camera (past the horizon) or
+    beyond 20 times the grab distance. A drag then keeps its last valid point."""
     d, o = vp.mapToWorld(x, y)
     d, o = hou.Vector3(d), hou.Vector3(o)
     den = d.dot(normal)
     if abs(den) < 1e-9:
         return None
-    return o + d * ((origin - o).dot(normal) / den)
+    t = (origin - o).dot(normal) / den
+    if t <= 0 or t * d.length() > 20.0 * (origin - o).length():
+        return None
+    return o + d * t
 
 
 def _grid_step(sv):
@@ -521,9 +527,9 @@ def _drag_gesture(kind, ev, viewer):
         if vp is None or n is None:
             return False
         shift = bool(mods & Qt.ShiftModifier)
-        moving = shift or viewer.currentState() in MOVE_STATES
+        moving = viewer.currentState() in MOVE_STATES   # Q: Shift adds by box like Houdini; copy only in W/E/R
         px = proxy()
-        if n.userData(PROXY_MARK) == "1" and shift and _state["bound"] is not None and px is not None:
+        if n.userData(PROXY_MARK) == "1" and shift and moving and _state["bound"] is not None and px is not None:
             pid, grab = _state["bound"], px.worldTransform().extractTranslates()   # Shift on the handle
         elif containers.is_container(n) and moving:
             pid = _ray_piece(vp, n, x, y)

@@ -18,6 +18,22 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- RESUME HERE (2026-11-07): F2a audit 3 (agent-179). Done (checks in gui_f2a): 1 a body drag past the horizon keeps its
+  last valid point (`_plane_point` rejects t <= 0 and > 20x the grab distance; check drags past the horizon with the
+  camera 12 degrees down), 3 in Q Shift+drag from a piece adds by box, copy only in W/E/R, 6 highlight checked for
+  every selected piece. OPEN:
+  - 2 hold evidence: `tests/modelui/rotate_ring_probe.py` (plain Houdini: A box + null N selected, E, scan for the
+    ring) found no ring yet: its first drag at 20 px from N was a click that reselected N alone; start the scan
+    outside the null (>= 40 px) and log the selection. Then decide hold by evidence; fix A2 (network-editor click while
+    held), A6 (switch off with a mixed selection: restore held objects to Houdini's selection on uninstall, re-sync
+    on install), A4 (a "modelUI: select" undo must restore the previous selection, or not be recorded).
+  - Found: our click gesture treats a handle drag that starts over empty space (a rotate ring) as a box selection
+    at the release (it replaces the selection): skip the box when the handle null was written during the drag.
+  - 4 Ctrl step = Houdini's Translate Step: NOT readable as far as found (no HOM/hscript getter for the built-in
+    transform handle's dialog values; `hou.Handle.settingValue` serves Python-state handles; no shipped file names it).
+    Needs a decision (own modelUI step setting, or keep the construction plane cell size).
+  - 5 body drag in E rotates about the view axis through the pivot, in R scales uniformly.
+  - The gui_f2a run now takes ~30 minutes (runner timeout 3000 s).
 - 2026-11-07: all F2a audit-2 items are in; F2a audit 3 pending. Audit 2 (agent-178) fixes, each with a check: 1
   highlight box from the piece's corners (compared with the piece's own points, far from the origin), 2 containers
   saved selectable (restored around a save), 3 a plain click on the handle keeps the selection, 4 observers get

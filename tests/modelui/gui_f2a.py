@@ -459,6 +459,15 @@ def suite(out):
         return [min(v[i] for v in pts) for i in range(3)], [max(v[i] for v in pts) for i in range(3)]
     bxs = [wbox(i) for i in (left, mid, lid)]
     cen3 = hou.Vector3([(min(b_[0][k] for b_ in bxs) + max(b_[1][k] for b_ in bxs)) / 2.0 for k in range(3)])
+    s.select([left, mid])
+    yield 300
+    want_boxes = [wbox(i) for i in (left, mid)]
+    shown = pieces_ui._state.get("shown_boxes") or []
+    out["highlight_all_selected"] = len(shown) == 2 and all(
+        any(all(abs(sb.minvec()[k] - w[0][k]) < 1e-3 and abs(sb.maxvec()[k] - w[1][k]) < 1e-3 for k in range(3))
+            for sb in shown) for w in want_boxes)
+    s.select([left, mid, lid])
+    yield 400
     px3 = pieces_ui.proxy()
     out["pivot_at_selection_centre"] = (px3 is not None
                                         and (px3.worldTransform().extractTranslates() - cen3).length() < 1e-3)
@@ -488,6 +497,30 @@ def suite(out):
     log("  ground drag", tuple(dmv))
     hou.undos.performUndo()
     yield 200
+    s.select([])   # a long drag past the horizon with the camera looking 12 degrees down
+    cam = vp.defaultCamera()
+    r0 = cam.rotation()
+    cam.setRotation(hou.hmath.buildRotate(12, 0, 0).extractRotationMatrix3())   # +X: looking down; horizon in view
+    vp.frameAll()
+    yield 500
+    vx, vy, vw, vh = vp.size()
+    fwd_d, cam_o = vp.mapToWorld(vw // 2, vh // 2)
+    fwd, cam_o = hou.Vector3(fwd_d).normalized(), hou.Vector3(cam_o)
+    m0 = tr(mid)
+    g0h = at(mid)
+    up = (gl.mapToGlobal(QtCore.QPoint(0, 8)).y() - g0h.y()) / 8.0   # to just inside the viewport's top edge
+    yield from press_drag(g0h, NOM, steps=8, dx=0, dy=up)
+    gfin = g0h + QtCore.QPoint(0, int(up * 8))
+    _vp, fx, fy = pieces_ui.viewport_at(sv, gl, gfin)
+    crossed = _vp is not None and hou.Vector3(vp.mapToWorld(fx, fy)[0])[1] > 0   # the cursor ended above the horizon
+    rel = tr(mid) - cam_o
+    out["drag_past_horizon_stays_in_front"] = (crossed and rel.dot(fwd) > 0
+                                               and rel.length() < 25 * (m0 - cam_o).length())
+    log("  horizon drag: crossed", crossed, "piece", tuple(tr(mid)), "camera", tuple(cam_o), "in front", rel.dot(fwd))
+    hou.undos.performUndo()
+    cam.setRotation(r0)
+    vp.frameAll()
+    yield 400
     s.select([])   # no handle on mid: the press must reach the piece's body
     yield 300
     m0 = tr(mid)
@@ -534,6 +567,13 @@ def suite(out):
     d = gb - ga
     yield from press_drag(ga, NOM, steps=6, dx=d.x() / 6.0, dy=d.y() / 6.0)
     out["q_drag_on_piece_boxes"] = left in s.selected() and (tr(mid) - m0).length() < 1e-6
+    s.select([right])   # Shift+drag from a piece in Q: adds by box (Houdini's Shift), never copies
+    yield 300
+    nq = len(containers.piece_rows(c))
+    yield from press_drag(ga, SHIFT, steps=6, dx=d.x() / 6.0, dy=d.y() / 6.0)
+    out["q_shift_drag_adds_by_box"] = (len(containers.piece_rows(c)) == nq and right in s.selected()
+                                       and left in s.selected())
+    log("  Q shift drag: pieces", nq, "->", len(containers.piece_rows(c)), "selected", s.selected())
     log("  Q drag on a piece: state", sv.currentState(), "selected", s.selected())
     QTest.keyClick(win, Qt.Key_W)
     for _ in range(20):
@@ -649,7 +689,10 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("original_follows", "shift_drag_original_stays", PS, [('        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}', '        targets = {i: i for i in st["items"]}')]),
     ("copy_two_undo_steps", "shift_drag_one_undo", PS, [('    with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):', '    if True:')]),
     ("no_threshold", "shift_click_no_copy", PS, [("COPY_PX = 4", "COPY_PX = 0")]),
-    ("body_not_ours", "body_drag_moves", PS, [("        moving = shift or viewer.currentState() in MOVE_STATES", "        moving = shift")]),
+    ("body_not_ours", "body_drag_moves", PS, [("        moving = viewer.currentState() in MOVE_STATES   # Q:", "        moving = False   # Q:")]),
+    ("shift_copies_in_q", "q_shift_drag_adds_by_box", PS, [("        moving = viewer.currentState() in MOVE_STATES   # Q:", "        moving = shift or viewer.currentState() in MOVE_STATES   # Q:")]),
+    ("behind_camera_kept", "drag_past_horizon_stays_in_front", PS, [("    if t <= 0 or t * d.length() > 20.0 * (origin - o).length():", "    if False:")]),
+    ("only_bound_box", "highlight_all_selected", PS, [("        boxes = [bounds(p) for p in scene.current().selected()]", "        boxes = [b]")]),
     ("handle_on_first_item", "pivot_at_selection_centre", PS, [("    if len(items) == 1:\n        return get_xform(items[0])\n    boxes", "    if True:\n        return get_xform(items[0])\n    boxes")]),
     ("objects_not_driven", "mixed_rotate_about_pivot", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
     ("objects_not_driven_drag", "handle_moves_selected_object", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
