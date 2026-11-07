@@ -369,6 +369,13 @@ def suite(out):
     QTest.mouseClick(win, LMB, Qt.ControlModifier, L(win, at(left)))
     yield 300
     out["ctrl_click_removes"] = s.selected() == [mid]
+    s.select([left])   # one piece: the handle sits on it, the Ctrl-click lands on the handle's null
+    yield 300
+    QTest.mouseMove(win, L(win, at(left)))
+    QTest.mouseClick(win, LMB, Qt.ControlModifier, L(win, at(left)))
+    yield 300
+    out["ctrl_click_on_handle_removes"] = s.selected() == []
+    log("  ctrl click on handle: under", pieces_ui._state.get("last_pick"), "selected", s.selected())
     sv.setCurrentState("select")
     s.select([])
     yield 300
@@ -391,7 +398,7 @@ def suite(out):
     yield 500
     l0, m0, o0 = tr(left), tr(mid), loose.worldTransform().extractTranslates()
     bound0 = pieces_ui._state["bound"]
-    yield from press_drag(screen_point(sv, gl, tr(bound0))[0], NOM)
+    yield from press_drag(screen_point(sv, gl, pieces_ui.proxy().worldTransform().extractTranslates())[0], NOM)
     dl, dm, do = tr(left) - l0, tr(mid) - m0, loose.worldTransform().extractTranslates() - o0
     log("  handle moves all:", tuple(dl), tuple(dm), tuple(do), "bound", bound0)
     out["handle_moves_all_pieces"] = dl.length() > 0.1 and (dl - dm).length() < 1e-3
@@ -414,7 +421,7 @@ def suite(out):
     out["shift_drag_all_one_undo"] = len(containers.piece_rows(c)) == n1
     s.select([left, mid])
     yield 300
-    gh = screen_point(sv, gl, tr(pieces_ui._state["bound"]))[0]   # a click on the handle itself
+    gh = screen_point(sv, gl, pieces_ui.proxy().worldTransform().extractTranslates())[0]   # a click on the handle
     QTest.mouseMove(win, L(win, gh))
     QTest.mouseClick(win, LMB, NOM, L(win, gh))
     yield 300
@@ -429,6 +436,110 @@ def suite(out):
     yield 300
     log("  toggle 2:", s.selected(), "press under", pieces_ui._state.get("last_pick"), "bound", pieces_ui._state["bound"])
     out["ctrl_shift_click_toggles"] = t1_ and sorted(s.selected()) == sorted([left, mid])
+    s.select([mid])
+    yield 300
+
+    # --- audit 2 comfort items: 7 pivot, 8 body drag planes / snap / objects, 10 Q drag box ---------------------
+    lid = loose.sessionId()
+    sv.setCurrentState("select")
+    yield 300
+    s.select([])
+    yield 200
+    s.select([left, mid, lid])
+    yield 400
+
+    def wbox(pid):   # independent of pieces_ui: the piece's points (or the object's geometry) in world space
+        if isinstance(pid, tuple):
+            pr = [q for q in c.displayNode().geometry().prims() if q.attribValue("pf_piece") == pid[2]][0]
+            mm = pr.fullTransform() * c.worldTransform()
+            pts = [q.position() * mm for q in pr.getEmbeddedGeometry().points()]
+        else:
+            nn = hou.nodeBySessionId(pid)
+            pts = [q.position() * nn.worldTransform() for q in nn.displayNode().geometry().points()]
+        return [min(v[i] for v in pts) for i in range(3)], [max(v[i] for v in pts) for i in range(3)]
+    bxs = [wbox(i) for i in (left, mid, lid)]
+    cen3 = hou.Vector3([(min(b_[0][k] for b_ in bxs) + max(b_[1][k] for b_ in bxs)) / 2.0 for k in range(3)])
+    px3 = pieces_ui.proxy()
+    out["pivot_at_selection_centre"] = (px3 is not None
+                                        and (px3.worldTransform().extractTranslates() - cen3).length() < 1e-3)
+    saved = {i: pieces_ui.get_xform(i) for i in (left, mid, lid)}
+    p_before = {i: tr(i) for i in (left, mid, lid)}
+    if px3 is not None:
+        px3.parmTuple("r").set((0, 90, 0))   # the handle's rotation (what a rotate drag writes), about the pivot
+        yield 300
+    rot = hou.hmath.buildRotate((0, 90, 0))
+    errs = [(tr(i) - (cen3 + (p0_ - cen3) * rot)).length() for i, p0_ in p_before.items()]
+    out["mixed_rotate_about_pivot"] = px3 is not None and max(errs) < 1e-3
+    log("  pivot", tuple(cen3), "proxy", px3 and tuple(px3.worldTransform().extractTranslates()), "rotate errors", errs)
+    s.select([])
+    yield 300
+    with hou.undos.disabler():
+        pieces_ui.set_xforms(saved)
+    QTest.keyClick(win, Qt.Key_W)
+    for _ in range(20):
+        if sv.currentState() == "pose":
+            break
+        yield 100
+    yield 300
+    m0 = tr(mid)
+    yield from press_drag(at(mid), NOM, steps=4, dx=0, dy=10)
+    dmv = tr(mid) - m0
+    out["body_drag_on_ground"] = dmv.length() > 0.1 and abs(dmv[1]) < 1e-4
+    log("  ground drag", tuple(dmv))
+    hou.undos.performUndo()
+    yield 200
+    s.select([])   # no handle on mid: the press must reach the piece's body
+    yield 300
+    m0 = tr(mid)
+    yield from press_drag(at(mid), Qt.ControlModifier, steps=4, dx=13, dy=7)
+    dmv = tr(mid) - m0
+    step = pieces_ui._grid_step(sv)
+    out["ctrl_drag_snaps"] = dmv.length() > 0.1 and all(abs(v / step - round(v / step)) < 1e-3 for v in dmv)
+    log("  snapped drag", tuple(dmv), "step", step)
+    hou.undos.performUndo()
+    yield 200
+    s.select([])
+    yield 200
+    lo0 = tr(lid)
+    yield from press_drag(at(lid), NOM, steps=4, dx=10, dy=0)
+    dlo = tr(lid) - lo0
+    out["body_drag_moves_object"] = dlo.length() > 0.1 and s.selected() == [lid]
+    hou.undos.performUndo()
+    yield 200
+    vp.changeType(hou.geometryViewportType.Front)
+    yield 300
+    vp.frameAll()
+    yield 400
+    l0 = tr(left)
+    yield from press_drag(at(left), NOM, steps=4, dx=0, dy=-10)
+    dlv = tr(left) - l0
+    out["ortho_drag_view_plane"] = abs(dlv[1]) > 0.1 and abs(dlv[2]) < 1e-4
+    log("  front view drag", tuple(dlv))
+    hou.undos.performUndo()
+    vp.changeType(hou.geometryViewportType.Perspective)
+    yield 300
+    vp.frameAll()
+    yield 400
+    QTest.keyClick(win, Qt.Key_Q)
+    for _ in range(20):
+        if sv.currentState() != "pose":
+            break
+        yield 100
+    yield 300
+    s.select([])
+    yield 200
+    m0 = tr(mid)
+    ga, gl_ = at(mid), at(left)
+    gb = gl_ + QtCore.QPoint(-60, 60 if gl_.y() >= ga.y() else -60)
+    d = gb - ga
+    yield from press_drag(ga, NOM, steps=6, dx=d.x() / 6.0, dy=d.y() / 6.0)
+    out["q_drag_on_piece_boxes"] = left in s.selected() and (tr(mid) - m0).length() < 1e-6
+    log("  Q drag on a piece: state", sv.currentState(), "selected", s.selected())
+    QTest.keyClick(win, Qt.Key_W)
+    for _ in range(20):
+        if sv.currentState() == "pose":
+            break
+        yield 100
     s.select([mid])
     yield 300
 
@@ -519,10 +630,10 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("houdini_sees_container_press", "container_click_taken", PS, [('        return True if _state["click"]["own"] else input_layer.OBSERVE', '        return input_layer.OBSERVE')]),
     ("proxy_reused_unfiltered", "undo_after_rebind_keeps_other", PS, [("            old.destroy()", "            pass"),
                                                                    ('    if pid is None or _state["writing"] or kw.get("node") != _state["proxy"]:   # a new wrapper each call: compare, never "is"', '    if pid is None or _state["writing"]:')]),
-    ("redo_lost", "redo_restores_drag", PS, [("        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))", "        with hou.undos.disabler():\n            set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))")]),
-    ("typed_write_no_undo", "typed_value_one_undo", PS, [("        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))", "        with hou.undos.disabler():\n            set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))")]),
+    ("redo_lost", "redo_restores_drag", PS, [("        set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})", "        with hou.undos.disabler():\n            set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})")]),
+    ("typed_write_no_undo", "typed_value_one_undo", PS, [("        set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})", "        with hou.undos.disabler():\n            set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})")]),
     ("follow_after_uninstall", "uninstall_clean", PS, [("    if not _state[\"on\"]:   # a deferred follow that outlived uninstall", "    if False:   # a deferred follow that outlived uninstall")]),
-    ("typed_ignored", "typed_values_move_piece", PS, [("        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))", "        pass")]),
+    ("typed_ignored", "typed_values_move_piece", PS, [("        set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})", "        pass")]),
     ("save_keeps_null", "saved_without_handle_null", PS, [("        bind(None)   # the null never goes into a hip", "        pass")]),
     ("no_piece_pick", "pick_piece", PS, [('    return ("piece", c.sessionId(), geo.prim(prim).attribValue("pf_piece")) if prim >= 0 else None', "    return None")]),
     ("pick_not_shared", "explorer_follows_pick", PS, [("    sc.select(new)\n    return hit", "    _state['bound'] = hit\n    return hit")]),
@@ -532,27 +643,34 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("highlight_never_hidden", "highlight_hidden_when_empty", PS, [("        d.show(False)\n        _state[\"shown_box\"] = None\n        return", "        return")]),
     ("no_object_pick", "pick_object", PS, [("        hit = n.sessionId()", "        hit = _state[\"bound\"]")]),
     ("empty_keeps_selection", "pick_empty_clears", PS, [("        new = [hit] if hit is not None else []", "        new = [hit] if hit is not None else cur")]),
-    ("proxy_not_followed", "handle_drag_moves", PS, [("        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))", "        pass")]),
-    ("drag_write_no_undo", "handle_drag_one_undo", PS, [("        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))", "        with hou.undos.disabler():\n            set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get(\"rel\", {}).items()]))")]),
+    ("proxy_not_followed", "handle_drag_moves", PS, [("        set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})", "        pass")]),
+    ("drag_write_no_undo", "handle_drag_one_undo", PS, [("        set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})", "        with hou.undos.disabler():\n            set_xforms({i: r * m for i, r in _state.get(\"rel\", {}).items()})")]),
     ("no_copy", "shift_drag_copies", PS, [('                st["moving"] = {i: copy_of(i) for i in st["items"]} if st["shift"] else {i: i for i in st["items"]}', '                st["moving"] = {i: i for i in st["items"]}'), ('        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}', '        targets = {i: i for i in st["items"]}')]),
     ("original_follows", "shift_drag_original_stays", PS, [('        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}', '        targets = {i: i for i in st["items"]}')]),
     ("copy_two_undo_steps", "shift_drag_one_undo", PS, [('    with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):', '    if True:')]),
     ("no_threshold", "shift_click_no_copy", PS, [("COPY_PX = 4", "COPY_PX = 0")]),
-    ("body_not_ours", "body_drag_moves", PS, [('        elif containers.is_container(n) and (shift or viewer.currentState() in MOVE_STATES):', '        elif containers.is_container(n) and shift:')]),
+    ("body_not_ours", "body_drag_moves", PS, [("        moving = shift or viewer.currentState() in MOVE_STATES", "        moving = shift")]),
+    ("handle_on_first_item", "pivot_at_selection_centre", PS, [("    if len(items) == 1:\n        return get_xform(items[0])\n    boxes", "    if True:\n        return get_xform(items[0])\n    boxes")]),
+    ("objects_not_driven", "mixed_rotate_about_pivot", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
+    ("objects_not_driven_drag", "handle_moves_selected_object", PS, [("    _set_rel(items, proxy())", "    _set_rel([i for i in items if isinstance(i, tuple)], proxy())")]),
+    ("view_plane_in_persp", "body_drag_on_ground", PS, [("        normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view", "        normal = view")]),
+    ("ground_in_ortho", "ortho_drag_view_plane", PS, [("        normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view", "        normal = hou.Vector3(0, 1, 0)")]),
+    ("no_snap", "ctrl_drag_snaps", PS, [('            if st["snap"]:', '            if False:')]),
+    ("objects_not_draggable", "body_drag_moves_object", PS, [('        elif n.type().name() == "geo" and n.userData(PROXY_MARK) != "1" and moving:', '        elif False:')]),
+    ("q_drag_not_box", "q_drag_on_piece_boxes", PS, [('            st["box"] = st["empty"] or st["own"]', '            st["box"] = st["empty"]')]),
     ("body_drag_keeps_selection", "body_drag_selects", PS, [("    scene.current().select(list(targets.values()))", "    pass")]),
     ("preview_not_restored", "body_drag_one_undo", PS, [('            set_xforms(dict(st["start"]))', '            pass')]),
     ("add_replaces", "shift_click_adds", PS, [('    if mode == "add":\n        new = cur + [hit]', '    if False:\n        new = cur + [hit]')]),
     ("remove_replaces", "ctrl_click_removes", PS, [('    elif mode == "remove":\n        new = [p for p in cur if p != hit]', '    elif False:\n        new = [p for p in cur if p != hit]')]),
     ("box_no_pieces", "box_select_pieces", PS, [("    boxed = [pid for pid, (x, y) in piece_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]", "    boxed = []")]),
-    ("only_bound_follows", "handle_moves_all_pieces", PS, [('        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get("rel", {}).items()]))', '        set_xforms({pid: m})')]),
-    ("proxy_clears_objects", "handle_moves_selected_object", PS, [("        n.setSelected(True)   # selected objects stay selected", "        n.setSelected(True, clear_all_selected=True)   # selected objects stay selected")]),
+    ("only_bound_follows", "handle_moves_all_pieces", PS, [('        set_xforms({i: r * m for i, r in _state.get("rel", {}).items()})', '        set_xforms({pid: m})')]),
     ("body_drags_one", "body_drag_moves_all", PS, [("        items = sel if pid in sel else [pid]", "        items = [pid]")]),
     ("copies_only_grabbed", "shift_drag_copies_all", PS, [('        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}', '        targets = {i: (copy_of(i) if st["shift"] and i == st["pid"] else i) for i in st["items"]}')]),
     ("copies_split_undo", "shift_drag_all_one_undo", PS, [('    with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):', '    if True:')]),
     ("box_from_origin", "highlight_shows_pick", PS, [("            hi = [max(p_[i] for p_ in pts) for i in range(3)]", "            hi = [max([0.0] + [p_[i] for p_ in pts]) for i in range(3)]")]),
     ("flag_saved", "saved_containers_selectable", PS, [("        _set_containers_selectable(True)   # nor the unselectable flag", "        pass   # nor the unselectable flag")]),
     ("handle_click_replaces", "handle_click_keeps_selection", PS, [('            return _state["bound"]   # a plain click', '            pass   # a plain click')]),
-    ("modifier_on_handle_ignored", "ctrl_click_removes", PS, [('        for c in containers.containers():   # with Shift/Ctrl: the piece behind the handle', '        for c in []:   # with Shift/Ctrl: the piece behind the handle')]),
+    ("modifier_on_handle_ignored", "ctrl_click_on_handle_removes", PS, [('        for c in containers.containers():   # with Shift/Ctrl: the piece behind the handle', '        for c in []:   # with Shift/Ctrl: the piece behind the handle')]),
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),

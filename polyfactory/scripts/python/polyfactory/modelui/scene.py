@@ -126,6 +126,7 @@ class MixedScene(ObjectScene):
     def __init__(self, root="/obj"):
         super().__init__(root)
         self._piece_sel = set()
+        self._held = set()    # objects in the selection that modelUI's handle drives (not node-selected, see hold())
         self._cache = {}      # container session id -> (stash cook count, {pf_piece: (name, hidden)})
         self._armed = {}      # stash node session id -> stash node, while watching
 
@@ -201,12 +202,30 @@ class MixedScene(ObjectScene):
             except KeyError:
                 pass
         self._piece_sel = live
-        return super().selected() + sorted(live)
+        objs = super().selected()
+        held = [h for h in sorted(self._held) if h not in objs and hou.nodeBySessionId(h) is not None]
+        self._held = set(held)
+        return objs + held + sorted(live)
+
+    def held(self):
+        return set(self._held)
+
+    def hold(self, ids):
+        """Objects that stay in the selection but leave Houdini's node selection: modelUI's handle moves them with
+        the pieces around one pivot (Houdini's handle would move them a second time)."""
+        self._held = set(ids)
+        with hou.undos.disabler():
+            for i in ids:
+                n = hou.nodeBySessionId(i)
+                if n is not None and n.isSelected():
+                    n.setSelected(False)
 
     def select(self, pids):
         pieces = {p for p in pids if isinstance(p, tuple)}
+        held_dropped = bool(self._held)
+        self._held = set()
         super().select([p for p in pids if not isinstance(p, tuple)])
-        if pieces != self._piece_sel:
+        if pieces != self._piece_sel or held_dropped:
             self._piece_sel = pieces
             self._notify()   # piece selection is ours: no Houdini event tells the watchers
 

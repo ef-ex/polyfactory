@@ -18,19 +18,28 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- RESUME HERE (2026-11-07): F2a audit 2 (agent-178). Done with checks: 1 highlight box from the piece's corners
-  (checked against the piece's own points, far from the origin), 2 containers saved selectable (restored around a
-  save), 3 a plain click on the handle keeps the selection, 4 observers get "cancel", 5 measurements table (GUI vs
-  hython add, select 2.8-6.6 ms), 6 per-run scratch (save_check.hip, mutated DLL), 9 Houdini's select keys from
-  basics/select.html: Shift add, Ctrl remove, Ctrl+Shift toggle (found: F1's demo gesture took Ctrl+Shift+LMB in
-  every viewer; it now installs only with PF_MODELUI_DEMO=1, set by the runner for the F1 suite).
-  Checks: F1 suite 61 checks per baseline / 64 mutations red; gui_f2a 36 / 40.
-  OPEN (Sunita's comfort decisions, record and build): 7 multi-selection pivot = centre of the selection's bounding
-  box (handle there for rotate/scale; mixed piece+object selections around the same pivot; a check that drives a
-  ROTATE drag); 8 body drag on the ground plane (XZ through the grabbed point) in perspective, the view plane in
-  orthographic views, Ctrl = grid snap like Houdini's handle, body drag for loose objects too; 10 with Q a drag that
-  starts on a piece is a box selection, with W/E/R a body drag; 11 limit: non-uniform scale of a multi-selection with
-  rotated pieces cannot be stored (pieces store no shear).
+- 2026-11-07: all F2a audit-2 items are in; F2a audit 3 pending. Audit 2 (agent-178) fixes, each with a check: 1
+  highlight box from the piece's corners (compared with the piece's own points, far from the origin), 2 containers
+  saved selectable (restored around a save), 3 a plain click on the handle keeps the selection, 4 observers get
+  "cancel", 5 measurements (GUI vs hython add, select range), 6 per-run scratch (save_check.hip, mutated DLL), 9
+  Houdini's select keys (found: F1's demo gesture took Ctrl+Shift+LMB in every viewer; it now installs only with
+  PF_MODELUI_DEMO=1, set by the runner for the F1 suite).
+- Comfort decisions (Sunita for Hannes, 2026-11-07), built and checked:
+  - Selection keys are Houdini's own (`basics/select.html`): Shift add, Ctrl remove, Ctrl+Shift toggle; not Max's.
+  - Pivot of a multi-selection = centre of the selection's bounding box (Max default): the handle null sits there,
+    and every selected piece AND object follows it by its offset, so rotate/scale pivot there for both. To keep
+    Houdini from moving the objects a second time, they leave Houdini's node selection and the scene "holds" them
+    (`MixedScene.hold`, still in `selected()`, cleared by the next `select`). One piece alone: the handle has that
+    piece's own transform. Check `mixed_rotate_about_pivot` drives a rotation through the handle's null (the value a
+    rotate drag writes); a rotate DRAG on Houdini's ring is not driven (blind spot).
+  - Body drag (move tool, W/E/R state "pose"): pieces and loose objects alike; in perspective views on the ground
+    plane through the grabbed point (the view plane when looking almost level), in orthographic views on the view
+    plane; Ctrl snaps the move to the construction grid's cell size (the move snaps, not the position); Shift = Copy.
+  - With Q (select tool) a drag that starts on a piece is a box selection (ours, with a rubber band; objects and
+    pieces by their centres); a drag from empty space stays Houdini's box (pieces added by centre).
+- Limit: a piece stores translate, orient and scale, no shear. Scaling a multi-selection non-uniformly while its
+  pieces are rotated relative to the scale axes would need shear on each piece: it cannot be stored (the pieces keep
+  their own orientation and get the nearest scale). Same for a non-uniformly scaled container.
 - Branch `modelui`. 2026-11-07: all F2a audit-1 items are in; second F2a audit pending.
   - Input layer (F1 framework): several OBSERVE gestures share one press (every gesture is still asked; one that
     answers True after them takes the press and the observers are dropped; observers get move/release/keyup and

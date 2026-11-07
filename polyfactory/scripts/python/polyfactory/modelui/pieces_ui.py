@@ -60,9 +60,19 @@ def copy_of(pid):
     return hou.copyNodesTo([node], node.parent())[0].sessionId()
 
 
+def _world_box(b, m):
+    pts = [hou.Vector3(x, y, z) * m for x in (b.minvec()[0], b.maxvec()[0])
+           for y in (b.minvec()[1], b.maxvec()[1]) for z in (b.minvec()[2], b.maxvec()[2])]
+    return hou.BoundingBox(*[min(v[i] for v in pts) for i in range(3)], *[max(v[i] for v in pts) for i in range(3)])
+
+
 def bounds(pid):
+    """World bounding box of a piece or an object's display geometry, or None."""
     if not isinstance(pid, tuple):
-        return None
+        n = hou.nodeBySessionId(pid)
+        dn = n.displayNode() if n is not None else None
+        g = dn.geometry() if dn is not None else None
+        return _world_box(g.boundingBox(), n.worldTransform()) if g is not None and g.points() else None
     c, piece = scene.MixedScene._split(pid)
     for pr in c.displayNode().geometry().prims():
         if pr.attribValue("pf_piece") == piece:
@@ -161,7 +171,7 @@ def _click_gesture(kind, ev, viewer):
             return False
         g = ev.globalPosition().toPoint()
         n = _under(viewer, g)[3]
-        _state["click"] = {"viewer": viewer, "start": g, "mode": modes[mods], "box": False,
+        _state["click"] = {"viewer": viewer, "start": g, "mode": modes[mods], "box": False, "band": None,
                            "own": n is not None and containers.is_container(n), "empty": n is None}
         return True if _state["click"]["own"] else input_layer.OBSERVE
     st = _state["click"]
@@ -172,19 +182,44 @@ def _click_gesture(kind, ev, viewer):
         if abs(d.x()) + abs(d.y()) > CLICK_PX:
             # a drag from empty space is Houdini's box selection (we add the pieces in it); a drag on the handle or an
             # object is neither a pick nor a box
-            st["box"] = st["empty"]
-            if not st["empty"] and not st["own"]:
+            st["box"] = st["empty"] or st["own"]   # Q: a drag that starts on a piece is a box selection (ours)
+            if not st["box"]:
                 _state["click"] = None
+            elif st["own"]:
+                _band(st, ev.globalPosition().toPoint())
     elif kind == "release":
         _state["click"] = None
+        _band_off(st)
         g = ev.globalPosition().toPoint()
         if st["box"]:
-            input_layer.later(lambda: _box_at(st["viewer"], st["start"], g, st["mode"]))
+            input_layer.later(lambda: _box_at(st["viewer"], st["start"], g, st["mode"], st["own"]))
         else:
             input_layer.later(lambda: _pick_at(st["viewer"], g, st["mode"]))
     elif kind == "cancel":
         _state["click"] = None
+        _band_off(st)
     return False
+
+
+def _band(st, g):
+    """The rubber band of a box that Houdini never sees (it started on a piece)."""
+    if st["band"] is None:
+        top = next((t for t in QtWidgets.QApplication.topLevelWidgets()
+                    if t.isVisible() and t.frameGeometry().contains(st["start"])), None)
+        gl = top.childAt(top.mapFromGlobal(st["start"])) if top is not None else None
+        if gl is None:
+            return
+        st["band"] = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Shape.Rectangle, gl)
+    b = st["band"]
+    b.setGeometry(QtCore.QRect(b.parentWidget().mapFromGlobal(st["start"]), b.parentWidget().mapFromGlobal(g)).normalized())
+    b.show()
+
+
+def _band_off(st):
+    if st.get("band") is not None:
+        st["band"].hide()
+        st["band"].deleteLater()
+        st["band"] = None
 
 
 def _pick_at(sv, g, mode="replace"):
@@ -209,9 +244,33 @@ def piece_centres(vp):
     return out
 
 
-def _box_at(sv, g0, g1, mode):
-    """After Houdini's box selection (objects): the pieces whose centre is in the box join (Shift: add, Ctrl: remove,
-    else replace the pieces)."""
+def _object_centres(vp):
+    """{object id: (x, y) viewport pixel} of every displayed loose object's bounding-box centre."""
+    out = {}
+    for n in hou.node("/obj").children():
+        if (n.type().name() == "geo" and not containers.is_container(n) and n.userData(PROXY_MARK) != "1"
+                and n.isDisplayFlagSet()):
+            b = bounds(n.sessionId())
+            if b is not None:
+                v = vp.mapToScreen(b.center())
+                out[n.sessionId()] = (v[0], v[1])
+    return out
+
+
+def _apply(mode, cur, boxed):
+    if mode == "add":
+        return cur + [p for p in boxed if p not in cur]
+    if mode == "remove":
+        return [p for p in cur if p not in boxed]
+    if mode == "toggle":
+        return [p for p in cur if p not in boxed] + [p for p in boxed if p not in cur]
+    return list(boxed)
+
+
+def _box_at(sv, g0, g1, mode, ours=False):
+    """A box selection. Houdini's own (it started on empty space): its object result stands and the pieces whose
+    centre is in the box join with the mode. Ours (it started on a piece, Houdini never saw it): objects too, by their
+    centres."""
     if not _state["on"]:
         return
     vp, x0, y0, _ = _under(sv, g0)
@@ -222,17 +281,15 @@ def _box_at(sv, g0, g1, mode):
     boxed = [pid for pid, (x, y) in piece_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]
     sc = scene.current()
     cur = sc.selected()
-    objs = [p for p in cur if not isinstance(p, tuple)]   # Houdini's own box result
+    held = sc.held()
     pieces = [p for p in cur if isinstance(p, tuple)]
-    if mode == "add":
-        pieces = pieces + [p for p in boxed if p not in pieces]
-    elif mode == "remove":
-        pieces = [p for p in pieces if p not in boxed]
-    elif mode == "toggle":
-        pieces = [p for p in pieces if p not in boxed] + [p for p in boxed if p not in pieces]
-    else:
-        pieces = boxed
-    sc.select(objs + pieces)
+    objs = [p for p in cur if not isinstance(p, tuple)]
+    if ours:
+        boxed_objs = [o for o, (x, y) in _object_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]
+        objs = _apply(mode, objs, boxed_objs)
+    elif mode == "replace":
+        objs = [o for o in objs if o not in held]   # Houdini's box replaced the node selection
+    sc.select(objs + _apply(mode, pieces, boxed))
 
 
 # --- the proxy: Houdini's handle on a piece --------------------------------------------------------------------------
@@ -274,7 +331,7 @@ def _new_proxy(m):
         finally:
             _state["writing"] = False
         n.addEventCallback(_EVENTS, _proxy_moved)
-        n.setSelected(True)   # selected objects stay selected: Houdini's handle moves them itself
+        n.setSelected(True)   # alone: objects of a mixed selection are held (scene.hold), the handle drives them
     return n
 
 
@@ -286,24 +343,37 @@ def _proxy_moved(**kw):
         return
     _state["writes"] = _state.get("writes", 0) + 1
     m = kw["node"].worldTransform()
-    try:   # the bound piece follows the null; the other selected pieces keep their offset to it
-        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get("rel", {}).items()]))
+    try:   # every driven item keeps its offset to the null (one piece: identity)
+        set_xforms({i: r * m for i, r in _state.get("rel", {}).items()})
     except KeyError:   # a piece is gone
         _state["bound"] = None
     _draw()
 
 
-def _set_rel(others, p):
-    """The other selected pieces' offsets to the null (they follow it)."""
-    if p is None or not others:
+def _set_rel(items, p):
+    """Every driven item's offset to the null (they follow it)."""
+    if p is None or not items:
         _state["rel"] = {}
         return
     inv = p.worldTransform().inverted()
-    _state["rel"] = {o: get_xform(o) * inv for o in others}
+    _state["rel"] = {o: get_xform(o) * inv for o in items}
 
 
-def bind(pid):
-    """Bind Houdini's handle to piece ``pid`` (a new proxy), or unbind with None."""
+def _handle_xform(items):
+    """Where the handle sits: on one piece its own transform; on a selection the centre of the selection's box (Max),
+    so rotate and scale pivot there for pieces and objects alike."""
+    if len(items) == 1:
+        return get_xform(items[0])
+    boxes = [b for b in (bounds(i) for i in items) if b is not None]
+    if not boxes:
+        return get_xform(items[0])
+    lo = [min(b.minvec()[k] for b in boxes) for k in range(3)]
+    hi = [max(b.maxvec()[k] for b in boxes) for k in range(3)]
+    return hou.hmath.buildTranslate([(lo[k] + hi[k]) / 2.0 for k in range(3)])
+
+
+def bind(pid, m=None):
+    """Bind Houdini's handle to piece ``pid`` (a new proxy at ``m``, default the piece), or unbind with None."""
     old = proxy()
     _state["bound"] = pid
     _state["proxy"] = None
@@ -311,7 +381,7 @@ def bind(pid):
         with hou.undos.disabler():
             old.destroy()
     if pid is not None:
-        _state["proxy"] = _new_proxy(get_xform(pid))
+        _state["proxy"] = _new_proxy(m if m is not None else get_xform(pid))
     _draw()
 
 
@@ -349,7 +419,7 @@ def _draw():
         return
     g = hou.Geometry()
     try:
-        boxes = [bounds(p) for p in scene.current().selected() if isinstance(p, tuple)]
+        boxes = [bounds(p) for p in scene.current().selected()]   # held objects are not highlighted by Houdini
     except hou.Error:
         boxes = [b]
     for bb in [x for x in boxes if x is not None] or [b]:
@@ -371,19 +441,25 @@ def _scene_changed():
 def _follow_selection():
     if not _state["on"]:   # a deferred follow that outlived uninstall must not create a handle null
         return
+    sc = scene.current()
     try:
-        pieces = [p for p in scene.current().selected() if isinstance(p, tuple)]
+        sel = sc.selected()
     except hou.Error:
-        pieces = []
+        sel = []
+    pieces = [p for p in sel if isinstance(p, tuple)]
+    objs = [p for p in sel if not isinstance(p, tuple)]
+    items = pieces + objs if pieces else []
+    if len(items) > 1 and objs:
+        sc.hold(objs)   # driven by the handle with the pieces, around one pivot
     want = pieces[0] if pieces else None
-    if want != _state["bound"]:
-        bind(want)
-        _set_rel(pieces[1:], proxy())
+    if QtWidgets.QApplication.mouseButtons() != Qt.NoButton and want == _state["bound"]:
+        _draw()   # mid-drag: never move the handle or re-measure offsets (float32 storage would pull it back)
         return
+    m = _handle_xform(items) if items else None
     p = proxy()
-    _set_rel(pieces[1:], p)
-    if want is not None and p is not None:   # after an undo or an edit elsewhere: the proxy sits on its piece again
-        m = get_xform(want)
+    if want != _state["bound"] or (want is not None and p is None):
+        bind(want, m)
+    elif want is not None and p is not None:   # after an undo or an edit elsewhere: the proxy sits on its place again
         if any(abs(a - b) > 1e-5 for a, b in zip(m.asTuple(), p.worldTransform().asTuple())):
             _state["writing"] = True
             try:
@@ -391,14 +467,17 @@ def _follow_selection():
                     p.setWorldTransform(m)
             finally:
                 _state["writing"] = False
+    _set_rel(items, proxy())
     _draw()
 
 
-# --- dragging a piece like Max: its body (move tool), or Shift on the piece or its handle = Copy -------------------------
-# Ours, not Houdini's handle: on a plane through the grabbed point, facing the view. The preview runs outside the undo
-# history; the release puts the start state back and commits copy + move as ONE undo step. (Houdini's handle with
-# Shift was not reliable over a long session; plain drags on the handle stay Houdini's, with its axis constraints.)
+# --- dragging like Max: a piece's or an object's body (move tool), or Shift on it or on the handle = Copy ----------------
+# Ours, not Houdini's handle: in perspective views on the ground plane through the grabbed point, in orthographic views
+# on the view plane; Ctrl snaps the move to the construction grid. The preview runs outside the undo history; the
+# release puts the start state back and commits copy + move as ONE undo step. Plain drags on the handle stay Houdini's.
 MOVE_STATES = ("pose",)
+MODES = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: "remove",
+         Qt.ControlModifier | Qt.ShiftModifier: "toggle"}   # Houdini's select keys (basics/select.html)
 
 
 def _plane_point(vp, x, y, origin, normal):
@@ -410,31 +489,63 @@ def _plane_point(vp, x, y, origin, normal):
     return o + d * ((origin - o).dot(normal) / den)
 
 
+def _grid_step(sv):
+    try:
+        return float(sv.constructionPlane().cellSize()[0]) or 1.0
+    except (AttributeError, TypeError, IndexError, hou.Error):
+        return 1.0
+
+
+def _ray_object(vp, n, x, y):
+    """World point where the ray through pixel (x, y) hits object ``n``'s display geometry, or None."""
+    dn = n.displayNode()
+    if dn is None:
+        return None
+    d, o = vp.mapToWorld(x, y)
+    inv = n.worldTransform().inverted()
+    o2 = hou.Vector3(o) * inv
+    d2 = (hou.Vector3(o) + hou.Vector3(d)) * inv - o2
+    pos, nrm, uvw = hou.Vector3(), hou.Vector3(), hou.Vector3()
+    if dn.geometry().intersect(o2, d2.normalized(), pos, nrm, uvw) < 0:
+        return None
+    return pos * n.worldTransform()
+
+
 def _drag_gesture(kind, ev, viewer):
     if kind == "press":
         mods = ev.modifiers() & ~Qt.KeypadModifier
-        if ev.button() != Qt.LeftButton or viewer is None or mods not in (Qt.NoModifier, Qt.ShiftModifier):
+        if ev.button() != Qt.LeftButton or viewer is None or mods not in MODES:
             return False
         g = ev.globalPosition().toPoint()
         vp, x, y, n = _under(viewer, g)
         if vp is None or n is None:
             return False
-        shift = mods == Qt.ShiftModifier
-        if n.userData(PROXY_MARK) == "1" and shift and _state["bound"] is not None:
-            pid, grab = _state["bound"], get_xform(_state["bound"]).extractTranslates()   # Shift on the handle
-        elif containers.is_container(n) and (shift or viewer.currentState() in MOVE_STATES):
+        shift = bool(mods & Qt.ShiftModifier)
+        moving = shift or viewer.currentState() in MOVE_STATES
+        px = proxy()
+        if n.userData(PROXY_MARK) == "1" and shift and _state["bound"] is not None and px is not None:
+            pid, grab = _state["bound"], px.worldTransform().extractTranslates()   # Shift on the handle
+        elif containers.is_container(n) and moving:
             pid = _ray_piece(vp, n, x, y)
             if pid is None:
                 return False
             grab = hou.Vector3(_state["last_hit"]) * n.worldTransform()
+        elif n.type().name() == "geo" and n.userData(PROXY_MARK) != "1" and moving:
+            grab = _ray_object(vp, n, x, y)
+            if grab is None:
+                return False
+            pid = n.sessionId()
         else:
             return False
-        normal = hou.Vector3(vp.mapToWorld(x, y)[0]).normalized()
+        view = hou.Vector3(vp.mapToWorld(x, y)[0]).normalized()
+        persp = vp.type() == hou.geometryViewportType.Perspective
+        normal = hou.Vector3(0, 1, 0) if persp and abs(view[1]) > 0.15 else view
         sel = scene.current().selected()
         items = sel if pid in sel else [pid]   # the whole selection when the grabbed piece is in it
         _state["drag"] = {"vp": vp, "viewer": viewer, "pid": pid, "items": items,
-                          "start": {i: get_xform(i) for i in items}, "grab": grab,
-                          "normal": normal, "p0": g, "shift": shift, "moving": None, "copies": None}
+                          "start": {i: get_xform(i) for i in items}, "grab": grab, "normal": normal, "p0": g,
+                          "shift": shift, "mode": MODES[mods], "snap": bool(mods & Qt.ControlModifier),
+                          "step": _grid_step(viewer), "moving": None, "copies": None}
         return True   # ours: Houdini never sees this drag
     st = _state["drag"]
     if st is None:
@@ -453,15 +564,18 @@ def _drag_gesture(kind, ev, viewer):
             return True
         p = _plane_point(vp, x, y, st["grab"], st["normal"])
         if p is not None:
-            dm = hou.hmath.buildTranslate(p - st["grab"])
+            dv = p - st["grab"]
+            if st["snap"]:
+                dv = hou.Vector3([round(v / st["step"]) * st["step"] for v in dv])
+            dm = hou.hmath.buildTranslate(dv)
             with hou.undos.disabler():
                 set_xforms({st["moving"][i]: st["start"][i] * dm for i in st["items"]})
         return True
     if kind in ("release", "cancel"):
         _state["drag"] = None
         if st["moving"] is None:
-            if kind == "release":   # a click: pick what was under it (Shift: add)
-                input_layer.later(lambda: _pick_at(st["viewer"], st["p0"], "add" if st["shift"] else "replace"))
+            if kind == "release":   # a click: pick what was under it, with Houdini's select keys
+                input_layer.later(lambda: _pick_at(st["viewer"], st["p0"], st["mode"]))
             return True
         final = {i: get_xform(st["moving"][i]) for i in st["items"]}
         input_layer.later(lambda: _commit_drag(st, final, kind == "release"))
