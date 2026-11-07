@@ -63,7 +63,11 @@ def inside():
         gc = gl.mapToGlobal(QtCore.QPoint(int(v[0]), int(vp.size()[-1] - v[1])))
         log("state", sv.currentState(), "N on screen", gc)
         for dirx, diry in ((1, 0), (0, -1), (-1, 0), (0, 1)):
-            for rr in range(20, 220, 6):
+            for rr in range(40, 260, 6):
+                a.setSelected(True, clear_all_selected=True)
+                nn.setSelected(True)
+                nn.setCurrent(True)
+                yield 50
                 a0, n0 = a.worldTransform(), nn.worldTransform()
                 p0 = win.mapFromGlobal(gc) + QtCore.QPoint(dirx * rr, diry * rr)
                 QTest.mouseMove(win, p0)
@@ -75,6 +79,10 @@ def inside():
                 yield 200
                 a1, n1 = a.worldTransform(), nn.worldTransform()
                 if any(abs(x - y) > 1e-4 for x, y in zip(a1.asTuple() + n1.asTuple(), a0.asTuple() + n0.asTuple())):
+                    log("diff A", [round(x - y, 5) for x, y in zip(a1.asTuple(), a0.asTuple())],
+                        "diff N", [round(x - y, 5) for x, y in zip(n1.asTuple(), n0.asTuple())],
+                        "A explode", {k: tuple(round(c, 4) for c in v) for k, v in a1.explode().items()},
+                        "N explode", {k: tuple(round(c, 4) for c in v) for k, v in n1.explode().items()})
                     log("drag at", (dirx * rr, diry * rr), "N rot", n1.extractRotates(), "N pos", n1.extractTranslates(),
                         "A pos", a0.extractTranslates(), "->", a1.extractTranslates(), "A rot", a1.extractRotates(),
                         "selected", [x.name() for x in hou.selectedNodes()])

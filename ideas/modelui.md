@@ -18,22 +18,32 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- RESUME HERE (2026-11-07): F2a audit 3 (agent-179). Done (checks in gui_f2a): 1 a body drag past the horizon keeps its
-  last valid point (`_plane_point` rejects t <= 0 and > 20x the grab distance; check drags past the horizon with the
-  camera 12 degrees down), 3 in Q Shift+drag from a piece adds by box, copy only in W/E/R, 6 highlight checked for
-  every selected piece. OPEN:
-  - 2 hold evidence: `tests/modelui/rotate_ring_probe.py` (plain Houdini: A box + null N selected, E, scan for the
-    ring) found no ring yet: its first drag at 20 px from N was a click that reselected N alone; start the scan
-    outside the null (>= 40 px) and log the selection. Then decide hold by evidence; fix A2 (network-editor click while
-    held), A6 (switch off with a mixed selection: restore held objects to Houdini's selection on uninstall, re-sync
-    on install), A4 (a "modelUI: select" undo must restore the previous selection, or not be recorded).
-  - Found: our click gesture treats a handle drag that starts over empty space (a rotate ring) as a box selection
-    at the release (it replaces the selection): skip the box when the handle null was written during the drag.
-  - 4 Ctrl step = Houdini's Translate Step: NOT readable as far as found (no HOM/hscript getter for the built-in
-    transform handle's dialog values; `hou.Handle.settingValue` serves Python-state handles; no shipped file names it).
-    Needs a decision (own modelUI step setting, or keep the construction plane cell size).
-  - 5 body drag in E rotates about the view axis through the pivot, in R scales uniformly.
-  - The gui_f2a run now takes ~30 minutes (runner timeout 3000 s).
+- RESUME HERE (2026-11-07): audit-3 items 1, 3, 6 committed (02e7f66). Items 2, 4, 5 below are implemented but
+  UNCOMMITTED: quick baseline 50/50 green and the F1 suite passes (61 / 64), but the full gui_f2a run failed in its
+  LAST baseline: handle_drag_moves, shift_drag_copies_all and 'Cannot undo within an undo group' (gui_f2a line ~422):
+  an undo group left open late in a long session (suspects: the A4 change to scene.select's undo, or a mutation run's
+  unfinished handle drag). Next: log hou.undos state at each suite step in the last baseline, fix, rerun, commit.
+  Audit 3 (agent-179), each with a check in gui_f2a:
+  1 a body drag past the horizon keeps its last valid point (no point behind the camera or beyond 20x the grab
+  distance); 3 in Q, Shift+drag from a piece adds by box, copy only in W/E/R; 6 highlight checked for every selected
+  piece, horizon drag at a camera angle, Shift box from a piece.
+  - 2 (held objects): evidence `tests/modelui/rotate_ring_probe.py`, plain Houdini, a box object A and a null N both
+    selected, N current: a handle drag (stock E = scale; modelUI maps W/E/R the Max way) changed only N, never A.
+    Houdini's object handle transforms only the node it sits on, so a "double move" of selected objects does not
+    happen: the hold was removed (objects stay in Houdini's selection with its highlight; modelUI moves them by their
+    offsets to the handle null). That removes the out-of-step states A2/A6. A4: modelUI's selection changes are no
+    longer undo entries (piece selection cannot be undone; check `pick_adds_no_undo_entry`).
+  - Checked and dropped: "a handle drag that starts over empty space becomes our box selection". Along the scale
+    arrow `queryNodeAtPixel` reports the handle's null wherever the handle grabs (40 px; nothing from 50 to 120 px was
+    both empty and on the arrow), so the click gesture never boxes there. Rotate rings were not probed (open).
+  - 4 Ctrl step (decision): the cell of the grid the user sees: an orthographic view's own grid
+    (`settings().orthoGridSpacing()`), else the construction plane when visible, else the reference grid
+    (`referencePlane().cellSize()`). Houdini's handle Translate Step (handle parameters dialog) is not readable from
+    HOM (no getter for the built-in transform handle; `hou.Handle.settingValue` serves Python-state handles only), so
+    body-drag snap follows the visible grid instead. Rotate/scale body drags have no Ctrl step.
+  - 5 body drag mode follows W/E/R (an observing key gesture, so it needs the keyboard focus in the viewer, which a
+    click there gives): E turns about the view axis through the pivot (0.5 degrees per pixel of horizontal drag),
+    R scales uniformly (e^(0.01 * dx)), W moves; Shift copies in all three.
 - 2026-11-07: all F2a audit-2 items are in; F2a audit 3 pending. Audit 2 (agent-178) fixes, each with a check: 1
   highlight box from the piece's corners (compared with the piece's own points, far from the origin), 2 containers
   saved selectable (restored around a save), 3 a plain click on the handle keeps the selection, 4 observers get
