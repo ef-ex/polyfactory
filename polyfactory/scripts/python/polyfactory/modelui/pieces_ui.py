@@ -67,12 +67,12 @@ def bounds(pid):
     for pr in c.displayNode().geometry().prims():
         if pr.attribValue("pf_piece") == piece:
             b = pr.boundingBox()
-            out = hou.BoundingBox()
-            for x in (b.minvec()[0], b.maxvec()[0]):
-                for y in (b.minvec()[1], b.maxvec()[1]):
-                    for z in (b.minvec()[2], b.maxvec()[2]):
-                        out.enlargeToContain(hou.Vector3(x, y, z) * c.worldTransform())
-            return out
+            m = c.worldTransform()
+            pts = [hou.Vector3(x, y, z) * m for x in (b.minvec()[0], b.maxvec()[0])
+                   for y in (b.minvec()[1], b.maxvec()[1]) for z in (b.minvec()[2], b.maxvec()[2])]
+            lo = [min(p_[i] for p_ in pts) for i in range(3)]   # from the corners: an empty hou.BoundingBox() would
+            hi = [max(p_[i] for p_ in pts) for i in range(3)]   # start as a box at the origin and stretch to it
+            return hou.BoundingBox(lo[0], lo[1], lo[2], hi[0], hi[1], hi[2])
     return None
 
 
@@ -113,14 +113,21 @@ def pick(vp, x, y, mode="replace"):
         hit = _ray_piece(vp, n, x, y)
     elif n is not None and n.type().name() == "geo":
         hit = n.sessionId()
-    elif n is not None and n.userData(PROXY_MARK) == "1":   # the handle's own object: its piece stays picked
-        hit = _state["bound"]
+    elif n is not None and n.userData(PROXY_MARK) == "1":   # the handle's own object
+        if mode == "replace":
+            return _state["bound"]   # a plain click (or a tiny drag) on the handle: the selection stays as it is
+        for c in containers.containers():   # with Shift/Ctrl: the piece behind the handle
+            hit = _ray_piece(vp, c, x, y) if c.isDisplayFlagSet() else None
+            if hit is not None:
+                break
     sc = scene.current()
     cur = sc.selected()
     if mode == "add":
         new = cur + [hit] if hit is not None and hit not in cur else cur
     elif mode == "remove":
         new = [p for p in cur if p != hit]
+    elif mode == "toggle":
+        new = [p for p in cur if p != hit] if hit in cur else (cur + [hit] if hit is not None else cur)
     else:
         new = [hit] if hit is not None else []
     sc.select(new)
@@ -148,7 +155,8 @@ def _click_gesture(kind, ev, viewer):
     selectable in the viewport."""
     if kind == "press":
         mods = ev.modifiers() & ~Qt.KeypadModifier
-        modes = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: "remove"}
+        modes = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: "remove",
+                 Qt.ControlModifier | Qt.ShiftModifier: "toggle"}   # Houdini's select keys (basics/select.html)
         if ev.button() != Qt.LeftButton or mods not in modes or viewer is None:
             return False
         g = ev.globalPosition().toPoint()
@@ -220,6 +228,8 @@ def _box_at(sv, g0, g1, mode):
         pieces = pieces + [p for p in boxed if p not in pieces]
     elif mode == "remove":
         pieces = [p for p in pieces if p not in boxed]
+    elif mode == "toggle":
+        pieces = [p for p in pieces if p not in boxed] + [p for p in boxed if p not in pieces]
     else:
         pieces = boxed
     sc.select(objs + pieces)
@@ -309,7 +319,9 @@ def _hip_event(event_type):
     if event_type == hou.hipFileEventType.BeforeSave:
         _state["saved_bound"] = _state["bound"]
         bind(None)   # the null never goes into a hip
+        _set_containers_selectable(True)   # nor the unselectable flag: plain Houdini must be able to click them
     elif event_type == hou.hipFileEventType.AfterSave:
+        _set_containers_selectable(False)
         if _state.pop("saved_bound", None) is not None:
             input_layer.later(_follow_selection)
     elif event_type in (hou.hipFileEventType.BeforeLoad, hou.hipFileEventType.BeforeClear):

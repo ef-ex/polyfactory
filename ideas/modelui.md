@@ -18,6 +18,19 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- RESUME HERE (2026-11-07): F2a audit 2 (agent-178). Done with checks: 1 highlight box from the piece's corners
+  (checked against the piece's own points, far from the origin), 2 containers saved selectable (restored around a
+  save), 3 a plain click on the handle keeps the selection, 4 observers get "cancel", 5 measurements table (GUI vs
+  hython add, select 2.8-6.6 ms), 6 per-run scratch (save_check.hip, mutated DLL), 9 Houdini's select keys from
+  basics/select.html: Shift add, Ctrl remove, Ctrl+Shift toggle (found: F1's demo gesture took Ctrl+Shift+LMB in
+  every viewer; it now installs only with PF_MODELUI_DEMO=1, set by the runner for the F1 suite).
+  Checks: F1 suite 61 checks per baseline / 64 mutations red; gui_f2a 36 / 40.
+  OPEN (Sunita's comfort decisions, record and build): 7 multi-selection pivot = centre of the selection's bounding
+  box (handle there for rotate/scale; mixed piece+object selections around the same pivot; a check that drives a
+  ROTATE drag); 8 body drag on the ground plane (XZ through the grabbed point) in perspective, the view plane in
+  orthographic views, Ctrl = grid snap like Houdini's handle, body drag for loose objects too; 10 with Q a drag that
+  starts on a piece is a box selection, with W/E/R a body drag; 11 limit: non-uniform scale of a multi-selection with
+  rotated pieces cannot be stored (pieces store no shear).
 - Branch `modelui`. 2026-11-07: all F2a audit-1 items are in; second F2a audit pending.
   - Input layer (F1 framework): several OBSERVE gestures share one press (every gesture is still asked; one that
     answers True after them takes the press and the observers are dropped; observers get move/release/keyup and
@@ -59,20 +72,24 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   on containers); only translate drags are driven by the checks (rotate/scale are Houdini's own handle modes);
   promote has no caller yet (F2c's first modifier); copy/paste between hips is F2e.
 
-## F2a measurements (2026-11-06, `tests/modelui/bench_f2a.py`, all 605 library files, one container)
+## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
 
-| Pieces | add (one edit) | first cook | draw over the empty scene |
-|---|---|---|---|
-| 100 | 2.0 s | 0.6 s | +4.0 ms |
-| 500 | 1.2 s | 2.8 s | +11.7 ms |
-| 2000 | 7.7 s (0.9 s after the audit-1 fix) | 3.8 s | +12.1 ms |
-| 5000 | (1.0 s after the fix; 18.2 s before) | | |
+| Pieces | add, GUI (bench) | add, hython (check) | first cook | draw over the empty scene |
+|---|---|---|---|---|
+| 100 | 2.0 s | | 0.6 s | +4.0 ms |
+| 500 | 1.2 s | | 2.8 s | +11.7 ms |
+| 2000 | 7.7 s before the audit-1 fix, 5.6 s after (audit 2) | 0.9 s | 3.8 s | +12.1 ms |
+| 5000 | | 1.0 s (18.2 s before the fix) | | |
 
-Draw: single-frame flipbooks 1280x720 while the camera orbits, median of 20 (the empty scene's 38.3 ms is flipbook
-overhead). Against the object-level numbers below: 2000 objects +101 ms, the same 2000 pieces as polygons in one
-object +9 ms; packed pieces in a container land next to the one-object number. In the GUI at 2000 pieces: move one
-piece 5.4 ms, copy one 5.0 ms, select one (including placing the handle proxy) 2.8 ms (edit + recook + redraw;
-target < 50 ms). The 7.7 s for adding 2000 pieces was not the source chains: names and sources were rescanned per piece (quadratic); after the audit-1 fix a bulk add of 2000 / 5000 pieces from all 605 files takes 0.9 / 1.0 s (check_containers ceiling 3.0 / 3.5 s). Measured once.
+- Why the two add columns differ: both add through `containers.add_pieces` (one edit, one Copy to Points). The GUI
+  number includes creating the 605 source chains (1815 nodes) with the network and parameter panes open, which
+  costs several seconds in the GUI and almost nothing in hython; it is paid once per container, the first time each
+  file is used. The audit-1 fix removed the quadratic name/source rescan (the hython column, gated at 3.0 / 3.5 s).
+- Draw: single-frame flipbooks 1280x720 while the camera orbits, median of 20 (the empty scene's 38.3 ms is flipbook
+  overhead). Against the object-level numbers below: 2000 objects +101 ms, the same 2000 pieces as polygons in one
+  object +9 ms; packed pieces in a container land next to the one-object number.
+- One piece at 2000 pieces in the GUI (edit + recook + redraw; target < 50 ms): move 5.4 ms, copy 5.0 ms, select
+  (including placing the handle null) 2.8-6.6 ms (2026-11-06 run and audit 2's run). Measured on this PC only.
 
 ## F2a design: pieces packed in container objects (Hannes' choice: mixed backend)
 

@@ -139,13 +139,23 @@ def suite(out):
     out["pick_piece"] = s.selected() == [mid]
     panel = getattr(hou.session, "_pf_modelui_explorer", None)
     out["explorer_follows_pick"] = panel is not None and panel.selected_ids() == [mid]
-    box, want_box = pieces_ui._state.get("shown_box"), pieces_ui.bounds(mid)
-    out["highlight_shows_pick"] = (box is not None and want_box is not None
+    box, want_box = None, None   # (checked below on a piece far from the origin)
+    _unused_hl = (box is not None and want_box is not None
                                    and (box.minvec() - want_box.minvec()).length() < 1e-4
                                    and (box.maxvec() - want_box.maxvec()).length() < 1e-4)
     pr_left = [p for p in c.displayNode().geometry().prims() if p.attribValue("pf_piece") == ids[0]][0]
     click_at(pr_left.boundingBox().center())
     yield 300
+    pr_l = [p for p in c.displayNode().geometry().prims() if p.attribValue("pf_piece") == ids[0]][0]
+    mw_l = pr_l.fullTransform() * c.worldTransform()   # an independent box: the piece's own points in world space
+    wpts = [p.position() * mw_l for p in pr_l.getEmbeddedGeometry().points()]
+    lo_w = [min(v[i] for v in wpts) for i in range(3)]
+    hi_w = [max(v[i] for v in wpts) for i in range(3)]
+    shown = pieces_ui._state.get("shown_box")
+    out["highlight_shows_pick"] = (shown is not None and abs(lo_w[0]) > 5
+                                   and all(abs(shown.minvec()[i] - lo_w[i]) < 1e-3 for i in range(3))
+                                   and all(abs(shown.maxvec()[i] - hi_w[i]) < 1e-3 for i in range(3)))
+    log("  highlight", shown, "points box", lo_w, hi_w)
     px_ = pieces_ui.proxy()
     out["proxy_bound_to_pick"] = (pieces_ui._state["bound"] == left and px_ is not None and px_.isSelected()
                                   and (px_.worldTransform().extractTranslates() - tr(left)).length() < 1e-4)
@@ -402,11 +412,28 @@ def suite(out):
     hou.undos.performUndo()
     yield 200
     out["shift_drag_all_one_undo"] = len(containers.piece_rows(c)) == n1
+    s.select([left, mid])
+    yield 300
+    gh = screen_point(sv, gl, tr(pieces_ui._state["bound"]))[0]   # a click on the handle itself
+    QTest.mouseMove(win, L(win, gh))
+    QTest.mouseClick(win, LMB, NOM, L(win, gh))
+    yield 300
+    out["handle_click_keeps_selection"] = sorted(s.selected()) == sorted([left, mid])
+    CS2 = Qt.ControlModifier | Qt.ShiftModifier
+    QTest.mouseMove(win, L(win, at(left)))
+    QTest.mouseClick(win, LMB, CS2, L(win, at(left)))
+    yield 300
+    t1_ = s.selected() == [mid]
+    log("  toggle 1:", s.selected(), "press under", pieces_ui._state.get("last_pick"), "bound", pieces_ui._state["bound"])
+    QTest.mouseClick(win, LMB, CS2, L(win, at(left)))
+    yield 300
+    log("  toggle 2:", s.selected(), "press under", pieces_ui._state.get("last_pick"), "bound", pieces_ui._state["bound"])
+    out["ctrl_shift_click_toggles"] = t1_ and sorted(s.selected()) == sorted([left, mid])
     s.select([mid])
     yield 300
 
     skip_save = os.environ.get("PF_F2A_SKIP") == "save"   # diagnosis only
-    path = "F:/cache/modelui/f2/save_check.hip"   # a throwaway hip under F:/cache, only for this check
+    path = os.path.dirname(OUT) + "/save_check.hip"   # a throwaway hip in this run's own folder
     s.select([mid])
     yield 300
     if not skip_save:
@@ -418,6 +445,8 @@ def suite(out):
         hou.hipFile.load(path, suppress_save_prompt=True)
     yield 300
     out["saved_without_handle_null"] = marked() == [] and bound_after == mid
+    out["saved_containers_selectable"] = bool(containers.containers()) and all(
+        cc.isSelectableInViewport() for cc in containers.containers())   # plain Houdini can click them
     hou.hipFile.clear(suppress_save_prompt=True)
     pieces_ui.install()
     c3 = containers.create()
@@ -520,6 +549,12 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("body_drags_one", "body_drag_moves_all", PS, [("        items = sel if pid in sel else [pid]", "        items = [pid]")]),
     ("copies_only_grabbed", "shift_drag_copies_all", PS, [('        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}', '        targets = {i: (copy_of(i) if st["shift"] and i == st["pid"] else i) for i in st["items"]}')]),
     ("copies_split_undo", "shift_drag_all_one_undo", PS, [('    with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):', '    if True:')]),
+    ("box_from_origin", "highlight_shows_pick", PS, [("            hi = [max(p_[i] for p_ in pts) for i in range(3)]", "            hi = [max([0.0] + [p_[i] for p_ in pts]) for i in range(3)]")]),
+    ("flag_saved", "saved_containers_selectable", PS, [("        _set_containers_selectable(True)   # nor the unselectable flag", "        pass   # nor the unselectable flag")]),
+    ("handle_click_replaces", "handle_click_keeps_selection", PS, [('            return _state["bound"]   # a plain click', '            pass   # a plain click')]),
+    ("modifier_on_handle_ignored", "ctrl_click_removes", PS, [('        for c in containers.containers():   # with Shift/Ctrl: the piece behind the handle', '        for c in []:   # with Shift/Ctrl: the piece behind the handle')]),
+    ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
+    ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
 ]
 RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
