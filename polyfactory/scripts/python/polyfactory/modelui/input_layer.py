@@ -225,12 +225,16 @@ class _Layer:
             self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it
             res = self._call(fn, kind, ev, viewer)
             if res is True:
-                self.watchers[slot] = []   # a gesture that takes the press wins: the observers are dropped
+                for w in watchers + self.watchers[slot]:   # a gesture that takes the press wins: observers get cancel
+                    self._call(w[0], "cancel", ev, None)
+                self.watchers[slot] = []
                 return True
             if self.owners[slot] is owner:
                 self.owners[slot] = None
             if res == OBSERVE:
                 watchers.append([fn, which, False])   # observers share the press; every later gesture is still asked
+        for w in self.watchers[slot]:   # a new press replaces the observers of an older one: they get cancel
+            self._call(w[0], "cancel", ev, None)
         self.watchers[slot] = watchers
         return False
 
@@ -353,7 +357,8 @@ def layer():
 
 
 def install(fallback=False):
-    """Install the layer and the demo gesture (switch feature hook). ``fallback`` forces the per-window filters."""
+    """Install the layer (switch feature hook); the demo gesture only with PF_MODELUI_DEMO=1 (the F1 checks): its
+    Ctrl+Shift+LMB is Houdini's toggle-select key. ``fallback`` forces the per-window filters."""
     uninstall()
     lay = _Layer()
     try:
@@ -365,7 +370,8 @@ def install(fallback=False):
             LOG.warning("modelUI: C++ filter %s not usable, per-window filters instead", LIB, exc_info=True)
         lay.attached, lay.backend = _Windows(lay), "windows"
     setattr(hou.session, SESSION_ATTR, lay)
-    add_gesture("demo_drag", DEMO)
+    if os.environ.get("PF_MODELUI_DEMO") == "1":
+        add_gesture("demo_drag", DEMO)
 
 
 def uninstall():

@@ -24,7 +24,7 @@ EXEMPT = {"toggle_key_registered": "registered by uiready.py at startup; a mutat
 def main():
     shutil.rmtree(SCR, ignore_errors=True)
     # the C++ mutation: the filter without its window-receiver test, built beside the scratch folder
-    mut = os.path.normpath("F:/cache/modelui/f1/mut")
+    mut = os.path.normpath(SCR + "_mut")   # beside the run's own folder: parallel runs never share it
     os.makedirs(mut, exist_ok=True)
     afdir = os.path.join(REPO, "polyfactory", "scripts", "python", "polyfactory", "modelui", "appfilter")
     with open(os.path.join(afdir, "appfilter.cpp")) as f:
@@ -51,7 +51,10 @@ def main():
         json.dump({"env": [{"POLYFACTORY": REPO.replace("\\", "/") + "/polyfactory"}], "path": "$POLYFACTORY"}, f)
     env = dict(os.environ)
     env.pop("HOUDINI_PATH", None)
-    env.update(HOUDINI_USER_PREF_DIR=prefs, HOUDINI_PACKAGE_DIR=pv + "/packages", PF_F1_OUT=SCR + "/result.json")
+    if os.environ.get("PF_GUI_SCRIPT", "gui_f1.py") == "gui_f1.py":
+        env["PF_MODELUI_DEMO"] = "1"   # the F1 checks use the demo gesture; it is not installed otherwise
+    env.update(PF_F1_MUT_DLL=os.path.join(mut, "pf_appfilter_nowindow.dll").replace("\\", "/"),
+               HOUDINI_USER_PREF_DIR=prefs, HOUDINI_PACKAGE_DIR=pv + "/packages", PF_F1_OUT=SCR + "/result.json")
     console = open(SCR + "/console.txt", "w")
     p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, os.environ.get("PF_GUI_SCRIPT", "gui_f1.py"))], env=env, stdout=console,
                          stderr=subprocess.STDOUT)

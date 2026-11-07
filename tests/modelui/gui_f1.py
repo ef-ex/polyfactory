@@ -473,6 +473,29 @@ def suite(out):
     finally:
         input_layer.remove_gesture("test_obs_a")
         input_layer.remove_gesture("test_obs_b")
+    got_c = []
+    AS = Qt.AltModifier | Qt.ShiftModifier
+
+    def obs_c(kind, ev, viewer):   # observes Alt+Shift presses; a gesture after it takes them
+        if kind == "press" and (ev.modifiers() & (Qt.ControlModifier | AS)) != AS:
+            return False
+        got_c.append(kind)
+        return input_layer.OBSERVE
+
+    def taker(kind, ev, viewer):
+        if kind == "press" and (ev.modifiers() & (Qt.ControlModifier | AS)) != AS:
+            return False
+        return True
+    input_layer.add_gesture("test_obs_c", obs_c)
+    input_layer.add_gesture("test_taker", taker)
+    try:
+        QTest.mousePress(win, LMB, AS, L(win, g))
+        QTest.mouseRelease(win, LMB, AS, L(win, g))
+        out["observer_cancelled_by_taker"] = got_c == ["press", "cancel"]
+        log("  observer before a taker", got_c)
+    finally:
+        input_layer.remove_gesture("test_obs_c")
+        input_layer.remove_gesture("test_taker")
 
     fp = desk.createFloatingPaneTab(hou.paneTabType.SceneViewer, position=(-11000, 300), size=(600, 450))
     yield 300
@@ -643,7 +666,7 @@ def cleanup():
     for o in gc.get_objects():   # filters a mutated uninstall left attached
         if type(o).__name__ in ("_AppFilter", "_Windows"):
             _q(o.detach)
-    for name in ("test_tap", "test_count", "test_nested", "test_clone", "test_obs_a", "test_obs_b"):
+    for name in ("test_tap", "test_count", "test_nested", "test_clone", "test_obs_a", "test_obs_b", "test_obs_c", "test_taker"):
         _q(lambda: input_layer.remove_gesture(name))
     for p in hou.ui.floatingPanels():
         if any(isinstance(t, hou.SceneViewer) for t in p.paneTabs()):
@@ -695,7 +718,7 @@ MUTATIONS = [
     ("text_fields_not_skipped", "text_field_keeps_keys", IL, [("viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)", "viewer = viewer_of(focus)")]),
     ("no_deactivate_cancel", "key_cancel_on_deactivate", IL, [("        app.applicationStateChanged.connect(self._state_changed)\n", "")]),
     ("cpp_every_receiver", "one_call_per_input", IL, [('LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "appfilter", "pf_appfilter.dll")',
-                                                       'LIB = "F:/cache/modelui/f1/mut/pf_appfilter_nowindow.dll"')]),
+                                                       'LIB = os.environ["PF_F1_MUT_DLL"]')]),
     ("lost_release_kept", "lost_release_cancels", IL, [("            if not ev.buttons() & which:", "            if False:")]),
     ("owner_after_call", "nested_release_not_stuck", IL, [("            self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it\n            res = self._call(fn, kind, ev, viewer)",
                                                            "            res = self._call(fn, kind, ev, viewer)\n            self.owners[slot] = owner")]),
@@ -721,6 +744,7 @@ MUTATIONS = [
     ("cancel_keeps_mouse", "cancel_ends_drag", IL, [('        for slot in ("mouse", "key"):\n            o = self.owners[slot]', '        for slot in ("key",):\n            o = self.owners[slot]')]),
     ("drag_blocks_keys", "key_offered_during_drag", IL, [('        elif t == QE.KeyPress:\n            kind, which = "key", _key_id(ev)', '        elif t == QE.KeyPress:\n            if self.owners["mouse"] is not None:\n                return False\n            kind, which = "key", _key_id(ev)')]),
     ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self._end("key", o)\n            self._call(fn, "keyup", ev, None)', '            self._end("key", o)\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
+    ("taker_drops_silently", "observer_cancelled_by_taker", IL, [("                for w in watchers + self.watchers[slot]:   # a gesture that takes the press wins: observers get cancel", "                for w in []:   # a gesture that takes the press wins: observers get cancel")]),
     ("first_observer_only", "two_observers_share_press", IL, [("                watchers.append([fn, which, False])   # observers share the press; every later gesture is still asked", "                watchers.append([fn, which, False])\n                break")]),
     ("uninstall_keeps_filter", "input_off", IL, [('    remove_gesture("demo_drag")\n    lay = layer()\n    if lay is not None:\n        lay.attached.detach()\n        lay.shutdown()\n        setattr(hou.session, SESSION_ATTR, None)', "    pass")]),
     ("fallback_not_attached", "fallback_drag_owned", IL, [("            w.installEventFilter(self.filter)", "            pass")]),
