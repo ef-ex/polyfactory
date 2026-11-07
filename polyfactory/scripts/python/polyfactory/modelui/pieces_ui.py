@@ -39,6 +39,19 @@ def set_xform(pid, m):
         hou.nodeBySessionId(pid).setWorldTransform(m)
 
 
+def set_xforms(xforms):
+    """{pid: world matrix}: one stash edit per container, objects one by one."""
+    groups = {}
+    for pid, m in xforms.items():
+        if isinstance(pid, tuple):
+            c, piece = scene.MixedScene._split(pid)
+            groups.setdefault(c, {})[piece] = m * c.worldTransform().inverted()
+        else:
+            hou.nodeBySessionId(pid).setWorldTransform(m)
+    for c, local in groups.items():
+        containers.set_transforms(c, local)
+
+
 def copy_of(pid):
     if isinstance(pid, tuple):
         c, piece = scene.MixedScene._split(pid)
@@ -90,8 +103,9 @@ def _ray_piece(vp, c, x, y):
     return ("piece", c.sessionId(), geo.prim(prim).attribValue("pf_piece")) if prim >= 0 else None
 
 
-def pick(vp, x, y):
-    """Select the piece or object under viewport pixel (x, y) (nothing: clear). Returns the id or None."""
+def pick(vp, x, y, mode="replace"):
+    """Select the piece or object under viewport pixel (x, y): mode "replace" (nothing there: clear), "add" (Shift)
+    or "remove" (Ctrl). Returns the id or None."""
     n = vp.queryNodeAtPixel(x, y)
     _state["last_pick"] = (x, y, n.path() if n is not None else None)
     hit = None
@@ -101,7 +115,15 @@ def pick(vp, x, y):
         hit = n.sessionId()
     elif n is not None and n.userData(PROXY_MARK) == "1":   # the handle's own object: its piece stays picked
         hit = _state["bound"]
-    scene.current().select([hit] if hit is not None else [])
+    sc = scene.current()
+    cur = sc.selected()
+    if mode == "add":
+        new = cur + [hit] if hit is not None and hit not in cur else cur
+    elif mode == "remove":
+        new = [p for p in cur if p != hit]
+    else:
+        new = [hit] if hit is not None else []
+    sc.select(new)
     return hit
 
 
@@ -126,35 +148,81 @@ def _click_gesture(kind, ev, viewer):
     selectable in the viewport."""
     if kind == "press":
         mods = ev.modifiers() & ~Qt.KeypadModifier
-        if ev.button() != Qt.LeftButton or mods != Qt.NoModifier or viewer is None:   # any modifier: not a plain click
+        modes = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: "remove"}
+        if ev.button() != Qt.LeftButton or mods not in modes or viewer is None:
             return False
         g = ev.globalPosition().toPoint()
         n = _under(viewer, g)[3]
-        _state["click"] = {"viewer": viewer, "start": g}
-        return True if n is not None and containers.is_container(n) else input_layer.OBSERVE
+        _state["click"] = {"viewer": viewer, "start": g, "mode": modes[mods], "box": False,
+                           "own": n is not None and containers.is_container(n), "empty": n is None}
+        return True if _state["click"]["own"] else input_layer.OBSERVE
     st = _state["click"]
     if st is None:
         return False
     if kind == "move":
         d = ev.globalPosition().toPoint() - st["start"]
         if abs(d.x()) + abs(d.y()) > CLICK_PX:
-            _state["click"] = None   # a drag (handle, box select): not a pick
+            # a drag from empty space is Houdini's box selection (we add the pieces in it); a drag on the handle or an
+            # object is neither a pick nor a box
+            st["box"] = st["empty"]
+            if not st["empty"] and not st["own"]:
+                _state["click"] = None
     elif kind == "release":
         _state["click"] = None
         g = ev.globalPosition().toPoint()
-        input_layer.later(lambda: _pick_at(st["viewer"], g))
+        if st["box"]:
+            input_layer.later(lambda: _box_at(st["viewer"], st["start"], g, st["mode"]))
+        else:
+            input_layer.later(lambda: _pick_at(st["viewer"], g, st["mode"]))
     elif kind == "cancel":
         _state["click"] = None
     return False
 
 
-def _pick_at(sv, g):
+def _pick_at(sv, g, mode="replace"):
     """Pick at global point ``g`` in viewer ``sv``."""
     if not _state["on"]:   # a deferred pick that outlived uninstall
         return
     vp, x, y, _ = _under(sv, g)
     if vp is not None:
-        pick(vp, x, y)
+        pick(vp, x, y, mode)
+
+
+def piece_centres(vp):
+    """{pid: (x, y) viewport pixel} of every piece's bounding-box centre."""
+    out = {}
+    for c in containers.containers():
+        if not c.isDisplayFlagSet():
+            continue
+        m = c.worldTransform()
+        for pr in c.displayNode().geometry().prims():
+            v = vp.mapToScreen(pr.boundingBox().center() * m)
+            out[("piece", c.sessionId(), pr.attribValue("pf_piece"))] = (v[0], v[1])
+    return out
+
+
+def _box_at(sv, g0, g1, mode):
+    """After Houdini's box selection (objects): the pieces whose centre is in the box join (Shift: add, Ctrl: remove,
+    else replace the pieces)."""
+    if not _state["on"]:
+        return
+    vp, x0, y0, _ = _under(sv, g0)
+    vp1, x1, y1, _ = _under(sv, g1)
+    if vp is None:
+        return
+    lo_x, hi_x, lo_y, hi_y = min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)
+    boxed = [pid for pid, (x, y) in piece_centres(vp).items() if lo_x <= x <= hi_x and lo_y <= y <= hi_y]
+    sc = scene.current()
+    cur = sc.selected()
+    objs = [p for p in cur if not isinstance(p, tuple)]   # Houdini's own box result
+    pieces = [p for p in cur if isinstance(p, tuple)]
+    if mode == "add":
+        pieces = pieces + [p for p in boxed if p not in pieces]
+    elif mode == "remove":
+        pieces = [p for p in pieces if p not in boxed]
+    else:
+        pieces = boxed
+    sc.select(objs + pieces)
 
 
 # --- the proxy: Houdini's handle on a piece --------------------------------------------------------------------------
@@ -196,7 +264,7 @@ def _new_proxy(m):
         finally:
             _state["writing"] = False
         n.addEventCallback(_EVENTS, _proxy_moved)
-        n.setSelected(True, clear_all_selected=True)
+        n.setSelected(True)   # selected objects stay selected: Houdini's handle moves them itself
     return n
 
 
@@ -207,11 +275,21 @@ def _proxy_moved(**kw):
     if pid is None or _state["writing"] or kw.get("node") != _state["proxy"]:   # a new wrapper each call: compare, never "is"
         return
     _state["writes"] = _state.get("writes", 0) + 1
-    try:
-        set_xform(pid, kw["node"].worldTransform())
-    except KeyError:   # the piece is gone
+    m = kw["node"].worldTransform()
+    try:   # the bound piece follows the null; the other selected pieces keep their offset to it
+        set_xforms(dict([(pid, m)] + [(p, r * m) for p, r in _state.get("rel", {}).items()]))
+    except KeyError:   # a piece is gone
         _state["bound"] = None
     _draw()
+
+
+def _set_rel(others, p):
+    """The other selected pieces' offsets to the null (they follow it)."""
+    if p is None or not others:
+        _state["rel"] = {}
+        return
+    inv = p.worldTransform().inverted()
+    _state["rel"] = {o: get_xform(o) * inv for o in others}
 
 
 def bind(pid):
@@ -248,6 +326,7 @@ def _set_containers_selectable(on):
 
 
 def _draw():
+    """One box per selected piece; ``shown_box`` records the bound piece's box (for tools and checks)."""
     d = _state["drawable"]
     b = bounds(_state["bound"]) if _state["bound"] is not None else None
     if d is None:
@@ -257,12 +336,17 @@ def _draw():
         _state["shown_box"] = None
         return
     g = hou.Geometry()
-    lo, hi = b.minvec(), b.maxvec()
-    pts = g.createPoints([(x, y, z) for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
-    for i, j in ((0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7), (0, 4), (1, 5), (2, 6), (3, 7)):
-        poly = g.createPolygon(is_closed=False)
-        poly.addVertex(pts[i])
-        poly.addVertex(pts[j])
+    try:
+        boxes = [bounds(p) for p in scene.current().selected() if isinstance(p, tuple)]
+    except hou.Error:
+        boxes = [b]
+    for bb in [x for x in boxes if x is not None] or [b]:
+        lo, hi = bb.minvec(), bb.maxvec()
+        pts = g.createPoints([(x, y, z) for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
+        for i, j in ((0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7), (0, 4), (1, 5), (2, 6), (3, 7)):
+            poly = g.createPolygon(is_closed=False)
+            poly.addVertex(pts[i])
+            poly.addVertex(pts[j])
     d.setGeometry(g)
     d.show(True)
     _state["shown_box"] = b   # what the highlight shows (for tools and checks)
@@ -282,8 +366,10 @@ def _follow_selection():
     want = pieces[0] if pieces else None
     if want != _state["bound"]:
         bind(want)
+        _set_rel(pieces[1:], proxy())
         return
     p = proxy()
+    _set_rel(pieces[1:], p)
     if want is not None and p is not None:   # after an undo or an edit elsewhere: the proxy sits on its piece again
         m = get_xform(want)
         if any(abs(a - b) > 1e-5 for a, b in zip(m.asTuple(), p.worldTransform().asTuple())):
@@ -332,8 +418,11 @@ def _drag_gesture(kind, ev, viewer):
         else:
             return False
         normal = hou.Vector3(vp.mapToWorld(x, y)[0]).normalized()
-        _state["drag"] = {"vp": vp, "viewer": viewer, "pid": pid, "start": get_xform(pid), "grab": grab,
-                          "normal": normal, "p0": g, "shift": shift, "moving": None, "copy": None}
+        sel = scene.current().selected()
+        items = sel if pid in sel else [pid]   # the whole selection when the grabbed piece is in it
+        _state["drag"] = {"vp": vp, "viewer": viewer, "pid": pid, "items": items,
+                          "start": {i: get_xform(i) for i in items}, "grab": grab,
+                          "normal": normal, "p0": g, "shift": shift, "moving": None, "copies": None}
         return True   # ours: Houdini never sees this drag
     st = _state["drag"]
     if st is None:
@@ -345,43 +434,45 @@ def _drag_gesture(kind, ev, viewer):
             if abs(d.x()) + abs(d.y()) <= COPY_PX:
                 return True
             with hou.undos.disabler():   # preview only: the release commits one undo step
-                st["moving"] = copy_of(st["pid"]) if st["shift"] else st["pid"]
-            st["copy"] = st["moving"] if st["shift"] else None
+                st["moving"] = {i: copy_of(i) for i in st["items"]} if st["shift"] else {i: i for i in st["items"]}
+            st["copies"] = list(st["moving"].values()) if st["shift"] else None
         vp, x, y, _ = _under(st["viewer"], g)
         if vp is None:
             return True
         p = _plane_point(vp, x, y, st["grab"], st["normal"])
         if p is not None:
+            dm = hou.hmath.buildTranslate(p - st["grab"])
             with hou.undos.disabler():
-                set_xform(st["moving"], st["start"] * hou.hmath.buildTranslate(p - st["grab"]))
+                set_xforms({st["moving"][i]: st["start"][i] * dm for i in st["items"]})
         return True
     if kind in ("release", "cancel"):
         _state["drag"] = None
         if st["moving"] is None:
-            if kind == "release":   # a click: pick what was under it
-                input_layer.later(lambda: _pick_at(st["viewer"], st["p0"]))
+            if kind == "release":   # a click: pick what was under it (Shift: add)
+                input_layer.later(lambda: _pick_at(st["viewer"], st["p0"], "add" if st["shift"] else "replace"))
             return True
-        final = get_xform(st["moving"])
+        final = {i: get_xform(st["moving"][i]) for i in st["items"]}
         input_layer.later(lambda: _commit_drag(st, final, kind == "release"))
         return True
     return True
 
 
 def _commit_drag(st, final, keep):
-    """Undo the preview, then (on a release) copy + move as one undo step; the copy or the moved piece is selected."""
+    """Undo the preview, then (on a release) copy + move of every dragged item as one undo step; the copies or the
+    moved items are selected."""
     if not _state["on"]:
         return
     with hou.undos.disabler():
-        if st["copy"] is not None:
-            scene.current().delete([st["copy"]])
+        if st["copies"] is not None:
+            scene.current().delete(st["copies"])
         else:
-            set_xform(st["pid"], st["start"])
+            set_xforms(dict(st["start"]))
     if not keep:
         return
     with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):
-        target = copy_of(st["pid"]) if st["shift"] else st["pid"]
-        set_xform(target, final)
-    scene.current().select([target])
+        targets = {i: (copy_of(i) if st["shift"] else i) for i in st["items"]}
+        set_xforms({targets[i]: final[i] for i in st["items"]})
+    scene.current().select(list(targets.values()))
 
 
 # --- switch feature hooks --------------------------------------------------------------------------------------------

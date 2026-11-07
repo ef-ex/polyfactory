@@ -18,18 +18,20 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
-- Branch `modelui`. RESUME HERE (2026-11-07): 9b multi-selection is implemented but UNCOMMITTED in `pieces_ui.py` +
-  `gui_f2a.py` (Shift-click adds, Ctrl-click removes, a box from empty space adds the pieces whose centres are in it,
-  the handle null moves all selected pieces (offsets to the null) and Houdini moves selected objects with it, body
-  drag and Shift+drag move/copy the whole selection in one undo step, a box per selected piece). gui_f2a: 33 checks
-  green in both baselines, 33 of 35 mutations red; the two green ones were fixed after that run (setCurrent removed:
-  not needed once the cold-start wait is in; the mixed-selection test now starts empty) -> rerun needed.
-  BLOCKER: the F1 GUI suite with this pieces_ui fails `observe_drag_passes_through` and `later_defers` in both
-  baselines: the click gesture now also takes Shift/Ctrl presses, and an OBSERVE gesture owns the mouse slot, so F1's
-  own Shift-observe gesture is never offered the press. Decide: (a) input layer lets several observers share a press
-  (an owner still wins; framework change, F1 checks must stay green), or (b) the click gesture declines Shift/Ctrl
-  presses that are not on a container (Shift-box would then add only objects, through Houdini). Then rerun gui_f2a
-  and F1, commit, report for the second F2a audit.
+- Branch `modelui`. 2026-11-07: all F2a audit-1 items are in; second F2a audit pending.
+  - Input layer (F1 framework): several OBSERVE gestures share one press (every gesture is still asked; one that
+    answers True after them takes the press and the observers are dropped; observers get move/release/keyup and
+    "cancel", nothing they see is swallowed). Check `two_observers_share_press` (mutation: stop after the first).
+  - 9b multi-selection in `pieces_ui`: Shift-click adds, Ctrl-click removes, a box from empty space adds the pieces
+    whose centres are in it to Houdini's object result, the handle null moves every selected piece (offsets to the
+    null) while Houdini moves the selected objects, body drag and Shift+drag move/copy the whole selection in one
+    undo step, one highlight box per selected piece.
+  - Checks: `run_gui_f1.py` (F1 suite with pieces_ui installed): 60 checks green in both baselines, 63 paired
+    mutations red. `PF_GUI_SCRIPT=gui_f2a.py ...`: 33 checks green in both baselines, 34 paired mutations red.
+    `check_containers.py`: 25 checks, every paired mutation red. Both GUI runs take 10-17 minutes: run in the background.
+  - Known limits: Shift+drag Copy moves in the view plane (no axis constraint); rotate/scale handle DRAGS are not
+    driven by any check (typed rotate/scale on the null are); rotation of a multi-selection pivots on the first
+    selected piece (Max uses the selection centre).
 - Shift+drag on Houdini's own handle after a session's first run: NOT a Houdini behaviour. Probe
   `tests/modelui/shift_handle_probe.py` (plain Houdini, no modelUI, a box object in "pose", three rounds with a hip
   clear between): plain drag 0.542 and Shift drag 0.661 units in every round. The failure only happened with modelUI's
