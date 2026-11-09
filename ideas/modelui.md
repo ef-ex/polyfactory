@@ -18,6 +18,41 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- 2026-11-09: F2a audit-4 finding 1 fixed, checks green; F2a audit 5 pending (implemented, not audited). Audit 4
+  (evidence `F:/cache/modelui/audit_f2a4/`): a middle click during a modelUI body drag reached Houdini, which started
+  its own handle drag (MMB drags the handle anywhere in "pose") and left its undo group open ("Cannot undo within an
+  undo group" through the MMB release, Esc and a later click).
+  - input_layer: while a gesture owns a mouse button, every other button's press is swallowed into the eaten set, so
+    its release and double-click are swallowed too (also a release that comes after the drag ended).
+  - pieces_ui: a body drag never opens an undo group while it runs (preview under `undos.disabler()`, the commit is
+    one `with undos.group`). `_revert_preview` puts the start state back (copies deleted) without an entry: cancel
+    (focus loss, lost release) uses it through the deferred commit; uninstall mid-drag, or between release and the
+    deferred commit (`_state["pending"]`), reverts synchronously and commits nothing (before: the preview stayed,
+    with no undo entry).
+  - gui_f2a checks + mutations: `middle_click_mid_drag_swallowed` (MMB press, release, double-click;
+    `other_button_passes`, `other_release_passes`), `right_click_mid_drag_swallowed` (`other_button_passes_rmb`),
+    `middle_release_after_drag_swallowed` (`eaten_lost_at_release`), `cancel_mid_drag_restores` (`cancel_commits`),
+    `off_mid_drag_restores` (Shift+drag, pieces_ui off then the layer's cancel, the order switch.uninstall uses;
+    `off_keeps_preview`). Each: nothing got past the layer (a spy filter on the viewer's window records and swallows
+    any non-left button event that did), `undo_open()` finds no open group, exactly one "modelUI: move" and undo puts
+    the piece back exactly (cancel/off: no entry, no move, no new rows).
+  - The real failure, not only the routing: `PF_F2A_SPY_PASS=1 PF_F2A_ONLY=other_button_passes` lets the middle button
+    through the spy to Houdini. Run 2026-11-09 (`F:/cache/modelui/f2a5/leak`): baseline green (nothing reached the
+    spy); under the mutation Houdini recorded "Transform Handle Change", `undo_open()` = "Cannot undo within an undo
+    group", undo did not move the piece back, the check red. The normal suite keeps the spy swallowing because a
+    leaked group stays open for the rest of the session and poisons every later run.
+  - Blind spots: the desk switch during a drag (the off check skips it; F1 and the end of gui_f2a switch for real);
+    the Qt focus signal (the check calls `layer().cancel()`, which the signal calls; F1's
+    `key_cancel_on_focus_window` covers the signal). Esc mid-drag has no modelUI code path: logged in the
+    2026-11-08 runs (commits once, no open group), not a check.
+  - Test hygiene found: an Esc case in the suite let Houdini leave "pose" for "objview" under some mutations; the next
+    run then framed differently (mid's pixel (332, 294) -> (339, 291) / (332, 312)), so camera-dependent checks of
+    every later run went wrong (`redo_lost` stayed green, `offsets_wrong` leaked Houdini's group). Removed; now 63
+    runs at (332, 294). A run's leftovers in Houdini's UI state carry into the next run: log `pick mid at` per run.
+  - Verified 2026-11-09: `PF_GUI_SCRIPT=gui_f2a.py run_gui_f1.py` exit 0 (55 checks green in both baselines, 61
+    paired mutations red, no undo leak); `run_gui_f1.py` exit 0 (64 paired mutations red); hython
+    `check_containers.py`, `check_scene_model.py`, `check_units.py` exit 0. One earlier F1 run segfaulted in its
+    final baseline (12:07, `crash.untitled.hannes_11720.hip`, no stack written); the rerun passed; not reproduced.
 - 2026-11-07: all F2a audit-3 items are in; F2a audit 4 pending. gui_f2a: 50 checks per baseline, 55 paired
   mutations red; F1 suite 61 / 64. The "Cannot undo within an undo group" failure of one earlier full run did not
   come back in three full runs; every run's cleanup now probes undo (a throwaway null, then undo) and, on a leak, logs
