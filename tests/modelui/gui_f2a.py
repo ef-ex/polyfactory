@@ -17,7 +17,7 @@ import traceback
 
 import hdefereval
 import hou
-from hutil.Qt import QtCore, QtWidgets
+from hutil.Qt import QtCore, QtGui, QtWidgets
 from PySide6.QtTest import QTest
 
 from polyfactory.modelui import containers, input_layer, pieces_ui, scene, switch
@@ -26,6 +26,7 @@ OUT = os.environ["PF_F1_OUT"]
 LOGF = open(OUT + ".log", "w", buffering=1)
 Qt = QtCore.Qt
 LMB, NOM, SHIFT = Qt.LeftButton, Qt.NoModifier, Qt.ShiftModifier
+APP = QtWidgets.QApplication.instance()
 FILES = sorted(f.replace("\\", "/") for f in glob.glob("F:/3d/kitbashLib/*/*.usd"))
 STATE = {"desk0": None}
 
@@ -427,7 +428,14 @@ def suite(out):
     out["shift_drag_all_one_undo"] = len(containers.piece_rows(c)) == n1
     s.select([left, mid])
     yield 300
-    gh = screen_point(sv, gl, pieces_ui.proxy().worldTransform().extractTranslates())[0]   # a click on the handle
+    for tries in range(30):   # wait until the handle is drawn there (a loaded PC drew it late: 2026-11-09 final baseline)
+        gh = screen_point(sv, gl, pieces_ui.proxy().worldTransform().extractTranslates())[0]   # a click on the handle
+        hn = pieces_ui._under(sv, gh)[3]
+        if hn is not None and hn.userData(pieces_ui.PROXY_MARK) == "1":
+            break
+        vp.draw()
+        yield 100
+    log("  handle under the click after", tries, "waits:", hn and hn.path())
     QTest.mouseMove(win, L(win, gh))
     QTest.mouseClick(win, LMB, NOM, L(win, gh))
     yield 300
@@ -651,8 +659,20 @@ def suite(out):
     seen = []
     MOUSE_T = (QtCore.QEvent.MouseButtonPress, QtCore.QEvent.MouseButtonRelease, QtCore.QEvent.MouseButtonDblClick)
 
+    spy_all = [False]   # also the left button and moves: what modelUI declines never reaches Houdini either
+    hide_left = [False]   # drag_case: a left drag modelUI did not take (a mutation) or gave up (cancel, off, lost
+    # release) never reaches Houdini: a half-seen drag left Houdini's undo group open for every later run (2026-11-09,
+    # proxy_reused_unfiltered: the body press landed on a kept handle null, the synthetic lost release did the rest)
+
     class Spy(QtCore.QObject):
         def eventFilter(self, obj, ev):  # noqa: N802
+            if hide_left[0] and ev.type() in MOUSE_T + (QtCore.QEvent.MouseMove,) and (
+                    ev.type() == QtCore.QEvent.MouseMove or ev.button() == LMB):
+                return True
+            if spy_all[0] and ev.type() in MOUSE_T + (QtCore.QEvent.MouseMove,):
+                if ev.type() != QtCore.QEvent.MouseMove:
+                    seen.append((str(ev.type()), str(ev.button())))
+                return True
             if ev.type() in MOUSE_T and ev.button() != LMB:
                 seen.append((str(ev.type()), str(ev.button())))
                 return not (spy_pass and ev.button() == Qt.MiddleButton)
@@ -660,13 +680,14 @@ def suite(out):
     spy = Spy()
     win.installEventFilter(spy)
 
-    def drag_case(tag, acts, mods=NOM, release=True, steps=4, dx=10):
+    def drag_case(tag, acts, mods=NOM, release=True, steps=4, dx=10, after=None):
         s.select([left])   # the handle sits on left: the drag grabs mid's body
         yield 300
         m0, r0, u0 = tr(mid), len(containers.piece_rows(c)), len(hou.undos.undoLabels())
         g0 = screen_point(sv, gl, pieces_ui.bounds(mid).center() + hou.Vector3(-3, 0, 0))[0]
         del seen[:]
         QTest.mouseMove(win, L(win, g0))
+        hide_left[0] = True
         QTest.mousePress(win, LMB, mods, L(win, g0))
         for k in range(1, steps + 1):
             QTest.mouseMove(win, L(win, g0, dx * k, 0))
@@ -674,9 +695,20 @@ def suite(out):
             if k in acts:
                 acts[k](g0)
                 yield 100
+        held, real_later = [], input_layer.later
         if release:
-            QTest.mouseRelease(win, LMB, mods, L(win, g0, dx * steps, 0))
+            if after is not None:   # QTest's release runs pending timers: hold the deferred commit back
+                input_layer.later = held.append
+            try:
+                QTest.mouseRelease(win, LMB, mods, L(win, g0, dx * steps, 0))
+            finally:
+                input_layer.later = real_later
+        if after is not None:
+            after()   # between the release and the deferred commit
+            for f in held:
+                f()
         yield 400
+        hide_left[0] = False
         labels = hou.undos.undoLabels()
         r = {"moved": (tr(mid) - m0).length(), "rows": len(containers.piece_rows(c)) - r0,
              "new": list(labels[:len(labels) - u0]), "seen": list(seen), "open": undo_open(),
@@ -714,6 +746,137 @@ def suite(out):
     # pixel (332, 294) -> (339, 291) / (332, 312)) and turned camera-dependent checks of every later run wrong.
     r = yield from drag_case("cancel", {4: lambda g0: input_layer.layer().cancel()})   # what a focus loss calls
     out["cancel_mid_drag_restores"] = untouched(r) and r["seen"] == []
+    # --- audit 5 -----------------------------------------------------------------------------------------------------
+    lay = input_layer.layer()
+    # 2: a gesture that raises mid-drag gets "cancel" (its preview goes). The raise is injected into set_xforms once.
+    real_set = pieces_ui.set_xforms
+
+    def boom(*a, **k):
+        pieces_ui.set_xforms = real_set
+        raise RuntimeError("gui_f2a: injected gesture error")
+    try:
+        r = yield from drag_case("raise", {2: lambda g0: setattr(pieces_ui, "set_xforms", boom)})
+    finally:
+        pieces_ui.set_xforms = real_set
+    out["gesture_error_reverts_preview"] = untouched(r) and lay.owners["mouse"] is None
+
+    # 5a: with no drag, other buttons reach Houdini (the spy sees press and release of each).
+    s.select([left])
+    yield 300
+    gmid = screen_point(sv, gl, pieces_ui.bounds(mid).center() + hou.Vector3(-3, 0, 0))[0]
+    del seen[:]
+    QTest.mouseMove(win, L(win, gmid))
+    for b in (Qt.MiddleButton, Qt.RightButton):
+        QTest.mousePress(win, b, NOM, L(win, gmid))
+        yield 50
+        QTest.mouseRelease(win, b, NOM, L(win, gmid))
+        yield 50
+    log("  no drag, MMB and RMB seen by the window:", seen)
+    out["no_drag_buttons_reach_houdini"] = len(seen) == 4
+
+    # 3: a lost release (the left button and an eaten middle button both come up unseen), then a new middle click
+    # with no drag: its release must reach Houdini (not be eaten by the stale entry).
+    def lost_release(g0):
+        APP.sendEvent(win, QtGui.QMouseEvent(QtCore.QEvent.MouseMove, QtCore.QPointF(L(win, g0, 35, 0)),
+                                             QtCore.QPointF(g0 + QtCore.QPoint(35, 0)), Qt.NoButton, Qt.NoButton, NOM))
+    r = yield from drag_case("lost", {1: btn(Qt.MiddleButton, QTest.mousePress), 3: lost_release}, release=False)
+    log("  after the lost release: eaten", lay.eaten["mouse"])
+    # a move with the button up clears the entry (as here); the audit's case had none between: seed it (blind spot:
+    # how the entry survives in the wild, audit 5 probe L_altmmb_after_lost)
+    QTest.mouseRelease(win, Qt.MiddleButton, NOM, L(win, gmid))   # QTest's own button state: a press of a button it
+    QTest.mouseRelease(win, LMB, NOM, L(win, gmid))                # holds sends a release first (Houdini gets strays)
+    yield 300
+    lay.eaten["mouse"].add(Qt.MiddleButton)
+    del seen[:]
+    QTest.mousePress(win, Qt.MiddleButton, NOM, L(win, gmid))
+    log("  seeded, after the new middle press: eaten", lay.eaten["mouse"], "owner", lay.owners)
+    yield 50
+    QTest.mouseRelease(win, Qt.MiddleButton, NOM, L(win, gmid))
+    yield 50
+    yield 300
+    log("  after a lost release, a middle click: seen", seen, "eaten", lay.eaten["mouse"])
+    out["stale_eaten_cleared_by_press"] = untouched(r) and len(seen) == 2 and not lay.eaten["mouse"]
+
+    # 4: a left press while another button is down is Houdini's: it gets past modelUI (the spy sees it, and hides the
+    # whole gesture from Houdini: a half-seen chord left Houdini's drag, and its undo group, open).
+    s.select([left])
+    yield 300
+    m0 = tr(mid)
+    QTest.mouseMove(win, L(win, gmid))
+    spy_all[0] = True
+    del seen[:]
+    QTest.mousePress(win, Qt.MiddleButton, NOM, L(win, gmid))
+    yield 50
+    QTest.mousePress(win, LMB, NOM, L(win, gmid))
+    owned = lay.owners["mouse"] is not None
+    left_seen = ("MouseButtonPress" in str(seen[-1][0]) or seen[-1][0] == str(QtCore.QEvent.MouseButtonPress)) and "Left" in seen[-1][1] if seen else False
+    for k in range(1, 5):
+        QTest.mouseMove(win, L(win, gmid, 10 * k, 0))
+        yield 30
+    QTest.mouseRelease(win, LMB, NOM, L(win, gmid, 40, 0))
+    yield 50
+    QTest.mouseRelease(win, Qt.MiddleButton, NOM, L(win, gmid, 40, 0))
+    yield 50
+    spy_all[0] = False
+    yield 350
+    log("  left press with the middle down: owned", owned, "left press seen", left_seen, "seen", seen,
+        "mid moved", (tr(mid) - m0).length(), "undo open", undo_open())
+    out["left_with_other_down_declined"] = not owned and left_seen and (tr(mid) - m0).length() < 1e-6
+    if (tr(mid) - m0).length() > 1e-6:
+        hou.undos.performUndo()
+        yield 300
+
+    # 1: Space+LMB on a piece turns Houdini's camera in W and in Q (Space puts the viewer in its view state).
+    def space_drag(tag):
+        s.select([left])   # the handle on left: the press lands on mid's body (a container)
+        yield 300
+        g0 = screen_point(sv, gl, pieces_ui.bounds(mid).center() + hou.Vector3(-3, 0, 0))[0]
+        cam = vp.defaultCamera().stash()
+        QTest.mouseMove(win, L(win, g0))
+        QTest.keyPress(win, Qt.Key_Space)
+        yield 300
+        st_, under_ = sv.currentState(), pieces_ui._under(sv, g0)[3]
+        v0, m0_, u0 = vp.viewTransform(), tr(mid), len(hou.undos.undoLabels())
+        QTest.mousePress(win, LMB, NOM, L(win, g0))
+        own = lay.owners["mouse"] is not None
+        for k in range(1, 6):
+            QTest.mouseMove(win, L(win, g0, 8 * k, 4 * k))
+            yield 30
+        QTest.mouseRelease(win, LMB, NOM, L(win, g0, 40, 20))
+        yield 300
+        QTest.keyRelease(win, Qt.Key_Space)
+        yield 400
+        turned = max(abs(a - b) for a, b in zip(vp.viewTransform().asTuple(), v0.asTuple()))
+        log("  space+LMB", tag, "state", st_, "under", under_ and under_.path(), "owned", own, "view change", turned,
+            "mid moved", (tr(mid) - m0_).length(), "undo", len(hou.undos.undoLabels()) - u0)
+        vp.setDefaultCamera(cam)   # the next run frames from this camera: put it back exactly
+        yield 300
+        return (under_ is not None and containers.is_container(under_) and not own and turned > 1e-3 and (tr(mid) - m0_).length() < 1e-6
+                and sv.currentState() == st0 and undo_open() is None)
+    st0 = sv.currentState()
+    ok_w = yield from space_drag("W")
+    QTest.keyClick(win, Qt.Key_Q)
+    for _ in range(20):
+        if sv.currentState() == "select":
+            break
+        yield 100
+    st0 = sv.currentState()
+    ok_q = yield from space_drag("Q")
+    QTest.keyClick(win, Qt.Key_W)
+    for _ in range(20):
+        if sv.currentState() == "pose":
+            break
+        yield 100
+    vp.draw()
+    yield 500
+    out["space_lmb_on_piece_turns_camera"] = ok_w and ok_q
+
+    # 5b: modelUI off between the release and the deferred commit: the preview goes, nothing is committed.
+    r = yield from drag_case("off_pending", {}, after=lambda: (pieces_ui.uninstall(), lay.cancel()))
+    pieces_ui.install()
+    yield 300
+    out["off_before_commit_restores"] = untouched(r)
+
     # modelUI off mid-drag as switch.uninstall() does it (pieces_ui first, then the input layer's shutdown cancels the
     # owner), without the desk switch: an extra desk switch per run drifted the viewport size over a full run
     # (2026-11-08: mid's pixel moved from (332, 294) to (265, 270) and the camera-dependent checks went wrong).
@@ -748,10 +911,27 @@ def suite(out):
     yield 300
     s.select([])
     s.select([("piece", c3.sessionId(), i3)])   # and a deferred follow still queued at uninstall
-    if "polyfactory.modelui.pieces_ui" not in switch.FEATURES:
-        pieces_ui.uninstall()
-    switch.uninstall()
-    yield 300
+    # Houdini refuses to delete a node while it cooks (2026-11-09 final baseline: the uninstall's delete hit a cook,
+    # the null stayed and the rest of uninstall did not run). Here the first delete of a handle null fails like that.
+    node_cls = type(hou.node("/obj"))
+    real_destroy, failed = node_cls.destroy, []
+
+    def busy_destroy(n, *a, **k):
+        if not failed and n.userData(pieces_ui.PROXY_MARK) == "1":
+            failed.append(n.path())
+            raise hou.OperationFailed("gui_f2a: Cannot delete nodes while cooking")
+        return real_destroy(n, *a, **k)
+    node_cls.destroy = busy_destroy
+    try:
+        if "polyfactory.modelui.pieces_ui" not in switch.FEATURES:
+            pieces_ui.uninstall()
+        switch.uninstall()
+    finally:
+        node_cls.destroy = real_destroy
+    yield 600
+    log("  busy delete at uninstall:", failed, "marked after", [n.path() for n in marked()])
+    out["uninstall_retries_busy_delete"] = (bool(failed) and marked() == [] and all(
+        cc.isSelectableInViewport() for cc in containers.containers()))
     log("  after uninstall: marked", [n.path() for n in marked()])
     out["uninstall_clean"] = (not any(n.userData(pieces_ui.PROXY_MARK) == "1" for n in hou.node("/obj").children())
                               and "modelui_click_pick" not in input_layer._gestures)
@@ -890,6 +1070,13 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
+    ("no_delete_retry", "uninstall_retries_busy_delete", PS, [("    if busy and tries:", "    if False:")]),
+    ("cancel_on_error_dropped", "gesture_error_reverts_preview", "input_layer", [('            if dropped and kind != "cancel":', '            if False:')]),
+    ("non_left_always_swallowed", "no_drag_buttons_reach_houdini", "input_layer", [('            if self.owners["mouse"] is not None:   # another button', '            if self.owners["mouse"] is not None or ev.button() != Qt.LeftButton:   # another button')]),
+    ("eaten_kept_on_press", "stale_eaten_cleared_by_press", "input_layer", [('            self.eaten["mouse"].discard(ev.button())   # a new press', '            pass   # a new press')]),
+    ("other_down_ignored", "left_with_other_down_declined", PS, [("            and ev.buttons() == Qt.LeftButton)", "            )")]),
+    ("view_state_ignored", "space_lmb_on_piece_turns_camera", PS, [("viewer.currentState() not in VIEW_STATES", "True")]),
+    ("off_ignores_pending", "off_before_commit_restores", PS, [('    st = _state["drag"] or _state["pending"]', '    st = _state["drag"]')]),
     ("other_button_passes", "middle_click_mid_drag_swallowed", "input_layer", [("                self.eaten[\"mouse\"].add(ev.button())   # (Houdini's", "                return False   # (Houdini's")]),
     ("other_button_passes_rmb", "right_click_mid_drag_swallowed", "input_layer", [("                self.eaten[\"mouse\"].add(ev.button())   # (Houdini's", "                return False   # (Houdini's")]),
     ("other_release_passes", "middle_click_mid_drag_swallowed", "input_layer", [("                    return True   # the rest of another button pressed during the owned drag", "                    return False   # the rest of another button pressed during the owned drag")]),
