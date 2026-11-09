@@ -106,6 +106,7 @@ def suite(out):
         pieces_ui.install()
     yield 1200
     sv, gl = viewer()
+    log("  viewer at start: state", sv.currentState(), "gl", gl.width(), gl.height())
     sv.setViewportLayout(hou.geometryViewportLayout.Single)
     vp = sv.curViewport()
     vp.changeType(hou.geometryViewportType.Perspective)
@@ -638,6 +639,92 @@ def suite(out):
     s.select([mid])
     yield 300
 
+    # --- other buttons, Esc, cancel and switch-off during a body drag (F2a audit 4) ---------------------------------
+    # A spy on the viewer's window sees what our layer let through (the application filter runs first) and swallows
+    # it, so a let-through mutation cannot leave Houdini's undo group open for every later run (audit 4: once open it
+    # stays open). Blind spot: Houdini's reaction to a button that gets through (audit 4 probe3 E4/E4b showed it: MMB
+    # starts its handle drag, "Cannot undo within an undo group"); the real focus signal (lay.cancel() is what it calls;
+    # F1's key_cancel_on_focus_window covers the signal).
+    # PF_F2A_SPY_PASS=1 (evidence mode, run with PF_F2A_ONLY=other_button_passes): the spy lets a middle button
+    # through to Houdini, so under the mutation the real failure (Houdini's undo group left open) must show in the check.
+    spy_pass = os.environ.get("PF_F2A_SPY_PASS") == "1"
+    seen = []
+    MOUSE_T = (QtCore.QEvent.MouseButtonPress, QtCore.QEvent.MouseButtonRelease, QtCore.QEvent.MouseButtonDblClick)
+
+    class Spy(QtCore.QObject):
+        def eventFilter(self, obj, ev):  # noqa: N802
+            if ev.type() in MOUSE_T and ev.button() != LMB:
+                seen.append((str(ev.type()), str(ev.button())))
+                return not (spy_pass and ev.button() == Qt.MiddleButton)
+            return False
+    spy = Spy()
+    win.installEventFilter(spy)
+
+    def drag_case(tag, acts, mods=NOM, release=True, steps=4, dx=10):
+        s.select([left])   # the handle sits on left: the drag grabs mid's body
+        yield 300
+        m0, r0, u0 = tr(mid), len(containers.piece_rows(c)), len(hou.undos.undoLabels())
+        g0 = screen_point(sv, gl, pieces_ui.bounds(mid).center() + hou.Vector3(-3, 0, 0))[0]
+        del seen[:]
+        QTest.mouseMove(win, L(win, g0))
+        QTest.mousePress(win, LMB, mods, L(win, g0))
+        for k in range(1, steps + 1):
+            QTest.mouseMove(win, L(win, g0, dx * k, 0))
+            yield 30
+            if k in acts:
+                acts[k](g0)
+                yield 100
+        if release:
+            QTest.mouseRelease(win, LMB, mods, L(win, g0, dx * steps, 0))
+        yield 400
+        labels = hou.undos.undoLabels()
+        r = {"moved": (tr(mid) - m0).length(), "rows": len(containers.piece_rows(c)) - r0,
+             "new": list(labels[:len(labels) - u0]), "seen": list(seen), "open": undo_open(),
+             "gl": (gl.width(), gl.height(), sv.currentState())}
+        if r["open"] is None and r["new"]:
+            hou.undos.performUndo()
+            yield 300
+        r["after_undo"] = (tr(mid) - m0).length()
+        r["rows_after_undo"] = len(containers.piece_rows(c)) - r0
+        log("  " + tag, r)
+        return r
+
+    def committed_once(r):
+        return (r["open"] is None and r["seen"] == [] and r["new"] == ["modelUI: move"] and r["moved"] > 0.1
+                and r["after_undo"] < 1e-6)
+
+    def untouched(r):
+        return r["open"] is None and r["new"] == [] and r["moved"] < 1e-6 and r["rows"] == 0
+
+    def btn(b, how):
+        return lambda g0: how(win, b, NOM, L(win, g0, 20, 0))
+
+    MMB, RMB = Qt.MiddleButton, Qt.RightButton
+    r = yield from drag_case("mmb", {1: btn(MMB, QTest.mousePress), 2: btn(MMB, QTest.mouseRelease),
+                                     3: btn(MMB, QTest.mouseDClick)})
+    out["middle_click_mid_drag_swallowed"] = committed_once(r)
+    r = yield from drag_case("rmb", {1: btn(RMB, QTest.mousePress), 3: btn(RMB, QTest.mouseRelease)})
+    out["right_click_mid_drag_swallowed"] = committed_once(r)
+    r = yield from drag_case("mmb_held_past_release", {2: btn(MMB, QTest.mousePress)})
+    QTest.mouseRelease(win, MMB, NOM, L(win, at(right)))   # the middle button comes up after the drag ended
+    yield 200
+    out["middle_release_after_drag_swallowed"] = committed_once(r) and seen == []
+    # No Esc case: Esc has no modelUI code path (the 2026-11-08 runs logged it: the drag commits once, no open group),
+    # and under some mutations Houdini's Esc left "pose" for "objview", which changed the next run's framing (mid's
+    # pixel (332, 294) -> (339, 291) / (332, 312)) and turned camera-dependent checks of every later run wrong.
+    r = yield from drag_case("cancel", {4: lambda g0: input_layer.layer().cancel()})   # what a focus loss calls
+    out["cancel_mid_drag_restores"] = untouched(r) and r["seen"] == []
+    # modelUI off mid-drag as switch.uninstall() does it (pieces_ui first, then the input layer's shutdown cancels the
+    # owner), without the desk switch: an extra desk switch per run drifted the viewport size over a full run
+    # (2026-11-08: mid's pixel moved from (332, 294) to (265, 270) and the camera-dependent checks went wrong).
+    # Blind spot: the desk switch itself (the end of this suite and F1's checks switch for real).
+    r = yield from drag_case("off_shift", {4: lambda g0: (pieces_ui.uninstall(), input_layer.layer().cancel())},
+                             mods=SHIFT)
+    out["off_mid_drag_restores"] = untouched(r)
+    win.removeEventFilter(spy)
+    pieces_ui.install()
+    yield 300
+
     skip_save = os.environ.get("PF_F2A_SKIP") == "save"   # diagnosis only
     path = os.path.dirname(OUT) + "/save_check.hip"   # a throwaway hip in this run's own folder
     s.select([mid])
@@ -803,6 +890,12 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
+    ("other_button_passes", "middle_click_mid_drag_swallowed", "input_layer", [("                self.eaten[\"mouse\"].add(ev.button())   # (Houdini's", "                return False   # (Houdini's")]),
+    ("other_button_passes_rmb", "right_click_mid_drag_swallowed", "input_layer", [("                self.eaten[\"mouse\"].add(ev.button())   # (Houdini's", "                return False   # (Houdini's")]),
+    ("other_release_passes", "middle_click_mid_drag_swallowed", "input_layer", [("                    return True   # the rest of another button pressed during the owned drag", "                    return False   # the rest of another button pressed during the owned drag")]),
+    ("eaten_lost_at_release", "middle_release_after_drag_swallowed", "input_layer", [("        if ev.button() == which:   # release\n            self._end(\"mouse\", o)", "        if ev.button() == which:   # release\n            self._end(\"mouse\", o)\n            self.eaten[\"mouse\"].clear()")]),
+    ("cancel_commits", "cancel_mid_drag_restores", PS, [('        input_layer.later(lambda: _commit_drag(st, final, kind == "release"))', '        input_layer.later(lambda: _commit_drag(st, final, True))')]),
+    ("off_keeps_preview", "off_mid_drag_restores", PS, [("        _revert_preview(st)\n    _state.update(bound=None", "        pass\n    _state.update(bound=None")]),
 ]
 RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
 if os.environ.get("PF_F1_QUICK"):

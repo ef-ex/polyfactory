@@ -26,6 +26,7 @@ auto-repeat) when the receiving window's focus widget belongs to a Scene Viewer 
 Mouse and keyboard have one owner each, so a held key and a drag run side by side; while a key is owned,
 its gesture is told about every other key press and click first ("other", with the viewer under the click or holding
 the focus, else None; True swallows it with its repeats and release; a holder should only swallow clicks in a viewer).
+While a gesture owns a mouse button, every other button's press, release and double-click is swallowed too.
 A second key is never offered to the other gestures, so two key gestures cannot chord (registration order decides). Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
 release never arrives: a move with the owned button up, the application or the focus window going away. Keys are
 paired by native scan code (Shift+2 pressed, "@" released is one key). The demo gesture (``DEMO``): Ctrl+Shift+LMB drag
@@ -169,6 +170,10 @@ class _Layer:
         if t in (QE.MouseMove, QE.MouseButtonRelease, QE.MouseButtonDblClick):
             o = self.owners["mouse"]
             if o is not None:
+                if t != QE.MouseMove and ev.button() != o[1] and ev.button() in self.eaten["mouse"]:
+                    if t == QE.MouseButtonRelease:
+                        self.eaten["mouse"].discard(ev.button())
+                    return True   # the rest of another button pressed during the owned drag
                 return self._follow_mouse(o, ev, t)
             for w in list(self.watchers["mouse"]):   # observers share the press: all of them, nothing swallowed
                 self._follow_mouse(w, ev, t)
@@ -196,8 +201,9 @@ class _Layer:
                 return True
             return False
         if t == QE.MouseButtonPress:
-            if self.owners["mouse"] is not None:
-                return False   # another button during an owned drag: Houdini's
+            if self.owners["mouse"] is not None:   # another button during an owned drag: swallowed with its release
+                self.eaten["mouse"].add(ev.button())   # (Houdini's MMB would start its handle drag and leave its undo
+                return True                            # group open under ours: F2a audit 4)
             kind, which = "press", ev.button()
         elif t == QE.KeyPress:
             kind, which = "key", _key_id(ev)

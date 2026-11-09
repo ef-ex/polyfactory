@@ -22,7 +22,8 @@ Qt = QtCore.Qt
 PROXY_MARK = "pf_modelui_proxy"
 CLICK_PX = 3
 COPY_PX = 4
-_state = {"on": False, "proxy": None, "bound": None, "writing": False, "drawable": None, "click": None, "drag": None}
+_state = {"on": False, "proxy": None, "bound": None, "writing": False, "drawable": None, "click": None, "drag": None,
+          "pending": None}   # pending: a released or cancelled body drag whose commit is deferred
 
 
 # --- pieces and objects alike --------------------------------------------------------------------------------------
@@ -614,21 +615,28 @@ def _drag_gesture(kind, ev, viewer):
                 input_layer.later(lambda: _pick_at(st["viewer"], st["p0"], st["mode"]))
             return True
         final = {i: get_xform(st["moving"][i]) for i in st["items"]}
+        _state["pending"] = st
         input_layer.later(lambda: _commit_drag(st, final, kind == "release"))
         return True
     return True
 
 
-def _commit_drag(st, final, keep):
-    """Undo the preview, then (on a release) copy + move of every dragged item as one undo step; the copies or the
-    moved items are selected."""
-    if not _state["on"]:
-        return
+def _revert_preview(st):
+    """The start state back, outside the undo history (the preview never was an undo entry)."""
     with hou.undos.disabler():
         if st["copies"] is not None:
             scene.current().delete(st["copies"])
         else:
             set_xforms(dict(st["start"]))
+
+
+def _commit_drag(st, final, keep):
+    """Undo the preview, then (on a release) copy + move of every dragged item as one undo step; the copies or the
+    moved items are selected."""
+    if _state["pending"] is not st:   # modelUI went off first: uninstall already put the start state back
+        return
+    _state["pending"] = None
+    _revert_preview(st)
     if not keep:
         return
     with hou.undos.group("modelUI: copy" if st["shift"] else "modelUI: move"):
@@ -677,6 +685,9 @@ def uninstall():
         _state["drawable"].show(False)
         _state["drawable"].enable(False)
         _state["drawable"] = None
-    _state.update(bound=None, click=None, drag=None)
+    st = _state["drag"] or _state["pending"]
+    if st is not None and st["moving"] is not None:   # off mid-drag: the preview goes, nothing is committed
+        _revert_preview(st)
+    _state.update(bound=None, click=None, drag=None, pending=None)
     _delete_marked()
     _set_containers_selectable(True)   # normal Houdini can click them again
