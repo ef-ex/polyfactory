@@ -9,7 +9,7 @@ Houdini's own application filter (the Maya project lost RMB/MMB drags there).
 
 Hook API for features:
 
-    add_gesture(name, fn)     fn(kind, event, viewer) -> True | OBSERVE | False
+    add_gesture(name, fn, first=False)   fn(kind, event, viewer) -> True | OBSERVE | False; first: asked first
     remove_gesture(name)
     later(fn)                 run fn after the current event (do scene work there, not inside the event)
 
@@ -57,8 +57,14 @@ _TEXT = (QtWidgets.QLineEdit, QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit, QtW
 _gestures = {}            # name -> fn, in registration order
 
 
-def add_gesture(name, fn):
+def add_gesture(name, fn, first=False):
+    """``first``: asked before every other gesture (a modal pick, e.g. Align's target, must beat the click gestures)."""
+    _gestures.pop(name, None)
+    rest = list(_gestures.items()) if first else []
+    if first:
+        _gestures.clear()
     _gestures[name] = fn
+    _gestures.update(rest)
 
 
 def remove_gesture(name):
