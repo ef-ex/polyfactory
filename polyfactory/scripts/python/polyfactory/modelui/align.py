@@ -12,13 +12,20 @@
 
 Bounding boxes are tight world boxes of the item's points (not its local box turned into world space). A piece's
 pivot is its origin; an object's pivot is its pivot parameter (``p``, in the object's own space). Scale and
+Bounding boxes are tight world boxes of the item's points (not its local box turned into world space). A piece's
+pivot is its origin; an object's pivot is its pivot parameter (``p``, in the object's own space). Scale and
 orientation are read from the item's WORLD matrix (rows of its 3x3 part: lengths = scale, directions = local axes).
+A result the parameters cannot hold (shear: an object with a pivot rotation and a non-uniform scale, a piece in a
+non-uniformly scaled container) gets the nearest transform and a status warning (``Session.unstored``).
+Picking: a click intersects only the object the viewport draws under the cursor (its pick buffer); on the handle's
+proxy null, every piece and object whose box the ray passes. The cross cursor shows only over viewers; Esc ends a
+pick wherever the keyboard focus is (outside text fields).
 Python here is transform maths and UI marshalling (house rule 2, decision log in ideas/modelui.md).
 """
 import numpy as np
 
 import hou
-from hutil.Qt import QtCore, QtWidgets
+from hutil.Qt import QtCore, QtGui, QtWidgets
 
 from polyfactory.modelui import containers, input_layer, pieces_ui, scene
 
@@ -36,35 +43,42 @@ def _np(m):
     return np.array(m.asTupleOfTuples(), dtype=float)
 
 
-def _pts(geo, m=None):
-    p = np.array(geo.pointFloatAttribValues("P"), dtype=float).reshape(-1, 3)
-    if m is not None:
-        a = _np(m)
-        p = p @ a[:3, :3] + a[3, :3]
-    return p
-
-
-def local_points(pid):
-    """The item's points in its own space (Nx3), or None (no geometry, a hidden piece)."""
-    if isinstance(pid, tuple):
-        c, piece = scene.MixedScene._split(pid)
-        for pr in c.displayNode().geometry().prims():
-            if pr.attribValue("pf_piece") == piece:
-                return _pts(pr.getEmbeddedGeometry(), pr.fullTransform() * containers.transform(c, piece).inverted())
+def _pts(geo):
+    if geo is None or not geo.intrinsicValue("pointcount"):
         return None
-    dn = hou.nodeBySessionId(pid).displayNode()
-    g = dn.geometry() if dn is not None else None
-    return _pts(g) if g is not None and len(g.points()) else None
+    return np.array(geo.pointFloatAttribValues("P"), dtype=float).reshape(-1, 3)
 
 
-def local_pivot(pid):
-    if isinstance(pid, tuple):
-        return hou.Vector3(0, 0, 0)
-    return hou.Vector3(hou.nodeBySessionId(pid).parmTuple("p").eval())   # Houdini rotates/scales about it (probe)
+def items(pids):
+    """Every item's world matrix ``m``, its points in its own space ``pts`` (Nx3, None for no geometry or a hidden
+    piece) and its pivot in its own space ``piv`` (a piece: its origin; an object: ``p``, which Houdini rotates and
+    scales about, probe). A container's transforms and pieces are read once, however many of its pieces are asked for.
+    A piece's own space is its packed geometry's (the packed prim's full transform is the piece transform)."""
+    cache, out = {}, []
+    for pid in pids:
+        if not isinstance(pid, tuple):
+            n = hou.nodeBySessionId(pid)
+            dn = n.displayNode()
+            out.append({"pid": pid, "m": n.worldTransform(), "pts": _pts(dn.geometry() if dn is not None else None),
+                        "piv": hou.Vector3(n.parmTuple("p").eval())})
+            continue
+        c, piece = scene.MixedScene._split(pid)
+        d = cache.get(c.sessionId())
+        if d is None:
+            g = c.displayNode().geometry()
+            d = cache[c.sessionId()] = (containers.transforms(c), c.worldTransform(),
+                                        dict(zip(g.primIntAttribValues("pf_piece"), g.prims())))
+        local, cw, prims = d
+        if piece not in local:
+            raise KeyError("piece %r is gone" % (pid,))
+        pr = prims.get(piece)
+        out.append({"pid": pid, "m": local[piece] * cw, "pts": _pts(pr.getEmbeddedGeometry()) if pr is not None else None,
+                    "piv": hou.Vector3(0, 0, 0)})
+    return out
 
 
 def item(pid):
-    return {"pid": pid, "m": pieces_ui.get_xform(pid), "pts": local_points(pid), "piv": local_pivot(pid)}
+    return items([pid])[0]
 
 
 def world_pivot(it, m=None):
@@ -175,28 +189,52 @@ def normal_delta(ps, ns, pt, nt, offset=0.0, angle=0.0, flip=False):
 
 
 # --- hits: which item and face is under a ray ------------------------------------------------------------------------
-def _candidates():
-    for c in containers.containers():
-        if c.isDisplayFlagSet():
-            yield c
-    for n in hou.node("/obj").children():
-        if (n.type().name() == "geo" and not containers.is_container(n) and n.userData(pieces_ui.PROXY_MARK) != "1"
-                and n.isDisplayFlagSet() and n.displayNode() is not None):
-            yield n
+def _pickable(n):
+    """A displayed container or loose geometry object (never the handle's proxy null)."""
+    if n is None or not n.isDisplayFlagSet() or n.displayNode() is None:
+        return False
+    return containers.is_intact(n) or (n.type().name() == "geo" and not containers.is_container(n)
+                                       and n.userData(pieces_ui.PROXY_MARK) != "1")
 
 
-def hit_ray(o, d):
+def _ray_box(o, d, bb):
+    """Does the ray o + t d (t >= 0) pass through box ``bb`` (slab test)?"""
+    t0, t1 = 0.0, float("inf")
+    for k in range(3):
+        lo, hi = bb.minvec()[k], bb.maxvec()[k]
+        if abs(d[k]) < 1e-12:
+            if o[k] < lo or o[k] > hi:
+                return False
+            continue
+        a, b = (lo - o[k]) / d[k], (hi - o[k]) / d[k]
+        t0, t1 = max(t0, min(a, b)), min(t1, max(a, b))
+        if t0 > t1:
+            return False
+    return True
+
+
+def hit_ray(o, d, nodes=None):
     """(pid, world point, world normal facing the ray's origin) of the nearest piece or object face on the world
-    ray o + t d, or None. Pieces: the ray in the container's space hits the packed piece (modelUI's pick does the
-    same); objects: their display geometry."""
+    ray o + t d, or None. ``nodes``: the containers and objects to try (default every pickable one, each box-tested
+    before its geometry). Pieces: the ray in the container's space hits the packed piece (modelUI's pick does the
+    same); objects: their display geometry. ``_state["last_scan"]``: how many geometries were intersected."""
     o, d = hou.Vector3(o), hou.Vector3(d)
     best = None
-    for n in _candidates():
+    scan = 0
+    if nodes is None:
+        nodes = [n for n in hou.node("/obj").children() if _pickable(n)]
+        boxed = True
+    else:
+        boxed = False
+    for n in nodes:
         m = n.worldTransform()
         inv = m.inverted()
         o2 = o * inv
         d2 = ((o + d) * inv - o2).normalized()
         geo = n.displayNode().geometry()
+        if boxed and not _ray_box(o2, d2, geo.boundingBox()):
+            continue
+        scan += 1
         pos, nrm, uvw = hou.Vector3(), hou.Vector3(), hou.Vector3()
         prim = geo.intersect(o2, d2, pos, nrm, uvw)
         if prim < 0:
@@ -220,12 +258,19 @@ def hit_ray(o, d):
         if nw.dot(d) > 0:   # the side that was clicked faces the camera
             nw = -nw
         best = (dist, pid, w, nw)
+    _state["last_scan"] = scan
     return best[1:] if best is not None else None
 
 
 def hit_at(vp, x, y):
+    """The hit under viewport pixel (x, y): only in the object the viewport draws there (its pick buffer), or, on
+    the handle's proxy null, in every piece and object whose box the ray passes."""
     d, o = vp.mapToWorld(x, y)
-    return hit_ray(o, d)
+    n = vp.queryNodeAtPixel(x, y)
+    if n is None:
+        _state["last_scan"] = 0
+        return None
+    return hit_ray(o, d, [n] if _pickable(n) else None)
 
 
 # --- preview, Apply, Cancel -------------------------------------------------------------------------------------------
@@ -236,7 +281,8 @@ def _snapshot(pids):
     for pid in pids:
         if isinstance(pid, tuple):
             c, _ = scene.MixedScene._split(pid)
-            snap.setdefault(("c", c.sessionId()), (c, containers.points(c)))
+            if ("c", c.sessionId()) not in snap:   # once per container (500 pieces of one container: one copy)
+                snap[("c", c.sessionId())] = (c, containers.points(c))
         else:
             n = hou.nodeBySessionId(pid)
             snap[pid] = (n, {k: n.parmTuple(k).eval() for k in XFORM_PARMS if n.parmTuple(k) is not None})
@@ -262,21 +308,56 @@ def commit(xforms, label):
         pieces_ui.set_xforms(xforms)
 
 
+def stored(pids):
+    """{pid: the world matrix the scene holds now}; each container is read once."""
+    out, cache = {}, {}
+    for pid in pids:
+        if isinstance(pid, tuple):
+            c, piece = scene.MixedScene._split(pid)
+            if c.sessionId() not in cache:
+                cache[c.sessionId()] = (containers.transforms(c), c.worldTransform())
+            local, cw = cache[c.sessionId()]
+            out[pid] = local[piece] * cw
+        else:
+            out[pid] = hou.nodeBySessionId(pid).worldTransform()
+    return out
+
+
+def unstored(xforms, rel=1e-4):
+    """The items whose requested world matrix the scene could not hold (an object with a pivot rotation and a
+    non-uniform scale, or a piece in a non-uniformly scaled container, would need shear): its parameters got the
+    nearest transform instead. ``rel``: per element, relative to 1 + |value| (float32 piece storage is ~1e-7)."""
+    have = stored(list(xforms))
+    return [p for p, m in xforms.items()
+            if any(abs(a - b) > rel * (1.0 + abs(b)) for a, b in zip(have[p].asTuple(), m.asTuple()))]
+
+
+def _warn_unstored(pids):
+    if pids:
+        _status("Align: %d item(s) got the nearest transform: the exact result needs shear (a pivot rotation with a "
+                "non-uniform scale, or a non-uniformly scaled container), which their parameters cannot hold."
+                % len(pids), True)
+
+
 class Session:
     """A live preview over the selection: ``preview`` moves the items outside the undo history, ``apply`` puts the
-    stored values back and commits the last preview as one undo step, ``cancel`` puts the stored values back."""
+    stored values back and commits the last preview as one undo step, ``cancel`` puts the stored values back.
+    ``unstored``: the items the last preview or apply could not place exactly (a status warning says so)."""
 
     def __init__(self, pids, label):
         self.label = label
-        self.items = [item(p) for p in pids]
+        self.items = items(pids)
         self.snap = _snapshot(pids)
         self.last = None
         self.done = False
+        self.unstored = []
 
     def preview(self, xforms):
         with hou.undos.disabler():
             pieces_ui.set_xforms(xforms)
         self.last = xforms
+        self.unstored = unstored(xforms)
+        _warn_unstored(self.unstored)
 
     def apply(self):
         if self.done:
@@ -285,6 +366,8 @@ class Session:
         _restore(self.snap)
         if self.last:
             commit(self.last, self.label)
+            self.unstored = unstored(self.last)
+            _warn_unstored(self.unstored)
 
     def cancel(self):
         if self.done:
@@ -545,20 +628,35 @@ def _start(kind):
         return False
     step = "normal_src" if kind == "normal" else kind
     _state["pick"] = {"kind": kind, "step": step, "sel": sel}
-    input_layer.add_gesture(GESTURE, _gesture, first=True)   # before modelUI's own click and drag gestures
-    if not _state["cursor"]:
-        QtWidgets.QApplication.setOverrideCursor(Qt.CrossCursor)
-        _state["cursor"] = True
+    # before modelUI's own click and drag gestures; Esc wherever the keyboard focus is
+    input_layer.add_gesture(GESTURE, _gesture, first=True, keys_anywhere=True)
+    if _state.get("timer") is None:
+        _state["timer"] = QtCore.QTimer(interval=50, timeout=_cursor_tick)
+    _state["timer"].start()
+    _cursor_tick()
     _status(PROMPTS[step])
     return True
+
+
+def _cursor_tick(pos=None):
+    """Max's pick cursor: the cross while a pick runs and the cursor (``pos``, default where it is) is over a viewer;
+    Houdini's own cursor everywhere else."""
+    pos = QtGui.QCursor.pos() if pos is None else pos
+    over = _state["pick"] is not None and any(sv.qtScreenGeometry().contains(pos) for sv in input_layer._viewers())
+    if over and not _state["cursor"]:
+        QtWidgets.QApplication.setOverrideCursor(Qt.CrossCursor)
+        _state["cursor"] = True
+    elif not over and _state["cursor"]:
+        QtWidgets.QApplication.restoreOverrideCursor()
+        _state["cursor"] = False
 
 
 def _end_pick():
     _state["pick"] = None
     input_layer.remove_gesture(GESTURE)
-    if _state["cursor"]:
-        QtWidgets.QApplication.restoreOverrideCursor()
-        _state["cursor"] = False
+    if _state.get("timer") is not None:
+        _state["timer"].stop()
+    _cursor_tick()
 
 
 def cancel_pick():

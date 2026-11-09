@@ -7,14 +7,22 @@ Throwaway session, never saves a .hip. Uses two kitbash library files (F:/3d/kit
 The oracle is independent of align.py: an item's WORLD points come from an Object Merge (into this object) of its
 object, unpacked for container pieces and filtered by pf_piece; its local-to-world affine map is fitted to its local
 points by least squares (numpy), and box, pivot, axes and scales are read from those. Fixture: a piece in a moved,
-rotated and uniformly scaled container, a loose box object with rotation, non-uniform scale and a pivot (p and pr), a
-target piece in another rotated container and a target box object with a pivot.
+rotated and uniformly scaled container, a loose box object with rotation, non-uniform scale and a pivot p (pivot
+rotation pr 0: with a non-uniform scale it makes shear, see unstored_warned), a target piece in another rotated
+container, a target box object with a pivot, and a "sheared" box with pr and a non-uniform scale.
 TOL = 1e-4 world units at |values| <= 30 (float32 P/orient/scale in the stash: about 4e-6 at that size, times a few
 matrix products).
 
+Costs (PF_ALIGN_PERF=0 skips them): 2000 pieces in one container and 2000 loose objects (library meshes); each cost is a ratio to
+a reference workload timed in the same run (matrix products in Python, the same kind of work), so CPU load from other
+jobs moves both; ceilings are 3x the ratios measured on 2026-11-09.
+
 What these cannot see: the dialog and picking in a viewer (gui_f2d.py), hidden pieces (they align by their pivot),
-shear (a piece cannot store it), animated or locked object parameters, objects inside subnets (only /obj children).
+the exact result for sheared items (only that it is reported), animated or locked object parameters, objects inside
+subnets (only /obj children), costs of the GUI pick (the viewport's pick buffer; gui_f2d.py checks it intersects one
+object).
 """
+import time
 import glob
 import os
 import sys
@@ -39,19 +47,21 @@ def xf(t=(0, 0, 0), r=(0, 0, 0), s=(1, 1, 1)):
 # --- the oracle ----------------------------------------------------------------------------------------------------------
 class Oracle:
     def __init__(self):
-        self.obj = hou.node("/obj").createNode("geo", "oracle")
-        self.obj.setDisplayFlag(False)
+        with hou.undos.disabler():
+            self.obj = hou.node("/obj").createNode("geo", "oracle")
+            self.obj.setDisplayFlag(False)
         self.nodes = {}
 
     def _merge(self, node):
         key = node.path()
         if key not in self.nodes:
-            om = self.obj.createNode("object_merge")
-            om.parm("objpath1").set(key)
-            om.parm("xformtype").set(1)   # into this object (at the origin): world positions
-            un = self.obj.createNode("unpack")
-            un.setFirstInput(om)
-            un.parm("transfer_attributes").set("pf_piece")
+            with hou.undos.disabler():   # the checks' undo steps must never reach the oracle's own nodes
+                om = self.obj.createNode("object_merge")
+                om.parm("objpath1").set(key)
+                om.parm("xformtype").set(1)   # into this object (at the origin): world positions
+                un = self.obj.createNode("unpack")
+                un.setFirstInput(om)
+                un.parm("transfer_attributes").set("pf_piece")
             self.nodes[key] = un
         return self.nodes[key]
 
@@ -157,10 +167,11 @@ def fixture():
         return n
     lo = box("loose", (2, 1, 3), (0.5, 0.2, -0.3), (5, 3, -7), (15, 40, -20), (1.2, 0.7, 1.5), (0.4, -0.3, 0.6), (0, 0, 0))
     to = box("target", (3, 2, 1), (-0.2, 0.4, 0.1), (-3, 5, 6), (-25, 60, 10), (1, 1.3, 0.8), (-0.5, 0.2, 0.3), (0, 0, 0))
+    sh = box("sheared", (1, 1, 1), (0, 0, 0), (8, -4, 3), (0, 20, 0), (2, 0.5, 1), (0.2, 0.1, 0), (30, 10, 0))
     plane = hou.node("/obj").createNode("geo", "plane")
     plane.createNode("grid")
     plane.parmTuple("t").set((0, -20, 0))
-    return {"pa": ("piece", ca.sessionId(), ia), "pb": ("piece", cb.sessionId(), ib), "lo": lo.sessionId(),
+    return {"pa": ("piece", ca.sessionId(), ia), "pb": ("piece", cb.sessionId(), ib), "lo": lo.sessionId(), "sh": sh.sessionId(),
             "to": to.sessionId(), "plane": plane.sessionId()}
 
 
@@ -353,6 +364,36 @@ def checks(out):
                                  and abs(np.linalg.norm(rel_now) - np.linalg.norm(lo_rel)) < TOL)
     hou.undos.performUndo()
 
+    # --- position together with orientation and scale: measured on the turned and scaled box -------------------------
+    ok_c = True
+    for tg_pid in (f["pb"], f["to"]):
+        t = orc.info(tg_pid)
+        for opts in ({"pos": {1: ("min", "max"), 0: ("center", "center"), 2: ("max", "min")}, "orient": (0, 1, 2)},
+                     {"pos": {1: ("min", "max"), 2: ("pivot", "center")}, "orient": (1,), "scale": (0, 1, 2)},
+                     {"pos": {0: ("max", "min"), 1: ("pivot", "pivot")}, "scale": (2,), "orient": (0, 2)}):
+            run(src, tg_pid, opts)
+            for p in src:
+                n = orc.info(p)
+                ok_c &= all(abs(val(n, c_, k) - val(t, tt, k)) <= TOL for k, (c_, tt) in opts["pos"].items())
+                if len(opts.get("orient", ())) >= 2:
+                    ok_c &= close(np.sum(axes(n) * axes(t), axis=1), 1.0, 1e-5)
+                for k in opts.get("scale", ()):
+                    ok_c &= abs(scales(n)[k] - scales(t)[k]) <= TOL
+            hou.undos.performUndo()
+    out["pos_with_orient_scale"] = bool(ok_c)
+
+    # --- a result the parameters cannot hold is reported, an exact one is not --------------------------------------------
+    s = align.AlignSession([f["sh"], f["pa"]], f["to"])   # matching scale on the sheared box needs a new shear
+    s.update({"scale": (0, 1, 2), "pos": {1: ("min", "max")}})
+    out["unstored_warned"] = s.unstored == [f["sh"]]
+    s.cancel()
+    s = align.AlignSession(src, f["to"])
+    s.update({"pos": mixed, "orient": (1,), "scale": (0, 2)})
+    clean = s.unstored == []
+    s.apply()
+    out["exact_not_warned"] = clean and s.unstored == []
+    hou.undos.performUndo()
+
     # --- preview, Apply, Cancel ----------------------------------------------------------------------------------------
     opts = {"pos": mixed, "orient": (1,), "scale": (0,)}
     r0, u0 = raw(src), len(hou.undos.undoLabels())
@@ -372,7 +413,66 @@ def checks(out):
                              and all(close(orc.world(p), want[p]) for p in src))
     hou.undos.performUndo()
     out["apply_undo_exact"] = raw(src) == r0
+    if os.environ.get("PF_ALIGN_PERF", "1") != "0":
+        perf(out)
     return out
+
+
+def reference_ms():
+    """A fixed workload of the same kind (Python driving HOM matrices), timed now: the unit of every cost below."""
+    t = time.perf_counter()
+    for i in range(20000):
+        hou.hmath.buildRotate(i % 360, 0, 0) * hou.hmath.buildTranslate(i, 0, 0)
+    return 1000 * (time.perf_counter() - t)
+
+
+# ceilings: 3x the ratio to reference_ms measured on 2026-11-09 (see PERF_MEASURED)
+PERF_MEASURED = {"perf_session_500": 4.8}   # 500 of 2000 pieces: open + one preview 89-122 ms (6.9 s + 1 s before)
+PERF_CEIL = {k: (3 * v if v else None) for k, v in PERF_MEASURED.items()}
+
+
+def perf(out):
+    hou.hipFile.clear(suppress_save_prompt=True)
+    c = containers.create("big")
+    rng = np.random.default_rng(1)
+    ids = containers.add_pieces(c, [(FILES[(3, 5)[i % 2]], "p%d" % i, xf((rng.uniform(-100, 100), 0, rng.uniform(-100, 100)),
+                                                                        (0, rng.uniform(0, 360), 0), (5, 5, 5))) for i in range(2000)])
+    c.displayNode().geometry()
+    pids = [("piece", c.sessionId(), i) for i in ids]
+    with hou.undos.disabler():
+        objs = []
+        for i in range(2000):
+            n = hou.node("/obj").createNode("geo", "o%d" % i)   # library meshes, as a kitbash scene has
+            u = n.createNode("usdimport")
+            u.parm("filepath1").set(FILES[(3, 5)[i % 2]])
+            u.parm("input_unpack").set(1)
+            u.parm("unpack_geomtype").set(1)
+            n.parmTuple("s").set((5, 5, 5))
+            n.parmTuple("t").set((rng.uniform(-100, 100), 30, rng.uniform(-100, 100)))
+            objs.append(n)
+        for n in objs:
+            n.displayNode().geometry()
+    ref = min(reference_ms() for _ in range(3))
+    best = {}
+    for _ in range(3):
+        t = time.perf_counter()
+        s = align.AlignSession(pids[:500], pids[-1])
+        s.update({"pos": {1: ("min", "max")}, "orient": (0, 1, 2)})
+        best["perf_session_500"] = min(best.get("perf_session_500", 1e9), 1000 * (time.perf_counter() - t))
+        s.cancel()
+    o = objs[7].worldTransform().extractTranslates() + hou.Vector3(0, 50, 0)
+    for _ in range(3):
+        t = time.perf_counter()
+        h = align.hit_ray(o, (0, -1, 0))
+        best["perf_hit_scan_2000"] = min(best.get("perf_hit_scan_2000", 1e9), 1000 * (time.perf_counter() - t))
+    print("  perf: reference %.1f ms; %s; geometries intersected %s of %d" % (
+        ref, ", ".join("%s %.0f ms (ratio %.2f)" % (k, v, v / ref) for k, v in best.items()), align._state.get("last_scan"),
+        len(objs) + 1))
+    out["perf_session_500"] = bool(best["perf_session_500"] / ref <= PERF_CEIL["perf_session_500"])
+    # the scan over every object (a click on the handle) intersects only what the ray's box test lets through: a
+    # count, not a time (2000 library meshes: 52-72 ms with the test, 115-205 ms without, too close under load; the
+    # audit's 2.5 s was the old full scan); printed time above, judged count here
+    out["hit_scan_boxed"] = bool(h is not None and h[0] == objs[7].sessionId() and align._state.get("last_scan", 99) <= 3)
 
 
 def mutate(mod, old, new):
@@ -389,7 +489,7 @@ A = align
 MUTATIONS = [   # (name, check, module, old, new)
     ("min_is_max", "pos_combos", A, '{"min": lo[k], "max": hi[k]', '{"min": hi[k], "max": hi[k]'),
     ("center_is_min", "pos_combos", A, '"center": 0.5 * (lo[k] + hi[k])}', '"center": lo[k]}'),
-    ("object_pivot_origin", "pos_combos", A, '    return hou.Vector3(hou.nodeBySessionId(pid).parmTuple("p").eval())', "    return hou.Vector3(0, 0, 0)"),
+    ("object_pivot_origin", "pos_combos", A, '"piv": hou.Vector3(n.parmTuple("p").eval())', '"piv": hou.Vector3(0, 0, 0)'),
     ("box_from_local_corners", "pos_combos", A, '    w = _pts_world(it["pts"], m)',
      '    p_ = it["pts"]\n    w = _pts_world(np.array([[x, y, z] for x in (p_[:, 0].min(), p_[:, 0].max()) for y in (p_[:, 1].min(), p_[:, 1].max()) for z in (p_[:, 2].min(), p_[:, 2].max())]), m)'),
     ("all_like_first", "pos_combos", A, '    return {it["pid"]: aligned(it, tgt, opts) for it in items}', '    return {it["pid"]: aligned(items[0], tgt, opts) for it in items}'),
@@ -415,6 +515,11 @@ MUTATIONS = [   # (name, check, module, old, new)
     ("spin_ignored", "normal_spin", A, "    spin = hou.hmath.buildRotateAboutAxis(nt, angle)", "    spin = hou.hmath.buildRotateAboutAxis(nt, 0.0)"),
     ("flip_ignored", "normal_flip", A, "    turn = ns.matrixToRotateTo(nt if flip else -nt)", "    turn = ns.matrixToRotateTo(-nt)"),
     ("normal_delta_first", "normal_align_piece", A, '        self.preview({it["pid"]: it["m"] * d for it in self.items})', '        self.preview({it["pid"]: d * it["m"] for it in self.items})'),
+    ("pos_on_old_box", "pos_with_orient_scale", A, "        d[k] = value(tgt, tg, k) - value(it, cur, k, m)", "        d[k] = value(tgt, tg, k) - value(it, cur, k)"),
+    ("never_compared", "unstored_warned", A, "        self.unstored = unstored(xforms)\n", "        self.unstored = []\n"),
+    ("no_tolerance", "exact_not_warned", A, "def unstored(xforms, rel=1e-4):", "def unstored(xforms, rel=0.0):"),
+    ("items_walk_prims", "perf_session_500", A, "        pr = prims.get(piece)\n", "        pr = next((q for q in c.displayNode().geometry().prims() if q.attribValue(\"pf_piece\") == piece), None)\n"),
+    ("no_box_test", "hit_scan_boxed", A, "        if boxed and not _ray_box(o2, d2, geo.boundingBox()):", "        if False:"),
     ("preview_recorded", "preview_no_undo", A, "    def preview(self, xforms):\n        with hou.undos.disabler():", '    def preview(self, xforms):\n        with hou.undos.group("modelUI: preview"):'),
     ("cancel_no_restore", "cancel_exact", A, "        self.done = True\n        _restore(self.snap)\n\n\nclass AlignSession", "        self.done = True\n\n\nclass AlignSession"),
     ("apply_split", "apply_one_undo", A, '    with hou.undos.group("modelUI: " + label):\n        pieces_ui.set_xforms(xforms)', "    if True:\n        pieces_ui.set_xforms(xforms)"),
@@ -447,6 +552,7 @@ def main():
             names.discard(check)
             continue
         del LOG[:]
+        os.environ["PF_ALIGN_PERF"] = "1" if check in ("perf_session_500", "hit_scan_boxed") else "0"   # costs: paired runs only
         restore = mutate(mod, old, new)
         try:
             res = run()

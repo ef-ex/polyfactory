@@ -9,7 +9,8 @@ source edit exec'd into the live module), baseline again; results to $PF_F1_OUT.
 
 What it cannot see: the maths beyond the dialog's wiring (check_align.py owns it), the dialog's look, Esc or the
 close box on a dialog (Qt routes both to reject(), the path Cancel takes), a second viewer, picking in an
-orthographic view, the menu bar itself (the check runs the shipped menu items' scripts; the hotkeys reach the same
+orthographic view, the real mouse cursor (the cross is checked through align._cursor_tick with a point over the
+viewer and one over the menu bar: the test windows are off screen), the menu bar itself (the check runs the shipped menu items' scripts; the hotkeys reach the same
 items by their ids).
 """
 import glob
@@ -183,8 +184,22 @@ def suite(out):
     key(Qt.Key_A)
     yield 300
     order = list(input_layer._gestures)
-    out["hotkey_starts_pick"] = (picking() and order[:1] == [align.GESTURE]
-                                 and QtWidgets.QApplication.overrideCursor() is not None)
+    out["hotkey_starts_pick"] = picking() and order[:1] == [align.GESTURE]
+    mw = hou.qt.mainWindow()
+    inside, outside = sv.qtScreenGeometry().center(), mw.mapToGlobal(QtCore.QPoint(5, 5))   # a viewer / the menu bar
+    align._cursor_tick(inside)
+    cross_in = QtWidgets.QApplication.overrideCursor()
+    cross_in = cross_in is not None and cross_in.shape() == Qt.CrossCursor
+    align._cursor_tick(outside)
+    out["cross_only_over_viewers"] = (cross_in and QtWidgets.QApplication.overrideCursor() is None
+                                      and not any(v.qtScreenGeometry().contains(outside) for v in input_layer._viewers()))
+    # an object right behind the target on the camera ray: the click must intersect only what the viewport shows there
+    v = vp.mapToScreen(centre(t))
+    rd, ro = vp.mapToWorld(int(v[0]), int(v[1]))
+    behind = hou.node("/obj").createNode("geo", "behind")
+    behind.createNode("box").parm("scale").set(4)
+    behind.parmTuple("t").set(tuple(centre(t) + hou.Vector3(rd).normalized() * 40))
+    yield 200
     log("  after Alt+Ctrl+A: pick", align._state["pick"] and align._state["pick"]["step"], "gestures", order,
         "keys", hou.hotkeys.assignments("h", "h.pf_modelui_align"))
     seen = []
@@ -196,6 +211,8 @@ def suite(out):
     dlg = align._state["dialog"]
     log("  target click: dialog", dlg and dlg.windowTitle(), "last hit", align._state["pick"] and align._state["pick"].get("last_hit"),
         "selected", sc.selected())
+    log("  target click intersected", align._state.get("last_scan"), "geometries")
+    out["pick_scans_one"] = align._state.get("last_scan") == 1
     out["target_click_opens_dialog"] = (isinstance(dlg, align.AlignDialog) and dlg.session.target["pid"] == t
                                         and int(QtCore.QEvent.MouseButtonPress) not in seen and pick_clean()
                                         and sc.selected() == sel0)
@@ -257,6 +274,20 @@ def suite(out):
     key(Qt.Key_Escape, NOM)
     yield 300
     out["esc_ends_pick"] = pick_clean() and align._state["dialog"] is None
+    align.align()   # Esc with the keyboard focus outside the viewer (a list in another pane) ends the pick too
+    yield 100
+    svr = sv.qtScreenGeometry()
+    lists = [w for w in hou.qt.mainWindow().findChildren(QtWidgets.QAbstractItemView)
+             if w.isVisible() and w.focusPolicy() != Qt.NoFocus
+             and not svr.intersects(QtCore.QRect(w.mapToGlobal(QtCore.QPoint(0, 0)), w.size()))]
+    if lists:
+        lists[0].setFocus()
+        yield 100
+        log("  Esc with focus on", type(lists[0]).__name__, "focus now", type(QtWidgets.QApplication.focusWidget()).__name__)
+        QTest.keyClick(win, Qt.Key_Escape)
+        yield 300
+    out["esc_outside_viewer_ends_pick"] = bool(lists) and pick_clean()
+    align.cancel_pick()
     align.align()
     yield 100
     click(centre(t), button=RMB)
@@ -378,7 +409,7 @@ def cleanup():
         _q(keys.revert)
 
 
-MODS = {"align": align, "keys": keys}
+MODS = {"align": align, "keys": keys, "input_layer": input_layer}
 
 
 def mutate(modname, pairs):
@@ -402,6 +433,9 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("not_a_feature", "installed", AL, [("def install():\n    _end_pick()\n    _state[\"on\"] = True", "def install():\n    raise RuntimeError(\"mutation\")")]),
     ("no_align_key", "hotkey_starts_pick", "keys", [('    ("h", "h.pf_modelui_align", "Alt+Ctrl+A"),\n', "")]),
     ("pick_not_first", "target_click_opens_dialog", AL, [("input_layer.add_gesture(GESTURE, _gesture, first=True)", "input_layer.add_gesture(GESTURE, _gesture)")]),
+    ("cursor_everywhere", "cross_only_over_viewers", AL, [('    over = _state["pick"] is not None and any(', '    over = _state["pick"] is not None or any(')]),
+    ("hit_at_scans_all", "pick_scans_one", AL, [("    return hit_ray(o, d, [n] if _pickable(n) else None)", "    return hit_ray(o, d)")]),
+    ("keys_only_in_viewers", "esc_outside_viewer_ends_pick", "input_layer", [('            offered = [] if kind == "press" or text else [(k, f) for k, f in offered if k in _anywhere]', "            offered = []")]),
     ("dialog_not_wired", "dialog_preview_moves", AL, [("            cb.toggled.connect(self.refresh)\n            cur.currentIndexChanged", "            cur.currentIndexChanged")]),
     ("apply_cancels", "dialog_apply_one_undo", AL, [("            _state[\"opts\"] = self.options()   # the next Align starts from these (Max remembers them)\n            self.session.apply()",
                                                       "            _state[\"opts\"] = self.options()   # the next Align starts from these (Max remembers them)\n            self.session.cancel()")]),

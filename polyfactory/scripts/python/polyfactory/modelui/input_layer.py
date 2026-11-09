@@ -9,7 +9,8 @@ Houdini's own application filter (the Maya project lost RMB/MMB drags there).
 
 Hook API for features:
 
-    add_gesture(name, fn, first=False)   fn(kind, event, viewer) -> True | OBSERVE | False; first: asked first
+    add_gesture(name, fn, first=False, keys_anywhere=False)   fn(kind, event, viewer) -> True | OBSERVE | False
+                              first: asked first; keys_anywhere: keys with the focus outside viewers too
     remove_gesture(name)
     later(fn)                 run fn after the current event (do scene work there, not inside the event)
 
@@ -57,18 +58,26 @@ _TEXT = (QtWidgets.QLineEdit, QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit, QtW
 _gestures = {}            # name -> fn, in registration order
 
 
-def add_gesture(name, fn, first=False):
-    """``first``: asked before every other gesture (a modal pick, e.g. Align's target, must beat the click gestures)."""
-    _gestures.pop(name, None)
-    rest = list(_gestures.items()) if first else []
-    if first:
-        _gestures.clear()
+_anywhere = set()         # gestures offered keys with the focus outside a viewer too (never in a text input)
+
+
+def add_gesture(name, fn, first=False, keys_anywhere=False):
+    """``first``: asked before every other gesture (a modal pick, e.g. Align's target, must beat the click gestures);
+    otherwise a name added again keeps its place. ``keys_anywhere``: also offered keys while the focus is outside a
+    viewer (with viewer None; Esc must end a modal pick wherever the focus is)."""
+    (_anywhere.add if keys_anywhere else _anywhere.discard)(name)
+    if not first:
+        _gestures[name] = fn
+        return
+    rest = [(k, f) for k, f in _gestures.items() if k != name]
+    _gestures.clear()
     _gestures[name] = fn
     _gestures.update(rest)
 
 
 def remove_gesture(name):
     _gestures.pop(name, None)
+    _anywhere.discard(name)
 
 
 def later(fn):
@@ -225,14 +234,18 @@ class _Layer:
         else:
             focus = top and top.focusWidget()
             viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)
+            text = isinstance(focus, _TEXT)
         if held is not None and self._call(held[0], "other", ev, viewer) is True:
             self.eaten["mouse" if kind == "press" else "key"].add(which)   # its repeats and release go too
             return True   # the gesture holding a key took this key or click
         slot = SLOT[kind]
-        if not _gestures or self.owners[slot] is not None or viewer is None:
+        offered = list(_gestures.items())
+        if viewer is None:   # keys outside a viewer reach only the gestures that asked for them (never text inputs)
+            offered = [] if kind == "press" or text else [(k, f) for k, f in offered if k in _anywhere]
+        if not offered or self.owners[slot] is not None:
             return False   # a second key while one is held is only the holder's "other"
         watchers = []
-        for fn in list(_gestures.values()):
+        for _, fn in offered:
             owner = [fn, which, True]
             self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it
             res = self._call(fn, kind, ev, viewer)
