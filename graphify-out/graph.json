@@ -2930,7 +2930,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 73,
+      "community": 0,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -4160,7 +4160,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 73,
+      "community": 0,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4170,7 +4170,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 73,
+      "community": 0,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 73,
+      "community": 0,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 73,
+      "community": 0,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4950,7 +4950,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 333,
+      "community": 42,
       "norm_label": "node"
     },
     {
@@ -4960,7 +4960,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 333,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -17680,7 +17680,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 333,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -17820,7 +17820,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 333,
+      "community": 42,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -18210,7 +18210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 333,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -18220,7 +18220,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 333,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -18230,7 +18230,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 333,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -18240,7 +18240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 333,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -18250,7 +18250,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 333,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -18260,7 +18260,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 333,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -19980,7 +19980,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 55,
       "norm_label": "parmstring"
     },
     {
@@ -20000,7 +20000,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 55,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -20010,7 +20010,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 55,
       "norm_label": "._on_changed()"
     },
     {
@@ -20020,7 +20020,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20030,7 +20030,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 55,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -20070,7 +20070,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20140,7 +20140,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20180,7 +20180,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 35,
+      "community": 333,
       "norm_label": "parmcolor"
     },
     {
@@ -20190,7 +20190,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 333,
       "norm_label": ".__init__()"
     },
     {
@@ -20200,7 +20200,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 333,
       "norm_label": "parmtuple"
     },
     {
@@ -20210,7 +20210,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 35,
+      "community": 333,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -20220,7 +20220,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 35,
+      "community": 333,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -20230,7 +20230,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20240,7 +20240,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -20250,7 +20250,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 35,
+      "community": 333,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -20290,7 +20290,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 55,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -20300,7 +20300,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 55,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -20310,7 +20310,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 55,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -20390,7 +20390,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 35,
+      "community": 333,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -20400,7 +20400,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 35,
+      "community": 333,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -20410,7 +20410,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 72,
+      "community": 333,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -20420,7 +20420,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 72,
+      "community": 333,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -20430,7 +20430,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 35,
+      "community": 333,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -38040,7 +38040,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 168,
+      "community": 195,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -38080,7 +38080,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 195,
+      "community": 348,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -38090,7 +38090,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 195,
+      "community": 348,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -38100,7 +38100,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 195,
+      "community": 348,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -38110,7 +38110,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 195,
+      "community": 348,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -38120,7 +38120,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 195,
+      "community": 348,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -38130,7 +38130,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 195,
+      "community": 348,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -38690,7 +38690,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 168,
+      "community": 195,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -38710,7 +38710,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 195,
+      "community": 348,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -50317,7 +50317,7 @@
       "label": "F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L187",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_measurements_tests_modelui_bench_f2a_py_in_the_gui_check_containers_py_headless_all_605_library_files",
       "community": 46,
@@ -50327,7 +50327,7 @@
       "label": "F2a design: pieces packed in container objects (Hannes' choice: mixed backend)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L206",
+      "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_design_pieces_packed_in_container_objects_hannes_choice_mixed_backend",
       "community": 46,
@@ -50337,7 +50337,7 @@
       "label": "Resume pointer (F1 framework core: done; F2 next)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L234",
+      "source_location": "L235",
       "_origin": "ast",
       "id": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next",
       "community": 46,
@@ -50347,7 +50347,7 @@
       "label": "F1 findings (2026-11-05, Houdini 22.0.442, Windows)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L299",
+      "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_modelui_f1_findings_2026_11_05_houdini_22_0_442_windows",
       "community": 46,
@@ -50357,7 +50357,7 @@
       "label": "Decisions (Hannes, 2026-11-05)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L346",
+      "source_location": "L347",
       "_origin": "ast",
       "id": "ideas_modelui_decisions_hannes_2026_11_05",
       "community": 46,
@@ -50367,7 +50367,7 @@
       "label": "Decision log (house rule 2: why Python)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L367",
+      "source_location": "L368",
       "_origin": "ast",
       "id": "ideas_modelui_decision_log_house_rule_2_why_python",
       "community": 46,
@@ -50377,7 +50377,7 @@
       "label": "Framework (layers shared by every mode)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L375",
+      "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_modelui_framework_layers_shared_by_every_mode",
       "community": 46,
@@ -50387,7 +50387,7 @@
       "label": "Mapping to Houdini",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L388",
+      "source_location": "L389",
       "_origin": "ast",
       "id": "ideas_modelui_mapping_to_houdini",
       "community": 46,
@@ -50397,7 +50397,7 @@
       "label": "Feature list",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L400",
+      "source_location": "L401",
       "_origin": "ast",
       "id": "ideas_modelui_feature_list",
       "community": 46,
@@ -50407,7 +50407,7 @@
       "label": "Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L417",
+      "source_location": "L418",
       "_origin": "ast",
       "id": "ideas_modelui_measurements_one_object_per_piece_2026_11_05_houdini_22_0_442_windows_hannes_kitbash_library",
       "community": 46,
@@ -50417,7 +50417,7 @@
       "label": "References",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L441",
+      "source_location": "L442",
       "_origin": "ast",
       "id": "ideas_modelui_references",
       "community": 46,
@@ -54710,7 +54710,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 144,
+      "community": 355,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -54720,7 +54720,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 144,
+      "community": 355,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -54730,7 +54730,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 144,
+      "community": 355,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -54740,7 +54740,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 144,
+      "community": 355,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -54750,7 +54750,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 144,
+      "community": 355,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -54760,7 +54760,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 144,
+      "community": 355,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -55490,7 +55490,7 @@
       "source_location": "L14954",
       "_origin": "ast",
       "id": "ideas_polychain_33_native_network_build_log_cycle_c6_13_9_n8_stages_2_the_miter_assembly",
-      "community": 348,
+      "community": 144,
       "norm_label": "33. native network build log \u2014 cycle c6 (13.9 n8 stages 2+: the miter assembly)"
     },
     {
@@ -55500,7 +55500,7 @@
       "source_location": "L14960",
       "_origin": "ast",
       "id": "ideas_polychain_33_1_d338_the_deletion_32_3_named_paid_and_proven",
-      "community": 348,
+      "community": 144,
       "norm_label": "33.1 d338 \u2014 the deletion 32.3 named, paid and proven"
     },
     {
@@ -55510,7 +55510,7 @@
       "source_location": "L15011",
       "_origin": "ast",
       "id": "ideas_polychain_33_2_d339_fill_count_with_count_0_leaves_a_hole_in_the_y_stack",
-      "community": 348,
+      "community": 144,
       "norm_label": "33.2 d339 \u2014 `fill = count` with `count = 0` leaves a hole in the y stack"
     },
     {
@@ -55520,7 +55520,7 @@
       "source_location": "L15025",
       "_origin": "ast",
       "id": "ideas_polychain_33_3_13_9_n8_stage_2_d340_the_degenerate_corner_was_a_warning_not_geometry",
-      "community": 348,
+      "community": 144,
       "norm_label": "33.3 13.9 n8 stage 2 \u2014 d340: the degenerate corner was a warning, not geometry"
     },
     {
@@ -55530,7 +55530,7 @@
       "source_location": "L15090",
       "_origin": "ast",
       "id": "ideas_polychain_33_4_d341_the_miter_s_deciding_experiment_the_batched_cut_is_a_re_implementation_not_a_port",
-      "community": 348,
+      "community": 144,
       "norm_label": "33.4 d341 \u2014 the miter's deciding experiment: the batched cut is a re-implementation, not a port"
     },
     {
@@ -55540,7 +55540,7 @@
       "source_location": "L15160",
       "_origin": "ast",
       "id": "ideas_polychain_33_5_the_python_share_per_build_class_re_taken_32_4_s_table_two_rows_moved",
-      "community": 348,
+      "community": 144,
       "norm_label": "33.5 the python share per build class, re-taken \u2014 32.4's table, two rows moved"
     },
     {
@@ -56855,7 +56855,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 55,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -69060,9 +69060,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/input_layer.py",
       "source_location": "L302",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_input_layer_rationale_302",
-      "target": "modelui_input_layer_on_app_event",
-      "confidence_score": 1.0
+      "target": "modelui_input_layer_on_app_event"
     },
     {
       "relation": "method",
@@ -69154,9 +69154,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/input_layer.py",
       "source_location": "L349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_input_layer_rationale_349",
-      "target": "modelui_input_layer_windows",
-      "confidence_score": 1.0
+      "target": "modelui_input_layer_windows"
     },
     {
       "relation": "method",
@@ -69238,9 +69238,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/input_layer.py",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_input_layer_rationale_375",
-      "target": "modelui_input_layer_install",
-      "confidence_score": 1.0
+      "target": "modelui_input_layer_install"
     },
     {
       "relation": "method",
@@ -69268,9 +69268,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/input_layer.py",
       "source_location": "L402",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_input_layer_rationale_402",
-      "target": "modelui_input_layer_demodrag",
-      "confidence_score": 1.0
+      "target": "modelui_input_layer_demodrag"
     },
     {
       "relation": "contains",
@@ -69591,9 +69591,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui",
-      "target": "modelui_pieces_ui_left_alone",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_left_alone"
     },
     {
       "relation": "contains",
@@ -70159,9 +70159,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_click_gesture",
-      "target": "modelui_pieces_ui_left_alone",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_left_alone"
     },
     {
       "relation": "calls",
@@ -70170,9 +70170,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L558",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_drag_gesture",
-      "target": "modelui_pieces_ui_left_alone",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_left_alone"
     },
     {
       "relation": "rationale_for",
@@ -70180,9 +70180,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_167",
-      "target": "modelui_pieces_ui_left_alone",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_left_alone"
     },
     {
       "relation": "calls",
@@ -70234,9 +70234,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_174",
-      "target": "modelui_pieces_ui_click_gesture",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_click_gesture"
     },
     {
       "relation": "rationale_for",
@@ -70244,9 +70244,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L218",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_218",
-      "target": "modelui_pieces_ui_band",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_band"
     },
     {
       "relation": "calls",
@@ -70265,9 +70265,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_239",
-      "target": "modelui_pieces_ui_pick_at",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_pick_at"
     },
     {
       "relation": "calls",
@@ -70286,9 +70286,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L248",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_248",
-      "target": "modelui_pieces_ui_piece_centres",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_piece_centres"
     },
     {
       "relation": "calls",
@@ -70307,9 +70307,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L261",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_261",
-      "target": "modelui_pieces_ui_object_centres",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_object_centres"
     },
     {
       "relation": "calls",
@@ -70328,9 +70328,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L284",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_284",
-      "target": "modelui_pieces_ui_box_at",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_box_at"
     },
     {
       "relation": "calls",
@@ -70382,9 +70382,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L315",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_315",
-      "target": "modelui_pieces_ui_proxy",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_proxy"
     },
     {
       "relation": "calls",
@@ -70414,9 +70414,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L325",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_325",
-      "target": "modelui_pieces_ui_delete_marked",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_delete_marked"
     },
     {
       "relation": "calls",
@@ -70468,9 +70468,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L373",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_373",
-      "target": "modelui_pieces_ui_set_rel",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_set_rel"
     },
     {
       "relation": "calls",
@@ -70500,9 +70500,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L382",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_382",
-      "target": "modelui_pieces_ui_handle_xform",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_handle_xform"
     },
     {
       "relation": "calls",
@@ -70543,9 +70543,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L395",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_395",
-      "target": "modelui_pieces_ui_bind",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_bind"
     },
     {
       "relation": "calls",
@@ -70597,9 +70597,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L430",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_430",
-      "target": "modelui_pieces_ui_draw",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_draw"
     },
     {
       "relation": "calls",
@@ -70618,9 +70618,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_502",
-      "target": "modelui_pieces_ui_plane_point",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_plane_point"
     },
     {
       "relation": "calls",
@@ -70639,9 +70639,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L516",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_516",
-      "target": "modelui_pieces_ui_grid_step",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_grid_step"
     },
     {
       "relation": "rationale_for",
@@ -70649,9 +70649,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L533",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_533",
-      "target": "modelui_pieces_ui_key_gesture",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_key_gesture"
     },
     {
       "relation": "calls",
@@ -70670,9 +70670,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L541",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_541",
-      "target": "modelui_pieces_ui_ray_object",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_ray_object"
     },
     {
       "relation": "calls",
@@ -70702,9 +70702,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L643",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_643",
-      "target": "modelui_pieces_ui_revert_preview",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_revert_preview"
     },
     {
       "relation": "calls",
@@ -70723,9 +70723,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L652",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_652",
-      "target": "modelui_pieces_ui_commit_drag",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_commit_drag"
     },
     {
       "relation": "rationale_for",
@@ -70733,9 +70733,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L668",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_pieces_ui_rationale_668",
-      "target": "modelui_pieces_ui_install",
-      "confidence_score": 1.0
+      "target": "modelui_pieces_ui_install"
     },
     {
       "relation": "contains",
@@ -110566,9 +110566,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L660",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_rationale_660",
-      "target": "modelui_gui_f1_restore_keys",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_restore_keys"
     },
     {
       "relation": "calls",
@@ -110686,9 +110686,9 @@
       "source_file": "tests/modelui/gui_f1.py",
       "source_location": "L838",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f1_rationale_838",
-      "target": "modelui_gui_f1_guard",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f1_guard"
     },
     {
       "relation": "contains",
@@ -111049,9 +111049,9 @@
       "source_file": "tests/modelui/gui_f2a.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2a_rationale_63",
-      "target": "modelui_gui_f2a_screen_point",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2a_screen_point"
     },
     {
       "relation": "calls",
@@ -111146,9 +111146,9 @@
       "source_file": "tests/modelui/gui_f2a.py",
       "source_location": "L823",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2a_suite",
-      "target": "modelui_gui_f2a_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2a_undo_open"
     },
     {
       "relation": "calls",
@@ -111167,9 +111167,9 @@
       "source_file": "tests/modelui/gui_f2a.py",
       "source_location": "L948",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2a_rationale_948",
-      "target": "modelui_gui_f2a_purge_stale",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2a_purge_stale"
     },
     {
       "relation": "calls",
@@ -111188,9 +111188,9 @@
       "source_file": "tests/modelui/gui_f2a.py",
       "source_location": "L965",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2a_rationale_965",
-      "target": "modelui_gui_f2a_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2a_undo_open"
     },
     {
       "relation": "calls",
@@ -145620,5 +145620,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "41302055c373a0acfe29f8ad376747d6dd505925"
+  "built_at_commit": "6788f265c221b8e0bd7fa74ead84932e3e91b802"
 }

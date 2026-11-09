@@ -19,7 +19,8 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
 - 2026-11-09: F2a audit 5 (agent-195, evidence `F:/cache/modelui/audit_f2a5/`) confirmed the leak fix; its five items
-  are fixed, each with a gui_f2a check seen red under its mutation (F2a audit 6 pending):
+  are fixed, each with a gui_f2a check seen red under its mutation (no sixth audit, per Hannes' coordinator: modelui
+  goes to main and Hannes tries it himself; next for this builder: F2b Clone dialog):
   1 Space+LMB on a piece turned no camera in W: the click gesture owned every plain left press on a container, also
     in Houdini's view state (Space puts the viewer in "objview"). Both piece gestures now decline in `VIEW_STATES`
     (objview, view). Check `space_lmb_on_piece_turns_camera` (W and Q, press on a container, camera restored after with
