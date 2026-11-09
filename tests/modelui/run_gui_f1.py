@@ -16,7 +16,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
-SCR = "F:/cache/modelui/f1/gui"
+SCR = os.environ.get("PF_F1_SCRATCH", "F:/cache/modelui/f1/gui")   # auditors: set your own folder
 HOUDINI = "C:/Program Files/Side Effects Software/Houdini 22.0.442/bin/houdini.exe"
 EXEMPT = {"toggle_key_registered": "registered by uiready.py at startup; a mutation needs a second launch"}
 
@@ -24,7 +24,7 @@ EXEMPT = {"toggle_key_registered": "registered by uiready.py at startup; a mutat
 def main():
     shutil.rmtree(SCR, ignore_errors=True)
     # the C++ mutation: the filter without its window-receiver test, built beside the scratch folder
-    mut = os.path.normpath("F:/cache/modelui/f1/mut")
+    mut = os.path.normpath(SCR + "_mut")   # beside the run's own folder: parallel runs never share it
     os.makedirs(mut, exist_ok=True)
     afdir = os.path.join(REPO, "polyfactory", "scripts", "python", "polyfactory", "modelui", "appfilter")
     with open(os.path.join(afdir, "appfilter.cpp")) as f:
@@ -35,8 +35,11 @@ def main():
         return 1
     with open(os.path.join(mut, "appfilter_nowindow.cpp"), "w") as f:
         f.write(src.replace(snip, ""))
-    r = subprocess.run(["cmd", "/c", os.path.join(afdir, "build.bat"), os.path.join(mut, "appfilter_nowindow.cpp"),
-                        os.path.join(mut, "pf_appfilter_nowindow.dll")], capture_output=True, text=True)
+    if os.environ.get("PF_GUI_SCRIPT", "gui_f1.py") != "gui_f1.py":
+        r = subprocess.CompletedProcess([], 0)   # only the F1 suite uses the mutated DLL (build.bat's objects are shared)
+    else:
+        r = subprocess.run(["cmd", "/c", os.path.join(afdir, "build.bat"), os.path.join(mut, "appfilter_nowindow.cpp"),
+                            os.path.join(mut, "pf_appfilter_nowindow.dll")], capture_output=True, text=True)
     if r.returncode:
         print("mutated DLL build failed:", r.stdout[-2000:], r.stderr[-2000:])
         return 1
@@ -51,12 +54,15 @@ def main():
         json.dump({"env": [{"POLYFACTORY": REPO.replace("\\", "/") + "/polyfactory"}], "path": "$POLYFACTORY"}, f)
     env = dict(os.environ)
     env.pop("HOUDINI_PATH", None)
-    env.update(HOUDINI_USER_PREF_DIR=prefs, HOUDINI_PACKAGE_DIR=pv + "/packages", PF_F1_OUT=SCR + "/result.json")
+    if os.environ.get("PF_GUI_SCRIPT", "gui_f1.py") == "gui_f1.py":
+        env["PF_MODELUI_DEMO"] = "1"   # the F1 checks use the demo gesture; it is not installed otherwise
+    env.update(PF_F1_MUT_DLL=os.path.join(mut, "pf_appfilter_nowindow.dll").replace("\\", "/"),
+               HOUDINI_USER_PREF_DIR=prefs, HOUDINI_PACKAGE_DIR=pv + "/packages", PF_F1_OUT=SCR + "/result.json")
     console = open(SCR + "/console.txt", "w")
-    p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, "gui_f1.py")], env=env, stdout=console,
+    p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, os.environ.get("PF_GUI_SCRIPT", "gui_f1.py"))], env=env, stdout=console,
                          stderr=subprocess.STDOUT)
     try:
-        p.wait(timeout=900)
+        p.wait(timeout=int(os.environ.get("PF_GUI_TIMEOUT", "5400")))   # gui_f2a: 69 runs took ~52 min
     except subprocess.TimeoutExpired:
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)])
         print("TIMEOUT: killed the test Houdini (pid %d); log: %s" % (p.pid, SCR + "/result.json.log"))

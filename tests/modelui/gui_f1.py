@@ -133,6 +133,8 @@ def visible_on_screen():
 def off_screen():
     """Every visible window to x < -5000 (floating panes ignore the position they are created with)."""
     mw = hou.qt.mainWindow()
+    if mw is None:   # not built yet (a fresh prefs folder starts slower)
+        return False
     if mw.geometry().x() > -5000:
         mw.showNormal()   # a maximized window ignores move()
         mw.setGeometry(-12000, 100, 1600, 1000)
@@ -276,6 +278,15 @@ def suite(out):
         QTest.keyRelease(win, Qt.Key_F9)
         app = QtGui.QGuiApplication.instance()
         owners = input_layer.layer().owners
+        target.setFocus()   # cancel also forgets what the holder swallowed: a fresh F7 then reaches Houdini whole
+        QTest.keyPress(win, Qt.Key_F9)
+        QTest.keyPress(win, Qt.Key_F7)   # swallowed via "other"; its release never comes
+        app.applicationStateChanged.emit(Qt.ApplicationInactive)
+        app.applicationStateChanged.emit(Qt.ApplicationActive)
+        eaten_empty = not input_layer.layer().eaten["key"]
+        seen = with_probe(win, lambda: keyclick(win, Qt.Key_F7))
+        out["cancel_clears_eaten"] = eaten_empty and seen.count(KP) == 1 and seen.count(KR) == 1
+        QTest.keyRelease(win, Qt.Key_F9)
         del got[:]
         QTest.keyPress(win, Qt.Key_F9)   # held; a menu pops up (TAB menu, RMB menu), then focus goes to another window
         menu = QtWidgets.QMenu()
@@ -428,10 +439,63 @@ def suite(out):
         copies[0] = 0
         QTest.mouseClick(win, LMB, Qt.ShiftModifier, L(win, g, 40, 0))
         yield 50
-        out["observe_click_no_copy_and_ends"] = copies[0] == 0 and input_layer.layer().owner is None
+        out["observe_click_no_copy_and_ends"] = (copies[0] == 0 and input_layer.layer().owner is None
+                                                 and not input_layer.layer().watchers["mouse"])
     finally:
         input_layer.remove_gesture("test_clone")
         input_layer.layer().owners.update(mouse=None, key=None)
+
+    obs = {"a": [], "b": []}   # two observing gestures share one Shift press
+
+    def observer(k):
+        def g(kind, ev, viewer):
+            if kind == "press":
+                mods = ev.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier)
+                if ev.button() != LMB or mods != Qt.ShiftModifier:
+                    return False
+            obs[k].append(kind)
+            return input_layer.OBSERVE
+        return g
+    input_layer.add_gesture("test_obs_a", observer("a"))
+    input_layer.add_gesture("test_obs_b", observer("b"))
+    try:
+        hover(win, g)
+
+        def shift_drag2():
+            QTest.mousePress(win, LMB, Qt.ShiftModifier, L(win, g))
+            for d in (4, 10, 16):
+                QTest.mouseMove(win, L(win, g, d, d))
+            QTest.mouseRelease(win, LMB, Qt.ShiftModifier, L(win, g, 16, 16))
+        wseen2 = with_probe(win, shift_drag2)
+        out["two_observers_share_press"] = (obs["a"][:1] == ["press"] and obs["a"] == obs["b"]
+                                            and obs["a"][-1:] == ["release"] and PRESS in wseen2)
+        log("  two observers", obs, "window", wseen2)
+    finally:
+        input_layer.remove_gesture("test_obs_a")
+        input_layer.remove_gesture("test_obs_b")
+    got_c = []
+    AS = Qt.AltModifier | Qt.ShiftModifier
+
+    def obs_c(kind, ev, viewer):   # observes Alt+Shift presses; a gesture after it takes them
+        if kind == "press" and (ev.modifiers() & (Qt.ControlModifier | AS)) != AS:
+            return False
+        got_c.append(kind)
+        return input_layer.OBSERVE
+
+    def taker(kind, ev, viewer):
+        if kind == "press" and (ev.modifiers() & (Qt.ControlModifier | AS)) != AS:
+            return False
+        return True
+    input_layer.add_gesture("test_obs_c", obs_c)
+    input_layer.add_gesture("test_taker", taker)
+    try:
+        QTest.mousePress(win, LMB, AS, L(win, g))
+        QTest.mouseRelease(win, LMB, AS, L(win, g))
+        out["observer_cancelled_by_taker"] = got_c == ["press", "cancel"]
+        log("  observer before a taker", got_c)
+    finally:
+        input_layer.remove_gesture("test_obs_c")
+        input_layer.remove_gesture("test_taker")
 
     fp = desk.createFloatingPaneTab(hou.paneTabType.SceneViewer, position=(-11000, 300), size=(600, 450))
     yield 300
@@ -523,6 +587,13 @@ def suite(out):
 
         def med(v):
             return sorted(v)[len(v) // 2]
+        def ref_list():   # fixed reference workload: a plain list of the same 2000 names, filled and selected, x10
+            for _ in range(10):
+                w = QtWidgets.QListWidget()
+                w.addItems([n.name() for n in hou.node("/obj").children()])
+                w.selectAll()
+                w.deleteLater()
+        refs = [ms(ref_list) for _ in range(3)]   # right before and right after the Explorer timings
         builds, made = [], []
         for _ in range(3):
             builds.append(ms(lambda: made.append(explorer.Explorer())))
@@ -539,13 +610,19 @@ def suite(out):
         out["explorer_no_rebuild_when_unchanged"] = ptrs == [
             shiboken6.getCppPointer(w2.list.item(i))[0] for i in range(w2.list.count())]
         sel = ms(w2.list.selectAll)
+        refs += [ms(ref_list) for _ in range(3)]
         w2.close_down()
         w2.deleteLater()
         m = {"build": med(builds), "after_rename": med(renames), "idle": med(idles), "select_all": sel}
-        log("  perf 2000 objects, medians (ms)", {k: round(v, 1) for k, v in m.items()})
-        # ceilings 3x the warm medians measured 2026-11-05 (45 / 42 / 19 / 138 ms)
-        out["perf_explorer_2000"] = (m["build"] < 135 and m["after_rename"] < 126 and m["idle"] < 57
-                                     and m["select_all"] < 414)
+        ref = med(refs)
+        log("  perf 2000 objects, medians (ms)", {k: round(v, 1) for k, v in m.items()}, "reference", round(ref, 1),
+            "ratios", {k: round(v / ref, 2) for k, v in m.items()})
+        # judged against the reference measured right beside it, so another job loading the PC does not decide it
+        # (absolute ceilings failed at 100 % CPU, 2026-11-09). Ceilings: 3x the highest ratio of the 2026-11-09 warm
+        # runs at 62-100 % CPU (build 2.2, after rename 2.5, idle 2.9, select all 7.4; one reference = 10 lists).
+        # Blind spot: a load that slows the Explorer's HOM calls much more than plain Qt lists.
+        ceil = {"build": 7.0, "after_rename": 8.0, "idle": 9.0, "select_all": 22.0}
+        out["perf_explorer_2000"] = all(m[k] / ref < ceil[k] for k in ceil)
     pref1 = pref_listing()
     out["prefs_untouched"] = pref1 == pref0
     if pref1 != pref0:
@@ -602,7 +679,7 @@ def cleanup():
     for o in gc.get_objects():   # filters a mutated uninstall left attached
         if type(o).__name__ in ("_AppFilter", "_Windows"):
             _q(o.detach)
-    for name in ("test_tap", "test_count", "test_nested", "test_clone"):
+    for name in ("test_tap", "test_count", "test_nested", "test_clone", "test_obs_a", "test_obs_b", "test_obs_c", "test_taker"):
         _q(lambda: input_layer.remove_gesture(name))
     for p in hou.ui.floatingPanels():
         if any(isinstance(t, hou.SceneViewer) for t in p.paneTabs()):
@@ -648,19 +725,19 @@ MUTATIONS = [
     ("no_window_cover_test", "window_over_viewer_passes", IL, [("        if g.contains(r) and tg.contains(g):", "        if g.contains(r):")]),
     ("receiver_ignored", "other_window_receiver_passes", IL, [("        top = receiving_top(receiver)   # widgetAt()", "        top = hou.qt.mainWindow()   # widgetAt()")]),
     ("keys_never_offered", "key_gesture_owned", IL, [("        elif t == QE.KeyPress:", "        elif False:")]),
-    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [('        if t == QE.KeyRelease and not ev.isAutoRepeat():\n            self.owners["key"] = None', '        if t == QE.KeyRelease:\n            self.owners["key"] = None')]),
+    ("autorepeat_ends_key", "key_autorepeat_owned", IL, [('        if t == QE.KeyRelease and not ev.isAutoRepeat():\n            self._end("key", o)', '        if t == QE.KeyRelease:\n            self._end("key", o)')]),
     ("keys_paired_by_key", "key_pairs_by_scancode", IL, [("    return ev.nativeScanCode() or ev.key()", "    return ev.key()")]),
     ("demo_owns_keys", "unowned_key_passes", IL, [('        if kind == "key":\n            return False\n', "")]),
     ("text_fields_not_skipped", "text_field_keeps_keys", IL, [("viewer = None if isinstance(focus, _TEXT) else viewer_of(focus)", "viewer = viewer_of(focus)")]),
     ("no_deactivate_cancel", "key_cancel_on_deactivate", IL, [("        app.applicationStateChanged.connect(self._state_changed)\n", "")]),
     ("cpp_every_receiver", "one_call_per_input", IL, [('LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "appfilter", "pf_appfilter.dll")',
-                                                       'LIB = "F:/cache/modelui/f1/mut/pf_appfilter_nowindow.dll"')]),
+                                                       'LIB = os.environ["PF_F1_MUT_DLL"]')]),
     ("lost_release_kept", "lost_release_cancels", IL, [("            if not ev.buttons() & which:", "            if False:")]),
     ("owner_after_call", "nested_release_not_stuck", IL, [("            self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it\n            res = self._call(fn, kind, ev, viewer)",
                                                            "            res = self._call(fn, kind, ev, viewer)\n            self.owners[slot] = owner")]),
-    ("observe_swallows", "observe_drag_passes_through", IL, [("                return res is True", "                return True")]),
+    ("observe_swallows", "observe_drag_passes_through", IL, [("                watchers.append([fn, which, False])   # observers share", "                return True   # observers share")]),
     ("later_runs_now", "later_defers", IL, [("    QtCore.QTimer.singleShot(0, run)", "    run()")]),
-    ("observe_release_kept", "observe_click_no_copy_and_ends", IL, [("        if ev.button() == which:   # release\n            self.owners[\"mouse\"] = None", "        if ev.button() == which:   # release\n            pass")]),
+    ("observe_release_kept", "observe_click_no_copy_and_ends", IL, [('        if ev.button() == which:   # release\n            self._end("mouse", o)', '        if ev.button() == which:   # release\n            pass')]),
     ("docked_viewers_only", "floating_viewer_gesture", IL, [("[t for t in hou.ui.paneTabs() if", "[t for t in hou.ui.curDesktop().paneTabs() if")]),
     ("no_focus_cancel", "key_cancel_on_focus_window", IL, [("        app.focusWindowChanged.connect(self._focus_changed)\n", "")]),
     ("popup_cancels", "popup_keeps_held_key", IL, [("        if w is not None and w.type() in (Qt.Popup, Qt.ToolTip):", "        if False:")]),
@@ -671,16 +748,17 @@ MUTATIONS = [
     ("keys_not_applied_state", "max_keys_work", "keys", [('    for ctx, sym, key in KEYS:\n        if sym.startswith("-"):', '    for ctx, sym, key in KEYS[:0]:\n        if sym.startswith("-"):')]),
     ("no_q_binding", "w_then_q_selects", "keys", [('    (STATE, STATE + ".new_select", "Q"),', "")]),
     ("repeat_current_kept", "w_then_q_selects", "keys", [('    ("h.pane.gview", "-h.pane.gview.repeat_current", "Q"),', "")]),
+    ("cancel_keeps_eaten", "cancel_clears_eaten", IL, [('        self.eaten["mouse"].clear()\n        self.eaten["key"].clear()\n', "")]),
     ("drop_eaten", "swallowed_key_fully_hidden", IL, [('            self.eaten["mouse" if kind == "press" else "key"].add(which)', "            pass")]),
-    ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
-                                                                   '            self.owners["key"] = None\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
+    ("eaten_cleared_on_keyup", "swallowed_key_fully_hidden", IL, [('            self._end("key", o)\n            self._call(fn, "keyup", ev, None)', '            self._end("key", o)\n            self.eaten["key"].clear()\n            self._call(fn, "keyup", ev, None)')]),
     ("other_without_viewer", "other_click_in_viewer_swallowable", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, None)')]),
     ("no_other_for_clicks", "other_click_in_viewer_swallowable", IL, [('        if held is not None and self._call(held[0], "other", ev, viewer)', '        if held is not None and kind == "key" and self._call(held[0], "other", ev, viewer)')]),
     ("other_always_viewer", "other_click_on_explorer_passes", IL, [('self._call(held[0], "other", ev, viewer)', 'self._call(held[0], "other", ev, viewer or _viewers()[0])')]),
     ("cancel_keeps_mouse", "cancel_ends_drag", IL, [('        for slot in ("mouse", "key"):\n            o = self.owners[slot]', '        for slot in ("key",):\n            o = self.owners[slot]')]),
     ("drag_blocks_keys", "key_offered_during_drag", IL, [('        elif t == QE.KeyPress:\n            kind, which = "key", _key_id(ev)', '        elif t == QE.KeyPress:\n            if self.owners["mouse"] is not None:\n                return False\n            kind, which = "key", _key_id(ev)')]),
-    ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self.owners["key"] = None\n            self._call(fn, "keyup", ev, None)',
-                                                  '            self.owners["key"] = None\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
+    ("keyup_ends_drag", "keyup_keeps_drag", IL, [('            self._end("key", o)\n            self._call(fn, "keyup", ev, None)', '            self._end("key", o)\n            self.owners["mouse"] = None\n            self._call(fn, "keyup", ev, None)')]),
+    ("taker_drops_silently", "observer_cancelled_by_taker", IL, [("                for w in watchers + self.watchers[slot]:   # a gesture that takes the press wins: observers get cancel", "                for w in []:   # a gesture that takes the press wins: observers get cancel")]),
+    ("first_observer_only", "two_observers_share_press", IL, [("                watchers.append([fn, which, False])   # observers share the press; every later gesture is still asked", "                watchers.append([fn, which, False])\n                break")]),
     ("uninstall_keeps_filter", "input_off", IL, [('    remove_gesture("demo_drag")\n    lay = layer()\n    if lay is not None:\n        lay.attached.detach()\n        lay.shutdown()\n        setattr(hou.session, SESSION_ATTR, None)', "    pass")]),
     ("fallback_not_attached", "fallback_drag_owned", IL, [("            w.installEventFilter(self.filter)", "            pass")]),
     ("fallback_never_swallows", "fallback_swallowed", IL, [("return int(ev.type()) in _TYPES and self.lay.handle(ev, _ptr(obj))", "self.lay.handle(ev, _ptr(obj))\n            return False")]),
@@ -748,15 +826,39 @@ def pump(gen):
 
 
 def finish():
+    if LOGF.closed:
+        return
+    GUARD.stop()
     log("done")
     LOGF.close()
     hdefereval.executeDeferred(lambda: hou.exit(suppress_save_prompt=True))
 
 
-def start():
-    off_screen()
-    log("main window", hou.qt.mainWindow().geometry())
-    pump(driver())
+def guard():
+    """Every 200 ms: every visible window off screen, else stop the run (never input on Hannes' screen)."""
+    if hou.qt.mainWindow() is not None and not off_screen():
+        log("ABORT: windows on screen", [(type(w).__name__, w.frameGeometry()) for w in visible_on_screen()])
+        finish()
+
+
+GUARD = QtCore.QTimer(interval=200, timeout=guard)
+
+
+def start(tries=[0]):  # noqa: B006 - a counter across retries
+    try:
+        if hou.qt.mainWindow() is None:   # a fresh prefs folder: the main window may come later than 5 s
+            tries[0] += 1
+            if tries[0] > 60:
+                raise RuntimeError("no main window after 65 s")
+            QtCore.QTimer.singleShot(1000, start)
+            return
+        off_screen()
+        GUARD.start()
+        log("main window", hou.qt.mainWindow().geometry())
+        pump(driver())
+    except Exception:  # noqa: BLE001 - never hang with a window on screen
+        log(traceback.format_exc())
+        finish()
 
 
 QtCore.QTimer.singleShot(300, off_screen)

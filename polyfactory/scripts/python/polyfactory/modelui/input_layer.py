@@ -19,12 +19,14 @@ auto-repeat) when the receiving window's focus widget belongs to a Scene Viewer 
 - True: the gesture owns that button or key: this event and every following one of it ("move", "release" / "key"
   repeats, "keyup") go to the gesture only, swallowed, with viewer None.
 - OBSERVE: the gesture watches without taking anything: it gets the following "move"/"release" events, and they all
-  (and the press) still reach Houdini. Shift+drag clone is this: the handle moves, the gesture copies once a real drag
+  (and the press) still reach Houdini. Several gestures can observe the same press (every gesture is still asked);
+  one that answers True after them takes the press and the observers are dropped. Shift+drag clone is this: the handle moves, the gesture copies once a real drag
   starts and acts on release.
 - False: the event goes on to the next gesture, then to Houdini.
 Mouse and keyboard have one owner each, so a held key and a drag run side by side; while a key is owned,
 its gesture is told about every other key press and click first ("other", with the viewer under the click or holding
 the focus, else None; True swallows it with its repeats and release; a holder should only swallow clicks in a viewer).
+While a gesture owns a mouse button, every other button's press, release and double-click is swallowed too.
 A second key is never offered to the other gestures, so two key gestures cannot chord (registration order decides). Ownership is set before the gesture is called (a nested event loop inside it sees it), and ends with "cancel" when the
 release never arrives: a move with the owned button up, the application or the focus window going away. Keys are
 paired by native scan code (Shift+2 pressed, "@" released is one key). The demo gesture (``DEMO``): Ctrl+Shift+LMB drag
@@ -117,6 +119,7 @@ class _Layer:
     def __init__(self):
         self.owners = {"mouse": None, "key": None}   # slot -> [fn, button or key id, swallow]
         self.eaten = {"mouse": set(), "key": set()}  # buttons / key ids a key holder swallowed via "other"
+        self.watchers = {"mouse": [], "key": []}     # OBSERVE gestures of the current press: [fn, id, False]
         self.backend = None   # "cpp" or "windows"
         self.attached = None
         app = QtGui.QGuiApplication.instance()
@@ -152,6 +155,10 @@ class _Layer:
         self.eaten["mouse"].clear()
         self.eaten["key"].clear()
         for slot in ("mouse", "key"):
+            ws, self.watchers[slot] = self.watchers[slot], []
+            for w in ws:
+                self._call(w[0], "cancel", ev, None)
+        for slot in ("mouse", "key"):
             o = self.owners[slot]
             if o is not None:
                 self.owners[slot] = None
@@ -163,7 +170,13 @@ class _Layer:
         if t in (QE.MouseMove, QE.MouseButtonRelease, QE.MouseButtonDblClick):
             o = self.owners["mouse"]
             if o is not None:
+                if t != QE.MouseMove and ev.button() != o[1] and ev.button() in self.eaten["mouse"]:
+                    if t == QE.MouseButtonRelease:
+                        self.eaten["mouse"].discard(ev.button())
+                    return True   # the rest of another button pressed during the owned drag
                 return self._follow_mouse(o, ev, t)
+            for w in list(self.watchers["mouse"]):   # observers share the press: all of them, nothing swallowed
+                self._follow_mouse(w, ev, t)
             eaten = self.eaten["mouse"]
             if not eaten:
                 return False
@@ -180,14 +193,18 @@ class _Layer:
             o = self.owners["key"]
             if o is not None and kid == o[1]:
                 return self._follow_key(o, ev, t)
+            for w in [w for w in self.watchers["key"] if w[1] == kid]:
+                self._follow_key(w, ev, t)
             if kid in self.eaten["key"]:   # the rest of a key the holder swallowed (outlives the holder's key-up)
                 if t == QE.KeyRelease and not ev.isAutoRepeat():
                     self.eaten["key"].discard(kid)
                 return True
             return False
         if t == QE.MouseButtonPress:
-            if self.owners["mouse"] is not None:
-                return False   # another button during an owned drag: Houdini's
+            if self.owners["mouse"] is not None:   # another button during an owned drag: swallowed with its release
+                self.eaten["mouse"].add(ev.button())   # (Houdini's MMB would start its handle drag and leave its undo
+                return True                            # group open under ours: F2a audit 4)
+            self.eaten["mouse"].discard(ev.button())   # a new press: a release of it lost earlier is no longer pending
             kind, which = "press", ev.button()
         elif t == QE.KeyPress:
             kind, which = "key", _key_id(ev)
@@ -209,23 +226,36 @@ class _Layer:
         slot = SLOT[kind]
         if not _gestures or self.owners[slot] is not None or viewer is None:
             return False   # a second key while one is held is only the holder's "other"
+        watchers = []
         for fn in list(_gestures.values()):
             owner = [fn, which, True]
             self.owners[slot] = owner          # before the call: a nested event loop inside fn must see it
             res = self._call(fn, kind, ev, viewer)
-            if res is True or res == OBSERVE:
-                if res == OBSERVE:
-                    owner[2] = False
-                return res is True
+            if res is True:
+                for w in watchers + self.watchers[slot]:   # a gesture that takes the press wins: observers get cancel
+                    self._call(w[0], "cancel", ev, None)
+                self.watchers[slot] = []
+                return True
             if self.owners[slot] is owner:
                 self.owners[slot] = None
+            if res == OBSERVE:
+                watchers.append([fn, which, False])   # observers share the press; every later gesture is still asked
+        for w in self.watchers[slot]:   # a new press replaces the observers of an older one: they get cancel
+            self._call(w[0], "cancel", ev, None)
+        self.watchers[slot] = watchers
         return False
+
+    def _end(self, slot, o):
+        if o[2]:
+            self.owners[slot] = None
+        elif o in self.watchers[slot]:
+            self.watchers[slot].remove(o)
 
     def _follow_mouse(self, o, ev, t):
         fn, which, swallow = o
         if t == QE.MouseMove:
             if not ev.buttons() & which:   # the release was lost (another window, a dialog): give the mouse back
-                self.owners["mouse"] = None
+                self._end("mouse", o)
                 self._call(fn, "cancel", ev, None)
                 return False
             self._call(fn, "move", ev, None)
@@ -233,7 +263,7 @@ class _Layer:
         if t == QE.MouseButtonDblClick:
             return ev.button() == which and swallow   # Qt sends it after the second press of a double-click
         if ev.button() == which:   # release
-            self.owners["mouse"] = None
+            self._end("mouse", o)
             self._call(fn, "release", ev, None)
             return swallow
         return False
@@ -241,7 +271,7 @@ class _Layer:
     def _follow_key(self, o, ev, t):
         fn, which, swallow = o
         if t == QE.KeyRelease and not ev.isAutoRepeat():
-            self.owners["key"] = None
+            self._end("key", o)
             self._call(fn, "keyup", ev, None)
         else:
             self._call(fn, "key", ev, None)
@@ -252,9 +282,19 @@ class _Layer:
             return fn(kind, ev, viewer)
         except Exception:  # noqa: BLE001 - a broken gesture must never break Houdini input
             LOG.error("modelUI gesture failed\n%s", traceback.format_exc())
+            dropped = False
             for slot, o in self.owners.items():
                 if o is not None and o[0] is fn:
                     self.owners[slot] = None
+                    dropped = True
+            for slot in self.watchers:
+                dropped = dropped or any(w[0] is fn for w in self.watchers[slot])
+                self.watchers[slot] = [w for w in self.watchers[slot] if w[0] is not fn]
+            if dropped and kind != "cancel":   # it loses what it held: let it clean up (e.g. a drag's preview)
+                try:
+                    fn("cancel", ev, None)
+                except Exception:  # noqa: BLE001
+                    LOG.error("modelUI gesture cancel failed\n%s", traceback.format_exc())
             return False
 
 
@@ -332,7 +372,8 @@ def layer():
 
 
 def install(fallback=False):
-    """Install the layer and the demo gesture (switch feature hook). ``fallback`` forces the per-window filters."""
+    """Install the layer (switch feature hook); the demo gesture only with PF_MODELUI_DEMO=1 (the F1 checks): its
+    Ctrl+Shift+LMB is Houdini's toggle-select key. ``fallback`` forces the per-window filters."""
     uninstall()
     lay = _Layer()
     try:
@@ -344,7 +385,8 @@ def install(fallback=False):
             LOG.warning("modelUI: C++ filter %s not usable, per-window filters instead", LIB, exc_info=True)
         lay.attached, lay.backend = _Windows(lay), "windows"
     setattr(hou.session, SESSION_ATTR, lay)
-    add_gesture("demo_drag", DEMO)
+    if os.environ.get("PF_MODELUI_DEMO") == "1":
+        add_gesture("demo_drag", DEMO)
 
 
 def uninstall():

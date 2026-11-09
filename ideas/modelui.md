@@ -1,6 +1,6 @@
 # modelUI: comfortable direct modeling with Houdini as the engine
 
-**Status:** F1 framework core (mode switch, input layer, scene model, Scene Explorer) implemented, audit pending (2026-11-05). Branch `modelui`.
+**Status:** F1 framework core (mode switch, input layer, scene model, Scene Explorer) done: 5 independent audits, final verdict yes; merged into `main` (4aea050, from `modelui` fed05d1) on 2026-11-05. F2 waits for Hannes' backend choice (one object per piece or mixed). Branch `modelui`.
 **This file owns:** the modelUI framework and its modeling mode: goal, decisions, the mapping to Houdini, the
 feature list, and the references. Not to be confused with `pf_modeler` ([`modeler.md`](modeler.md), the
 ZSphere-style skinning tool). Kitbash browsing builds on the asset library plan in
@@ -16,7 +16,223 @@ copy/transform, clean game mesh).
 
 Why it matters: every time he reaches the modeling part he gets annoyed by the node workflow and does something else.
 
-## Resume pointer (F1 framework core)
+## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
+
+- 2026-11-09: F2a audit 5 (agent-195, evidence `F:/cache/modelui/audit_f2a5/`) confirmed the leak fix; its five items
+  are fixed, each with a gui_f2a check seen red under its mutation (no sixth audit, per Hannes' coordinator: modelui
+  goes to main and Hannes tries it himself; next for this builder: F2b Clone dialog):
+  1 Space+LMB on a piece turned no camera in W: the click gesture owned every plain left press on a container, also
+    in Houdini's view state (Space puts the viewer in "objview"). Both piece gestures now decline in `VIEW_STATES`
+    (objview, view). Check `space_lmb_on_piece_turns_camera` (W and Q, press on a container, camera restored after with
+    `setDefaultCamera` so the next run frames the same; mutation `view_state_ignored`). Why Q looked different in the
+    audit: not the state. With the press on mid's body, the pre-fix code (the mutation run) owned it in Q exactly as
+    in W (camera still); the audit's S2 press got `owned False`, which this gesture only answers when no container is
+    under the point, so its Q press most likely landed off the piece (the probe did not log the node under it:
+    unverified).
+  2 A gesture that raises got no "cancel" (a drag's preview stayed): `_call` now sends it "cancel" when it loses what
+    it held (`gesture_error_reverts_preview`, an injected error in the preview write; `cancel_on_error_dropped`).
+  3 A stale swallowed button after a lost release: a new press of that button clears it
+    (`stale_eaten_cleared_by_press`; `eaten_kept_on_press`). Blind spot: a move with the button up already clears the
+    entry, so the check seeds it (audit 5 probe L_altmmb_after_lost is how it survives in the wild). QTest note: a
+    press of a button QTest still holds sends a release first.
+  4 A left press with another button down is Houdini's (`left_with_other_down_declined`; `other_down_ignored`). Found:
+    in PySide6 `~Qt.LeftButton` is RightButton (no mask), so `buttons() & ~LeftButton` missed the middle button; the
+    test is `buttons() == LeftButton`. The check hides the whole chord from Houdini (a half-seen chord left Houdini's
+    drag and its undo group open).
+  5 Blind spots closed: `no_drag_buttons_reach_houdini` (MMB/RMB press and release reach the window with no drag;
+    `non_left_always_swallowed`), `off_before_commit_restores` (modelUI off between release and the deferred commit,
+    the commit held back from QTest's timer pump; `off_ignores_pending`).
+  Test hygiene: in the first full run the mutation proxy_reused_unfiltered put a kept handle null under the body press,
+  so Houdini got the drag and the synthetic lost release left its undo group open for every later run (then a hang).
+  The audit-5 drag cases now hide every left event modelUI did not take or gave up from Houdini (`hide_left`).
+  GUI suites of different builders must not overlap on this PC: a concurrent test Houdini (F2d's) slowed F1's
+  `perf_explorer_2000` past its ceiling, and two off-screen Houdinis can take focus from each other (a focus change
+  cancels drags). The gate script waits for other test Houdinis and holds `F:/cache/modelui/gui.lock`.
+  Load-robust checks (the PC ran at 62-100 % CPU from another session's audio job): F1's `perf_explorer_2000` is
+  judged as a ratio to a fixed reference workload measured right beside it (a plain QListWidget filled with the same
+  2000 names and selected, 10 times); ceilings 3x the highest ratio of the 2026-11-09 warm runs (build 7, after
+  rename 8, idle 9, select all 22); `slow_refresh` stays red (ratio ~2700-6000). Blind spot: a load that slows the
+  Explorer's HOM calls much more than plain Qt lists. gui_f2a's handle click waits until the handle is under the click
+  point (`queryNodeAtPixel` sees its null; a loaded PC drew it late and the click cleared the selection).
+  Found in a final baseline: switching modelUI off while Houdini cooked ("Cannot delete nodes while cooking", a timer
+  fires inside a long cook) left the handle null and stopped the rest of `pieces_ui.uninstall` (containers stayed
+  unselectable). `_delete_marked` now retries the refused nodes every 100 ms (up to 5 s) and lets uninstall finish;
+  check `uninstall_retries_busy_delete` (the first delete refused like that; mutation `no_delete_retry`).
+  Verified 2026-11-09: PF_GUI_SCRIPT=gui_f2a.py run_gui_f1.py exit 0 (62 / 62 checks green in the baselines, 68 paired mutations red); run_gui_f1.py exit 0 (64 mutations red); hython check_containers, check_scene_model, check_units exit 0.
+- 2026-11-09: F2a audit-4 finding 1 fixed, checks green; F2a audit 5 pending (implemented, not audited). Audit 4
+  (evidence `F:/cache/modelui/audit_f2a4/`): a middle click during a modelUI body drag reached Houdini, which started
+  its own handle drag (MMB drags the handle anywhere in "pose") and left its undo group open ("Cannot undo within an
+  undo group" through the MMB release, Esc and a later click).
+  - input_layer: while a gesture owns a mouse button, every other button's press is swallowed into the eaten set, so
+    its release and double-click are swallowed too (also a release that comes after the drag ended).
+  - pieces_ui: a body drag never opens an undo group while it runs (preview under `undos.disabler()`, the commit is
+    one `with undos.group`). `_revert_preview` puts the start state back (copies deleted) without an entry: cancel
+    (focus loss, lost release) uses it through the deferred commit; uninstall mid-drag, or between release and the
+    deferred commit (`_state["pending"]`), reverts synchronously and commits nothing (before: the preview stayed,
+    with no undo entry).
+  - gui_f2a checks + mutations: `middle_click_mid_drag_swallowed` (MMB press, release, double-click;
+    `other_button_passes`, `other_release_passes`), `right_click_mid_drag_swallowed` (`other_button_passes_rmb`),
+    `middle_release_after_drag_swallowed` (`eaten_lost_at_release`), `cancel_mid_drag_restores` (`cancel_commits`),
+    `off_mid_drag_restores` (Shift+drag, pieces_ui off then the layer's cancel, the order switch.uninstall uses;
+    `off_keeps_preview`). Each: nothing got past the layer (a spy filter on the viewer's window records and swallows
+    any non-left button event that did), `undo_open()` finds no open group, exactly one "modelUI: move" and undo puts
+    the piece back exactly (cancel/off: no entry, no move, no new rows).
+  - The real failure, not only the routing: `PF_F2A_SPY_PASS=1 PF_F2A_ONLY=other_button_passes` lets the middle button
+    through the spy to Houdini. Run 2026-11-09 (`F:/cache/modelui/f2a5/leak`): baseline green (nothing reached the
+    spy); under the mutation Houdini recorded "Transform Handle Change", `undo_open()` = "Cannot undo within an undo
+    group", undo did not move the piece back, the check red. The normal suite keeps the spy swallowing because a
+    leaked group stays open for the rest of the session and poisons every later run.
+  - Blind spots: the desk switch during a drag (the off check skips it; F1 and the end of gui_f2a switch for real);
+    the Qt focus signal (the check calls `layer().cancel()`, which the signal calls; F1's
+    `key_cancel_on_focus_window` covers the signal). Esc mid-drag has no modelUI code path: logged in the
+    2026-11-08 runs (commits once, no open group), not a check.
+  - Test hygiene found: an Esc case in the suite let Houdini leave "pose" for "objview" under some mutations; the next
+    run then framed differently (mid's pixel (332, 294) -> (339, 291) / (332, 312)), so camera-dependent checks of
+    every later run went wrong (`redo_lost` stayed green, `offsets_wrong` leaked Houdini's group). Removed; now 63
+    runs at (332, 294). A run's leftovers in Houdini's UI state carry into the next run: log `pick mid at` per run.
+  - Verified 2026-11-09: `PF_GUI_SCRIPT=gui_f2a.py run_gui_f1.py` exit 0 (55 checks green in both baselines, 61
+    paired mutations red, no undo leak); `run_gui_f1.py` exit 0 (64 paired mutations red); hython
+    `check_containers.py`, `check_scene_model.py`, `check_units.py` exit 0. One earlier F1 run segfaulted in its
+    final baseline (12:07, `crash.untitled.hannes_11720.hip`, no stack written); the rerun passed; not reproduced.
+- 2026-11-07: all F2a audit-3 items are in; F2a audit 4 pending. gui_f2a: 50 checks per baseline, 55 paired
+  mutations red; F1 suite 61 / 64. The "Cannot undo within an undo group" failure of one earlier full run did not
+  come back in three full runs; every run's cleanup now probes undo (a throwaway null, then undo) and, on a leak, logs
+  it and sends a mouse release (an unfinished Houdini handle drag holds an undo group open). Found while pairing
+  checks: Houdini's TRANSLATE handle also moves node-selected objects (scale moved only the null, rotate_ring_probe);
+  modelUI's offset write is the one that counts (mutation offsets_wrong turns handle_moves_selected_object red). A
+  mutation of scene.py must give the cached scene object the mutant class (the Explorer holds that object).
+  Audit 3 (agent-179), each with a check in gui_f2a:
+  1 a body drag past the horizon keeps its last valid point (no point behind the camera or beyond 20x the grab
+  distance); 3 in Q, Shift+drag from a piece adds by box, copy only in W/E/R; 6 highlight checked for every selected
+  piece, horizon drag at a camera angle, Shift box from a piece.
+  - 2 (held objects): evidence `tests/modelui/rotate_ring_probe.py`, plain Houdini, a box object A and a null N both
+    selected, N current: a handle drag (stock E = scale; modelUI maps W/E/R the Max way) changed only N, never A.
+    Houdini's object handle transforms only the node it sits on, so a "double move" of selected objects does not
+    happen: the hold was removed (objects stay in Houdini's selection with its highlight; modelUI moves them by their
+    offsets to the handle null). That removes the out-of-step states A2/A6. A4: modelUI's selection changes are no
+    longer undo entries (piece selection cannot be undone; check `pick_adds_no_undo_entry`).
+  - Checked and dropped: "a handle drag that starts over empty space becomes our box selection". Along the scale
+    arrow `queryNodeAtPixel` reports the handle's null wherever the handle grabs (40 px; nothing from 50 to 120 px was
+    both empty and on the arrow), so the click gesture never boxes there. Rotate rings were not probed (open).
+  - 4 Ctrl step (decision): the cell of the grid the user sees: an orthographic view's own grid
+    (`settings().orthoGridSpacing()`), else the construction plane when visible, else the reference grid
+    (`referencePlane().cellSize()`). Houdini's handle Translate Step (handle parameters dialog) is not readable from
+    HOM (no getter for the built-in transform handle; `hou.Handle.settingValue` serves Python-state handles only), so
+    body-drag snap follows the visible grid instead. Rotate/scale body drags have no Ctrl step.
+  - 5 body drag mode follows W/E/R (an observing key gesture, so it needs the keyboard focus in the viewer, which a
+    click there gives): E turns about the view axis through the pivot (0.5 degrees per pixel of horizontal drag),
+    R scales uniformly (e^(0.01 * dx)), W moves; Shift copies in all three.
+- 2026-11-07: all F2a audit-2 items are in; F2a audit 3 pending. Audit 2 (agent-178) fixes, each with a check: 1
+  highlight box from the piece's corners (compared with the piece's own points, far from the origin), 2 containers
+  saved selectable (restored around a save), 3 a plain click on the handle keeps the selection, 4 observers get
+  "cancel", 5 measurements (GUI vs hython add, select range), 6 per-run scratch (save_check.hip, mutated DLL), 9
+  Houdini's select keys (found: F1's demo gesture took Ctrl+Shift+LMB in every viewer; it now installs only with
+  PF_MODELUI_DEMO=1, set by the runner for the F1 suite).
+- Comfort decisions (Sunita for Hannes, 2026-11-07), built and checked:
+  - Selection keys are Houdini's own (`basics/select.html`): Shift add, Ctrl remove, Ctrl+Shift toggle; not Max's.
+  - Pivot of a multi-selection = centre of the selection's bounding box (Max default): the handle null sits there,
+    and every selected piece AND object follows it by its offset, so rotate/scale pivot there for both. To keep
+    Houdini from moving the objects a second time, they leave Houdini's node selection and the scene "holds" them
+    (`MixedScene.hold`, still in `selected()`, cleared by the next `select`). One piece alone: the handle has that
+    piece's own transform. Check `mixed_rotate_about_pivot` drives a rotation through the handle's null (the value a
+    rotate drag writes); a rotate DRAG on Houdini's ring is not driven (blind spot).
+  - Body drag (move tool, W/E/R state "pose"): pieces and loose objects alike; in perspective views on the ground
+    plane through the grabbed point (the view plane when looking almost level), in orthographic views on the view
+    plane; Ctrl snaps the move to the construction grid's cell size (the move snaps, not the position); Shift = Copy.
+  - With Q (select tool) a drag that starts on a piece is a box selection (ours, with a rubber band; objects and
+    pieces by their centres); a drag from empty space stays Houdini's box (pieces added by centre).
+- Limit: a piece stores translate, orient and scale, no shear. Scaling a multi-selection non-uniformly while its
+  pieces are rotated relative to the scale axes would need shear on each piece: it cannot be stored (the pieces keep
+  their own orientation and get the nearest scale). Same for a non-uniformly scaled container.
+- Branch `modelui`. 2026-11-07: all F2a audit-1 items are in; second F2a audit pending.
+  - Input layer (F1 framework): several OBSERVE gestures share one press (every gesture is still asked; one that
+    answers True after them takes the press and the observers are dropped; observers get move/release/keyup and
+    "cancel", nothing they see is swallowed). Check `two_observers_share_press` (mutation: stop after the first).
+  - 9b multi-selection in `pieces_ui`: Shift-click adds, Ctrl-click removes, a box from empty space adds the pieces
+    whose centres are in it to Houdini's object result, the handle null moves every selected piece (offsets to the
+    null) while Houdini moves the selected objects, body drag and Shift+drag move/copy the whole selection in one
+    undo step, one highlight box per selected piece.
+  - Checks: `run_gui_f1.py` (F1 suite with pieces_ui installed): 60 checks green in both baselines, 63 paired
+    mutations red. `PF_GUI_SCRIPT=gui_f2a.py ...`: 33 checks green in both baselines, 34 paired mutations red.
+    `check_containers.py`: 25 checks, every paired mutation red. Both GUI runs take 10-17 minutes: run in the background.
+  - Known limits: Shift+drag Copy moves in the view plane (no axis constraint); rotate/scale handle DRAGS are not
+    driven by any check (typed rotate/scale on the null are); rotation of a multi-selection pivots on the first
+    selected piece (Max uses the selection centre).
+- Shift+drag on Houdini's own handle after a session's first run: NOT a Houdini behaviour. Probe
+  `tests/modelui/shift_handle_probe.py` (plain Houdini, no modelUI, a box object in "pose", three rounds with a hip
+  clear between): plain drag 0.542 and Shift drag 0.661 units in every round. The failure only happened with modelUI's
+  proxy null and gestures in play (cause not found); modelUI now owns every Shift drag, so it no longer matters. No
+  pitfall entry.
+- Code: `modelui/containers.py` (storage, promote), `scene.MixedScene` (`scene.current()`), `modelui/pieces_ui.py`
+  (in `switch.FEATURES`: click pick, Houdini's handle on a proxy null, Shift+drag Copy, highlight).
+- Checks (all exit 0):
+  - `hython tests/modelui/check_containers.py`: 21 checks, 21 paired mutations red.
+  - `PF_GUI_SCRIPT=gui_f2a.py PF_F1_SCRATCH=F:/cache/modelui/f2/gui python tests/modelui/run_gui_f1.py`: 17 checks
+    green in both baselines, 19 paired mutations red; passed twice in a row (about 6 minutes, run in the background).
+  - `python tests/modelui/run_gui_f1.py` (F1 suite, with `pieces_ui` installed by the switch): 59 checks per
+    baseline, 62 paired mutations red.
+  - Bench: `python tests/modelui/bench_f2a.py` (numbers below).
+- Probes (evidence): `tests/modelui/state_probe.py` (why no Python viewer state), `keys_probe.py`, `shortcut_probe.py`.
+- Why no Python viewer state: a node-less state cannot carry a handle (Houdini docs) and is entered through
+  onGenerate, so Houdini's own handle runs on a proxy null bound to the selected piece.
+- Root causes of the earlier flaky handle drag (per-run logs of on-screen drag, proxy writes, undo labels,
+  selection, state): the session's first entry into "pose" needs a moment before a press grabs the handle (the test
+  waits); a world-unit threshold depended on the camera (now on-screen pixels); an unselectable proxy was dropped by
+  "pose" on entry (the proxy is selectable now); Houdini's own click on a container raced our pick (now Houdini never
+  gets clicks on containers, and containers are not selectable in the viewport, so box selections skip them too).
+- Known limits: plain LMB clicks over a viewer are observed by the pick gesture (a later plain-click gesture must be
+  registered before it); a drag that starts on a piece but not on the handle does nothing (Houdini never sees clicks
+  on containers); only translate drags are driven by the checks (rotate/scale are Houdini's own handle modes);
+  promote has no caller yet (F2c's first modifier); copy/paste between hips is F2e.
+
+## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
+
+| Pieces | add, GUI (bench) | add, hython (check) | first cook | draw over the empty scene |
+|---|---|---|---|---|
+| 100 | 2.0 s | | 0.6 s | +4.0 ms |
+| 500 | 1.2 s | | 2.8 s | +11.7 ms |
+| 2000 | 7.7 s before the audit-1 fix, 5.6 s after (audit 2) | 0.9 s | 3.8 s | +12.1 ms |
+| 5000 | | 1.0 s (18.2 s before the fix) | | |
+
+- Why the two add columns differ: both add through `containers.add_pieces` (one edit, one Copy to Points). The GUI
+  number includes creating the 605 source chains (1815 nodes) with the network and parameter panes open, which
+  costs several seconds in the GUI and almost nothing in hython; it is paid once per container, the first time each
+  file is used. The audit-1 fix removed the quadratic name/source rescan (the hython column, gated at 3.0 / 3.5 s).
+- Draw: single-frame flipbooks 1280x720 while the camera orbits, median of 20 (the empty scene's 38.3 ms is flipbook
+  overhead). Against the object-level numbers below: 2000 objects +101 ms, the same 2000 pieces as polygons in one
+  object +9 ms; packed pieces in a container land next to the one-object number.
+- One piece at 2000 pieces in the GUI (edit + recook + redraw; target < 50 ms): move 5.4 ms, copy 5.0 ms, select
+  (including placing the handle null) 2.8-6.6 ms (2026-11-06 run and audit 2's run). Measured on this PC only.
+
+## F2a design: pieces packed in container objects (Hannes' choice: mixed backend)
+
+Probes 2026-11-05 (hython, scratch `F:/cache/modelui/f2/probe*.py`):
+- Stash SOP: its `stash` data parm takes a whole `hou.Geometry`; setting it is one undo step (undo restored the
+  previous geometry) and it is saved with the hip.
+- Copy to Points 2.0 with `useidattrib` + `idattrib` copies, per target point, the source piece whose attribute
+  matches (control: sources a, b; points a, b, a -> three packed copies at the right positions). Target point
+  attributes reach the copies only through `targetattribs` with `applyto` = `prims`.
+- Real library, 2000 pieces over all 605 files: 2000 packed prims; build 1.1 s, first cook 14 s (loading 605 USD
+  files once), moving one piece (new stash geometry) + recook 0.8-2.8 ms.
+- Paths from `glob` carry backslashes on Windows; never put a path into VEX source text (it became escapes and
+  matched nothing): pass it as a string parameter.
+
+Layout of one container (a geometry object marked as a modelUI container):
+- `sources`: per DISTINCT source file one chain usdimport (polygons) -> Attribute Create (`pf_source`, the file path
+  as a string parameter) -> Pack; merged. A file used by 300 pieces is loaded once.
+- `pieces`: a Stash SOP holding ONE POINT PER PIECE: `P`, `orient`, `scale`, `pf_source` (string), `pf_name`
+  (string), `pf_piece` (int, unique in the container), `pf_hidden` (int).
+- `visible` (one wrangle over all points: drop hidden pieces) -> `copy` (Copy to Points, matched by `pf_source`,
+  `pf_*` onto the packed prims): the display and render output.
+- Why: native nodes and one batched cook for all pieces (rule 2/4); every edit (move, copy, hide, delete, rename) is
+  one new stash geometry: one undo step, saved in the hip, no per-piece nodes, no per-piece Python cooking (Python
+  only marshals the edit, house rule 2). Instance/Reference (F2b) can reuse the same points.
+- Piece ids for the panels: container pieces are `("piece", <container session id>, pf_piece)`; objects keep their
+  node session id. Piece selection is the scene model's own (pieces are not nodes); the viewport state draws it.
+- Promote (first modifier): the piece becomes its own geometry object (its source, object transform = the piece
+  transform) and its point leaves the stash, in one undo group.
+
+## Resume pointer (F1 framework core: done; F2 next)
 
 - Branch `modelui`; verify against `git log`. F1 code: `polyfactory/scripts/python/polyfactory/modelui/` (`switch.py`,
   `keys.py`, `input_layer.py`, `scene.py`, `explorer.py`, `appfilter/` with `appfilter.cpp`, `build.bat`,
@@ -26,13 +242,21 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 - Checks (all must exit 0):
   - `hython tests/modelui/check_scene_model.py`: 14 checks, 15 paired mutations red.
   - `hython tests/modelui/check_units.py`: keys record and filter construction, 4 checks, 4 paired mutations red.
-  - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in `F:/cache/modelui/f1/gui`, only the
-    polyfactory package; every visible window, floating panes included, is kept at x < -5000 and the run aborts
-    otherwise). Input goes the real path (QtTest on the QWindow; sendEvent to the window only for auto-repeat, scan
-    codes and a lost release). It builds a mutated DLL (no window test) in `F:/cache/modelui/f1/mut`. 61 checks green
-    in the first and last baseline (the 2000-object Explorer checks only in warm runs), 60 paired source mutations
-    red, 1 exempt (`toggle_key_registered`: startup only). About 10 minutes (run it in the background); `PF_F1_QUICK=1` runs one baseline only
-    (diagnosis). Log `F:/cache/modelui/f1/gui/result.json.log` (an auditor's run overwrites it: re-run before quoting).
+  - `python tests/modelui/run_gui_f1.py`: own Houdini (prefs and packages in its output folder, only the polyfactory
+    package; every visible window kept at x < -5000 by a 200 ms guard, the run stops otherwise; start waits for the
+    main window and exits on any start error). Input goes the real path (QtTest on the QWindow; sendEvent to the
+    window only for auto-repeat, scan codes and a lost release). It builds a mutated DLL (no window test) in
+    `F:/cache/modelui/f1/mut`. All checks green in the first baseline (58, cold) and the last (60: plus the two
+    2000-object Explorer checks, warm runs only), 62 paired source mutations red (credited only when the paired check itself is False; a
+    mutation that cannot be applied fails the run), 1 exempt (`toggle_key_registered`: startup only); hotkeys are
+    restored to the session start after every run. About 10 minutes: run it in the background; `PF_F1_QUICK=1` runs
+    one baseline only. Output folder `F:/cache/modelui/f1/gui` (log `result.json.log`), or `PF_F1_SCRATCH=<folder>`:
+    auditors set their own, a shared folder gets overwritten.
+  - Probes (evidence, not checks): `tests/modelui/keys_probe.py` (hotkey routing, Q in pose),
+    `tests/modelui/shortcut_probe.py` (shortcut override, inconclusive).
+- Audits: 5 independent rounds on 2026-11-05 (findings and fixes below); the fifth gave the verdict yes.
+- Next: F2 (Shift+drag clone with OBSERVE + later(), Clone dialog, Align, modifier stack panel) after Hannes chooses
+  the scene backend (one object per piece, or kitbash pieces packed in container objects).
 - Audit round 1 (2026-11-05): 7 findings, all fixed with checks (round 2 pending): C++ filter called back once per
   receiver (3-4 calls per press) -> only for window receivers; lost release kept the mouse -> "cancel"; Explorer kept
   watching after uninstall -> it is a switch feature now; invalid rename raised -> status message; keys record and
@@ -136,6 +360,9 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 - **Align tools are a must** (he used them all the time).
 - **Framework first:** the core must carry other modes later (texturing named, others likely).
 - Piece count per scene is unknown (he never got far enough); measure object-level performance early.
+- **Scene backend: mixed (Hannes, 2026-11-05, "definitely b").** Plain kitbash pieces live packed together in a few
+  container objects (fast viewport with thousands of pieces); a piece becomes its own object with its own stack the
+  moment it gets a modifier. The Scene Explorer and viewport selection still show every piece separately.
 - The Maya surface project (`F:\cache\houdini_maya_anim`) is a **read-only reference**: never write code there.
 
 ## Decision log (house rule 2: why Python)
