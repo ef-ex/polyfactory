@@ -204,6 +204,7 @@ class _Layer:
             if self.owners["mouse"] is not None:   # another button during an owned drag: swallowed with its release
                 self.eaten["mouse"].add(ev.button())   # (Houdini's MMB would start its handle drag and leave its undo
                 return True                            # group open under ours: F2a audit 4)
+            self.eaten["mouse"].discard(ev.button())   # a new press: a release of it lost earlier is no longer pending
             kind, which = "press", ev.button()
         elif t == QE.KeyPress:
             kind, which = "key", _key_id(ev)
@@ -281,11 +282,19 @@ class _Layer:
             return fn(kind, ev, viewer)
         except Exception:  # noqa: BLE001 - a broken gesture must never break Houdini input
             LOG.error("modelUI gesture failed\n%s", traceback.format_exc())
+            dropped = False
             for slot, o in self.owners.items():
                 if o is not None and o[0] is fn:
                     self.owners[slot] = None
+                    dropped = True
             for slot in self.watchers:
+                dropped = dropped or any(w[0] is fn for w in self.watchers[slot])
                 self.watchers[slot] = [w for w in self.watchers[slot] if w[0] is not fn]
+            if dropped and kind != "cancel":   # it loses what it held: let it clean up (e.g. a drag's preview)
+                try:
+                    fn("cancel", ev, None)
+                except Exception:  # noqa: BLE001
+                    LOG.error("modelUI gesture cancel failed\n%s", traceback.format_exc())
             return False
 
 

@@ -160,6 +160,16 @@ def _under(sv, g):
     return None, 0, 0, None
 
 
+VIEW_STATES = ("objview", "view")   # Houdini's view tool, also while Space is held: its clicks turn the camera
+
+
+def _left_alone(ev, viewer):
+    """A left press we may take: over a viewer that is not in a view state (Space+LMB turns the camera) and with no
+    other button already down (that drag is Houdini's)."""
+    return (ev.button() == Qt.LeftButton and viewer is not None and viewer.currentState() not in VIEW_STATES
+            and ev.buttons() == Qt.LeftButton)   # (PySide6: ~Qt.LeftButton is RightButton, no mask)
+
+
 def _click_gesture(kind, ev, viewer):
     """A plain LMB click over a viewer. On a container it is ours: Houdini never sees it (its click on the unselectable
     container counts as a click on empty space and clears the selection, sometimes after our pick, which loses the
@@ -170,7 +180,7 @@ def _click_gesture(kind, ev, viewer):
         mods = ev.modifiers() & ~Qt.KeypadModifier
         modes = {Qt.NoModifier: "replace", Qt.ShiftModifier: "add", Qt.ControlModifier: "remove",
                  Qt.ControlModifier | Qt.ShiftModifier: "toggle"}   # Houdini's select keys (basics/select.html)
-        if ev.button() != Qt.LeftButton or mods not in modes or viewer is None:
+        if not _left_alone(ev, viewer) or mods not in modes:
             return False
         g = ev.globalPosition().toPoint()
         n = _under(viewer, g)[3]
@@ -311,12 +321,20 @@ def proxy():
         return None
 
 
-def _delete_marked():
+def _delete_marked(sids=None, tries=50):
+    """Every handle null (or only ``sids``). Houdini refuses while it cooks (a timer can fire inside a long cook):
+    those are tried again every 100 ms, up to 5 s; the caller goes on (an uninstall must still finish)."""
+    busy = []
     with hou.undos.disabler():
         for n in list(hou.node("/obj").children()):
-            if n.userData(PROXY_MARK) == "1":
-                n.destroy()
+            if n.userData(PROXY_MARK) == "1" and (sids is None or n.sessionId() in sids):
+                try:
+                    n.destroy()
+                except hou.OperationFailed:   # "Cannot delete nodes while cooking"
+                    busy.append(n.sessionId())
     _state["proxy"] = None
+    if busy and tries:
+        QtCore.QTimer.singleShot(100, lambda: _delete_marked(busy, tries - 1))
 
 
 def _new_proxy(m):
@@ -537,7 +555,7 @@ def _ray_object(vp, n, x, y):
 def _drag_gesture(kind, ev, viewer):
     if kind == "press":
         mods = ev.modifiers() & ~Qt.KeypadModifier
-        if ev.button() != Qt.LeftButton or viewer is None or mods not in MODES:
+        if not _left_alone(ev, viewer) or mods not in MODES:
             return False
         g = ev.globalPosition().toPoint()
         vp, x, y, n = _under(viewer, g)
