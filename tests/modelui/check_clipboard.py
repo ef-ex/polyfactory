@@ -92,6 +92,7 @@ MUTATIONS = [   # (name, check, module, old, new)
      "shift = hou.hmath.buildTranslate(at)"),
     ("at_centre_height", "paste_at_point", C, "at[1] - lo[1]", "at[1] - 0.5 * (lo[1] + hi[1])"),
     ("stale_files_kept", "old_object_files_removed", C, '        if f.startswith("object_") and f.endswith(".cpio"):', "        if False:"),
+    ("json_kept_on_failure", "failed_copy_not_mixed", C, '    if os.path.exists(os.path.join(d, "clipboard.json")):', "    if False:"),
     ("all_into_one_file", "objects_pasted_once", C, '            f = "object_%d.cpio" % len(objects)', '            f = "object_0.cpio"'),
 ]
 
@@ -196,6 +197,13 @@ def run(mut=None):
         clipboard.copy([pieces[0], objs[0]])   # after a copy of two objects, one: the older second file must go
         files = sorted(f for f in os.listdir(CLIP) if f.endswith(".cpio"))
         out["old_object_files_removed"] = len(files) == 1
+        clipboard.copy(sel)
+        try:   # a copy that dies half way (a stale id) must not leave a clipboard whose JSON names deleted files
+            clipboard.copy([sel[-1], 2 ** 30])
+        except Exception:  # noqa: BLE001
+            pass
+        d = clipboard.read()
+        out["failed_copy_not_mixed"] = d is None or all(os.path.exists(os.path.join(CLIP, o["file"])) for o in d["objects"])
         clipboard.copy(sel)
         want = world_points([p for p in sel if p != pieces[2]])   # the hidden piece draws nothing
         with hou.undos.disabler():   # the whole copied set's box (the hidden piece too): where "paste at" puts it

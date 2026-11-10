@@ -263,6 +263,12 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   the real mouse cursor (checked through `_cursor_tick` with points, the test windows are off screen); orthographic
   and multi-viewer picking.
 
+## F2e copy/paste between scenes (branch `modelui-align`)
+
+Ctrl+C / Ctrl+V (Ctrl+Shift+V = paste at the look-at point) over a viewer while modelUI is on; the same as polyfactory > Copy Selection / Paste / Paste at Look-at Point. The keys are main-menu symbols assigned in the viewer context (`h.pane.gview`), so they fire over viewers only and revert exactly on off; with nothing selected (copy) or an empty clipboard (paste) they warn in the status bar and do **not** fall back to Houdini's node copy/paste. Copy writes a clipboard folder (`$PF_MODELUI_CLIPBOARD`, default `F:/cache/modelui/clipboard`): `clipboard.json` (each piece's USD source, name, hidden flag, world matrix; each object's world matrix), written last by rename, and one `object_<i>.cpio` per loose object (`saveItemsToFile`). Copy is atomic: `clipboard.json` and the old object files are deleted first, so a copy that fails half way leaves an empty clipboard, never a JSON naming missing files. No geometry is copied; pieces are library references, so their USD source must be reachable from the target hip.
+
+Paste keeps world transforms, or ("at look-at point") moves the set as a whole so its box centre and bottom stand on the point. Pieces go into the selected piece's container, else the first, else a new one; objects are reloaded under `/obj` and placed by world matrix. Pasted items end up selected; the paste is one undo step ("modelUI: paste"; menu pastes are deferred past Houdini's "Menu Action" group). Limits: an object inside a subnet pastes to `/obj` (its parent stays behind, world transform kept); channel references to other nodes dangle. Checks: `tests/modelui/check_clipboard.py` (copy and paste in separate hython processes, 9 checks, 11 paired mutations red), `tests/modelui/gui_f2e.py` (keys, menu, key revert).
+
 ## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
 
 | Pieces | add, GUI (bench) | add, hython (check) | first cook | draw over the empty scene |

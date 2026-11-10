@@ -42,6 +42,8 @@ def copy(pids=None):
         return 0
     d = folder()
     os.makedirs(d, exist_ok=True)
+    if os.path.exists(os.path.join(d, "clipboard.json")):   # atomic: a copy that fails half way leaves an empty
+        os.remove(os.path.join(d, "clipboard.json"))        # clipboard, never the old JSON over missing files
     for f in os.listdir(d):   # an older copy's object files must not survive into this one
         if f.startswith("object_") and f.endswith(".cpio"):
             os.remove(os.path.join(d, f))
