@@ -17,6 +17,28 @@ from polyfactory.modelui import kitbash
 kitbash.add_dialog()
 ]]></scriptCode>
       </scriptItem>
+      <separatorItem/>
+      <scriptItem id="h.pf_modelui_align">
+        <label>Align...</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import align
+align.align()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.pf_modelui_quick_align">
+        <label>Quick Align</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import align
+align.quick_align()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.pf_modelui_normal_align">
+        <label>Normal Align...</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import align
+align.normal_align()
+]]></scriptCode>
+      </scriptItem>
     </subMenu>
   </menuBar>
 </mainMenu>

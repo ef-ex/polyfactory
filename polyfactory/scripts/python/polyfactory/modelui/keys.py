@@ -19,7 +19,16 @@ KEYS = [
     (STATE, STATE + ".new_move", "W"),
     (STATE, STATE + ".new_rotate", "E"),
     (STATE, STATE + ".new_scale", "R"),
+    # F2d Align (Max: Alt+A, Shift+A, Alt+N): free in every Houdini context (probe 2026-11-09: Alt+A is the textport's
+    # and the network editor's, Shift+A the viewer's loop select and home, Alt+N File > New)
+    ("h", "h.pf_modelui_align", "Alt+Ctrl+A"),
+    ("h", "h.pf_modelui_quick_align", "Alt+Ctrl+Shift+A"),
+    ("h", "h.pf_modelui_normal_align", "Alt+Ctrl+N"),
 ]
+# modelUI's own actions (= main menu item ids in MainMenuCommon.xml), registered in memory before their keys
+COMMANDS = {"h.pf_modelui_align": ("Align...", "modelUI: align the selection to a target (3ds Max Align)"),
+            "h.pf_modelui_quick_align": ("Quick Align", "modelUI: the selection's pivot to a target's pivot"),
+            "h.pf_modelui_normal_align": ("Normal Align...", "modelUI: a face of the selection onto a face of a target")}
 
 
 def _changes():
@@ -34,6 +43,11 @@ def apply(H=None):
     import hou
     H = H or hou.hotkeys
     changes, failed = _changes(), []
+    for sym, (label, desc) in COMMANDS.items():
+        try:   # memory only, like the toggle's; a symbol that exists already stays as it is
+            H.addCommand(sym, label, desc)
+        except Exception:  # noqa: BLE001
+            pass
     if changes:
         # a record left by an apply that was never reverted: undo it first, so the record matches the live keys
         revert(H)

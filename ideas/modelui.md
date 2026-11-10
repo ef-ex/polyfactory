@@ -195,6 +195,53 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   on containers); only translate drags are driven by the checks (rotate/scale are Houdini's own handle modes);
   promote has no caller yet (F2c's first modifier); copy/paste between hips is F2e.
 
+## F2d Align (branch `modelui-align`; audit 1 by agent-202 fixed; no second audit, per Hannes' coordinator)
+
+- What: Max's Align Selection, Quick Align and Normal Align for pieces and loose objects alike (`modelui/align.py`, a
+  switch feature after `pieces_ui`). Align: Alt+Ctrl+A or polyfactory > Align..., click a target, the dialog. Quick
+  Align: Alt+Ctrl+Shift+A, click a target (one undo step). Normal Align: Alt+Ctrl+N, click a face of the selection,
+  then a face of the target, the dialog. While picking: a cross cursor over viewers only; Esc (wherever the keyboard
+  focus is, except text fields) or a right click ends the pick; Alt and Space (Houdini's view states) and the middle
+  button stay Houdini's; a selected target is refused (Max).
+- Reference read: Autodesk help 2024 (Align, Quick Align, Normal Align, Aligning Objects).
+- Decisions: every selected item is aligned on its own (Max); the current and target point (Minimum / Center / Pivot
+  Point / Maximum) per axis, on tight world boxes (the item's points, not its local box turned into world space); a
+  piece's pivot is its origin, an object's is `p` (probe: the fixed point of Houdini's rotation is
+  `Vector3(p) * worldTransform()`); orientation: one axis turns the shortest way, two or three take the target's
+  orientation, pivot and scale stay; Match Scale matches world row lengths; orientation and scale first, then the
+  position on the new box. The preview runs outside the undo history; Apply is one undo step; Cancel, Esc, the close
+  box and modelUI going off put the stored values back bit for bit (container stash points, object transform
+  parameters). A result that needs shear (an object with a pivot rotation and a non-uniform scale under Match Scale, a
+  piece in a non-uniformly scaled container) gets the nearest transform and a status warning (`Session.unstored`).
+  Keys: `keys.KEYS` rows in context `h` on the menu item ids (commands registered in memory, reverted exactly); Max's
+  own keys are Houdini's (Alt+A textport and network editor, Shift+A viewer loop select / home / pose, Alt+N File >
+  New); the chosen ones had no binding in any of the 277 hotkey contexts (probe 2026-11-09). The pick gesture is asked
+  first and gets Esc anywhere (`input_layer.add_gesture(first=True, keys_anywhere=True)`); a click intersects only the
+  object the viewport draws under the cursor (`queryNodeAtPixel`), on the handle's proxy null every piece and object
+  whose box the ray passes.
+- Differences from Max: Houdini is Y up (Max's Z Position is Y here); points per axis and Apply closes the dialog
+  (Max: one point choice for all axes, step by step with Apply); Match Scale is world scale (includes a container's or
+  parent's scale); Normal Align offsets only along the normal (no in-plane X/Y offset) and moves a multi-selection
+  rigidly; no normal arrows while picking (status prompts instead).
+- Findings: `Geometry.intersect` on a packed prim turns the face normal like a direction (about 16 degrees off under a
+  (10, 6, 8) piece scale): Align intersects the piece's own geometry in its space and uses the inverse transpose.
+  `intersect` returns the geometric face normal, not `N`. `Geometry.boundingBox(transform)` transforms the box's
+  corners (not tight). An object with a pivot rotation and a non-uniform scale is sheared: a full orientation match
+  can still be stored, Match Scale cannot.
+- Costs (hython, 2026-11-09): open + one preview with 500 of 2000 pieces 89-241 ms (6.9 s + 1 s before audit 1: a
+  per-piece walk of the container's prims and points; now each container is read once, `containers.transforms`, and
+  `containers.set_transforms` is linear); a scan over 2000 loose library meshes 51-106 ms, intersecting 2 of 2001
+  geometries (box test first); a viewport click intersects 1.
+- Checks: `hython tests/modelui/check_align.py`: 26 checks, 34 paired mutations red (oracle independent of align.py:
+  Object Merge into world, Unpack, a least-squares local-to-world fit; the cost ceiling is a ratio to a reference
+  workload timed in the same run, the scan is judged by its count). `PF_GUI_SCRIPT=gui_f2d.py run_gui_f1.py`: 19
+  checks, each with its paired mutation (`view_state_click_passes` added at the merge with F2a's view-state rule).
+  Blind spots: hidden pieces align by their pivot; the exact result for sheared items (only that it is reported);
+  animated or locked parameters; the dialog's look; Esc and the close box on a dialog (Qt's reject(), the path Cancel
+  takes, not driven); the menu bar itself (the check runs the shipped items' scripts; the keys reach the same items);
+  the real mouse cursor (checked through `_cursor_tick` with points, the test windows are off screen); orthographic
+  and multi-viewer picking.
+
 ## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
 
 | Pieces | add, GUI (bench) | add, hython (check) | first cook | draw over the empty scene |
@@ -382,6 +429,9 @@ Layout of one container (a geometry object marked as a modelUI container):
 - Input layer (F1): Python handles the gestures; the application-level filter itself is C++ (`appfilter.cpp`), because
   a Python QApplication filter makes PySide wrap every receiving QObject and crashed Houdini in the Maya surface project.
   The scene model and the Scene Explorer are Python: node selection, names and flags are HOM calls, no geometry.
+- Align (F2d): Python, as transform maths on a handful of matrices plus UI marshalling (dialogs, picking); tight boxes
+  read point positions once per item (`pointFloatAttribValues`) and transform them with numpy; no geometry is created or
+  changed, the result goes through `pieces_ui.set_xforms` (one stash edit per container).
 
 ## Framework (layers shared by every mode)
 
@@ -417,7 +467,8 @@ First milestone (the kitbash loop), preceded by the object-count measurement (10
 - Shift+drag clone (Copy); Clone dialog with Copy / Instance / Reference and number of copies.
 - Copy and paste objects between scenes (open a kitbash scene, copy a part, paste into the working scene).
 - Modify panel: the stack (add from the node list, reorder, on/off, delete, collapse to mesh, open as nodes).
-- Align: Align to target (position min/center/pivot/max per axis, orientation, scale), quick align, normal align.
+- Align: Align to target (position min/center/pivot/max per axis, orientation, scale), quick align, normal align
+  (F2d: built, see F2d Align).
 - Snapping, pivot editing, undo for everything.
 
 Next:
