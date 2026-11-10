@@ -790,10 +790,24 @@ class AssetDropHandler(QtCore.QObject):
         else:
             dropped_outside = True
 
+        if dropped_outside and self._drop_into_modelui(asset_data, pos):
+            return
         if dropped_outside:
             self._handle_drop(asset_data, enter_state=True)
 
     # ── Private helpers ─────────────────────────────────────────────────
+
+    @staticmethod
+    def _drop_into_modelui(asset_data: dict, pos: QtCore.QPoint) -> bool:
+        """modelUI on and the point over a Scene Viewer: the asset becomes a kitbash piece on the ground there."""
+        try:
+            from polyfactory.modelui import kitbash, switch
+            if not switch.is_on() or not asset_data.get("file_path"):
+                return False
+            return bool(kitbash.drop_asset(asset_data["file_path"], pos))
+        except Exception as e:
+            print(f"[AssetDropHandler] modelUI drop failed: {e}")
+            return False
 
     @staticmethod
     def _handle_drop(asset_data: dict, enter_state: bool) -> None:

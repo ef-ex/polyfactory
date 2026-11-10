@@ -71,6 +71,19 @@ def add_files(paths, at=None):
     return pids
 
 
+def drop_asset(path, gpos):
+    """An asset dropped at global Qt point ``gpos``: when that is over a Scene Viewer it becomes a kitbash piece standing
+    where the cursor ray meets the ground (the look-at point when it misses). Returns the piece ids, [] when the point
+    is not over a viewer (nothing is made)."""
+    from polyfactory.modelui import pieces_ui
+    sv = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.SceneViewer)
+    vp, x, y, _ = pieces_ui._under(sv, gpos) if sv is not None else (None, 0, 0, None)
+    if vp is None:
+        return []
+    at = pieces_ui._plane_point(vp, x, y, hou.Vector3(), hou.Vector3(0, 1, 0))
+    return add_files([path], at=at)
+
+
 def add_dialog():
     """Ask for USD files (several at once) in the kitbash library and add them."""
     picked = hou.ui.selectFile(start_directory=library() + "/", title="Add kitbash pieces",
