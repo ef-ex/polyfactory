@@ -9,6 +9,8 @@ Interface: pieces() -> [id]; name(id); rename(id, name) -> the name it got; sele
 hidden(id); set_hidden(ids, hide); delete(ids); watch(fn) / unwatch(fn): fn() after any change of the list, names,
 visibility or selection (called inside Houdini's callback: defer real work).
 """
+import logging
+
 import hou
 
 from polyfactory.modelui import containers
@@ -108,7 +110,12 @@ class ObjectScene:
 
     def _notify(self):
         for fn in list(self._watchers):
-            fn()
+            try:
+                fn()
+            except RuntimeError:   # its widget is gone (deleted C++ object): drop it, the others still need to hear
+                self.unwatch(fn)
+            except Exception:
+                logging.getLogger(__name__).exception("scene watcher failed")
 
 
 def current():
