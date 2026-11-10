@@ -21,6 +21,7 @@ root {
         }
         split 0.494624 V {
             tabs 0 1 {
+                pane panetab16 -a 0 -l 10 -H /obj/ -T OBJ -m pythonpanel
                 pane panetab5 -a 0 -l 10 -H /obj/ -T OBJ -m parmeditor
                 pane panetab12 -a 0 -l 0 -H /obj/ -T OBJ -m perfmon
                 pane panetab15 -a 1 -l 10 -H /obj/ -T OBJ -m pythonpanel
@@ -48,3 +49,4 @@ networkeditor -p '{\n	"obj:listmode":"0",\n	"sop:listmode":"0",\n	"showchilddep"
 treecontrol -a 0 -h 0 -i 1 -f 0 -O 0 -S 0 -D 0 -P 0 -H 0 -V 0 -C 0 -I 0 -R 0 panetab8
 pythonpanel -s on -t off -n pf_modelui_explorer panetab14
 pythonpanel -s on -t off -n log_viewer panetab15
+pythonpanel -s on -t off -n pf_modelui_stack panetab16

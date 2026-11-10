@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
@@ -61,12 +62,18 @@ def main():
     console = open(SCR + "/console.txt", "w")
     p = subprocess.Popen([HOUDINI, "-foreground", os.path.join(HERE, os.environ.get("PF_GUI_SCRIPT", "gui_f1.py"))], env=env, stdout=console,
                          stderr=subprocess.STDOUT)
-    try:
-        p.wait(timeout=int(os.environ.get("PF_GUI_TIMEOUT", "5400")))   # gui_f2a: 69 runs took ~52 min
-    except subprocess.TimeoutExpired:
-        subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)])
-        print("TIMEOUT: killed the test Houdini (pid %d); log: %s" % (p.pid, SCR + "/result.json.log"))
-        return 1
+    end = time.time() + int(os.environ.get("PF_GUI_TIMEOUT", "5400"))   # gui_f2a: 69 runs took ~52 min
+    crashed = None
+    while p.poll() is None:
+        time.sleep(5)
+        with open(SCR + "/console.txt", errors="replace") as f:
+            if "Fatal error" in f.read() and crashed is None:
+                crashed = time.time()   # Houdini hangs after writing its crash .hip: give it 30 s, then kill
+        if time.time() > end or (crashed and time.time() > crashed + 30):
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)])
+            print("%s: killed the test Houdini (pid %d); log: %s" % ("CRASH" if crashed else "TIMEOUT", p.pid,
+                                                                    SCR + "/result.json.log"))
+            return 1
     if not os.path.exists(SCR + "/result.json"):
         print("no result; log:", SCR + "/result.json.log")
         return 1
