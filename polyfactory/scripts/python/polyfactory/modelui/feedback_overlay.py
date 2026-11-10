@@ -11,6 +11,7 @@ import threading
 
 import hou
 from hutil.Qt import QtCore, QtGui, QtWidgets
+from PySide6.QtGui import QShortcut   # hutil.Qt.QtGui has no QShortcut
 
 from polyfactory.modelui import feedback
 
@@ -81,8 +82,8 @@ class Overlay(QtWidgets.QWidget):
         self.setMouseTracking(True)
         self._ui()
         for seq in ("Ctrl+Return", "Ctrl+Enter"):
-            QtGui.QShortcut(QtGui.QKeySequence(seq), self, activated=self.send)
-        QtGui.QShortcut(QtGui.QKeySequence("Esc"), self, activated=self.cancel)
+            QShortcut(QtGui.QKeySequence(seq), self, activated=self.send)
+        QShortcut(QtGui.QKeySequence("Esc"), self, activated=self.cancel)
 
     # --- toolbar -------------------------------------------------------------------------------------------------------
     def _ui(self):

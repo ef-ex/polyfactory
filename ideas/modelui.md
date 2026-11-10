@@ -282,6 +282,43 @@ Ctrl+C / Ctrl+V (Ctrl+Shift+V = paste at the look-at point) over a viewer while 
 
 Paste keeps world transforms, or ("at look-at point") moves the set as a whole so its box centre and bottom stand on the point. Pieces go into the selected piece's container, else the first, else a new one; objects are reloaded under `/obj` and placed by world matrix. Pasted items end up selected; the paste is one undo step ("modelUI: paste"; menu pastes are deferred past Houdini's "Menu Action" group). Limits: an object inside a subnet pastes to `/obj` (its parent stays behind, world transform kept); channel references to other nodes dangle. Checks: `tests/modelui/check_clipboard.py` (copy and paste in separate hython processes, 9 checks, 11 paired mutations red), `tests/modelui/gui_f2e.py` (keys, menu, key revert).
 
+## F12 feedback (branch `modelui-feedback`; implemented, unverified by an audit)
+
+Press F12 anywhere in Houdini's main window while modelUI is on (or polyfactory > Send feedback (F12) any time): the
+window freezes (a screen grab of the main window, all panes) under a full-window overlay. Draw with the pen (red / yellow /
+cyan / white, S / M / L = 3 / 6 / 12 px), erase (a stroke or a note), click with Note to pin a 220 px note and type, write a
+comment, Attach... files, then Ctrl+Enter (or Send) saves, Esc (or Cancel) closes (it asks first when there are markings).
+Behaviour copied from Vela's feedback (`feedback.rs`), not its code. Status bar: "Feedback saved: <folder>".
+
+Where it goes: `$PF_FEEDBACK_ROOT` (default `F:/ai/feedback/modelui`) `/<Windows user>/<YYYY-MM-DD_HHMMSS>/` (a second send in the
+same second gets `-2`): `state.json` (written first), `screenshot.png`, `marked.png` (frame + markings + notes),
+`markings.png` (transparent), `attachments/`, `feedback.json` LAST, so a folder with feedback.json is complete.
+feedback.json: user, time (ISO), build (git short hash of the running polyfactory), comment, notes [{x, y, text, colour,
+width}], strokes [{colour, width, points}], attachments [{name, from}], window {width, height, pixels_per_point, pixels},
+"units": note and stroke positions are pixels of screenshot.png. state.json (taken when F12 is pressed): modelui_on,
+houdini, hip_file, viewer {state, pwd}, selection [{id, kind, name}], scene {containers, pieces, objects}, modify_panel
+{object, entry}, open_dialogs (visible polyfactory dialogs), log (last 200 lines of the `polyfactory.modelui` loggers; the
+buffer exists while modelUI is on and sets that logger to INFO, restored on off). Each state section stands alone: an error
+string replaces a broken one.
+
+Code: `modelui/feedback.py` (state, markings rendering, folder writer, log buffer; the switch feature), `feedback_overlay.py`
+(the window; the PNGs are rendered on the UI thread, files are written on a thread). Key: `("h", "h.pf_modelui_feedback",
+"F12")` in `keys.py`, so it is reverted exactly with the other keys (Houdini 22 binds nothing to F12 by default: grep of
+`config/Hotkeys`; the context is `h`, not the viewer's: a viewer-only binding did not fire over the viewer in the GUI run,
+mutation `f12_viewer_only`). The menu item runs the overlay 250 ms later so its popup is not in the frozen frame.
+Decision log (rule 2): Python is UI marshalling here (Qt overlay, file writing, HOM reads); no geometry.
+
+Checks: hython `tests/modelui/check_feedback.py` (17 checks, 19 mutations red: write order observed at write time, every
+json field, pixel colours / widths / alpha of markings.png and marked.png from given strokes, note box and text, same-second
+collision, state sections, log ring 200 lines and removal); GUI `PF_GUI_SCRIPT=gui_feedback.py` through `run_gui_f1.py`
+(F12 over the viewer and over the network editor opens the overlay; a stroke + note + comment + Ctrl+Enter writes a complete
+folder with the right values; Esc asks with markings, Cancel keeps, Discard closes, nothing written; one overlay at a time;
+key reverted exactly when off and F12 dead then; 15 mutations red). Blind spots: the real screen grab (the test window is
+off screen, so screenshot.png there is black: only its size is judged; a real GL viewport grab and overlapping windows are
+unchecked), pixels_per_point other than 1 in the GUI (the headless check uses 2.0 for the file maths), the Attach file
+dialog, the menu entry itself, the look of the toolbar, text input inside the overlay (Ctrl+Enter works from the comment
+field), key repeat, multi-monitor.
+
 ## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
 
 | Pieces | add, GUI (bench) | add, hython (check) | first cook | draw over the empty scene |
