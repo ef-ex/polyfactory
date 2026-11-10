@@ -18550,7 +18550,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -18560,7 +18560,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -18580,7 +18580,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -18590,7 +18590,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -21210,7 +21210,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle",
-      "community": 72,
+      "community": 324,
       "norm_label": "parmtoggle"
     },
     {
@@ -21230,7 +21230,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_on_changed",
-      "community": 72,
+      "community": 324,
       "norm_label": "._on_changed()"
     },
     {
@@ -21250,7 +21250,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 72,
+      "community": 324,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -21490,7 +21490,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 72,
+      "community": 324,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -31627,7 +31627,7 @@
       "label": "undo_open()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L260",
+      "source_location": "L265",
       "_origin": "ast",
       "id": "modelui_gui_f2e_undo_open",
       "community": 255,
@@ -31637,7 +31637,7 @@
       "label": "_q()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L272",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "modelui_gui_f2e_q",
       "community": 255,
@@ -31647,7 +31647,7 @@
       "label": "cleanup()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L279",
+      "source_location": "L284",
       "_origin": "ast",
       "id": "modelui_gui_f2e_cleanup",
       "community": 255,
@@ -31657,7 +31657,7 @@
       "label": "mutate()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L294",
+      "source_location": "L299",
       "_origin": "ast",
       "id": "modelui_gui_f2e_mutate",
       "community": 255,
@@ -31667,7 +31667,7 @@
       "label": "driver()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L329",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "modelui_gui_f2e_driver",
       "community": 255,
@@ -31677,7 +31677,7 @@
       "label": "pump()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L353",
+      "source_location": "L358",
       "_origin": "ast",
       "id": "modelui_gui_f2e_pump",
       "community": 255,
@@ -31687,7 +31687,7 @@
       "label": "finish()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L366",
+      "source_location": "L371",
       "_origin": "ast",
       "id": "modelui_gui_f2e_finish",
       "community": 255,
@@ -31697,7 +31697,7 @@
       "label": "guard()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L375",
+      "source_location": "L380",
       "_origin": "ast",
       "id": "modelui_gui_f2e_guard",
       "community": 255,
@@ -31707,7 +31707,7 @@
       "label": "start()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2e.py",
-      "source_location": "L384",
+      "source_location": "L389",
       "_origin": "ast",
       "id": "modelui_gui_f2e_start",
       "community": 255,
@@ -49890,7 +49890,7 @@
       "source_location": "L1548",
       "_origin": "ast",
       "id": "ideas_citygen_streets_before_and_after_per_criterion",
-      "community": 87,
+      "community": 99,
       "norm_label": "before and after, per criterion"
     },
     {
@@ -49980,7 +49980,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 355,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -49990,7 +49990,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 355,
       "norm_label": "what the literature adds"
     },
     {
@@ -50000,7 +50000,7 @@
       "source_location": "L1876",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 355,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -50010,7 +50010,7 @@
       "source_location": "L1913",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 355,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -50020,7 +50020,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 355,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -50030,7 +50030,7 @@
       "source_location": "L2068",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 355,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -50040,7 +50040,7 @@
       "source_location": "L2094",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 355,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -50620,7 +50620,7 @@
       "source_location": "L4031",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
-      "community": 87,
+      "community": 99,
       "norm_label": "the sagitta gate is gone. the seam is bounded instead \u2014 2026-08-10"
     },
     {
@@ -50630,7 +50630,7 @@
       "source_location": "L4089",
       "_origin": "ast",
       "id": "ideas_citygen_streets_before_and_after_per_criterion_4089",
-      "community": 87,
+      "community": 99,
       "norm_label": "before and after, per criterion"
     },
     {
@@ -53110,7 +53110,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 373,
+      "community": 144,
       "norm_label": "3. data contracts"
     },
     {
@@ -53120,7 +53120,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 373,
+      "community": 144,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -53130,7 +53130,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 373,
+      "community": 144,
       "norm_label": "3.2 kit format"
     },
     {
@@ -53140,7 +53140,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 373,
+      "community": 144,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -53150,7 +53150,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 373,
+      "community": 144,
       "norm_label": "3.3 style payload"
     },
     {
@@ -53160,7 +53160,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 373,
+      "community": 144,
       "norm_label": "3.4 output"
     },
     {
@@ -53170,7 +53170,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "ideas_polychain_4_the_kernel_phase_1_algorithms",
-      "community": 144,
+      "community": 373,
       "norm_label": "4. the kernel \u2014 phase 1 algorithms"
     },
     {
@@ -53180,7 +53180,7 @@
       "source_location": "L328",
       "_origin": "ast",
       "id": "ideas_polychain_4_1_decompose",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.1 decompose"
     },
     {
@@ -53190,7 +53190,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_polychain_4_2_plan_the_fitting_solve_pure_math_no_geometry_yet",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.2 plan (the fitting solve \u2014 pure math, no geometry yet)"
     },
     {
@@ -53200,7 +53200,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "ideas_polychain_4_3_corners",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.3 corners"
     },
     {
@@ -53210,7 +53210,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "ideas_polychain_4_4_place_deform",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.4 place + deform"
     },
     {
@@ -53220,7 +53220,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "ideas_polychain_4_5_surface_conform_input_4",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.5 surface conform (input 4)"
     },
     {
@@ -53230,7 +53230,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "ideas_polychain_4_6_finalize",
-      "community": 144,
+      "community": 373,
       "norm_label": "4.6 finalize"
     },
     {
@@ -56900,7 +56900,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 355,
+      "community": 144,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -56910,7 +56910,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 355,
+      "community": 144,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -56920,7 +56920,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 355,
+      "community": 144,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -56930,7 +56930,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 355,
+      "community": 144,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -56940,7 +56940,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 355,
+      "community": 144,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -56950,7 +56950,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 355,
+      "community": 144,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -59045,7 +59045,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 72,
+      "community": 324,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -71296,9 +71296,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_copy",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_copy"
     },
     {
       "relation": "contains",
@@ -71306,9 +71306,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_folder",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_folder"
     },
     {
       "relation": "contains",
@@ -71316,9 +71316,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_paste",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_paste"
     },
     {
       "relation": "contains",
@@ -71326,9 +71326,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_paste_at_look_at",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_paste_at_look_at"
     },
     {
       "relation": "contains",
@@ -71336,9 +71336,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_read",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_read"
     },
     {
       "relation": "contains",
@@ -71346,9 +71346,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard",
-      "target": "modelui_clipboard_status",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_status"
     },
     {
       "relation": "rationale_for",
@@ -71356,9 +71356,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_rationale_1",
-      "target": "modelui_clipboard",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard"
     },
     {
       "relation": "calls",
@@ -71367,9 +71367,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_copy",
-      "target": "modelui_clipboard_folder",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_folder"
     },
     {
       "relation": "calls",
@@ -71378,9 +71378,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_paste",
-      "target": "modelui_clipboard_folder",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_folder"
     },
     {
       "relation": "calls",
@@ -71389,9 +71389,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_read",
-      "target": "modelui_clipboard_folder",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_folder"
     },
     {
       "relation": "calls",
@@ -71400,9 +71400,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_copy",
-      "target": "modelui_clipboard_status",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_status"
     },
     {
       "relation": "calls",
@@ -71411,9 +71411,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_paste",
-      "target": "modelui_clipboard_status",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_status"
     },
     {
       "relation": "rationale_for",
@@ -71421,9 +71421,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_rationale_37",
-      "target": "modelui_clipboard_copy",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_copy"
     },
     {
       "relation": "calls",
@@ -71432,9 +71432,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_paste",
-      "target": "modelui_clipboard_read",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_read"
     },
     {
       "relation": "rationale_for",
@@ -71442,9 +71442,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_rationale_79",
-      "target": "modelui_clipboard_read",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_read"
     },
     {
       "relation": "calls",
@@ -71453,9 +71453,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_paste_at_look_at",
-      "target": "modelui_clipboard_paste",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_paste"
     },
     {
       "relation": "rationale_for",
@@ -71463,9 +71463,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/clipboard.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_clipboard_rationale_89",
-      "target": "modelui_clipboard_paste",
-      "confidence_score": 1.0
+      "target": "modelui_clipboard_paste"
     },
     {
       "relation": "contains",
@@ -73623,9 +73623,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/keys.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_keys_rationale_45",
-      "target": "modelui_keys_changes",
-      "confidence_score": 1.0
+      "target": "modelui_keys_changes"
     },
     {
       "relation": "calls",
@@ -73655,9 +73655,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/keys.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_keys_rationale_51",
-      "target": "modelui_keys_apply",
-      "confidence_score": 1.0
+      "target": "modelui_keys_apply"
     },
     {
       "relation": "rationale_for",
@@ -73665,9 +73665,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/keys.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_keys_rationale_86",
-      "target": "modelui_keys_revert",
-      "confidence_score": 1.0
+      "target": "modelui_keys_revert"
     },
     {
       "relation": "rationale_for",
@@ -73675,9 +73675,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/keys.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_keys_rationale_110",
-      "target": "modelui_keys_snapshot",
-      "confidence_score": 1.0
+      "target": "modelui_keys_snapshot"
     },
     {
       "relation": "contains",
@@ -113794,9 +113794,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L576",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align",
-      "target": "modelui_check_align_guarded",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_guarded"
     },
     {
       "relation": "contains",
@@ -114062,9 +114062,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_70",
-      "target": "modelui_check_align_oracle_world",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_oracle_world"
     },
     {
       "relation": "calls",
@@ -114083,9 +114083,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_90",
-      "target": "modelui_check_align_oracle_local",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_oracle_local"
     },
     {
       "relation": "calls",
@@ -114115,9 +114115,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_101",
-      "target": "modelui_check_align_oracle_affine",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_oracle_affine"
     },
     {
       "relation": "calls",
@@ -114180,9 +114180,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_131",
-      "target": "modelui_check_align_raw",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_raw"
     },
     {
       "relation": "calls",
@@ -114245,9 +114245,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L423",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_423",
-      "target": "modelui_check_align_reference_ms",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_reference_ms"
     },
     {
       "relation": "calls",
@@ -114267,9 +114267,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L600",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_guarded",
-      "target": "modelui_check_align_run",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_run"
     },
     {
       "relation": "calls",
@@ -114288,9 +114288,9 @@
       "source_file": "tests/modelui/check_align.py",
       "source_location": "L577",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_align_rationale_577",
-      "target": "modelui_check_align_guarded",
-      "confidence_score": 1.0
+      "target": "modelui_check_align_guarded"
     },
     {
       "relation": "contains",
@@ -114298,9 +114298,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_apply_mutation",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_apply_mutation"
     },
     {
       "relation": "contains",
@@ -114308,9 +114308,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L160",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_fixture",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_fixture"
     },
     {
       "relation": "contains",
@@ -114318,9 +114318,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L245",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_main",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_main"
     },
     {
       "relation": "contains",
@@ -114328,9 +114328,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_mutate"
     },
     {
       "relation": "contains",
@@ -114338,9 +114338,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_paste_session",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_paste_session"
     },
     {
       "relation": "contains",
@@ -114348,9 +114348,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_run",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_run"
     },
     {
       "relation": "contains",
@@ -114358,9 +114358,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_visible",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_visible"
     },
     {
       "relation": "contains",
@@ -114368,9 +114368,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_world_points",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_world_points"
     },
     {
       "relation": "contains",
@@ -114378,9 +114378,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard",
-      "target": "modelui_check_clipboard_xf",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_xf"
     },
     {
       "relation": "rationale_for",
@@ -114388,9 +114388,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_rationale_1",
-      "target": "modelui_check_clipboard",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard"
     },
     {
       "relation": "calls",
@@ -114399,9 +114399,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_fixture",
-      "target": "modelui_check_clipboard_xf",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_xf"
     },
     {
       "relation": "calls",
@@ -114410,9 +114410,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_paste_session",
-      "target": "modelui_check_clipboard_xf",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_xf"
     },
     {
       "relation": "calls",
@@ -114421,9 +114421,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_paste_session",
-      "target": "modelui_check_clipboard_world_points",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_world_points"
     },
     {
       "relation": "rationale_for",
@@ -114431,9 +114431,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_rationale_47",
-      "target": "modelui_check_clipboard_world_points",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_world_points"
     },
     {
       "relation": "calls",
@@ -114442,9 +114442,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_run",
-      "target": "modelui_check_clipboard_world_points",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_world_points"
     },
     {
       "relation": "calls",
@@ -114453,9 +114453,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_apply_mutation",
-      "target": "modelui_check_clipboard_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_mutate"
     },
     {
       "relation": "calls",
@@ -114464,9 +114464,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_paste_session",
-      "target": "modelui_check_clipboard_apply_mutation",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_apply_mutation"
     },
     {
       "relation": "calls",
@@ -114475,9 +114475,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_run",
-      "target": "modelui_check_clipboard_apply_mutation",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_apply_mutation"
     },
     {
       "relation": "calls",
@@ -114486,9 +114486,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_paste_session",
-      "target": "modelui_check_clipboard_visible",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_visible"
     },
     {
       "relation": "rationale_for",
@@ -114496,9 +114496,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_rationale_107",
-      "target": "modelui_check_clipboard_visible",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_visible"
     },
     {
       "relation": "calls",
@@ -114507,9 +114507,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L192",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_run",
-      "target": "modelui_check_clipboard_fixture",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_fixture"
     },
     {
       "relation": "calls",
@@ -114518,9 +114518,9 @@
       "source_file": "tests/modelui/check_clipboard.py",
       "source_location": "L247",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_clipboard_main",
-      "target": "modelui_check_clipboard_run",
-      "confidence_score": 1.0
+      "target": "modelui_check_clipboard_run"
     },
     {
       "relation": "contains",
@@ -117222,9 +117222,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L279",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_cleanup",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_cleanup"
     },
     {
       "relation": "contains",
@@ -117232,9 +117232,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L329",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_driver",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_driver"
     },
     {
       "relation": "contains",
@@ -117242,9 +117242,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L366",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_finish"
     },
     {
       "relation": "contains",
@@ -117252,9 +117252,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_guard",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_guard"
     },
     {
       "relation": "contains",
@@ -117262,9 +117262,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_l",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_l"
     },
     {
       "relation": "contains",
@@ -117272,9 +117272,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "contains",
@@ -117282,9 +117282,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L294",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_mutate"
     },
     {
       "relation": "contains",
@@ -117292,9 +117292,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_off_screen"
     },
     {
       "relation": "contains",
@@ -117302,9 +117302,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_probe",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_probe"
     },
     {
       "relation": "contains",
@@ -117312,9 +117312,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L353",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_pump",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_pump"
     },
     {
       "relation": "contains",
@@ -117322,9 +117322,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L272",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_q",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_q"
     },
     {
       "relation": "contains",
@@ -117332,9 +117332,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_raw",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_raw"
     },
     {
       "relation": "contains",
@@ -117342,9 +117342,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_screen_point",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_screen_point"
     },
     {
       "relation": "contains",
@@ -117352,9 +117352,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L384",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_start",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_start"
     },
     {
       "relation": "contains",
@@ -117362,9 +117362,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_suite",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_suite"
     },
     {
       "relation": "contains",
@@ -117372,9 +117372,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L260",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_undo_open"
     },
     {
       "relation": "contains",
@@ -117382,9 +117382,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_viewer"
     },
     {
       "relation": "contains",
@@ -117392,9 +117392,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e",
-      "target": "modelui_gui_f2e_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_visible_on_screen"
     },
     {
       "relation": "rationale_for",
@@ -117402,9 +117402,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_rationale_1",
-      "target": "modelui_gui_f2e",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e"
     },
     {
       "relation": "calls",
@@ -117413,9 +117413,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L282",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_cleanup",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117424,9 +117424,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L347",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_driver",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117435,9 +117435,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L370",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_finish",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117446,9 +117446,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L377",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_guard",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117457,9 +117457,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L360",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_pump",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117468,9 +117468,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_q",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117479,9 +117479,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L396",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_start",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117490,9 +117490,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_suite",
-      "target": "modelui_gui_f2e_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_log"
     },
     {
       "relation": "calls",
@@ -117501,9 +117501,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L377",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_guard",
-      "target": "modelui_gui_f2e_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_visible_on_screen"
     },
     {
       "relation": "calls",
@@ -117512,9 +117512,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_off_screen",
-      "target": "modelui_gui_f2e_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_visible_on_screen"
     },
     {
       "relation": "calls",
@@ -117523,9 +117523,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L376",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_guard",
-      "target": "modelui_gui_f2e_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_off_screen"
     },
     {
       "relation": "calls",
@@ -117534,9 +117534,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L392",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_start",
-      "target": "modelui_gui_f2e_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_off_screen"
     },
     {
       "relation": "calls",
@@ -117545,9 +117545,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_suite",
-      "target": "modelui_gui_f2e_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_viewer"
     },
     {
       "relation": "rationale_for",
@@ -117555,9 +117555,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_rationale_75",
-      "target": "modelui_gui_f2e_raw",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_raw"
     },
     {
       "relation": "method",
@@ -117565,9 +117565,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_probe",
-      "target": "modelui_gui_f2e_probe_eventfilter",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_probe_eventfilter"
     },
     {
       "relation": "method",
@@ -117575,9 +117575,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_probe",
-      "target": "modelui_gui_f2e_probe_init",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_probe_init"
     },
     {
       "relation": "calls",
@@ -117586,9 +117586,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L338",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_driver",
-      "target": "modelui_gui_f2e_suite",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_suite"
     },
     {
       "relation": "calls",
@@ -117608,9 +117608,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L280",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_cleanup",
-      "target": "modelui_gui_f2e_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_undo_open"
     },
     {
       "relation": "calls",
@@ -117619,9 +117619,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L283",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_cleanup",
-      "target": "modelui_gui_f2e_q",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_q"
     },
     {
       "relation": "calls",
@@ -117630,9 +117630,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_driver",
-      "target": "modelui_gui_f2e_cleanup",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_cleanup"
     },
     {
       "relation": "calls",
@@ -117641,9 +117641,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L337",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_driver",
-      "target": "modelui_gui_f2e_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_mutate"
     },
     {
       "relation": "calls",
@@ -117652,9 +117652,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L394",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_start",
-      "target": "modelui_gui_f2e_driver",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_driver"
     },
     {
       "relation": "calls",
@@ -117663,9 +117663,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L357",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_pump",
-      "target": "modelui_gui_f2e_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_finish"
     },
     {
       "relation": "calls",
@@ -117674,9 +117674,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L394",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_start",
-      "target": "modelui_gui_f2e_pump",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_pump"
     },
     {
       "relation": "calls",
@@ -117685,9 +117685,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L378",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_guard",
-      "target": "modelui_gui_f2e_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_finish"
     },
     {
       "relation": "calls",
@@ -117696,9 +117696,9 @@
       "source_file": "tests/modelui/gui_f2e.py",
       "source_location": "L397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2e_start",
-      "target": "modelui_gui_f2e_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2e_finish"
     },
     {
       "relation": "contains",
@@ -152061,5 +152061,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0d4bd9174fb4cc71a41eee039feb401cd466dc25"
+  "built_at_commit": "acda291e53d5a28e31608370070c86622344fc06"
 }

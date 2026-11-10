@@ -1,7 +1,7 @@
 # Graph Report - polyfactory-align  (2026-11-10)
 
 ## Corpus Check
-- 241 files · ~1,060,254 words
+- 241 files · ~1,060,297 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d4bd917`
+- Built from commit: `acda291e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -497,8 +497,8 @@ Cohesion: 0.05
 Nodes (41): Accessing Package Assets, Asset Database, Branch Structure, Code Quality - Error Handling, Code Style: Functional Over Object-Oriented, Common Patterns, Creative / Procedural Tool Requests Require Design Breakdown First, Critical Conventions (+33 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.09
-Nodes (22): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S0 — Domain (+14 more)
+Cohesion: 0.13
+Nodes (15): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace (+7 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.08
@@ -582,7 +582,7 @@ Nodes (10): _ends(), _graph_geometry_delta(), graph_reaches_a_fixed_point(), _ne
 
 ### Community 39 - "Community 39"
 Cohesion: 0.38
-Nodes (4): draw_normal_indicator(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw line indicating surface normal.          Args:         drawable: Houdini, Viewer utilities for Houdini viewer states Reusable library components for rayc
+Nodes (4): draw_crosshair(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw simple crosshair at position.          Args:         drawable: Houdini d, Viewer utilities for Houdini viewer states Reusable library components for rayc
 
 ### Community 40 - "Community 40"
 Cohesion: 0.08
@@ -697,8 +697,8 @@ Cohesion: 0.24
 Nodes (11): _blobs(), city_is_fully_paved(), lots_clear_of_junctions(), lots_clear_of_roads(), _raster_grid(), _rasterise(), Even-odd fill of every polygon in `geo` onto a boolean XZ grid., Connected components of a boolean mask as (area, cx, cz), largest first. (+3 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.12
-Nodes (10): BaseParmWidget, ParmMenu, ParmToggle, Update visual feedback for expression state., Block user input when expression is active., Dropdown menu widget with enhanced label., Menu parms can be int or string - get the string token., Update visual feedback for expression state. (+2 more)
+Cohesion: 0.15
+Nodes (7): ParmMenu, Block user input when expression is active., Dropdown menu widget with enhanced label., Menu parms can be int or string - get the string token., Update visual feedback for expression state., Block user input when expression is active., Reset parameter to default value (Ctrl+MMB on label).
 
 ### Community 73 - "Community 73"
 Cohesion: 0.18
@@ -753,8 +753,8 @@ Cohesion: 0.15
 Nodes (14): centreline_curvature_within_class(), Mirror of `pfsg_turn_at`: |turn| at b and the two edge lengths.      ⚠️ THE AN, Per-vertex turn (radians) and its ceiling, from geometry alone.      Returns (, No centreline may bend tighter than its class minimum curve radius.      S3b., Run the SHIPPED S3b clamp on the inputs that broke the first one.      This is, Worst discrete curvature x R_min over one rig polyline., One cook of the control rig, read back per rig polyline., [] when every rig behaved; otherwise the rigs that did not, named. (+6 more)
 
 ### Community 87 - "Community 87"
-Cohesion: 0.15
-Nodes (13): ⚠️ `2aba0a9` raised six numbers and recorded one — 2026-08-10, 4c. Implementation status — 2026-08-09, Before and after, per criterion, Before and after, per criterion, ⚠️ C's east sector subdivides into long ribbons, and `ac64636` recorded only the improvements, Every promoted parameter, measured — 2026-08-10, Overnight run — 2026-08-09/10, Recorded, not fixed — from the same audit (+5 more)
+Cohesion: 0.20
+Nodes (10): ⚠️ `2aba0a9` raised six numbers and recorded one — 2026-08-10, 4c. Implementation status — 2026-08-09, ⚠️ C's east sector subdivides into long ribbons, and `ac64636` recorded only the improvements, Every promoted parameter, measured — 2026-08-10, Overnight run — 2026-08-09/10, Recorded, not fixed — from the same audit, The loop-closure gate, per-gate — measured, and two entries in `80dc19c` were wrong, ⚠️ The road-under-chord metric was ill-posed. Use the pavement deficit (+2 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.50
@@ -793,8 +793,8 @@ Cohesion: 0.25
 Nodes (4): load(), ⚠️ THE MILESTONE'S GATING QUESTION, answered on the rig's real         numbers, ⚠️ **THE INFEASIBLE PATH IS NEARLY UNREACHABLE IN THIS CORPUS, and         the, ⚠️ `clear_of_vertex` is only allowed in the planner at all because the
 
 ### Community 99 - "Community 99"
-Cohesion: 0.20
-Nodes (10): Real at non-default scale — recorded, not fixed, S3b — Turns: a bend is not a junction, and gets its own solver, Still unguarded after this pass — recorded, not fixed, The clamp is a radius floor and that is not the same as a smooth street — 2026-08-10, ⚠️ The clamp must be a SOLVE, not a fixed sweep count — measured 2026-08-09, The control rig was calibrated to one slider position, and now is not, ⚠️ The fixed-point claim was false below gain 1, and it shipped — 2026-08-10, The gain sweep asserted a verdict and recorded no numbers, and could not see over-smoothing (+2 more)
+Cohesion: 0.15
+Nodes (13): Before and after, per criterion, Before and after, per criterion, Real at non-default scale — recorded, not fixed, S3b — Turns: a bend is not a junction, and gets its own solver, Still unguarded after this pass — recorded, not fixed, The clamp is a radius floor and that is not the same as a smooth street — 2026-08-10, ⚠️ The clamp must be a SOLVE, not a fixed sweep count — measured 2026-08-09, The control rig was calibrated to one slider position, and now is not (+5 more)
 
 ### Community 100 - "Community 100"
 Cohesion: 0.07
@@ -965,8 +965,8 @@ Cohesion: 0.11
 Nodes (17): _is_slot(), axis_bands(), Band, Cell, _deviation(), _fill_width(), guides_from_points(), jigsaw_report() (+9 more)
 
 ### Community 144 - "Community 144"
-Cohesion: 0.08
-Nodes (24): 0.0 BUILD STATE — resume pointer (read this first, keep it current), 0. Instructions to the implementing agent, 1. Scope and non-goals, 2.1 The two-face principle (load-bearing), 2.2 Node family (working names; `pf_` per suite convention), 2.3 Chain SOP seed — gate PC-G0, 2. Architecture, 4.1 Decompose (+16 more)
+Cohesion: 0.07
+Nodes (29): 0.0 BUILD STATE — resume pointer (read this first, keep it current), 0. Instructions to the implementing agent, 1. Scope and non-goals, 25.0 The scoreboard — five mutations re-run, five reddened, 25.1 D210 — and the twelve claims, re-checked from scratch a second time, 25.2 D209's other half — the flakiness, not just the floor, 25.3 One thing the D206 re-run exposes, and it is minor, 25.4 What this cycle asks of the next agent (+21 more)
 
 ### Community 145 - "Community 145"
 Cohesion: 0.21
@@ -1653,8 +1653,8 @@ Cohesion: 0.50
 Nodes (3): Decision log, glTF support (2026-11-01, Hannes: "behave the same as with the rest"; textures not wanted), pf_geoimporter — owner doc
 
 ### Community 324 - "Community 324"
-Cohesion: 0.14
-Nodes (10): EnhancedInputField, Enhanced InputField with all Houdini parameter polish features:     - Hover eff, ParmInt, Integer parameter widget using Enhanced InputField with slider.          Combi, Handle value change from InputField., Update widget from parameter value., Update visual feedback for expression state., Args:             parm: Houdini parameter to bind to             label: Option (+2 more)
+Cohesion: 0.11
+Nodes (13): BaseParmWidget, EnhancedInputField, Enhanced InputField with all Houdini parameter polish features:     - Hover eff, ParmInt, Integer parameter widget using Enhanced InputField with slider.          Combi, Handle value change from InputField., Update widget from parameter value., Update visual feedback for expression state. (+5 more)
 
 ### Community 325 - "Community 325"
 Cohesion: 0.50
@@ -1729,8 +1729,8 @@ Cohesion: 0.20
 Nodes (10): 1.1 Lineage and status, 1.2 The paradigm — why this is not Houdini, 1.3 Grooming tools, 1.4 Clumping — a first-class subsystem, not a modifier, 1.5 Coils and braids, 1.6 Selection and masking, 1.7 The animation side — the part Houdini has no equivalent for, 1.8 Transferring a groom (+2 more)
 
 ### Community 355 - "Community 355"
-Cohesion: 0.33
-Nodes (6): 25.0 The scoreboard — five mutations re-run, five reddened, 25.1 D210 — and the twelve claims, re-checked from scratch a second time, 25.2 D209's other half — the flakiness, not just the floor, 25.3 One thing the D206 re-run exposes, and it is minor, 25.4 What this cycle asks of the next agent, 25. Native network build log — cycle N-4D (D206–D210 re-verified, and the brief was stale)
+Cohesion: 0.29
+Nodes (7): Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S5 — Intersections, The invariant that was violated: **every corner is an arc, always**, Three constructions adopted from the civil sweep — 2026-08-09, Two rules the design left open, decided 2026-08-09, What the literature adds
 
 ### Community 356 - "Community 356"
 Cohesion: 0.27
@@ -1785,8 +1785,8 @@ Cohesion: 0.25
 Nodes (5): _inside_xz(), D124 - ids survive re-authoring, or 12.7's identity rule is a wish., D141 - THE SIGN, MEASURED AS THE THING IT DECIDES.          `place._frame` bui, Even-odd point-in-polygon in the plan, for the winding assertion., TestCanonicalFootprint
 
 ### Community 373 - "Community 373"
-Cohesion: 0.33
-Nodes (6): 3.1 Input spline schema, 3.2 Kit format, 3.2b Prototype identity — reuse `pf::merge_enum`, and keep it distinct from element identity, 3.3 Style payload, 3.4 Output, 3. Data contracts
+Cohesion: 0.29
+Nodes (7): 4.1 Decompose, 4.2 Plan (the fitting solve — pure math, no geometry yet), 4.3 Corners, 4.4 Place + deform, 4.5 Surface conform (input 4), 4.6 Finalize, 4. The kernel — phase 1 algorithms
 
 ### Community 374 - "Community 374"
 Cohesion: 0.50
