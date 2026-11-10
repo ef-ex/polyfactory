@@ -8,7 +8,9 @@ own product by design. Do not treat a tool as a subsystem of another.
 
 1. **Houdini work starts with the dev-loop skill**: `houdini_get_skill("houdini-dev-loop")`
    before creating or editing ANY node network, VEX, HDA or geometry code. Rule 0 applies:
-   nothing is "done" without an independent audit on the current build.
+   nothing is "done" without an independent audit on the current build. One audit per
+   milestone; after fixes, re-check only the fixed findings (a cheap model is fine), no new full
+   audits (global rule 24, POLICY.md "no repeated review loops").
 2. **Language hierarchy for geometry work**: native nodes → VEX → OpenCL. Python only for
    UI/parameter marshalling or data genuinely inexpressible otherwise — and every surviving
    Python case must be named and justified in the owning doc's decision log.

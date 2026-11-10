@@ -91,8 +91,20 @@ def tr(pid):
     return pieces_ui.get_xform(pid).extractTranslates()
 
 
-def suite(out):
+def clear_hip():
+    """hipFile.clear, retried: under load Houdini runs our timers inside a long cook, and clear() then refuses ("Node
+    cook is in progress", 2026-11-10)."""
+    for _ in range(100):
+        try:
+            hou.hipFile.clear(suppress_save_prompt=True)
+            return
+        except hou.OperationFailed:
+            yield 100
     hou.hipFile.clear(suppress_save_prompt=True)
+
+
+def suite(out):
+    yield from clear_hip()
     c = containers.create()
     big = hou.hmath.buildScale(10, 10, 10)   # the library piece is 1 x 0.17 x 0.25: make it a target a click can hit
     ids = containers.add_pieces(c, [(FILES[3], "left", big * xf((-15, 0, 0))), (FILES[3], "mid", big),
@@ -910,6 +922,8 @@ def suite(out):
     yield 300
     rows0, m0 = len(containers.piece_rows(c)), tr(mid)
     dlg = clone.CloneDialog()
+    s.select([left])   # the dialog is not modal: it clones what was selected when it opened (mid)
+    yield 200
     dlg.kind["instance"].setChecked(True)
     dlg.count.setValue(3)
     for box_, v in zip(dlg.move + dlg.rotate, (2.0, 0.0, 0.0, 0.0, 0.0, 0.0)):
@@ -943,7 +957,7 @@ def suite(out):
     out["saved_without_handle_null"] = marked() == [] and bound_after == mid
     out["saved_containers_selectable"] = bool(containers.containers()) and all(
         cc.isSelectableInViewport() for cc in containers.containers())   # plain Houdini can click them
-    hou.hipFile.clear(suppress_save_prompt=True)
+    yield from clear_hip()
     pieces_ui.install()
     c3 = containers.create()
     i3 = containers.add_pieces(c3, [(FILES[3], "last", None)])[0]
@@ -1008,8 +1022,11 @@ def undo_open():
         hou.undos.performUndo()
     except hou.Error as e:
         if hou.node("/obj/pf_undo_probe") is not None:
-            with hou.undos.disabler():
-                n.destroy()
+            try:
+                with hou.undos.disabler():
+                    n.destroy()
+            except hou.OperationFailed:   # "Cannot delete nodes while cooking" (a cook under load): the next run's
+                pass                       # hip clear removes it; the probe must not end the whole suite (2026-11-10)
         return e.instanceMessage().strip().splitlines()[-1]
     return None if hou.node("/obj/pf_undo_probe") is None else "undo did not remove the probe"
 
@@ -1111,6 +1128,7 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
+    ("dialog_live_selection", "clone_dialog_ok", "clone", [("        clone(self.pids, **v)", "        clone(scene.current().selected(), **v)")]),
     ("dialog_count_ignored", "clone_dialog_ok", "clone", [('"count": self.count.value()', '"count": 1')]),
     ("look_at_ignored", "kitbash_at_look_at", "kitbash", [("    p = sv.curViewport().defaultCamera().pivot()\n    return hou.Vector3(p[0], 0.0, p[2])", "    return hou.Vector3()")]),
     ("no_delete_retry", "uninstall_retries_busy_delete", PS, [("    if busy and tries:", "    if False:")]),

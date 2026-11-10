@@ -93,6 +93,18 @@ def _point(geo, piece):
     raise KeyError("piece %r is not in this container" % piece)
 
 
+def _by_id(geo):
+    """A lookup piece -> point, built in one pass: an edit of many pieces stays linear (``_point`` per piece was
+    quadratic: 100 pieces x 30 clones took 18 s, F2b audit)."""
+    pts = dict(zip(geo.pointIntAttribValues("pf_piece"), geo.points()))
+
+    def get(piece):
+        if piece not in pts:
+            raise KeyError("piece %r is not in this container" % piece)
+        return pts[piece]
+    return get
+
+
 def _source_packs(container):
     """{file: its Pack node} for the container's intact source chains; broken chains (a node deleted by hand) are
     removed so they get rebuilt."""
@@ -203,11 +215,9 @@ def add_pieces(container, items):
 def set_transforms(container, xforms):
     """``xforms``: {piece: hou.Matrix4}, one edit (one pass over the points: linear in the container size)."""
     geo = points(container)
-    pts = dict(zip(geo.pointIntAttribValues("pf_piece"), geo.points()))
+    pt = _by_id(geo)
     for piece, m in xforms.items():
-        if piece not in pts:
-            raise KeyError("piece %r is not in this container" % piece)
-        _set_xform(pts[piece], m)
+        _set_xform(pt(piece), m)
     _commit(container, geo, "transform")
 
 
@@ -223,9 +233,9 @@ def copy_pieces(container, pieces, kind=""):
                 geo.addAttrib(hou.attribType.Point, n, d)
     nxt = geo.intAttribValue("pf_next_piece")
     ids = []
-    names = _names(geo)
+    names, pt = _names(geo), _by_id(geo)
     for piece in pieces:
-        src = _point(geo, piece)
+        src = pt(piece)
         p = geo.createPoint()
         p.setPosition(src.position())
         for n in ("orient", "scale", "pf_source", "pf_hidden"):
@@ -244,7 +254,8 @@ def copy_pieces(container, pieces, kind=""):
 
 def delete_pieces(container, pieces):
     geo = points(container)
-    geo.deletePoints([_point(geo, piece) for piece in pieces])
+    pt = _by_id(geo)
+    geo.deletePoints([pt(piece) for piece in pieces])
     _commit(container, geo, "delete")
 
 
@@ -264,8 +275,9 @@ def rename_piece(container, piece, name):
 
 def set_hidden(container, pieces, hide):
     geo = points(container)
+    pt = _by_id(geo)
     for piece in pieces:
-        _point(geo, piece).setAttribValue("pf_hidden", int(bool(hide)))
+        pt(piece).setAttribValue("pf_hidden", int(bool(hide)))
     _commit(container, geo, "hide" if hide else "show")
 
 
