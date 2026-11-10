@@ -169,6 +169,16 @@ def transform(container, piece):
     return s * hou.Matrix4(q.extractRotationMatrix3()) * hou.hmath.buildTranslate(p.position())
 
 
+def transforms(container):
+    """{piece: its transform} for every piece, read in one pass (as ``transform`` per piece)."""
+    g = stash(container).geometry()
+    ids, P = g.pointIntAttribValues("pf_piece"), g.pointFloatAttribValues("P")
+    O, S = g.pointFloatAttribValues("orient"), g.pointFloatAttribValues("scale")
+    return {piece: hou.hmath.buildScale(S[3 * i:3 * i + 3])
+            * hou.Matrix4(hou.Quaternion(O[4 * i:4 * i + 4]).extractRotationMatrix3())
+            * hou.hmath.buildTranslate(P[3 * i:3 * i + 3]) for i, piece in enumerate(ids)}
+
+
 def add_pieces(container, items):
     """Add pieces in one edit: ``items`` is a list of (source path, name, hou.Matrix4 or None). Returns their ids."""
     with hou.undos.group("modelUI: add pieces"):
@@ -191,10 +201,13 @@ def add_pieces(container, items):
 
 
 def set_transforms(container, xforms):
-    """``xforms``: {piece: hou.Matrix4}, one edit."""
+    """``xforms``: {piece: hou.Matrix4}, one edit (one pass over the points: linear in the container size)."""
     geo = points(container)
+    pts = dict(zip(geo.pointIntAttribValues("pf_piece"), geo.points()))
     for piece, m in xforms.items():
-        _set_xform(_point(geo, piece), m)
+        if piece not in pts:
+            raise KeyError("piece %r is not in this container" % piece)
+        _set_xform(pts[piece], m)
     _commit(container, geo, "transform")
 
 
