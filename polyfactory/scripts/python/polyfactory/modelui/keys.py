@@ -24,6 +24,10 @@ KEYS = [
     ("h", "h.pf_modelui_align", "Alt+Ctrl+A"),
     ("h", "h.pf_modelui_quick_align", "Alt+Ctrl+Shift+A"),
     ("h", "h.pf_modelui_normal_align", "Alt+Ctrl+N"),
+    # the Max keys, over viewers only: Alt+A / Alt+N keep Houdini's meaning in the textport, network editor, main menu
+    ("h.pane.gview", "h.pf_modelui_align", "Alt+A"),
+    ("h.pane.gview", "h.pf_modelui_quick_align", "Alt+Shift+A"),
+    ("h.pane.gview", "h.pf_modelui_normal_align", "Alt+N"),
     # F2e copy / paste, over viewers only (a main-menu symbol assigned in the viewer context runs there and nowhere else:
     # probe 2026-11-10). Houdini binds Ctrl+C / Ctrl+V to h.copy / h.paste in context h (ours is more specific) and in a
     # few SOP/LOP tool states (KineFX, APEX, RBD, stage manager: theirs is more specific and stays); Ctrl+Shift+V only

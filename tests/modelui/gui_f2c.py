@@ -414,13 +414,14 @@ def suite(out):
     ex, sd = hull.node("ex"), hull.node("sd")
     # no entry chosen (the viewer at object level): the network editor is elsewhere until the button takes it in. With
     # an entry the viewer is inside and a linked network editor is there already, so it could not tell
-    ne = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.NetworkEditor)
+    ne = next((t for t in hou.ui.paneTabs() if t.type() == hou.paneTabType.NetworkEditor), None) or hou.ui.curDesktop().createFloatingPaneTab(hou.paneTabType.NetworkEditor)   # the desk has none
     with hou.undos.disabler():
         ne.setPwd(hou.node("/obj"))
     yield 300
     log("  network editor before open as nodes:", ne.pwd().path(), ne.currentNode())
     click(p.buttons["nodes"])
     yield 400
+    log("  network editors:", [(t.name(), t.pwd().path()) for t in hou.ui.paneTabs() if t.type() == hou.paneTabType.NetworkEditor])
     log("  open as nodes:", ne and ne.pwd().path(), ne and ne.currentNode(), "objects", [n.name() for n in hou.node("/obj").children()])
     out["open_as_nodes"] = ne is not None and ne.pwd() == hull and ne.currentNode() == sd
     click_row(p.list, ex.sessionId())

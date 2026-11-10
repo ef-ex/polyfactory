@@ -89,7 +89,7 @@ def suite(out):
     sv, gl = viewer()
     mw = hou.qt.mainWindow()
     win = gl.window().windowHandle()
-    ne = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.NetworkEditor)
+    ne = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.NetworkEditor) or hou.ui.curDesktop().createFloatingPaneTab(hou.paneTabType.NetworkEditor)   # the desk has none
     out["installed"] = bool(ok)
     scene.current().select([box.sessionId()])
     yield 300
