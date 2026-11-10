@@ -21,7 +21,7 @@ TOGGLE_KEY = "Alt+Ctrl+Shift+X"   # Houdini's own spelling (it reorders modifier
 FEATURES = ["polyfactory.modelui.keys", "polyfactory.modelui.input_layer",
             "polyfactory.modelui.explorer",
             "polyfactory.modelui.pieces_ui", "polyfactory.modelui.align",
-            "polyfactory.modelui.stack_panel"]   # install order; uninstall reverses
+            "polyfactory.modelui.stack_panel", "polyfactory.modelui.feedback"]   # install order; uninstall reverses
 
 _state = hou.session.__dict__.setdefault(
     "_pf_modelui_switch", {"on": False, "prev_desk": None, "done": [], "busy": False, "error": None})

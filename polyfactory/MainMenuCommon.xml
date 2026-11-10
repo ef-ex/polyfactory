@@ -70,6 +70,15 @@ from polyfactory.modelui import clipboard
 hdefereval.executeDeferred(clipboard.paste_at_look_at)   # after the menu action: its own undo step, "modelUI: paste"
 ]]></scriptCode>
       </scriptItem>
+      <separatorItem/>
+      <scriptItem id="h.pf_modelui_feedback">
+        <label>Send feedback (F12)</label>
+        <scriptCode><![CDATA[
+from hutil.Qt import QtCore
+from polyfactory.modelui import feedback_overlay
+QtCore.QTimer.singleShot(250, feedback_overlay.show)   # after the menu or key action: the frozen frame has no popup
+]]></scriptCode>
+      </scriptItem>
     </subMenu>
   </menuBar>
 </mainMenu>

@@ -31,6 +31,9 @@ KEYS = [
     ("h.pane.gview", "h.pf_modelui_copy", "Ctrl+C"),
     ("h.pane.gview", "h.pf_modelui_paste", "Ctrl+V"),
     ("h.pane.gview", "h.pf_modelui_paste_at", "Ctrl+Shift+V"),
+    # F12 feedback: context "h" = everywhere in the main window; apply() removes whatever Houdini binds to F12 there
+    # and revert() puts it back
+    ("h", "h.pf_modelui_feedback", "F12"),
 ]
 # modelUI's own actions (= main menu item ids in MainMenuCommon.xml), registered in memory before their keys
 COMMANDS = {"h.pf_modelui_align": ("Align...", "modelUI: align the selection to a target (3ds Max Align)"),
@@ -38,7 +41,8 @@ COMMANDS = {"h.pf_modelui_align": ("Align...", "modelUI: align the selection to 
             "h.pf_modelui_normal_align": ("Normal Align...", "modelUI: a face of the selection onto a face of a target"),
             "h.pf_modelui_copy": ("Copy Selection", "modelUI: the selected pieces and objects to the clipboard"),
             "h.pf_modelui_paste": ("Paste", "modelUI: the clipboard into this scene, same world transforms"),
-            "h.pf_modelui_paste_at": ("Paste at Look-at Point", "modelUI: the clipboard, standing at the look-at point")}
+            "h.pf_modelui_paste_at": ("Paste at Look-at Point", "modelUI: the clipboard, standing at the look-at point"),
+            "h.pf_modelui_feedback": ("Send feedback", "modelUI: freeze the window, draw and pin notes, send to the agents")}
 
 
 def _changes():
