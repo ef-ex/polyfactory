@@ -10,6 +10,13 @@ from polyfactory.modelui import switch
 switch.toggle_later()
 ]]></scriptCode>
       </scriptItem>
+      <scriptItem id="h.pf_modelui_add_kitbash">
+        <label>Add kitbash pieces...</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import kitbash
+kitbash.add_dialog()
+]]></scriptCode>
+      </scriptItem>
       <separatorItem/>
       <scriptItem id="h.pf_modelui_align">
         <label>Align...</label>

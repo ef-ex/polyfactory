@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init",
-      "community": 20,
+      "community": 0,
       "norm_label": "__init__.py"
     },
     {
@@ -460,7 +460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init_rationale_1",
-      "community": 20,
+      "community": 0,
       "norm_label": "asset library module for polyfactory handles kitbash asset management, export,"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_init",
-      "community": 148,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -530,7 +530,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".paintevent()"
     },
     {
@@ -550,7 +550,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_init",
-      "community": 148,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -560,7 +560,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".paintevent()"
     },
     {
@@ -720,7 +720,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget",
-      "community": 148,
+      "community": 334,
       "norm_label": "assetthumbnailwidget"
     },
     {
@@ -730,7 +730,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_init",
-      "community": 148,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -760,7 +760,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_selected",
-      "community": 148,
+      "community": 334,
       "norm_label": ".set_selected()"
     },
     {
@@ -770,7 +770,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".paintevent()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousepressevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousemoveevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".mousemoveevent()"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousedoubleclickevent",
-      "community": 148,
+      "community": 334,
       "norm_label": ".mousedoubleclickevent()"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_418",
-      "community": 148,
+      "community": 334,
       "norm_label": "individual asset thumbnail with animated hover outline"
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_487",
-      "community": 148,
+      "community": 334,
       "norm_label": "toggle selection highlight on this thumbnail."
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 148,
+      "community": 334,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1040,7 +1040,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_533",
-      "community": 148,
+      "community": 334,
       "norm_label": "handle single-click \u2014 also record drag start position."
     },
     {
@@ -1050,7 +1050,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_541",
-      "community": 148,
+      "community": 334,
       "norm_label": "start a drag if the mouse has moved far enough from the press point."
     },
     {
@@ -1450,7 +1450,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "sopnode",
-      "community": 20,
+      "community": 0,
       "norm_label": "sopnode"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 92,
+      "community": 73,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 92,
+      "community": 73,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 92,
+      "community": 73,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1580,7 +1580,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 20,
+      "community": 0,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 92,
+      "community": 73,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1600,7 +1600,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "asset_library_batch_importer_read_str_attrib",
-      "community": 92,
+      "community": 73,
       "norm_label": "_read_str_attrib()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 92,
+      "community": 73,
       "norm_label": "geometry"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 92,
+      "community": 73,
       "norm_label": "_sanitize()"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 92,
+      "community": 73,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 92,
+      "community": 73,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 92,
+      "community": 73,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 20,
+      "community": 0,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 92,
+      "community": 73,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_282",
-      "community": 92,
+      "community": 73,
       "norm_label": "read a string primitive attribute value; return default if absent."
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 92,
+      "community": 73,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -1860,7 +1860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui",
-      "community": 148,
+      "community": 276,
       "norm_label": "browser_ui.py"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog",
-      "community": 148,
+      "community": 276,
       "norm_label": "assetbrowserdialog"
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 148,
+      "community": 276,
       "norm_label": ".__init__()"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L739",
       "_origin": "ast",
       "id": "asset_library_browser_ui_show_asset_browser",
-      "community": 148,
+      "community": 276,
       "norm_label": "show_asset_browser()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L751",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler",
-      "community": 148,
+      "community": 276,
       "norm_label": "assetdrophandler"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 148,
+      "community": 276,
       "norm_label": ".__init__()"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L769",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_install",
-      "community": 148,
+      "community": 276,
       "norm_label": ".install()"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L772",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_uninstall",
-      "community": 148,
+      "community": 276,
       "norm_label": ".uninstall()"
     },
     {
@@ -2180,7 +2180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_1",
-      "community": 148,
+      "community": 276,
       "norm_label": "asset browser ui - grid view of assets with search and filtering"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L689",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_689",
-      "community": 148,
+      "community": 276,
       "norm_label": "standalone asset browser dialog"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_740",
-      "community": 148,
+      "community": 276,
       "norm_label": "show the asset browser dialog"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L752",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_752",
-      "community": 148,
+      "community": 276,
       "norm_label": "handles drops from the asset browser onto houdini's viewport or network     edi"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L770",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_770",
-      "community": 148,
+      "community": 276,
       "norm_label": "no-op \u2014 wiring is done via signal connections."
     },
     {
@@ -2430,7 +2430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database",
-      "community": 20,
+      "community": 0,
       "norm_label": "database.py"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase",
-      "community": 20,
+      "community": 148,
       "norm_label": "assetdatabase"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_init",
-      "community": 20,
+      "community": 148,
       "norm_label": ".__init__()"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_ensure_directory",
-      "community": 20,
+      "community": 148,
       "norm_label": "._ensure_directory()"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_connect",
-      "community": 20,
+      "community": 148,
       "norm_label": "._connect()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_initialize_schema",
-      "community": 20,
+      "community": 148,
       "norm_label": "._initialize_schema()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_asset",
-      "community": 20,
+      "community": 148,
       "norm_label": ".add_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_asset",
-      "community": 20,
+      "community": 148,
       "norm_label": "._add_tags_to_asset()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 20,
+      "community": 148,
       "norm_label": ".get_asset()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 20,
+      "community": 148,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 20,
+      "community": 148,
       "norm_label": ".search_assets()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_categories",
-      "community": 20,
+      "community": 148,
       "norm_label": ".get_all_categories()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_tags",
-      "community": 20,
+      "community": 148,
       "norm_label": ".get_all_tags()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L323",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_names",
-      "community": 20,
+      "community": 148,
       "norm_label": ".get_all_names()"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_update_asset",
-      "community": 20,
+      "community": 148,
       "norm_label": ".update_asset()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_delete_asset",
-      "community": 20,
+      "community": 148,
       "norm_label": ".delete_asset()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_assets",
-      "community": 20,
+      "community": 148,
       "norm_label": ".add_tags_to_assets()"
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_remove_tags_from_assets",
-      "community": 20,
+      "community": 148,
       "norm_label": ".remove_tags_from_assets()"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_close",
-      "community": 20,
+      "community": 148,
       "norm_label": ".close()"
     },
     {
@@ -2620,7 +2620,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_enter",
-      "community": 20,
+      "community": 148,
       "norm_label": ".__enter__()"
     },
     {
@@ -2630,7 +2630,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_exit",
-      "community": 20,
+      "community": 148,
       "norm_label": ".__exit__()"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database_rationale_1",
-      "community": 20,
+      "community": 0,
       "norm_label": "sqlite database management for asset library"
     },
     {
@@ -2650,7 +2650,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_database_rationale_12",
-      "community": 20,
+      "community": 148,
       "norm_label": "manages the asset library sqlite database"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "asset_library_database_rationale_15",
-      "community": 20,
+      "community": 148,
       "norm_label": "initialize database connection                  args:             db_path: pa"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "asset_library_database_rationale_35",
-      "community": 20,
+      "community": 148,
       "norm_label": "create database directory if it doesn't exist"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_database_rationale_65",
-      "community": 20,
+      "community": 148,
       "norm_label": "establish database connection"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "asset_library_database_rationale_78",
-      "community": 20,
+      "community": 148,
       "norm_label": "create database tables if they don't exist"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "asset_library_database_rationale_139",
-      "community": 20,
+      "community": 148,
       "norm_label": "add a new asset to the database                  args:             name: asse"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "asset_library_database_rationale_182",
-      "community": 20,
+      "community": 148,
       "norm_label": "associate tags with an asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 20,
+      "community": 148,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 20,
+      "community": 148,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 20,
+      "community": 148,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "asset_library_database_rationale_302",
-      "community": 20,
+      "community": 148,
       "norm_label": "get all unique categories                  returns:             list of categ"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "asset_library_database_rationale_313",
-      "community": 20,
+      "community": 148,
       "norm_label": "get all unique tags                  returns:             list of tag strings"
     },
     {
@@ -2770,7 +2770,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "asset_library_database_rationale_324",
-      "community": 20,
+      "community": 148,
       "norm_label": "get all unique asset names                  returns:             list of asse"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_database_rationale_335",
-      "community": 20,
+      "community": 148,
       "norm_label": "update asset fields                  args:             asset_id: asset id"
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "asset_library_database_rationale_368",
-      "community": 20,
+      "community": 148,
       "norm_label": "delete an asset from the database                  args:             asset_id"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "asset_library_database_rationale_377",
-      "community": 20,
+      "community": 148,
       "norm_label": "add tags to multiple assets.  existing tag associations are left intact."
     },
     {
@@ -2810,7 +2810,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "asset_library_database_rationale_388",
-      "community": 20,
+      "community": 148,
       "norm_label": "remove specific tags from multiple assets.          tags that do not exist on"
     },
     {
@@ -2820,7 +2820,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "asset_library_database_rationale_412",
-      "community": 20,
+      "community": 148,
       "norm_label": "close database connection"
     },
     {
@@ -2890,7 +2890,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_detect",
-      "community": 92,
+      "community": 73,
       "norm_label": "._batch_detect()"
     },
     {
@@ -2930,7 +2930,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 92,
+      "community": 0,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -3100,7 +3100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_exporter",
-      "community": 20,
+      "community": 0,
       "norm_label": "exporter.py"
     },
     {
@@ -3110,7 +3110,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_exporter_export_asset",
-      "community": 20,
+      "community": 0,
       "norm_label": "export_asset()"
     },
     {
@@ -3120,7 +3120,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "asset_library_exporter_build_export_network",
-      "community": 20,
+      "community": 0,
       "norm_label": "_build_export_network()"
     },
     {
@@ -3130,7 +3130,7 @@
       "source_location": "L319",
       "_origin": "ast",
       "id": "asset_library_exporter_prims_to_group_string",
-      "community": 20,
+      "community": 0,
       "norm_label": "_prims_to_group_string()"
     },
     {
@@ -3140,7 +3140,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "asset_library_exporter_export_geometry",
-      "community": 20,
+      "community": 0,
       "norm_label": "_export_geometry()"
     },
     {
@@ -3150,7 +3150,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "asset_library_exporter_get_geometry_stats",
-      "community": 20,
+      "community": 0,
       "norm_label": "_get_geometry_stats()"
     },
     {
@@ -3160,7 +3160,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "asset_library_exporter_sanitize_filename",
-      "community": 20,
+      "community": 0,
       "norm_label": "_sanitize_filename()"
     },
     {
@@ -3170,7 +3170,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "asset_library_exporter_cleanup",
-      "community": 20,
+      "community": 0,
       "norm_label": "_cleanup()"
     },
     {
@@ -3180,7 +3180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_1",
-      "community": 20,
+      "community": 0,
       "norm_label": "asset exporter - builds node network and exports geometry"
     },
     {
@@ -3190,7 +3190,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_12",
-      "community": 20,
+      "community": 0,
       "norm_label": "export asset with the given configuration          args:         export_data:"
     },
     {
@@ -3200,7 +3200,7 @@
       "source_location": "L215",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_215",
-      "community": 20,
+      "community": 0,
       "norm_label": "build the export node network          args:         source_node: source geom"
     },
     {
@@ -3210,7 +3210,7 @@
       "source_location": "L320",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_320",
-      "community": 20,
+      "community": 0,
       "norm_label": "convert list of primitives to group string          args:         prims: list"
     },
     {
@@ -3220,7 +3220,7 @@
       "source_location": "L360",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_360",
-      "community": 20,
+      "community": 0,
       "norm_label": "export geometry to usd file          args:         node: node to export from"
     },
     {
@@ -3230,7 +3230,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_405",
-      "community": 20,
+      "community": 0,
       "norm_label": "get geometry statistics          args:         node: node to analyze"
     },
     {
@@ -3240,7 +3240,7 @@
       "source_location": "L433",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_433",
-      "community": 20,
+      "community": 0,
       "norm_label": "sanitize string for use as filename          args:         name: original nam"
     },
     {
@@ -3250,7 +3250,7 @@
       "source_location": "L452",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_452",
-      "community": 20,
+      "community": 0,
       "norm_label": "remove temporary nodes and restore display flag and network path          args"
     },
     {
@@ -3580,7 +3580,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget",
-      "community": 32,
+      "community": 137,
       "norm_label": "hoverlistwidget"
     },
     {
@@ -3590,7 +3590,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_init",
-      "community": 32,
+      "community": 137,
       "norm_label": ".__init__()"
     },
     {
@@ -3600,7 +3600,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_paintevent",
-      "community": 32,
+      "community": 137,
       "norm_label": ".paintevent()"
     },
     {
@@ -3840,7 +3840,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_24",
-      "community": 32,
+      "community": 137,
       "norm_label": "qlistwidget with animated hover outline"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render",
-      "community": 20,
+      "community": 0,
       "norm_label": "render.py"
     },
     {
@@ -4160,7 +4160,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 92,
+      "community": 0,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4170,7 +4170,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 92,
+      "community": 0,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4180,7 +4180,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_render_render_turntable",
-      "community": 20,
+      "community": 0,
       "norm_label": "render_turntable()"
     },
     {
@@ -4190,7 +4190,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "asset_library_render_create_render_scene",
-      "community": 20,
+      "community": 0,
       "norm_label": "_create_render_scene()"
     },
     {
@@ -4200,7 +4200,7 @@
       "source_location": "L231",
       "_origin": "ast",
       "id": "asset_library_render_render_frames",
-      "community": 20,
+      "community": 0,
       "norm_label": "_render_frames()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "asset_library_render_cleanup",
-      "community": 20,
+      "community": 0,
       "norm_label": "_cleanup()"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render_rationale_1",
-      "community": 20,
+      "community": 0,
       "norm_label": "turntable renderer - creates rotating preview animations for assets"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 92,
+      "community": 0,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 92,
+      "community": 0,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4250,7 +4250,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_render_rationale_49",
-      "community": 20,
+      "community": 0,
       "norm_label": "render a turntable animation of the geometry          args:         geo_node:"
     },
     {
@@ -4260,7 +4260,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "asset_library_render_rationale_90",
-      "community": 20,
+      "community": 0,
       "norm_label": "create a temporary usd render scene with geometry, camera, and lights"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "asset_library_render_rationale_232",
-      "community": 20,
+      "community": 0,
       "norm_label": "render frames using viewport flipbook          args:         lop_net: lop net"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "asset_library_render_rationale_308",
-      "community": 20,
+      "community": 0,
       "norm_label": "remove temporary nodes and panes          args:         temp_nodes: list of n"
     },
     {
@@ -4950,7 +4950,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 333,
+      "community": 42,
       "norm_label": "node"
     },
     {
@@ -4960,7 +4960,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 333,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -5350,7 +5350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_align",
-      "community": 268,
+      "community": 315,
       "norm_label": "align.py"
     },
     {
@@ -5360,7 +5360,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "modelui_align_np",
-      "community": 268,
+      "community": 315,
       "norm_label": "_np()"
     },
     {
@@ -5370,7 +5370,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "modelui_align_pts",
-      "community": 347,
+      "community": 357,
       "norm_label": "_pts()"
     },
     {
@@ -5380,7 +5380,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "modelui_align_items",
-      "community": 347,
+      "community": 357,
       "norm_label": "items()"
     },
     {
@@ -5390,7 +5390,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "modelui_align_item",
-      "community": 357,
+      "community": 361,
       "norm_label": "item()"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "modelui_align_world_pivot",
-      "community": 360,
+      "community": 364,
       "norm_label": "world_pivot()"
     },
     {
@@ -5410,7 +5410,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "modelui_align_world_box",
-      "community": 360,
+      "community": 364,
       "norm_label": "world_box()"
     },
     {
@@ -5420,7 +5420,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "modelui_align_pts_world",
-      "community": 268,
+      "community": 315,
       "norm_label": "_pts_world()"
     },
     {
@@ -5430,7 +5430,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "modelui_align_value",
-      "community": 360,
+      "community": 364,
       "norm_label": "value()"
     },
     {
@@ -5440,7 +5440,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "modelui_align_lin",
-      "community": 346,
+      "community": 356,
       "norm_label": "_lin()"
     },
     {
@@ -5450,7 +5450,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "modelui_align_row",
-      "community": 346,
+      "community": 356,
       "norm_label": "_row()"
     },
     {
@@ -5460,7 +5460,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "modelui_align_keep_pivot",
-      "community": 346,
+      "community": 356,
       "norm_label": "_keep_pivot()"
     },
     {
@@ -5470,7 +5470,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "modelui_align_orient",
-      "community": 346,
+      "community": 356,
       "norm_label": "orient()"
     },
     {
@@ -5480,7 +5480,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "modelui_align_match_scale",
-      "community": 346,
+      "community": 356,
       "norm_label": "match_scale()"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "modelui_align_aligned",
-      "community": 346,
+      "community": 356,
       "norm_label": "aligned()"
     },
     {
@@ -5500,7 +5500,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "modelui_align_solve",
-      "community": 362,
+      "community": 366,
       "norm_label": "solve()"
     },
     {
@@ -5510,7 +5510,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "modelui_align_selection_centre",
-      "community": 360,
+      "community": 364,
       "norm_label": "selection_centre()"
     },
     {
@@ -5520,7 +5520,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "modelui_align_quick",
-      "community": 360,
+      "community": 364,
       "norm_label": "quick()"
     },
     {
@@ -5530,7 +5530,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "modelui_align_normal_delta",
-      "community": 315,
+      "community": 326,
       "norm_label": "normal_delta()"
     },
     {
@@ -5540,7 +5540,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "modelui_align_pickable",
-      "community": 359,
+      "community": 363,
       "norm_label": "_pickable()"
     },
     {
@@ -5550,7 +5550,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "modelui_align_ray_box",
-      "community": 359,
+      "community": 363,
       "norm_label": "_ray_box()"
     },
     {
@@ -5560,7 +5560,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "modelui_align_hit_ray",
-      "community": 359,
+      "community": 363,
       "norm_label": "hit_ray()"
     },
     {
@@ -5570,7 +5570,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "modelui_align_hit_at",
-      "community": 359,
+      "community": 363,
       "norm_label": "hit_at()"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "modelui_align_snapshot",
-      "community": 347,
+      "community": 357,
       "norm_label": "_snapshot()"
     },
     {
@@ -5590,7 +5590,7 @@
       "source_location": "L292",
       "_origin": "ast",
       "id": "modelui_align_restore",
-      "community": 358,
+      "community": 362,
       "norm_label": "_restore()"
     },
     {
@@ -5600,7 +5600,7 @@
       "source_location": "L305",
       "_origin": "ast",
       "id": "modelui_align_commit",
-      "community": 357,
+      "community": 361,
       "norm_label": "commit()"
     },
     {
@@ -5610,7 +5610,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "modelui_align_stored",
-      "community": 347,
+      "community": 357,
       "norm_label": "stored()"
     },
     {
@@ -5620,7 +5620,7 @@
       "source_location": "L326",
       "_origin": "ast",
       "id": "modelui_align_unstored",
-      "community": 347,
+      "community": 357,
       "norm_label": "unstored()"
     },
     {
@@ -5630,7 +5630,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "modelui_align_warn_unstored",
-      "community": 268,
+      "community": 315,
       "norm_label": "_warn_unstored()"
     },
     {
@@ -5640,7 +5640,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "modelui_align_session",
-      "community": 358,
+      "community": 362,
       "norm_label": "session"
     },
     {
@@ -5650,7 +5650,7 @@
       "source_location": "L347",
       "_origin": "ast",
       "id": "modelui_align_session_init",
-      "community": 347,
+      "community": 357,
       "norm_label": ".__init__()"
     },
     {
@@ -5660,7 +5660,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "modelui_align_session_preview",
-      "community": 362,
+      "community": 366,
       "norm_label": ".preview()"
     },
     {
@@ -5670,7 +5670,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "modelui_align_session_apply",
-      "community": 358,
+      "community": 362,
       "norm_label": ".apply()"
     },
     {
@@ -5680,7 +5680,7 @@
       "source_location": "L372",
       "_origin": "ast",
       "id": "modelui_align_session_cancel",
-      "community": 358,
+      "community": 362,
       "norm_label": ".cancel()"
     },
     {
@@ -5690,7 +5690,7 @@
       "source_location": "L379",
       "_origin": "ast",
       "id": "modelui_align_alignsession",
-      "community": 357,
+      "community": 361,
       "norm_label": "alignsession"
     },
     {
@@ -5700,7 +5700,7 @@
       "source_location": "L380",
       "_origin": "ast",
       "id": "modelui_align_alignsession_init",
-      "community": 357,
+      "community": 361,
       "norm_label": ".__init__()"
     },
     {
@@ -5710,7 +5710,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "modelui_align_alignsession_update",
-      "community": 362,
+      "community": 366,
       "norm_label": ".update()"
     },
     {
@@ -5720,7 +5720,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "modelui_align_normalsession",
-      "community": 315,
+      "community": 326,
       "norm_label": "normalsession"
     },
     {
@@ -5730,7 +5730,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "modelui_align_normalsession_init",
-      "community": 315,
+      "community": 326,
       "norm_label": ".__init__()"
     },
     {
@@ -5740,7 +5740,7 @@
       "source_location": "L393",
       "_origin": "ast",
       "id": "modelui_align_normalsession_update",
-      "community": 315,
+      "community": 326,
       "norm_label": ".update()"
     },
     {
@@ -5750,7 +5750,7 @@
       "source_location": "L399",
       "_origin": "ast",
       "id": "modelui_align_aligndialog",
-      "community": 315,
+      "community": 326,
       "norm_label": "aligndialog"
     },
     {
@@ -5760,7 +5760,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_init",
-      "community": 315,
+      "community": 326,
       "norm_label": ".__init__()"
     },
     {
@@ -5770,7 +5770,7 @@
       "source_location": "L447",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_axes",
-      "community": 315,
+      "community": 326,
       "norm_label": "._axes()"
     },
     {
@@ -5780,7 +5780,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_options",
-      "community": 315,
+      "community": 326,
       "norm_label": ".options()"
     },
     {
@@ -5790,7 +5790,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_refresh",
-      "community": 315,
+      "community": 326,
       "norm_label": ".refresh()"
     },
     {
@@ -5800,7 +5800,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_done",
-      "community": 358,
+      "community": 362,
       "norm_label": ".done()"
     },
     {
@@ -5810,7 +5810,7 @@
       "source_location": "L478",
       "_origin": "ast",
       "id": "modelui_align_normaldialog",
-      "community": 315,
+      "community": 326,
       "norm_label": "normaldialog"
     },
     {
@@ -5820,7 +5820,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_init",
-      "community": 315,
+      "community": 326,
       "norm_label": ".__init__()"
     },
     {
@@ -5830,7 +5830,7 @@
       "source_location": "L511",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_values",
-      "community": 315,
+      "community": 326,
       "norm_label": ".values()"
     },
     {
@@ -5840,7 +5840,7 @@
       "source_location": "L514",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_refresh",
-      "community": 315,
+      "community": 326,
       "norm_label": ".refresh()"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L517",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_done",
-      "community": 358,
+      "community": 362,
       "norm_label": ".done()"
     },
     {
@@ -5860,7 +5860,7 @@
       "source_location": "L527",
       "_origin": "ast",
       "id": "modelui_align_finished",
-      "community": 358,
+      "community": 362,
       "norm_label": "_finished()"
     },
     {
@@ -5870,7 +5870,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "modelui_align_show",
-      "community": 357,
+      "community": 361,
       "norm_label": "_show()"
     },
     {
@@ -5880,7 +5880,7 @@
       "source_location": "L548",
       "_origin": "ast",
       "id": "modelui_align_status",
-      "community": 268,
+      "community": 315,
       "norm_label": "_status()"
     },
     {
@@ -5890,7 +5890,7 @@
       "source_location": "L555",
       "_origin": "ast",
       "id": "modelui_align_gesture",
-      "community": 357,
+      "community": 361,
       "norm_label": "_gesture()"
     },
     {
@@ -5900,7 +5900,7 @@
       "source_location": "L586",
       "_origin": "ast",
       "id": "modelui_align_picked",
-      "community": 357,
+      "community": 361,
       "norm_label": "_picked()"
     },
     {
@@ -5910,7 +5910,7 @@
       "source_location": "L619",
       "_origin": "ast",
       "id": "modelui_align_start",
-      "community": 268,
+      "community": 315,
       "norm_label": "_start()"
     },
     {
@@ -5920,7 +5920,7 @@
       "source_location": "L641",
       "_origin": "ast",
       "id": "modelui_align_cursor_tick",
-      "community": 268,
+      "community": 315,
       "norm_label": "_cursor_tick()"
     },
     {
@@ -5930,7 +5930,7 @@
       "source_location": "L654",
       "_origin": "ast",
       "id": "modelui_align_end_pick",
-      "community": 268,
+      "community": 315,
       "norm_label": "_end_pick()"
     },
     {
@@ -5940,7 +5940,7 @@
       "source_location": "L662",
       "_origin": "ast",
       "id": "modelui_align_cancel_pick",
-      "community": 268,
+      "community": 315,
       "norm_label": "cancel_pick()"
     },
     {
@@ -5950,7 +5950,7 @@
       "source_location": "L668",
       "_origin": "ast",
       "id": "modelui_align_align",
-      "community": 268,
+      "community": 315,
       "norm_label": "align()"
     },
     {
@@ -5960,7 +5960,7 @@
       "source_location": "L673",
       "_origin": "ast",
       "id": "modelui_align_quick_align",
-      "community": 268,
+      "community": 315,
       "norm_label": "quick_align()"
     },
     {
@@ -5970,7 +5970,7 @@
       "source_location": "L677",
       "_origin": "ast",
       "id": "modelui_align_normal_align",
-      "community": 268,
+      "community": 315,
       "norm_label": "normal_align()"
     },
     {
@@ -5980,7 +5980,7 @@
       "source_location": "L682",
       "_origin": "ast",
       "id": "modelui_align_install",
-      "community": 268,
+      "community": 315,
       "norm_label": "install()"
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L687",
       "_origin": "ast",
       "id": "modelui_align_uninstall",
-      "community": 268,
+      "community": 315,
       "norm_label": "uninstall()"
     },
     {
@@ -6000,7 +6000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_align_rationale_1",
-      "community": 268,
+      "community": 315,
       "norm_label": "modelui align (f2d): 3ds max's align selection, quick align and normal align for"
     },
     {
@@ -6010,7 +6010,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "modelui_align_rationale_53",
-      "community": 347,
+      "community": 357,
       "norm_label": "every item's world matrix ``m``, its points in its own space ``pts`` (nx3, none"
     },
     {
@@ -6020,7 +6020,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "modelui_align_rationale_89",
-      "community": 360,
+      "community": 364,
       "norm_label": "(lo, hi) of the item's points under ``m`` (default its own matrix): the tight wo"
     },
     {
@@ -6030,7 +6030,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "modelui_align_rationale_104",
-      "community": 360,
+      "community": 364,
       "norm_label": "the item's minimum / center / pivot point / maximum on world axis k."
     },
     {
@@ -6040,7 +6040,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "modelui_align_rationale_122",
-      "community": 346,
+      "community": 356,
       "norm_label": "``lin`` (no translation) with the translation that keeps the local pivot where `"
     },
     {
@@ -6050,7 +6050,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "modelui_align_rationale_127",
-      "community": 346,
+      "community": 356,
       "norm_label": "max's align orientation (local): one axis turns the item the shortest way until"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "modelui_align_rationale_141",
-      "community": 346,
+      "community": 356,
       "norm_label": "max's match scale: the item's scale on local axis k (world) becomes the target's"
     },
     {
@@ -6070,7 +6070,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "modelui_align_rationale_153",
-      "community": 346,
+      "community": 356,
       "norm_label": "the item's new world matrix. ``opts``: {\"pos\": {axis: (current point, target poi"
     },
     {
@@ -6080,7 +6080,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "modelui_align_rationale_164",
-      "community": 362,
+      "community": 366,
       "norm_label": "{pid: new world matrix} for every item (each on its own, as max does)."
     },
     {
@@ -6090,7 +6090,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "modelui_align_rationale_174",
-      "community": 360,
+      "community": 364,
       "norm_label": "quick align (max): one item's pivot, or several items' selection centre (their t"
     },
     {
@@ -6100,7 +6100,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "modelui_align_rationale_182",
-      "community": 315,
+      "community": 326,
       "norm_label": "world matrix that puts the source face (point ps, normal ns) onto the target fac"
     },
     {
@@ -6110,7 +6110,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "modelui_align_rationale_193",
-      "community": 359,
+      "community": 363,
       "norm_label": "a displayed container or loose geometry object (never the handle's proxy null)."
     },
     {
@@ -6120,7 +6120,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "modelui_align_rationale_201",
-      "community": 359,
+      "community": 363,
       "norm_label": "does the ray o + t d (t >= 0) pass through box ``bb`` (slab test)?"
     },
     {
@@ -6130,7 +6130,7 @@
       "source_location": "L217",
       "_origin": "ast",
       "id": "modelui_align_rationale_217",
-      "community": 359,
+      "community": 363,
       "norm_label": "(pid, world point, world normal facing the ray's origin) of the nearest piece or"
     },
     {
@@ -6140,7 +6140,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "modelui_align_rationale_266",
-      "community": 359,
+      "community": 363,
       "norm_label": "the hit under viewport pixel (x, y): only in the object the viewport draws there"
     },
     {
@@ -6150,7 +6150,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "modelui_align_rationale_278",
-      "community": 347,
+      "community": 357,
       "norm_label": "the stored values the items' transforms live in: a container's whole piece point"
     },
     {
@@ -6160,7 +6160,7 @@
       "source_location": "L306",
       "_origin": "ast",
       "id": "modelui_align_rationale_306",
-      "community": 357,
+      "community": 361,
       "norm_label": "{pid: world matrix} as one undo step."
     },
     {
@@ -6170,7 +6170,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "modelui_align_rationale_312",
-      "community": 347,
+      "community": 357,
       "norm_label": "{pid: the world matrix the scene holds now}; each container is read once."
     },
     {
@@ -6180,7 +6180,7 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "modelui_align_rationale_327",
-      "community": 347,
+      "community": 357,
       "norm_label": "the items whose requested world matrix the scene could not hold (an object with"
     },
     {
@@ -6190,7 +6190,7 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "modelui_align_rationale_343",
-      "community": 358,
+      "community": 362,
       "norm_label": "a live preview over the selection: ``preview`` moves the items outside the undo"
     },
     {
@@ -6200,7 +6200,7 @@
       "source_location": "L400",
       "_origin": "ast",
       "id": "modelui_align_rationale_400",
-      "community": 315,
+      "community": 326,
       "norm_label": "max's align selection dialog; the current and target points are chosen per axis"
     },
     {
@@ -6210,7 +6210,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "modelui_align_rationale_479",
-      "community": 315,
+      "community": 326,
       "norm_label": "max's normal align dialog: offset along the normal, spin about it, flip; apply /"
     },
     {
@@ -6220,7 +6220,7 @@
       "source_location": "L556",
       "_origin": "ast",
       "id": "modelui_align_rationale_556",
-      "community": 357,
+      "community": 361,
       "norm_label": "while picking: a left click in a viewer is ours (houdini never sees it) and pick"
     },
     {
@@ -6230,7 +6230,7 @@
       "source_location": "L642",
       "_origin": "ast",
       "id": "modelui_align_rationale_642",
-      "community": 268,
+      "community": 315,
       "norm_label": "max's pick cursor: the cross while a pick runs and the cursor (``pos``, default"
     },
     {
@@ -6240,7 +6240,7 @@
       "source_location": "L669",
       "_origin": "ast",
       "id": "modelui_align_rationale_669",
-      "community": 268,
+      "community": 315,
       "norm_label": "align selection: pick the target, then the dialog."
     },
     {
@@ -6250,7 +6250,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "modelui_align_rationale_688",
-      "community": 268,
+      "community": 315,
       "norm_label": "off: a pick ends; an open dialog cancels (everything back as it was)."
     },
     {
@@ -6807,7 +6807,7 @@
       "label": "Explorer",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "modelui_explorer_explorer",
       "community": 329,
@@ -6817,7 +6817,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L19",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_init",
       "community": 329,
@@ -6827,7 +6827,7 @@
       "label": ".set_watching()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L39",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_set_watching",
       "community": 329,
@@ -6837,7 +6837,7 @@
       "label": ".close_down()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L49",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_close_down",
       "community": 329,
@@ -6847,7 +6847,7 @@
       "label": "._rows()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L52",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_rows",
       "community": 329,
@@ -6857,7 +6857,7 @@
       "label": ".refresh()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L55",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_refresh",
       "community": 329,
@@ -6867,7 +6867,7 @@
       "label": ".selected_ids()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L76",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_selected_ids",
       "community": 329,
@@ -6877,7 +6877,7 @@
       "label": "._rows_selected()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L79",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_rows_selected",
       "community": 329,
@@ -6887,7 +6887,7 @@
       "label": "._row_changed()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L86",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_row_changed",
       "community": 329,
@@ -6897,7 +6897,7 @@
       "label": ".delete_selected()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L105",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "modelui_explorer_explorer_delete_selected",
       "community": 329,
@@ -6907,7 +6907,7 @@
       "label": "create_interface()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L111",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "modelui_explorer_create_interface",
       "community": 329,
@@ -6917,7 +6917,7 @@
       "label": "destroy_interface()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L117",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "modelui_explorer_destroy_interface",
       "community": 329,
@@ -6927,7 +6927,7 @@
       "label": "_panel()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L124",
+      "source_location": "L128",
       "_origin": "ast",
       "id": "modelui_explorer_panel",
       "community": 329,
@@ -6937,7 +6937,7 @@
       "label": "install()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L128",
+      "source_location": "L132",
       "_origin": "ast",
       "id": "modelui_explorer_install",
       "community": 329,
@@ -6947,7 +6947,7 @@
       "label": "uninstall()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L134",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "modelui_explorer_uninstall",
       "community": 329,
@@ -6967,9 +6967,9 @@
       "label": "Follow the scene (and refresh now) or stop following it: off while modelUI is of",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L40",
+      "source_location": "L44",
       "_origin": "ast",
-      "id": "modelui_explorer_rationale_40",
+      "id": "modelui_explorer_rationale_44",
       "community": 329,
       "norm_label": "follow the scene (and refresh now) or stop following it: off while modelui is of"
     },
@@ -6977,9 +6977,9 @@
       "label": "Rebuild the rows from the model when pieces, names or visibility changed; then m",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L56",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "modelui_explorer_rationale_56",
+      "id": "modelui_explorer_rationale_60",
       "community": 329,
       "norm_label": "rebuild the rows from the model when pieces, names or visibility changed; then m"
     },
@@ -6987,9 +6987,9 @@
       "label": "Switch feature hook: the desk's panel (if Houdini built it already) follows the",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L129",
+      "source_location": "L133",
       "_origin": "ast",
-      "id": "modelui_explorer_rationale_129",
+      "id": "modelui_explorer_rationale_133",
       "community": 329,
       "norm_label": "switch feature hook: the desk's panel (if houdini built it already) follows the"
     },
@@ -6997,9 +6997,9 @@
       "label": "Switch feature hook: the panel stops following the scene (no callbacks left whil",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L135",
+      "source_location": "L139",
       "_origin": "ast",
-      "id": "modelui_explorer_rationale_135",
+      "id": "modelui_explorer_rationale_139",
       "community": 329,
       "norm_label": "switch feature hook: the panel stops following the scene (no callbacks left whil"
     },
@@ -7602,6 +7602,126 @@
       "id": "modelui_keys_rationale_100",
       "community": 331,
       "norm_label": "every assignment of the contexts keys touches, {\"ctx?symbol\": sorted keys}: equa"
+    },
+    {
+      "label": "kitbash.py",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "modelui_kitbash",
+      "community": 328,
+      "norm_label": "kitbash.py"
+    },
+    {
+      "label": "library()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "modelui_kitbash_library",
+      "community": 328,
+      "norm_label": "library()"
+    },
+    {
+      "label": "look_at()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "modelui_kitbash_look_at",
+      "community": 328,
+      "norm_label": "look_at()"
+    },
+    {
+      "label": "target_container()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "modelui_kitbash_target_container",
+      "community": 328,
+      "norm_label": "target_container()"
+    },
+    {
+      "label": "_local_box()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "modelui_kitbash_local_box",
+      "community": 328,
+      "norm_label": "_local_box()"
+    },
+    {
+      "label": "add_files()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "modelui_kitbash_add_files",
+      "community": 328,
+      "norm_label": "add_files()"
+    },
+    {
+      "label": "add_dialog()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "modelui_kitbash_add_dialog",
+      "community": 328,
+      "norm_label": "add_dialog()"
+    },
+    {
+      "label": "Add kitbash pieces: USD files from the kitbash library into a modelUI container,",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "modelui_kitbash_rationale_1",
+      "community": 328,
+      "norm_label": "add kitbash pieces: usd files from the kitbash library into a modelui container,"
+    },
+    {
+      "label": "Where the current viewport looks, on the ground (y = 0); the origin without a vi",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "modelui_kitbash_rationale_22",
+      "community": 328,
+      "norm_label": "where the current viewport looks, on the ground (y = 0); the origin without a vi"
+    },
+    {
+      "label": "The container of the selected piece, else the first one, else a new one.",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "modelui_kitbash_rationale_31",
+      "community": 328,
+      "norm_label": "the container of the selected piece, else the first one, else a new one."
+    },
+    {
+      "label": "Add one piece per file in a row along X centred on ``at`` (default: the viewport",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "modelui_kitbash_rationale_47",
+      "community": 328,
+      "norm_label": "add one piece per file in a row along x centred on ``at`` (default: the viewport"
+    },
+    {
+      "label": "Ask for USD files (several at once) in the kitbash library and add them.",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "modelui_kitbash_rationale_75",
+      "community": 328,
+      "norm_label": "ask for usd files (several at once) in the kitbash library and add them."
     },
     {
       "label": "pieces_ui.py",
@@ -8890,7 +9010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_init",
-      "community": 159,
+      "community": 268,
       "norm_label": "__init__.py"
     },
     {
@@ -9090,7 +9210,7 @@
       "source_location": "L548",
       "_origin": "ast",
       "id": "polychain_init_roles",
-      "community": 159,
+      "community": 268,
       "norm_label": "_roles()"
     },
     {
@@ -9100,7 +9220,7 @@
       "source_location": "L556",
       "_origin": "ast",
       "id": "polychain_init_module",
-      "community": 159,
+      "community": 268,
       "norm_label": "module"
     },
     {
@@ -9110,7 +9230,7 @@
       "source_location": "L559",
       "_origin": "ast",
       "id": "polychain_init_module_init",
-      "community": 159,
+      "community": 268,
       "norm_label": ".__init__()"
     },
     {
@@ -9120,7 +9240,7 @@
       "source_location": "L591",
       "_origin": "ast",
       "id": "polychain_init_module_length",
-      "community": 159,
+      "community": 268,
       "norm_label": ".length()"
     },
     {
@@ -9130,7 +9250,7 @@
       "source_location": "L594",
       "_origin": "ast",
       "id": "polychain_init_module_tilts",
-      "community": 159,
+      "community": 268,
       "norm_label": ".tilts()"
     },
     {
@@ -9140,7 +9260,7 @@
       "source_location": "L599",
       "_origin": "ast",
       "id": "polychain_init_module_sliceable",
-      "community": 159,
+      "community": 268,
       "norm_label": ".sliceable()"
     },
     {
@@ -9150,7 +9270,7 @@
       "source_location": "L602",
       "_origin": "ast",
       "id": "polychain_init_module_repr",
-      "community": 159,
+      "community": 268,
       "norm_label": ".__repr__()"
     },
     {
@@ -9220,7 +9340,7 @@
       "source_location": "L650",
       "_origin": "ast",
       "id": "polychain_init_kit_from_records",
-      "community": 159,
+      "community": 268,
       "norm_label": "kit_from_records()"
     },
     {
@@ -9230,7 +9350,7 @@
       "source_location": "L673",
       "_origin": "ast",
       "id": "polychain_init_rule",
-      "community": 296,
+      "community": 159,
       "norm_label": "rule"
     },
     {
@@ -9240,7 +9360,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "polychain_init_rule_init",
-      "community": 296,
+      "community": 159,
       "norm_label": ".__init__()"
     },
     {
@@ -9290,7 +9410,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "polychain_init_elem_id",
-      "community": 159,
+      "community": 268,
       "norm_label": "elem_id()"
     },
     {
@@ -9310,7 +9430,7 @@
       "source_location": "L754",
       "_origin": "ast",
       "id": "polychain_init_splitmix",
-      "community": 159,
+      "community": 268,
       "norm_label": "_splitmix()"
     },
     {
@@ -9320,7 +9440,7 @@
       "source_location": "L762",
       "_origin": "ast",
       "id": "polychain_init_scope_key",
-      "community": 159,
+      "community": 268,
       "norm_label": "scope_key()"
     },
     {
@@ -9330,7 +9450,7 @@
       "source_location": "L774",
       "_origin": "ast",
       "id": "polychain_init_seed_for",
-      "community": 159,
+      "community": 268,
       "norm_label": "seed_for()"
     },
     {
@@ -9340,7 +9460,7 @@
       "source_location": "L786",
       "_origin": "ast",
       "id": "polychain_init_rng_for",
-      "community": 159,
+      "community": 268,
       "norm_label": "rng_for()"
     },
     {
@@ -9350,7 +9470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_init_rationale_1",
-      "community": 159,
+      "community": 268,
       "norm_label": "polychain - the contracts the 1d kernel is written against. no `hou`.  spec: `"
     },
     {
@@ -9460,7 +9580,7 @@
       "source_location": "L557",
       "_origin": "ast",
       "id": "polychain_init_rationale_557",
-      "community": 159,
+      "community": 268,
       "norm_label": "one kit piece (3.2). `size` is the nominal fitted size in metres."
     },
     {
@@ -9470,7 +9590,7 @@
       "source_location": "L595",
       "_origin": "ast",
       "id": "polychain_init_rationale_595",
-      "community": 159,
+      "community": 268,
       "norm_label": "d55 - does this module take the surface camber?"
     },
     {
@@ -9510,7 +9630,7 @@
       "source_location": "L651",
       "_origin": "ast",
       "id": "polychain_init_rationale_651",
-      "community": 159,
+      "community": 268,
       "norm_label": "build a kit from the manifest dicts the adapter reads off points.      d4: `pc"
     },
     {
@@ -9520,7 +9640,7 @@
       "source_location": "L674",
       "_origin": "ast",
       "id": "polychain_init_rationale_674",
-      "community": 296,
+      "community": 159,
       "norm_label": "one 3.3 rule point.      d119 (e1) - `yclass` scopes the rule to one row class"
     },
     {
@@ -9540,7 +9660,7 @@
       "source_location": "L741",
       "_origin": "ast",
       "id": "polychain_init_rationale_741",
-      "community": 159,
+      "community": 268,
       "norm_label": "the structural address (d1). collision-free by construction."
     },
     {
@@ -9560,7 +9680,7 @@
       "source_location": "L763",
       "_origin": "ast",
       "id": "polychain_init_rationale_763",
-      "community": 159,
+      "community": 268,
       "norm_label": "3.3's correlation key. a point number can never enter it."
     },
     {
@@ -9570,7 +9690,7 @@
       "source_location": "L775",
       "_origin": "ast",
       "id": "polychain_init_rationale_775",
-      "community": 159,
+      "community": 268,
       "norm_label": "deterministic across processes and sessions.      not builtin `hash()`: `pytho"
     },
     {
@@ -9700,7 +9820,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "polychain_array2d_row_as_dict",
-      "community": 109,
+      "community": 152,
       "norm_label": ".as_dict()"
     },
     {
@@ -9740,7 +9860,7 @@
       "source_location": "L511",
       "_origin": "ast",
       "id": "polychain_array2d_datum_bays",
-      "community": 363,
+      "community": 109,
       "norm_label": "datum_bays()"
     },
     {
@@ -9750,7 +9870,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "polychain_array2d_align_rows",
-      "community": 363,
+      "community": 109,
       "norm_label": "align_rows()"
     },
     {
@@ -9800,7 +9920,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_array2d_row_loops",
-      "community": 109,
+      "community": 152,
       "norm_label": "row_loops()"
     },
     {
@@ -9920,7 +10040,7 @@
       "source_location": "L813",
       "_origin": "ast",
       "id": "polychain_array2d_point_in_poly",
-      "community": 109,
+      "community": 152,
       "norm_label": "point_in_poly()"
     },
     {
@@ -10030,7 +10150,7 @@
       "source_location": "L1008",
       "_origin": "ast",
       "id": "polychain_array2d_region",
-      "community": 109,
+      "community": 152,
       "norm_label": "region"
     },
     {
@@ -10050,7 +10170,7 @@
       "source_location": "L1033",
       "_origin": "ast",
       "id": "polychain_array2d_region_inside",
-      "community": 109,
+      "community": 152,
       "norm_label": ".inside()"
     },
     {
@@ -10060,7 +10180,7 @@
       "source_location": "L1040",
       "_origin": "ast",
       "id": "polychain_array2d_region_spans",
-      "community": 109,
+      "community": 152,
       "norm_label": ".spans()"
     },
     {
@@ -10100,7 +10220,7 @@
       "source_location": "L1123",
       "_origin": "ast",
       "id": "polychain_array2d_intersect",
-      "community": 109,
+      "community": 152,
       "norm_label": "_intersect()"
     },
     {
@@ -10110,7 +10230,7 @@
       "source_location": "L1133",
       "_origin": "ast",
       "id": "polychain_array2d_row_spans",
-      "community": 109,
+      "community": 152,
       "norm_label": "row_spans()"
     },
     {
@@ -10120,7 +10240,7 @@
       "source_location": "L1179",
       "_origin": "ast",
       "id": "polychain_array2d_merge",
-      "community": 109,
+      "community": 152,
       "norm_label": "_merge()"
     },
     {
@@ -10130,7 +10250,7 @@
       "source_location": "L1191",
       "_origin": "ast",
       "id": "polychain_array2d_area_rows",
-      "community": 109,
+      "community": 152,
       "norm_label": "area_rows()"
     },
     {
@@ -10300,7 +10420,7 @@
       "source_location": "L512",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_512",
-      "community": 363,
+      "community": 109,
       "norm_label": "{section index: default-fill piece count} for one row curve.      7.4's own se"
     },
     {
@@ -10310,7 +10430,7 @@
       "source_location": "L543",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_543",
-      "community": 363,
+      "community": 109,
       "norm_label": "d122 aligned, stamped as data: every row but the datum carries the     datum's"
     },
     {
@@ -10350,7 +10470,7 @@
       "source_location": "L634",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_634",
-      "community": 109,
+      "community": 152,
       "norm_label": "[(points, closed, attrs)] - one entry per row, ready for the adapter.      the"
     },
     {
@@ -10400,7 +10520,7 @@
       "source_location": "L814",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_814",
-      "community": 109,
+      "community": 152,
       "norm_label": "even-odd crossing test, in the region's own 2-d chart."
     },
     {
@@ -10500,7 +10620,7 @@
       "source_location": "L1009",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1009",
-      "community": 109,
+      "community": 152,
       "norm_label": "the clip boundary of one array, in that array's own frame.      `polys` are th"
     },
     {
@@ -10510,7 +10630,7 @@
       "source_location": "L1041",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1041",
-      "community": 109,
+      "community": 152,
       "norm_label": "[(x0, x1)] of the horizontal line `y` inside the region.          every loop's"
     },
     {
@@ -10550,7 +10670,7 @@
       "source_location": "L1134",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1134",
-      "community": 109,
+      "community": 152,
       "norm_label": "the x intervals row `row` may occupy inside the boundary (d137).      7.6's co"
     },
     {
@@ -10560,7 +10680,7 @@
       "source_location": "L1180",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1180",
-      "community": 109,
+      "community": 152,
       "norm_label": "overlapping intervals folded together, so `preserve` cannot emit two     row cu"
     },
     {
@@ -10570,7 +10690,7 @@
       "source_location": "L1193",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1193",
-      "community": 109,
+      "community": 152,
       "norm_label": "[(points, closed, attrs)] - the row curves of a clipped area.      each row is"
     },
     {
@@ -11100,7 +11220,7 @@
       "source_location": "L257",
       "_origin": "ast",
       "id": "polychain_corner_bevel_e_for",
-      "community": 326,
+      "community": 346,
       "norm_label": ".e_for()"
     },
     {
@@ -11170,7 +11290,7 @@
       "source_location": "L341",
       "_origin": "ast",
       "id": "polychain_corner_half_width",
-      "community": 326,
+      "community": 346,
       "norm_label": "_half_width()"
     },
     {
@@ -11220,7 +11340,7 @@
       "source_location": "L569",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece",
-      "community": 326,
+      "community": 346,
       "norm_label": "cornerpiece"
     },
     {
@@ -11230,7 +11350,7 @@
       "source_location": "L575",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece_init",
-      "community": 326,
+      "community": 346,
       "norm_label": ".__init__()"
     },
     {
@@ -11280,7 +11400,7 @@
       "source_location": "L632",
       "_origin": "ast",
       "id": "polychain_corner_build_assembly",
-      "community": 326,
+      "community": 346,
       "norm_label": "build_assembly()"
     },
     {
@@ -11290,7 +11410,7 @@
       "source_location": "L716",
       "_origin": "ast",
       "id": "polychain_corner_displacement",
-      "community": 326,
+      "community": 346,
       "norm_label": "displacement()"
     },
     {
@@ -11420,7 +11540,7 @@
       "source_location": "L1154",
       "_origin": "ast",
       "id": "polychain_corner_apply_cuts",
-      "community": 326,
+      "community": 346,
       "norm_label": "_apply_cuts()"
     },
     {
@@ -11430,7 +11550,7 @@
       "source_location": "L1177",
       "_origin": "ast",
       "id": "polychain_corner_overflow",
-      "community": 326,
+      "community": 346,
       "norm_label": "_overflow()"
     },
     {
@@ -11510,7 +11630,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "polychain_corner_rationale_342",
-      "community": 326,
+      "community": 346,
       "norm_label": "the module's across half-extent (d20: +z is across).      a kit that leaves `p"
     },
     {
@@ -11550,7 +11670,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "polychain_corner_rationale_570",
-      "community": 326,
+      "community": 346,
       "norm_label": "one module of the composed corner run, already resolved onto a leg."
     },
     {
@@ -11590,7 +11710,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_corner_rationale_633",
-      "community": 326,
+      "community": 346,
       "norm_label": "d38's layout. `mods` in compose order; returns an `assembly`.      leg coordin"
     },
     {
@@ -11600,7 +11720,7 @@
       "source_location": "L717",
       "_origin": "ast",
       "id": "polychain_corner_rationale_717",
-      "community": 326,
+      "community": 346,
       "norm_label": "d40, revised - the overhang of the default module's boundary piece.      the f"
     },
     {
@@ -11710,7 +11830,7 @@
       "source_location": "L1155",
       "_origin": "ast",
       "id": "polychain_corner_rationale_1155",
-      "community": 326,
+      "community": 346,
       "norm_label": "hand the miter plane to every default piece whose geometry can cross it."
     },
     {
@@ -11720,7 +11840,7 @@
       "source_location": "L1178",
       "_origin": "ast",
       "id": "polychain_corner_rationale_1178",
-      "community": 326,
+      "community": 346,
       "norm_label": "a default piece cut by a corner it was supposed to stop short of.      with no"
     },
     {
@@ -15940,7 +16060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 184,
+      "community": 156,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -15950,7 +16070,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 184,
+      "community": 156,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -15960,7 +16080,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 184,
+      "community": 156,
       "norm_label": ".setupui()"
     },
     {
@@ -15970,7 +16090,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 184,
+      "community": 156,
       "norm_label": ".retranslateui()"
     },
     {
@@ -15980,7 +16100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 156,
+      "community": 184,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -15990,7 +16110,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 156,
+      "community": 184,
       "norm_label": "ui_mainpages"
     },
     {
@@ -16000,7 +16120,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 156,
+      "community": 184,
       "norm_label": ".setupui()"
     },
     {
@@ -16010,7 +16130,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 156,
+      "community": 184,
       "norm_label": ".retranslateui()"
     },
     {
@@ -16250,7 +16370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 62,
+      "community": 162,
       "norm_label": "__init__.py"
     },
     {
@@ -16560,7 +16680,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpushbutton",
-      "community": 24,
+      "community": 128,
       "norm_label": "qpushbutton"
     },
     {
@@ -17450,7 +17570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 62,
+      "community": 137,
       "norm_label": "__init__.py"
     },
     {
@@ -17460,7 +17580,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 62,
+      "community": 137,
       "norm_label": "py_push_button.py"
     },
     {
@@ -17470,7 +17590,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton",
-      "community": 148,
+      "community": 137,
       "norm_label": "pypushbutton"
     },
     {
@@ -17480,7 +17600,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton_init",
-      "community": 148,
+      "community": 137,
       "norm_label": ".__init__()"
     },
     {
@@ -17490,7 +17610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 62,
+      "community": 162,
       "norm_label": "__init__.py"
     },
     {
@@ -17500,7 +17620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 62,
+      "community": 162,
       "norm_label": "py_slider.py"
     },
     {
@@ -17510,7 +17630,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 62,
+      "community": 162,
       "norm_label": "pyslider"
     },
     {
@@ -17520,7 +17640,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 62,
+      "community": 162,
       "norm_label": "qslider"
     },
     {
@@ -17530,7 +17650,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 62,
+      "community": 162,
       "norm_label": ".__init__()"
     },
     {
@@ -17740,7 +17860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 34,
+      "community": 24,
       "norm_label": "py_title_button.py"
     },
     {
@@ -17760,7 +17880,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_pytitlebutton_init",
-      "community": 54,
+      "community": 24,
       "norm_label": ".__init__()"
     },
     {
@@ -17880,7 +18000,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip",
-      "community": 54,
+      "community": 24,
       "norm_label": "_tooltip"
     },
     {
@@ -17890,7 +18010,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip_init",
-      "community": 54,
+      "community": 24,
       "norm_label": ".__init__()"
     },
     {
@@ -18620,7 +18740,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 333,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -18720,7 +18840,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_build_layout",
-      "community": 15,
+      "community": 42,
       "norm_label": ".build_layout()"
     },
     {
@@ -18760,7 +18880,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 333,
+      "community": 42,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -18860,7 +18980,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_166",
-      "community": 15,
+      "community": 42,
       "norm_label": "build a layout containing all registered widgets.                  args:"
     },
     {
@@ -19040,7 +19160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_layouts",
-      "community": 15,
+      "community": 35,
       "norm_label": "layouts.py"
     },
     {
@@ -19050,7 +19170,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_layouts_houdinivlayout",
-      "community": 15,
+      "community": 35,
       "norm_label": "houdinivlayout"
     },
     {
@@ -19060,7 +19180,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_layouts_houdinivlayout_init",
-      "community": 15,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -19070,7 +19190,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "widgets_layouts_houdinihlayout",
-      "community": 15,
+      "community": 35,
       "norm_label": "houdinihlayout"
     },
     {
@@ -19080,7 +19200,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "widgets_layouts_houdinihlayout_init",
-      "community": 15,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -19090,7 +19210,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_layouts_houdinigroupbox",
-      "community": 15,
+      "community": 35,
       "norm_label": "houdinigroupbox"
     },
     {
@@ -19100,7 +19220,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "widgets_layouts_houdinigroupbox_init",
-      "community": 15,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -19110,7 +19230,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_layouts_rationale_1",
-      "community": 15,
+      "community": 35,
       "norm_label": "layout helpers - houdini-styled layouts  provides layout classes styled to mat"
     },
     {
@@ -19120,7 +19240,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_layouts_rationale_11",
-      "community": 15,
+      "community": 35,
       "norm_label": "vertical layout with houdini spacing."
     },
     {
@@ -19130,7 +19250,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "widgets_layouts_rationale_20",
-      "community": 15,
+      "community": 35,
       "norm_label": "horizontal layout with houdini spacing."
     },
     {
@@ -19140,7 +19260,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "widgets_layouts_rationale_29",
-      "community": 15,
+      "community": 35,
       "norm_label": "group box styled like houdini folders."
     },
     {
@@ -19150,7 +19270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 333,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -19160,7 +19280,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 333,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -19170,7 +19290,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 333,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -19180,7 +19300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 333,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -19190,7 +19310,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 333,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -19200,7 +19320,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 333,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -19460,7 +19580,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -19510,7 +19630,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield",
-      "community": 35,
+      "community": 324,
       "norm_label": "enhancedinputfield"
     },
     {
@@ -19520,7 +19640,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -19730,7 +19850,7 @@
       "source_location": "L402",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog",
-      "community": 35,
+      "community": 1,
       "norm_label": "expressiondialog"
     },
     {
@@ -19740,7 +19860,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -19790,7 +19910,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_87",
-      "community": 35,
+      "community": 324,
       "norm_label": "enhanced inputfield with all houdini parameter polish features:     - hover eff"
     },
     {
@@ -19980,7 +20100,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_403",
-      "community": 35,
+      "community": 1,
       "norm_label": "dialog for editing parameter expressions."
     },
     {
@@ -20020,7 +20140,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_init",
-      "community": 55,
+      "community": 324,
       "norm_label": ".__init__()"
     },
     {
@@ -20110,7 +20230,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint",
-      "community": 35,
+      "community": 324,
       "norm_label": "parmint"
     },
     {
@@ -20120,7 +20240,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_init",
-      "community": 55,
+      "community": 324,
       "norm_label": ".__init__()"
     },
     {
@@ -20130,7 +20250,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_on_input_changed",
-      "community": 35,
+      "community": 324,
       "norm_label": "._on_input_changed()"
     },
     {
@@ -20140,7 +20260,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_on_slider_changed",
-      "community": 35,
+      "community": 324,
       "norm_label": "._on_slider_changed()"
     },
     {
@@ -20150,7 +20270,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_widget_value",
-      "community": 55,
+      "community": 324,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20160,7 +20280,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_expression_style",
-      "community": 55,
+      "community": 324,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -20170,7 +20290,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_reset_to_default",
-      "community": 35,
+      "community": 324,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -20180,7 +20300,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_toggle_slider",
-      "community": 35,
+      "community": 324,
       "norm_label": "._toggle_slider()"
     },
     {
@@ -20210,7 +20330,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_27",
-      "community": 55,
+      "community": 324,
       "norm_label": "args:             parm: houdini parameter to bind to             label: option"
     },
     {
@@ -20290,7 +20410,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_169",
-      "community": 35,
+      "community": 324,
       "norm_label": "integer parameter widget using enhanced inputfield with slider.          combi"
     },
     {
@@ -20300,7 +20420,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_234",
-      "community": 35,
+      "community": 324,
       "norm_label": "handle value change from inputfield."
     },
     {
@@ -20310,7 +20430,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_255",
-      "community": 55,
+      "community": 324,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -20320,7 +20440,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_266",
-      "community": 55,
+      "community": 324,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -20330,7 +20450,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_288",
-      "community": 35,
+      "community": 324,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -20340,7 +20460,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_294",
-      "community": 35,
+      "community": 324,
       "norm_label": "toggle slider visibility (lmb on label)."
     },
     {
@@ -20350,7 +20470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 106,
+      "community": 35,
       "norm_label": "tag_input.py"
     },
     {
@@ -20540,7 +20660,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget",
-      "community": 148,
+      "community": 106,
       "norm_label": "taginputwidget"
     },
     {
@@ -20570,7 +20690,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_setavailabletags",
-      "community": 148,
+      "community": 106,
       "norm_label": ".setavailabletags()"
     },
     {
@@ -20580,7 +20700,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_gettags",
-      "community": 148,
+      "community": 106,
       "norm_label": ".gettags()"
     },
     {
@@ -20710,7 +20830,7 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_paintevent",
-      "community": 148,
+      "community": 106,
       "norm_label": ".paintevent()"
     },
     {
@@ -20720,7 +20840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 106,
+      "community": 35,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -20770,7 +20890,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_154",
-      "community": 148,
+      "community": 106,
       "norm_label": "tag input widget with autocomplete and chip display"
     },
     {
@@ -20780,7 +20900,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_236",
-      "community": 148,
+      "community": 106,
       "norm_label": "set the list of available tags for autocomplete                  args:"
     },
     {
@@ -20790,7 +20910,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_246",
-      "community": 148,
+      "community": 106,
       "norm_label": "get current list of tags                  returns:             list of tag st"
     },
     {
@@ -20900,7 +21020,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_408",
-      "community": 148,
+      "community": 106,
       "norm_label": "paint widget with animated hover outline"
     },
     {
@@ -20920,7 +21040,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 365,
       "norm_label": "parmstring"
     },
     {
@@ -20940,7 +21060,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 365,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -20950,7 +21070,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 365,
       "norm_label": "._on_changed()"
     },
     {
@@ -20960,7 +21080,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -20970,7 +21090,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 365,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -20980,7 +21100,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle",
-      "community": 35,
+      "community": 72,
       "norm_label": "parmtoggle"
     },
     {
@@ -21000,7 +21120,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_on_changed",
-      "community": 35,
+      "community": 72,
       "norm_label": "._on_changed()"
     },
     {
@@ -21010,7 +21130,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -21020,7 +21140,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 35,
+      "community": 72,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -21080,7 +21200,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -21120,7 +21240,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 35,
+      "community": 333,
       "norm_label": "parmcolor"
     },
     {
@@ -21130,7 +21250,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 333,
       "norm_label": ".__init__()"
     },
     {
@@ -21140,7 +21260,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 333,
       "norm_label": "parmtuple"
     },
     {
@@ -21150,7 +21270,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 35,
+      "community": 333,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -21160,7 +21280,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 35,
+      "community": 333,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -21170,7 +21290,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -21180,7 +21300,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 72,
+      "community": 333,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -21190,7 +21310,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 35,
+      "community": 333,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -21230,7 +21350,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 365,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -21240,7 +21360,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 365,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -21250,7 +21370,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 365,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -21260,7 +21380,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 35,
+      "community": 72,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -21330,7 +21450,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 35,
+      "community": 333,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -21340,7 +21460,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 35,
+      "community": 333,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -21350,7 +21470,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 72,
+      "community": 333,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -21360,7 +21480,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 72,
+      "community": 333,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -21370,7 +21490,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 35,
+      "community": 333,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -25240,7 +25360,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "citygen_run_building_checks_show",
-      "community": 328,
+      "community": 347,
       "norm_label": "show()"
     },
     {
@@ -25250,7 +25370,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "citygen_run_building_checks_scene",
-      "community": 350,
+      "community": 359,
       "norm_label": "scene()"
     },
     {
@@ -25260,7 +25380,7 @@
       "source_location": "L289",
       "_origin": "ast",
       "id": "citygen_run_building_checks_cook",
-      "community": 350,
+      "community": 359,
       "norm_label": "cook()"
     },
     {
@@ -25290,7 +25410,7 @@
       "source_location": "L668",
       "_origin": "ast",
       "id": "citygen_run_building_checks_cook_extra",
-      "community": 350,
+      "community": 359,
       "norm_label": "cook_extra()"
     },
     {
@@ -25300,7 +25420,7 @@
       "source_location": "L703",
       "_origin": "ast",
       "id": "citygen_run_building_checks_extras",
-      "community": 350,
+      "community": 359,
       "norm_label": "extras()"
     },
     {
@@ -25400,7 +25520,7 @@
       "source_location": "L1495",
       "_origin": "ast",
       "id": "citygen_run_building_checks_run_checks",
-      "community": 350,
+      "community": 359,
       "norm_label": "run_checks()"
     },
     {
@@ -25410,7 +25530,7 @@
       "source_location": "L1533",
       "_origin": "ast",
       "id": "citygen_run_building_checks_sources_now",
-      "community": 328,
+      "community": 347,
       "norm_label": "sources_now()"
     },
     {
@@ -25420,7 +25540,7 @@
       "source_location": "L1551",
       "_origin": "ast",
       "id": "citygen_run_building_checks_record",
-      "community": 328,
+      "community": 347,
       "norm_label": "record()"
     },
     {
@@ -25430,7 +25550,7 @@
       "source_location": "L1612",
       "_origin": "ast",
       "id": "citygen_run_building_checks_budget",
-      "community": 328,
+      "community": 347,
       "norm_label": "budget()"
     },
     {
@@ -25440,7 +25560,7 @@
       "source_location": "L1653",
       "_origin": "ast",
       "id": "citygen_run_building_checks_diff",
-      "community": 328,
+      "community": 347,
       "norm_label": "diff()"
     },
     {
@@ -25450,7 +25570,7 @@
       "source_location": "L1670",
       "_origin": "ast",
       "id": "citygen_run_building_checks_images",
-      "community": 328,
+      "community": 347,
       "norm_label": "images()"
     },
     {
@@ -25460,7 +25580,7 @@
       "source_location": "L1730",
       "_origin": "ast",
       "id": "citygen_run_building_checks_main",
-      "community": 328,
+      "community": 347,
       "norm_label": "main()"
     },
     {
@@ -25490,7 +25610,7 @@
       "source_location": "L257",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_257",
-      "community": 350,
+      "community": 359,
       "norm_label": "lots + a sloped, undulating ground; -> (lot node, b2 output node)."
     },
     {
@@ -25500,7 +25620,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_290",
-      "community": 350,
+      "community": 359,
       "norm_label": "a fresh /obj subtree per build, so no cook is served a stale cache."
     },
     {
@@ -25520,7 +25640,7 @@
       "source_location": "L670",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_670",
-      "community": 350,
+      "community": 359,
       "norm_label": "one b0 stream, optionally carried on through b1+b2 and then b3.      -> (paren"
     },
     {
@@ -25530,7 +25650,7 @@
       "source_location": "L704",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_704",
-      "community": 350,
+      "community": 359,
       "norm_label": "b0's three input shapes and b1's three shape ops, in one pass.      cooked her"
     },
     {
@@ -25570,7 +25690,7 @@
       "source_location": "L1534",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_1534",
-      "community": 328,
+      "community": 347,
       "norm_label": "what `no_style_branching` reads.  the .vfl files go through `b.vex` so a     mu"
     },
     {
@@ -25580,7 +25700,7 @@
       "source_location": "L1552",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_1552",
-      "community": 328,
+      "community": 347,
       "norm_label": "values, not pass/fail, and three families of them were missing.      \u26a0\ufe0f `pf_wa"
     },
     {
@@ -25590,7 +25710,7 @@
       "source_location": "L1613",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_1613",
-      "community": 328,
+      "community": 347,
       "norm_label": "test <= production, printed every run so it cannot drift unstated     again - t"
     },
     {
@@ -25600,7 +25720,7 @@
       "source_location": "L1671",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_1671",
-      "community": 328,
+      "community": 347,
       "norm_label": "a gate is judged on the picture.  colour by `pf_wall_role`, so the     party wa"
     },
     {
@@ -29450,7 +29570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_check_align",
-      "community": 0,
+      "community": 15,
       "norm_label": "check_align.py"
     },
     {
@@ -29460,7 +29580,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "modelui_check_align_xf",
-      "community": 0,
+      "community": 15,
       "norm_label": "xf()"
     },
     {
@@ -29470,7 +29590,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "modelui_check_align_oracle",
-      "community": 0,
+      "community": 15,
       "norm_label": "oracle"
     },
     {
@@ -29480,7 +29600,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_init",
-      "community": 0,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -29490,7 +29610,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_merge",
-      "community": 0,
+      "community": 15,
       "norm_label": "._merge()"
     },
     {
@@ -29500,7 +29620,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_world",
-      "community": 0,
+      "community": 15,
       "norm_label": ".world()"
     },
     {
@@ -29510,7 +29630,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_local",
-      "community": 0,
+      "community": 15,
       "norm_label": ".local()"
     },
     {
@@ -29520,7 +29640,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_affine",
-      "community": 0,
+      "community": 15,
       "norm_label": ".affine()"
     },
     {
@@ -29530,7 +29650,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "modelui_check_align_oracle_info",
-      "community": 0,
+      "community": 15,
       "norm_label": ".info()"
     },
     {
@@ -29540,7 +29660,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "modelui_check_align_val",
-      "community": 0,
+      "community": 15,
       "norm_label": "val()"
     },
     {
@@ -29550,7 +29670,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "modelui_check_align_axes",
-      "community": 0,
+      "community": 15,
       "norm_label": "axes()"
     },
     {
@@ -29560,7 +29680,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "modelui_check_align_scales",
-      "community": 0,
+      "community": 15,
       "norm_label": "scales()"
     },
     {
@@ -29570,7 +29690,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "modelui_check_align_raw",
-      "community": 0,
+      "community": 15,
       "norm_label": "raw()"
     },
     {
@@ -29580,7 +29700,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "modelui_check_align_fixture",
-      "community": 0,
+      "community": 15,
       "norm_label": "fixture()"
     },
     {
@@ -29590,7 +29710,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "modelui_check_align_close",
-      "community": 0,
+      "community": 15,
       "norm_label": "close()"
     },
     {
@@ -29600,7 +29720,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "modelui_check_align_checks",
-      "community": 0,
+      "community": 15,
       "norm_label": "checks()"
     },
     {
@@ -29610,7 +29730,7 @@
       "source_location": "L421",
       "_origin": "ast",
       "id": "modelui_check_align_reference_ms",
-      "community": 0,
+      "community": 15,
       "norm_label": "reference_ms()"
     },
     {
@@ -29620,7 +29740,7 @@
       "source_location": "L434",
       "_origin": "ast",
       "id": "modelui_check_align_perf",
-      "community": 0,
+      "community": 15,
       "norm_label": "perf()"
     },
     {
@@ -29630,7 +29750,7 @@
       "source_location": "L478",
       "_origin": "ast",
       "id": "modelui_check_align_mutate",
-      "community": 0,
+      "community": 15,
       "norm_label": "mutate()"
     },
     {
@@ -29640,7 +29760,7 @@
       "source_location": "L530",
       "_origin": "ast",
       "id": "modelui_check_align_run",
-      "community": 0,
+      "community": 15,
       "norm_label": "run()"
     },
     {
@@ -29650,7 +29770,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "modelui_check_align_main",
-      "community": 0,
+      "community": 15,
       "norm_label": "main()"
     },
     {
@@ -29660,7 +29780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_1",
-      "community": 0,
+      "community": 15,
       "norm_label": "headless checks of modelui align (f2d): the maths of align, quick align and norm"
     },
     {
@@ -29670,7 +29790,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_69",
-      "community": 0,
+      "community": 15,
       "norm_label": "world points of the item, in the order of its local points."
     },
     {
@@ -29680,7 +29800,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_89",
-      "community": 0,
+      "community": 15,
       "norm_label": "local points straight from the source: the usdimport of the piece's file, or the"
     },
     {
@@ -29690,7 +29810,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_100",
-      "community": 0,
+      "community": 15,
       "norm_label": "(l 3x3, t) with world = local @ l + t, fitted; raises when the fit is not exact"
     },
     {
@@ -29700,7 +29820,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_130",
-      "community": 0,
+      "community": 15,
       "norm_label": "the stored values bit for bit: stash point attributes of the containers, object"
     },
     {
@@ -29710,7 +29830,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "modelui_check_align_rationale_422",
-      "community": 0,
+      "community": 15,
       "norm_label": "a fixed workload of the same kind (python driving hom matrices), timed now: the"
     },
     {
@@ -29802,6 +29922,106 @@
       "id": "modelui_check_containers_rationale_1",
       "community": 339,
       "norm_label": "headless checks of modelui containers (pieces packed in container objects) and t"
+    },
+    {
+      "label": "check_kitbash.py",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash",
+      "community": 348,
+      "norm_label": "check_kitbash.py"
+    },
+    {
+      "label": "exact_box()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_exact_box",
+      "community": 348,
+      "norm_label": "exact_box()"
+    },
+    {
+      "label": "row_ok()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_row_ok",
+      "community": 348,
+      "norm_label": "row_ok()"
+    },
+    {
+      "label": "checks()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_checks",
+      "community": 348,
+      "norm_label": "checks()"
+    },
+    {
+      "label": "mutate()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_mutate",
+      "community": 348,
+      "norm_label": "mutate()"
+    },
+    {
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L94",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_run",
+      "community": 348,
+      "norm_label": "run()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L103",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_main",
+      "community": 348,
+      "norm_label": "main()"
+    },
+    {
+      "label": "Headless checks of \"Add kitbash pieces\" (modelui/kitbash.py: add_files), each wi",
+      "file_type": "rationale",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_rationale_1",
+      "community": 348,
+      "norm_label": "headless checks of \"add kitbash pieces\" (modelui/kitbash.py: add_files), each wi"
+    },
+    {
+      "label": "World box from the piece's own points (pieces_ui.bounds boxes the container-spac",
+      "file_type": "rationale",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_rationale_25",
+      "community": 348,
+      "norm_label": "world box from the piece's own points (pieces_ui.bounds boxes the container-spac"
+    },
+    {
+      "label": "World boxes: every piece on the ground, left to right with the gap, the row cent",
+      "file_type": "rationale",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "modelui_check_kitbash_rationale_35",
+      "community": 348,
+      "norm_label": "world boxes: every piece on the ground, left to right with the gap, the row cent"
     },
     {
       "label": "check_scene_model.py",
@@ -30627,7 +30847,7 @@
       "label": "_q()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L940",
+      "source_location": "L957",
       "_origin": "ast",
       "id": "modelui_gui_f2a_q",
       "community": 118,
@@ -30637,7 +30857,7 @@
       "label": "_purge_stale()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L947",
+      "source_location": "L964",
       "_origin": "ast",
       "id": "modelui_gui_f2a_purge_stale",
       "community": 118,
@@ -30647,7 +30867,7 @@
       "label": "undo_open()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L964",
+      "source_location": "L981",
       "_origin": "ast",
       "id": "modelui_gui_f2a_undo_open",
       "community": 118,
@@ -30657,7 +30877,7 @@
       "label": "cleanup()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L977",
+      "source_location": "L994",
       "_origin": "ast",
       "id": "modelui_gui_f2a_cleanup",
       "community": 118,
@@ -30667,7 +30887,7 @@
       "label": "mutate()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L993",
+      "source_location": "L1011",
       "_origin": "ast",
       "id": "modelui_gui_f2a_mutate",
       "community": 118,
@@ -30677,7 +30897,7 @@
       "label": "driver()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L1097",
+      "source_location": "L1116",
       "_origin": "ast",
       "id": "modelui_gui_f2a_driver",
       "community": 118,
@@ -30687,7 +30907,7 @@
       "label": "pump()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L1119",
+      "source_location": "L1138",
       "_origin": "ast",
       "id": "modelui_gui_f2a_pump",
       "community": 118,
@@ -30697,7 +30917,7 @@
       "label": "finish()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L1132",
+      "source_location": "L1151",
       "_origin": "ast",
       "id": "modelui_gui_f2a_finish",
       "community": 118,
@@ -30707,7 +30927,7 @@
       "label": "guard()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L1141",
+      "source_location": "L1160",
       "_origin": "ast",
       "id": "modelui_gui_f2a_guard",
       "community": 118,
@@ -30717,7 +30937,7 @@
       "label": "start()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L1150",
+      "source_location": "L1169",
       "_origin": "ast",
       "id": "modelui_gui_f2a_start",
       "community": 118,
@@ -30747,9 +30967,9 @@
       "label": "A mutation re-executes pieces_ui's source into the live module: the functions an",
       "file_type": "rationale",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L948",
+      "source_location": "L965",
       "_origin": "ast",
-      "id": "modelui_gui_f2a_rationale_948",
+      "id": "modelui_gui_f2a_rationale_965",
       "community": 118,
       "norm_label": "a mutation re-executes pieces_ui's source into the live module: the functions an"
     },
@@ -30757,9 +30977,9 @@
       "label": "None when undo works; else Houdini's error (an undo group left open, e.g. by an",
       "file_type": "rationale",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L965",
+      "source_location": "L982",
       "_origin": "ast",
-      "id": "modelui_gui_f2a_rationale_965",
+      "id": "modelui_gui_f2a_rationale_982",
       "community": 118,
       "norm_label": "none when undo works; else houdini's error (an undo group left open, e.g. by an"
     },
@@ -30770,7 +30990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_gui_f2d",
-      "community": 73,
+      "community": 20,
       "norm_label": "gui_f2d.py"
     },
     {
@@ -30780,7 +31000,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "modelui_gui_f2d_log",
-      "community": 73,
+      "community": 20,
       "norm_label": "log()"
     },
     {
@@ -30790,7 +31010,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "modelui_gui_f2d_visible_on_screen",
-      "community": 73,
+      "community": 20,
       "norm_label": "visible_on_screen()"
     },
     {
@@ -30800,7 +31020,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "modelui_gui_f2d_off_screen",
-      "community": 73,
+      "community": 20,
       "norm_label": "off_screen()"
     },
     {
@@ -30810,7 +31030,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "modelui_gui_f2d_viewer",
-      "community": 73,
+      "community": 20,
       "norm_label": "viewer()"
     },
     {
@@ -30820,7 +31040,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "modelui_gui_f2d_screen_point",
-      "community": 73,
+      "community": 20,
       "norm_label": "screen_point()"
     },
     {
@@ -30830,7 +31050,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "modelui_gui_f2d_l",
-      "community": 73,
+      "community": 20,
       "norm_label": "l()"
     },
     {
@@ -30840,7 +31060,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "modelui_gui_f2d_raw",
-      "community": 73,
+      "community": 20,
       "norm_label": "raw()"
     },
     {
@@ -30850,7 +31070,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe",
-      "community": 73,
+      "community": 20,
       "norm_label": "_probe"
     },
     {
@@ -30860,7 +31080,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe_init",
-      "community": 73,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -30870,7 +31090,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe_eventfilter",
-      "community": 73,
+      "community": 20,
       "norm_label": ".eventfilter()"
     },
     {
@@ -30880,7 +31100,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "modelui_gui_f2d_picking",
-      "community": 73,
+      "community": 20,
       "norm_label": "picking()"
     },
     {
@@ -30890,7 +31110,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "modelui_gui_f2d_pick_clean",
-      "community": 73,
+      "community": 20,
       "norm_label": "pick_clean()"
     },
     {
@@ -30900,7 +31120,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "modelui_gui_f2d_suite",
-      "community": 73,
+      "community": 20,
       "norm_label": "suite()"
     },
     {
@@ -30910,7 +31130,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "modelui_gui_f2d_undo_open",
-      "community": 73,
+      "community": 20,
       "norm_label": "undo_open()"
     },
     {
@@ -30920,7 +31140,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "modelui_gui_f2d_q",
-      "community": 73,
+      "community": 20,
       "norm_label": "_q()"
     },
     {
@@ -30930,7 +31150,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "modelui_gui_f2d_cleanup",
-      "community": 73,
+      "community": 20,
       "norm_label": "cleanup()"
     },
     {
@@ -30940,7 +31160,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "modelui_gui_f2d_mutate",
-      "community": 73,
+      "community": 20,
       "norm_label": "mutate()"
     },
     {
@@ -30950,7 +31170,7 @@
       "source_location": "L482",
       "_origin": "ast",
       "id": "modelui_gui_f2d_driver",
-      "community": 73,
+      "community": 20,
       "norm_label": "driver()"
     },
     {
@@ -30960,7 +31180,7 @@
       "source_location": "L506",
       "_origin": "ast",
       "id": "modelui_gui_f2d_pump",
-      "community": 73,
+      "community": 20,
       "norm_label": "pump()"
     },
     {
@@ -30970,7 +31190,7 @@
       "source_location": "L519",
       "_origin": "ast",
       "id": "modelui_gui_f2d_finish",
-      "community": 73,
+      "community": 20,
       "norm_label": "finish()"
     },
     {
@@ -30980,7 +31200,7 @@
       "source_location": "L528",
       "_origin": "ast",
       "id": "modelui_gui_f2d_guard",
-      "community": 73,
+      "community": 20,
       "norm_label": "guard()"
     },
     {
@@ -30990,7 +31210,7 @@
       "source_location": "L537",
       "_origin": "ast",
       "id": "modelui_gui_f2d_start",
-      "community": 73,
+      "community": 20,
       "norm_label": "start()"
     },
     {
@@ -31000,7 +31220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "modelui_gui_f2d_rationale_1",
-      "community": 73,
+      "community": 20,
       "norm_label": "gui checks of modelui f2d align (align.py: hotkeys, target and face picking in a"
     },
     {
@@ -31010,7 +31230,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "modelui_gui_f2d_rationale_78",
-      "community": 73,
+      "community": 20,
       "norm_label": "stored values bit for bit: container stash points, object transform parameters."
     },
     {
@@ -31020,7 +31240,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "modelui_gui_f2d_rationale_105",
-      "community": 73,
+      "community": 20,
       "norm_label": "no pick running: the gesture is gone and the cross cursor too."
     },
     {
@@ -31260,7 +31480,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "polychain_cases_setup_env",
-      "community": 364,
+      "community": 360,
       "norm_label": "setup_env()"
     },
     {
@@ -31540,7 +31760,7 @@
       "source_location": "L1482",
       "_origin": "ast",
       "id": "polychain_cases_rebuild",
-      "community": 22,
+      "community": 360,
       "norm_label": "rebuild()"
     },
     {
@@ -31630,7 +31850,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "polychain_cases_rationale_18",
-      "community": 364,
+      "community": 360,
       "norm_label": "hython has not loaded the polyfactory package, so scripts/python is not     on"
     },
     {
@@ -31820,7 +32040,7 @@
       "source_location": "L1483",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1483",
-      "community": 22,
+      "community": 360,
       "norm_label": "cook the same inputs again into fresh geometry - the determinism check."
     },
     {
@@ -39510,7 +39730,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 195,
+      "community": 168,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -39550,7 +39770,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 348,
+      "community": 195,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -39560,7 +39780,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 348,
+      "community": 195,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -39570,7 +39790,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 348,
+      "community": 195,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -39580,7 +39800,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 348,
+      "community": 195,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -39590,7 +39810,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 348,
+      "community": 195,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -39600,7 +39820,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 348,
+      "community": 195,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -40160,7 +40380,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 195,
+      "community": 168,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -40180,7 +40400,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 348,
+      "community": 195,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -40280,7 +40500,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d",
-      "community": 353,
+      "community": 296,
       "norm_label": "test_polychain_array2d.py"
     },
     {
@@ -40290,7 +40510,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_kit_of",
-      "community": 296,
+      "community": 159,
       "norm_label": "kit_of()"
     },
     {
@@ -40300,7 +40520,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_inside_xz",
-      "community": 353,
+      "community": 296,
       "norm_label": "_inside_xz()"
     },
     {
@@ -40350,7 +40570,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 353,
+      "community": 296,
       "norm_label": "testfallbackchain"
     },
     {
@@ -40360,7 +40580,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -40370,7 +40590,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -40470,7 +40690,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testroleclosure_test_a_marker_cell_closes_over_all_five_y_classes",
-      "community": 134,
+      "community": 145,
       "norm_label": ".test_a_marker_cell_closes_over_all_five_y_classes()"
     },
     {
@@ -40590,7 +40810,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testyprofile_test_the_profile_offset_is_read_and_not_yet_applied",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_the_profile_offset_is_read_and_not_yet_applied()"
     },
     {
@@ -40610,7 +40830,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint",
-      "community": 353,
+      "community": 296,
       "norm_label": "testcanonicalfootprint"
     },
     {
@@ -40620,7 +40840,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_the_across_axis_points_out_of_the_building",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_the_across_axis_points_out_of_the_building()"
     },
     {
@@ -40630,7 +40850,7 @@
       "source_location": "L345",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_an_open_run_is_left_exactly_as_authored",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_an_open_run_is_left_exactly_as_authored()"
     },
     {
@@ -40640,7 +40860,7 @@
       "source_location": "L350",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_rows_translate_the_canonical_loop",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_rows_translate_the_canonical_loop()"
     },
     {
@@ -40650,7 +40870,7 @@
       "source_location": "L363",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea",
-      "community": 296,
+      "community": 159,
       "norm_label": "testclippedarea"
     },
     {
@@ -40660,7 +40880,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_vertical_rectangle_gives_its_own_extents",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_a_vertical_rectangle_gives_its_own_extents()"
     },
     {
@@ -40670,7 +40890,7 @@
       "source_location": "L375",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_the_frame_round_trips_a_point",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_the_frame_round_trips_a_point()"
     },
     {
@@ -40680,7 +40900,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_expand_grows_the_extents_symmetrically",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_expand_grows_the_extents_symmetrically()"
     },
     {
@@ -40690,7 +40910,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_rectangle_clips_nothing",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_a_rectangle_clips_nothing()"
     },
     {
@@ -40700,7 +40920,7 @@
       "source_location": "L396",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_taper_narrows_every_row_and_never_leaves_the_line",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_a_taper_narrows_every_row_and_never_leaves_the_line()"
     },
     {
@@ -40710,7 +40930,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_preserve_is_wider_than_remove_and_remove_never_wider",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_preserve_is_wider_than_remove_and_remove_never_wider()"
     },
     {
@@ -40720,7 +40940,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_area_rows_are_open_spans_in_world_space",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_area_rows_are_open_spans_in_world_space()"
     },
     {
@@ -40730,7 +40950,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 296,
+      "community": 159,
       "norm_label": "testkernelextensions"
     },
     {
@@ -40740,7 +40960,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -40750,7 +40970,7 @@
       "source_location": "L448",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_rules_for_without_a_class_is_the_phase_1_call",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_rules_for_without_a_class_is_the_phase_1_call()"
     },
     {
@@ -40760,7 +40980,7 @@
       "source_location": "L454",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded()"
     },
     {
@@ -40770,7 +40990,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -40780,7 +41000,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -40790,7 +41010,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -40800,7 +41020,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -40810,7 +41030,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 296,
+      "community": 159,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -40860,7 +41080,7 @@
       "source_location": "L525",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_teststylesplit_test_an_unknown_axis_is_an_x_rule",
-      "community": 295,
+      "community": 159,
       "norm_label": ".test_an_unknown_axis_is_an_x_rule()"
     },
     {
@@ -40920,7 +41140,7 @@
       "source_location": "L574",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testnohoudini",
-      "community": 353,
+      "community": 296,
       "norm_label": "testnohoudini"
     },
     {
@@ -40930,7 +41150,7 @@
       "source_location": "L576",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testnohoudini_test_hou_was_never_imported",
-      "community": 353,
+      "community": 296,
       "norm_label": ".test_hou_was_never_imported()"
     },
     {
@@ -40940,7 +41160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_1",
-      "community": 353,
+      "community": 296,
       "norm_label": "polychain 7 array2d - the row stack and the cell lattice. no houdini.      pyt"
     },
     {
@@ -40950,7 +41170,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_40",
-      "community": 296,
+      "community": 159,
       "norm_label": "one module per role, each 3 m wide and named after its role."
     },
     {
@@ -40960,7 +41180,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_50",
-      "community": 353,
+      "community": 296,
       "norm_label": "even-odd point-in-polygon in the plan, for the winding assertion."
     },
     {
@@ -41000,7 +41220,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_101",
-      "community": 353,
+      "community": 296,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -41060,7 +41280,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_192",
-      "community": 134,
+      "community": 145,
       "norm_label": "7.2's marker cells are legal by grammar and therefore unbounded, so         the"
     },
     {
@@ -41120,7 +41340,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_291",
-      "community": 296,
+      "community": 159,
       "norm_label": "d128 is p2-8. the offset must be read now - a number nothing uses         is st"
     },
     {
@@ -41130,7 +41350,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_309",
-      "community": 353,
+      "community": 296,
       "norm_label": "d124 - ids survive re-authoring, or 12.7's identity rule is a wish."
     },
     {
@@ -41140,7 +41360,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_315",
-      "community": 353,
+      "community": 296,
       "norm_label": "d141 - the sign, measured as the thing it decides.          `place._frame` bui"
     },
     {
@@ -41150,7 +41370,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_364",
-      "community": 296,
+      "community": 159,
       "norm_label": "7.6 / d137 - enough of the clipped area to fill a facade panel."
     },
     {
@@ -41160,7 +41380,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_439",
-      "community": 296,
+      "community": 159,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -44170,7 +44390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
-      "community": 361,
+      "community": 133,
       "norm_label": "claude.md"
     },
     {
@@ -44180,7 +44400,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_polyfactory_project_instructions",
-      "community": 361,
+      "community": 335,
       "norm_label": "polyfactory \u2014 project instructions"
     },
     {
@@ -44190,7 +44410,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "claude_non_negotiable_working_rules",
-      "community": 361,
+      "community": 335,
       "norm_label": "non-negotiable working rules"
     },
     {
@@ -44200,7 +44420,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "claude_multi_agent_shared_branch_rules",
-      "community": 361,
+      "community": 335,
       "norm_label": "multi-agent / shared-branch rules"
     },
     {
@@ -44210,7 +44430,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "claude_testing",
-      "community": 361,
+      "community": 335,
       "norm_label": "testing"
     },
     {
@@ -44220,7 +44440,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "claude_docs",
-      "community": 361,
+      "community": 335,
       "norm_label": "docs"
     },
     {
@@ -45910,7 +46130,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_artist_ui_6b_the_study_applied_across_every_polyfactory_tool_audit_of_the_other_studies",
-      "community": 335,
+      "community": 174,
       "norm_label": "6b. the study applied across every polyfactory tool \u2014 audit of the other studies"
     },
     {
@@ -45920,7 +46140,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "ideas_artist_ui_streets_citygen_streets_md_citygen_streets_md_in_build",
-      "community": 335,
+      "community": 174,
       "norm_label": "streets \u2014 [`citygen_streets.md`](citygen_streets.md), in build"
     },
     {
@@ -45930,7 +46150,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "ideas_artist_ui_buildings_citygen_buildings_md_citygen_buildings_md_research_only",
-      "community": 335,
+      "community": 174,
       "norm_label": "buildings \u2014 [`citygen_buildings.md`](citygen_buildings.md), research only"
     },
     {
@@ -45940,7 +46160,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "ideas_artist_ui_traffic_crowds_citygen_simulation_md_citygen_simulation_md_design_spec_v0",
-      "community": 335,
+      "community": 174,
       "norm_label": "traffic / crowds \u2014 [`citygen_simulation.md`](citygen_simulation.md), design spec v0"
     },
     {
@@ -45950,7 +46170,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "ideas_artist_ui_terrain_presets_terrain_presets_md_terrain_presets_md_parked",
-      "community": 335,
+      "community": 174,
       "norm_label": "terrain presets \u2014 [`terrain_presets.md`](terrain_presets.md), parked"
     },
     {
@@ -45960,7 +46180,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_artist_ui_foliage_foliage_md_foliage_md_design_complete_parked",
-      "community": 335,
+      "community": 174,
       "norm_label": "foliage \u2014 [`foliage.md`](foliage.md), design complete, parked"
     },
     {
@@ -45970,7 +46190,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "ideas_artist_ui_fabric_polyknit_fabric_md_fabric_md_design_complete_parked",
-      "community": 335,
+      "community": 174,
       "norm_label": "fabric / polyknit \u2014 [`fabric.md`](fabric.md), design complete, parked"
     },
     {
@@ -45980,7 +46200,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "ideas_artist_ui_hair_grooming_hair_grooming_md_hair_grooming_md_research_parked",
-      "community": 335,
+      "community": 174,
       "norm_label": "hair grooming \u2014 [`hair_grooming.md`](hair_grooming.md), research, parked"
     },
     {
@@ -45990,7 +46210,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_artist_ui_asset_library_kitbash_asset_library_redesign_md_asset_library_redesign_md_planning",
-      "community": 335,
+      "community": 174,
       "norm_label": "asset library / kitbash \u2014 [`asset_library_redesign.md`](asset_library_redesign.md), planning"
     },
     {
@@ -46000,7 +46220,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_artist_ui_the_cross_study_observation",
-      "community": 335,
+      "community": 174,
       "norm_label": "the cross-study observation"
     },
     {
@@ -46020,7 +46240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_asset_library_redesign",
-      "community": 356,
+      "community": 299,
       "norm_label": "asset_library_redesign.md"
     },
     {
@@ -46220,7 +46440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_build_retrospective",
-      "community": 361,
+      "community": 133,
       "norm_label": "build_retrospective.md"
     },
     {
@@ -51110,7 +51330,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "ideas_foliage_6_the_growth_loop_one_tick",
-      "community": 58,
+      "community": 350,
       "norm_label": "6. the growth loop (one tick)"
     },
     {
@@ -51120,7 +51340,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_foliage_6_0_initialise_first_tick_only",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.0 initialise (first tick only)"
     },
     {
@@ -51130,7 +51350,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "ideas_foliage_6_1_bud_inventory",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.1 bud inventory"
     },
     {
@@ -51140,7 +51360,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "ideas_foliage_6_2_light_exposure",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.2 light exposure"
     },
     {
@@ -51150,7 +51370,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "ideas_foliage_6_3_vigor_gather_down_allocate_up_the_hormone_core",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.3 vigor: gather down, allocate up (the hormone core)"
     },
     {
@@ -51160,7 +51380,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "ideas_foliage_6_4_auxin_suppression",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.4 auxin suppression"
     },
     {
@@ -51170,7 +51390,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "ideas_foliage_6_5_bud_fate",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.5 bud fate"
     },
     {
@@ -51180,7 +51400,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "ideas_foliage_6_6_shoot_construction_energy_ledger",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.6 shoot construction + energy ledger"
     },
     {
@@ -51190,7 +51410,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "ideas_foliage_6_7_direction_integrator",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.7 direction integrator"
     },
     {
@@ -51200,7 +51420,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_foliage_6_8_secondary_growth",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.8 secondary growth"
     },
     {
@@ -51210,7 +51430,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "ideas_foliage_6_9_shadowed_branch_shoot_out_epicormic",
-      "community": 58,
+      "community": 350,
       "norm_label": "6.9 shadowed-branch shoot-out (epicormic)"
     },
     {
@@ -51390,7 +51610,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_w\u0113t\u0101_barbershop_wig",
-      "community": 229,
+      "community": 353,
       "norm_label": "1. weta: barbershop \u2192 wig"
     },
     {
@@ -51400,7 +51620,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_1_lineage_and_status",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.1 lineage and status"
     },
     {
@@ -51410,7 +51630,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_2_the_paradigm_why_this_is_not_houdini",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.2 the paradigm \u2014 why this is not houdini"
     },
     {
@@ -51420,7 +51640,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_3_grooming_tools",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.3 grooming tools"
     },
     {
@@ -51430,7 +51650,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_4_clumping_a_first_class_subsystem_not_a_modifier",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.4 clumping \u2014 a first-class subsystem, not a modifier"
     },
     {
@@ -51440,7 +51660,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_5_coils_and_braids",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.5 coils and braids"
     },
     {
@@ -51450,7 +51670,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_6_selection_and_masking",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.6 selection and masking"
     },
     {
@@ -51460,7 +51680,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_7_the_animation_side_the_part_houdini_has_no_equivalent_for",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.7 the animation side \u2014 the part houdini has no equivalent for"
     },
     {
@@ -51470,7 +51690,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_8_transferring_a_groom",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.8 transferring a groom"
     },
     {
@@ -51480,7 +51700,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_9_feathers_apteryx",
-      "community": 229,
+      "community": 353,
       "norm_label": "1.9 feathers \u2014 apteryx"
     },
     {
@@ -51680,7 +51900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_modeler",
-      "community": 356,
+      "community": 299,
       "norm_label": "modeler.md"
     },
     {
@@ -51690,7 +51910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_modeler_modeler_zsphere_style_skinning_spheres_and_connections_in_quads_out",
-      "community": 356,
+      "community": 299,
       "norm_label": "modeler \u2014 zsphere-style skinning: spheres and connections in, quads out"
     },
     {
@@ -51700,7 +51920,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "ideas_modeler_1_representation",
-      "community": 356,
+      "community": 299,
       "norm_label": "1. representation"
     },
     {
@@ -51710,7 +51930,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ideas_modeler_2_method_the_adaptive_skin_cube_cage_plus_lofts",
-      "community": 356,
+      "community": 299,
       "norm_label": "2. method \u2014 the adaptive skin cube cage, plus lofts"
     },
     {
@@ -51720,7 +51940,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_modeler_3_checks_and_what_they_cannot_see",
-      "community": 356,
+      "community": 299,
       "norm_label": "3. checks, and what they cannot see"
     },
     {
@@ -51730,7 +51950,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "ideas_modeler_4_audit",
-      "community": 356,
+      "community": 299,
       "norm_label": "4. audit"
     },
     {
@@ -51740,7 +51960,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "ideas_modeler_5_not_built_yet_in_the_order_hannes_named_it",
-      "community": 356,
+      "community": 299,
       "norm_label": "5. not built yet, in the order hannes named it"
     },
     {
@@ -51750,7 +51970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_modelui",
-      "community": 356,
+      "community": 299,
       "norm_label": "modelui.md"
     },
     {
@@ -51760,7 +51980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "community": 324,
+      "community": 299,
       "norm_label": "modelui: comfortable direct modeling with houdini as the engine"
     },
     {
@@ -51770,7 +51990,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "ideas_modelui_goal",
-      "community": 324,
+      "community": 299,
       "norm_label": "goal"
     },
     {
@@ -51780,127 +52000,127 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "ideas_modelui_resume_pointer_f2a_container_backend_piece_selection_shift_drag_copy",
-      "community": 324,
+      "community": 299,
       "norm_label": "resume pointer (f2a: container backend, piece selection, shift+drag copy)"
     },
     {
       "label": "F2d Align (branch `modelui-align`; audit 1 by agent-202 fixed; no second audit, per Hannes' coordinator)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L188",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "ideas_modelui_f2d_align_branch_modelui_align_audit_1_by_agent_202_fixed_no_second_audit_per_hannes_coordinator",
-      "community": 324,
+      "community": 299,
       "norm_label": "f2d align (branch `modelui-align`; audit 1 by agent-202 fixed; no second audit, per hannes' coordinator)"
     },
     {
       "label": "F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L235",
+      "source_location": "L245",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_measurements_tests_modelui_bench_f2a_py_in_the_gui_check_containers_py_headless_all_605_library_files",
-      "community": 324,
+      "community": 299,
       "norm_label": "f2a measurements (`tests/modelui/bench_f2a.py` in the gui; `check_containers.py` headless; all 605 library files)"
     },
     {
       "label": "F2a design: pieces packed in container objects (Hannes' choice: mixed backend)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L254",
+      "source_location": "L264",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_design_pieces_packed_in_container_objects_hannes_choice_mixed_backend",
-      "community": 324,
+      "community": 299,
       "norm_label": "f2a design: pieces packed in container objects (hannes' choice: mixed backend)"
     },
     {
       "label": "Resume pointer (F1 framework core: done; F2 next)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L282",
+      "source_location": "L292",
       "_origin": "ast",
       "id": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next",
-      "community": 324,
+      "community": 299,
       "norm_label": "resume pointer (f1 framework core: done; f2 next)"
     },
     {
       "label": "F1 findings (2026-11-05, Houdini 22.0.442, Windows)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L347",
+      "source_location": "L357",
       "_origin": "ast",
       "id": "ideas_modelui_f1_findings_2026_11_05_houdini_22_0_442_windows",
-      "community": 324,
+      "community": 299,
       "norm_label": "f1 findings (2026-11-05, houdini 22.0.442, windows)"
     },
     {
       "label": "Decisions (Hannes, 2026-11-05)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L394",
+      "source_location": "L404",
       "_origin": "ast",
       "id": "ideas_modelui_decisions_hannes_2026_11_05",
-      "community": 324,
+      "community": 299,
       "norm_label": "decisions (hannes, 2026-11-05)"
     },
     {
       "label": "Decision log (house rule 2: why Python)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L415",
+      "source_location": "L425",
       "_origin": "ast",
       "id": "ideas_modelui_decision_log_house_rule_2_why_python",
-      "community": 324,
+      "community": 299,
       "norm_label": "decision log (house rule 2: why python)"
     },
     {
       "label": "Framework (layers shared by every mode)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L426",
+      "source_location": "L436",
       "_origin": "ast",
       "id": "ideas_modelui_framework_layers_shared_by_every_mode",
-      "community": 324,
+      "community": 299,
       "norm_label": "framework (layers shared by every mode)"
     },
     {
       "label": "Mapping to Houdini",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L439",
+      "source_location": "L449",
       "_origin": "ast",
       "id": "ideas_modelui_mapping_to_houdini",
-      "community": 324,
+      "community": 299,
       "norm_label": "mapping to houdini"
     },
     {
       "label": "Feature list",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L451",
+      "source_location": "L461",
       "_origin": "ast",
       "id": "ideas_modelui_feature_list",
-      "community": 324,
+      "community": 299,
       "norm_label": "feature list"
     },
     {
       "label": "Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L469",
+      "source_location": "L479",
       "_origin": "ast",
       "id": "ideas_modelui_measurements_one_object_per_piece_2026_11_05_houdini_22_0_442_windows_hannes_kitbash_library",
-      "community": 324,
+      "community": 299,
       "norm_label": "measurements: one object per piece (2026-11-05, houdini 22.0.442, windows, hannes' kitbash library)"
     },
     {
       "label": "References",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L493",
+      "source_location": "L503",
       "_origin": "ast",
       "id": "ideas_modelui_references",
-      "community": 324,
+      "community": 299,
       "norm_label": "references"
     },
     {
@@ -52400,7 +52620,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 299,
+      "community": 144,
       "norm_label": "3. data contracts"
     },
     {
@@ -52410,7 +52630,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 299,
+      "community": 144,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -52420,7 +52640,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 299,
+      "community": 144,
       "norm_label": "3.2 kit format"
     },
     {
@@ -52430,7 +52650,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 299,
+      "community": 144,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -52440,7 +52660,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 299,
+      "community": 144,
       "norm_label": "3.3 style payload"
     },
     {
@@ -52450,7 +52670,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 299,
+      "community": 144,
       "norm_label": "3.4 output"
     },
     {
@@ -56970,7 +57190,7 @@
       "source_location": "L14954",
       "_origin": "ast",
       "id": "ideas_polychain_33_native_network_build_log_cycle_c6_13_9_n8_stages_2_the_miter_assembly",
-      "community": 144,
+      "community": 358,
       "norm_label": "33. native network build log \u2014 cycle c6 (13.9 n8 stages 2+: the miter assembly)"
     },
     {
@@ -56980,7 +57200,7 @@
       "source_location": "L14960",
       "_origin": "ast",
       "id": "ideas_polychain_33_1_d338_the_deletion_32_3_named_paid_and_proven",
-      "community": 144,
+      "community": 358,
       "norm_label": "33.1 d338 \u2014 the deletion 32.3 named, paid and proven"
     },
     {
@@ -56990,7 +57210,7 @@
       "source_location": "L15011",
       "_origin": "ast",
       "id": "ideas_polychain_33_2_d339_fill_count_with_count_0_leaves_a_hole_in_the_y_stack",
-      "community": 144,
+      "community": 358,
       "norm_label": "33.2 d339 \u2014 `fill = count` with `count = 0` leaves a hole in the y stack"
     },
     {
@@ -57000,7 +57220,7 @@
       "source_location": "L15025",
       "_origin": "ast",
       "id": "ideas_polychain_33_3_13_9_n8_stage_2_d340_the_degenerate_corner_was_a_warning_not_geometry",
-      "community": 144,
+      "community": 358,
       "norm_label": "33.3 13.9 n8 stage 2 \u2014 d340: the degenerate corner was a warning, not geometry"
     },
     {
@@ -57010,7 +57230,7 @@
       "source_location": "L15090",
       "_origin": "ast",
       "id": "ideas_polychain_33_4_d341_the_miter_s_deciding_experiment_the_batched_cut_is_a_re_implementation_not_a_port",
-      "community": 144,
+      "community": 358,
       "norm_label": "33.4 d341 \u2014 the miter's deciding experiment: the batched cut is a re-implementation, not a port"
     },
     {
@@ -57020,7 +57240,7 @@
       "source_location": "L15160",
       "_origin": "ast",
       "id": "ideas_polychain_33_5_the_python_share_per_build_class_re_taken_32_4_s_table_two_rows_moved",
-      "community": 144,
+      "community": 358,
       "norm_label": "33.5 the python share per build class, re-taken \u2014 32.4's table, two rows moved"
     },
     {
@@ -58146,7 +58366,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/__init__.py",
       "source_location": "L1",
-      "community": 20,
+      "community": 0,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_asset_library_init_py"
     },
@@ -58254,7 +58474,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 62,
+      "community": 137,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -58263,7 +58483,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 62,
+      "community": 162,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -58335,7 +58555,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 72,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -71703,10 +71923,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L40",
+      "source_location": "L44",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "modelui_explorer_rationale_40",
+      "source": "modelui_explorer_rationale_44",
       "target": "modelui_explorer_explorer_set_watching"
     },
     {
@@ -71757,10 +71977,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L56",
+      "source_location": "L60",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "modelui_explorer_rationale_56",
+      "source": "modelui_explorer_rationale_60",
       "target": "modelui_explorer_explorer_refresh"
     },
     {
@@ -71811,20 +72031,20 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L129",
+      "source_location": "L133",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "modelui_explorer_rationale_129",
+      "source": "modelui_explorer_rationale_133",
       "target": "modelui_explorer_install"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/explorer.py",
-      "source_location": "L135",
+      "source_location": "L139",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "modelui_explorer_rationale_135",
+      "source": "modelui_explorer_rationale_139",
       "target": "modelui_explorer_uninstall"
     },
     {
@@ -72791,6 +73011,171 @@
       "source": "modelui_keys_rationale_100",
       "target": "modelui_keys_snapshot",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_add_dialog"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_add_files"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_library"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_local_box"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_look_at"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash",
+      "target": "modelui_kitbash_target_container"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_rationale_1",
+      "target": "modelui_kitbash"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_add_dialog",
+      "target": "modelui_kitbash_library"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_add_files",
+      "target": "modelui_kitbash_look_at"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_rationale_22",
+      "target": "modelui_kitbash_look_at"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_add_files",
+      "target": "modelui_kitbash_target_container"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_rationale_31",
+      "target": "modelui_kitbash_target_container"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_add_files",
+      "target": "modelui_kitbash_local_box"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L81",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_add_dialog",
+      "target": "modelui_kitbash_add_files"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_rationale_47",
+      "target": "modelui_kitbash_add_files"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/kitbash.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_kitbash_rationale_75",
+      "target": "modelui_kitbash_add_dialog"
     },
     {
       "relation": "contains",
@@ -113358,6 +113743,151 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_checks"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_exact_box"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_main"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_mutate"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_row_ok"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash",
+      "target": "modelui_check_kitbash_run"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_rationale_1",
+      "target": "modelui_check_kitbash"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_rationale_25",
+      "target": "modelui_check_kitbash_exact_box"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_row_ok",
+      "target": "modelui_check_kitbash_exact_box"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_checks",
+      "target": "modelui_check_kitbash_row_ok"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_rationale_35",
+      "target": "modelui_check_kitbash_row_ok"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L97",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_run",
+      "target": "modelui_check_kitbash_checks"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_main",
+      "target": "modelui_check_kitbash_mutate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/check_kitbash.py",
+      "source_location": "L104",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_check_kitbash_main",
+      "target": "modelui_check_kitbash_run"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tests/modelui/check_scene_model.py",
       "source_location": "L124",
       "weight": 1.0,
@@ -115075,10 +115605,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/modelui/gui_f2a.py",
-      "source_location": "L948",
+      "source_location": "L965",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "modelui_gui_f2a_rationale_948",
+      "source": "modelui_gui_f2a_rationale_965",
       "target": "modelui_gui_f2a_purge_stale"
     },
     {
@@ -115100,6 +115630,16 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "modelui_gui_f2a_rationale_965",
+      "target": "modelui_gui_f2a_undo_open"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2a.py",
+      "source_location": "L982",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "modelui_gui_f2a_rationale_982",
       "target": "modelui_gui_f2a_undo_open"
     },
     {
@@ -143828,7 +144368,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/modelui.md",
-      "source_location": "L188",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
       "target": "ideas_modelui_f2d_align_branch_modelui_align_audit_1_by_agent_202_fixed_no_second_audit_per_hannes_coordinator",
@@ -150109,5 +150649,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "94f5c432bd83a9845d6bb40f834c59c9a910b8a2"
+  "built_at_commit": "98deda1c6a34ef692b06946e07f7caf12e974bbd"
 }

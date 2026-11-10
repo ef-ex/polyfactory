@@ -20,7 +20,7 @@ import hou
 from hutil.Qt import QtCore, QtGui, QtWidgets
 from PySide6.QtTest import QTest
 
-from polyfactory.modelui import containers, input_layer, pieces_ui, scene, switch
+from polyfactory.modelui import containers, input_layer, kitbash, pieces_ui, scene, switch
 
 OUT = os.environ["PF_F1_OUT"]
 LOGF = open(OUT + ".log", "w", buffering=1)
@@ -888,6 +888,23 @@ def suite(out):
     pieces_ui.install()
     yield 300
 
+    # --- Add kitbash pieces: the row lands where the viewport looks (kitbash.look_at; the rest: check_kitbash.py) ---
+    cam0 = vp.defaultCamera().stash()
+    cam = vp.defaultCamera().stash()
+    cam.setPivot((7.0, 3.0, -4.0))
+    vp.setDefaultCamera(cam)
+    yield 200
+    u0 = len(hou.undos.undoLabels())
+    kb = kitbash.add_files([FILES[3]])
+    yield 200
+    kbb = pieces_ui.bounds(kb[0])
+    log("  kitbash at look-at: centre", tuple(kbb.center()), "min y", kbb.minvec()[1], "undo +", len(hou.undos.undoLabels()) - u0)
+    out["kitbash_at_look_at"] = (abs(kbb.center()[0] - 7.0) < 1e-3 and abs(kbb.center()[2] + 4.0) < 1e-3
+                                 and abs(kbb.minvec()[1]) < 1e-3 and s.selected() == kb)
+    hou.undos.performUndo()
+    vp.setDefaultCamera(cam0)
+    yield 300
+
     skip_save = os.environ.get("PF_F2A_SKIP") == "save"   # diagnosis only
     path = os.path.dirname(OUT) + "/save_check.hip"   # a throwaway hip in this run's own folder
     s.select([mid])
@@ -987,7 +1004,8 @@ def cleanup():
     switch._state["on"] = False
 
 
-MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers, "scene": scene}
+MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers, "scene": scene,
+        "kitbash": kitbash}
 
 
 def mutate(modname, pairs):
@@ -1070,6 +1088,7 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
+    ("look_at_ignored", "kitbash_at_look_at", "kitbash", [("    p = sv.curViewport().defaultCamera().pivot()\n    return hou.Vector3(p[0], 0.0, p[2])", "    return hou.Vector3()")]),
     ("no_delete_retry", "uninstall_retries_busy_delete", PS, [("    if busy and tries:", "    if False:")]),
     ("cancel_on_error_dropped", "gesture_error_reverts_preview", "input_layer", [('            if dropped and kind != "cancel":', '            if False:')]),
     ("non_left_always_swallowed", "no_drag_buttons_reach_houdini", "input_layer", [('            if self.owners["mouse"] is not None:   # another button', '            if self.owners["mouse"] is not None or ev.button() != Qt.LeftButton:   # another button')]),

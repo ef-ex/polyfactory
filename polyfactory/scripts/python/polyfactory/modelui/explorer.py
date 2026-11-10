@@ -9,6 +9,7 @@ from PySide6.QtGui import QShortcut   # not exposed by hutil.Qt
 
 import hou
 
+from polyfactory.modelui import kitbash
 from polyfactory.modelui import scene as scene_mod
 
 Qt = QtCore.Qt
@@ -28,10 +29,13 @@ class Explorer(QtWidgets.QWidget):
         self.list.itemChanged.connect(self._row_changed)
         delete = QtWidgets.QPushButton("Delete")
         delete.clicked.connect(self.delete_selected)
+        add = QtWidgets.QPushButton("Add kitbash pieces...")
+        add.clicked.connect(lambda: kitbash.add_dialog())
         QShortcut(Qt.Key_Delete, self.list, self.delete_selected, context=Qt.WidgetShortcut)
         lay = QtWidgets.QVBoxLayout(self)
         lay.setContentsMargins(2, 2, 2, 2)
         lay.addWidget(self.list)
+        lay.addWidget(add)
         lay.addWidget(delete)
         self._timer = QtCore.QTimer(self, singleShot=True, interval=0, timeout=self.refresh)   # coalesce callbacks
         self.set_watching(True)
