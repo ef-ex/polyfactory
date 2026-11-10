@@ -39,6 +39,19 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
     unpacked and following; 10 mutations red) and gui_f2a `clone_dialog_ok` (the dialog's fields reach clone:
     Instance x3, 2 units each; mutation `dialog_count_ignored`). Blind spots: the dialog is never shown in the tests
     (layout, off-screen guard), what F2c does with the piece relation.
+  - F2b audit (agent-204, `F:/cache/modelui/audit_f2b/`) follow-ups, done 2026-11-10 (commits 5e030c6, 4e58ca0):
+    C1 piece edits linear (`containers._by_id`; clone reads each container's transforms once): 100 pieces x 30
+    instances 18 s -> 0.4 s, check `perf_clone_3000` (ratio to a reference beside it, ceiling 10; scanning
+    mutations 16 / 83). S1 deleting an original (scene delete, Explorer delete) hands its network to the first
+    remaining clone (`clone.hand_over`: the original's nodes copied in place of its "original" Object Merge, under a
+    Reference's own nodes; the other clones show the heir; same undo step). S2 Instance/Reference copy every object
+    setting but t/r/s/scale (material, display, render, pivot; expressions kept) and the parent link; objects turn
+    about their pivot. S3 Copy of an Instance/Reference copies the root original's network (independent) with the
+    clone's settings; an instance of an instance points at the root original (a reference of a reference keeps its
+    own target). Low: an error halfway undoes the half-made clone; the dialog clones what was selected when it
+    opened (not modal). Checks in check_clone (23 mutations) and gui_f2a `clone_dialog_ok` (`dialog_live_selection`).
+    Blind spots: hand-over for clones in another network than the original's (only siblings are searched), piece
+    clones of a deleted piece keep a dangling `pf_clone_of`.
 - 2026-11-10: **Add kitbash pieces...** (the artist's way to get pieces in; Hannes could not try F2a without it):
   polyfactory menu and the Scene Explorer's button. A file dialog at $PF_ASSET_LIBRARY (default F:/3d/kitbashLib),
   several USD files at once; the pieces go into the current container (the selected piece's, else the first, else a
