@@ -10,6 +10,7 @@ modifier stack (F2c) will do with pf_clone_kind / pf_clone_of on pieces.
 import glob
 import os
 import sys
+import time
 
 import hou
 
@@ -17,7 +18,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from polyfactory.modelui import clone, containers, pieces_ui, scene  # noqa: E402
 
 FILES = sorted(f.replace("\\", "/") for f in glob.glob("F:/3d/kitbashLib/*/*.usd"))[3:5]
-TOL = 1e-4   # float32 P/orient/scale at |values| <= 30
+TOL = 1e-4
+RATIO_CEIL = 10.0   # perf_clone_3000: ~3x the ratios measured 2026-11-10 (2.6-3.6); scanning per piece: 16 (copy) and 83 (transform)   # float32 P/orient/scale at |values| <= 30
 
 
 def vclose(a, b, tol=TOL):
@@ -88,6 +90,26 @@ def checks(out):
                                        and ref.userData("pf_clone_kind") == "reference")
 
 
+def cost(out):
+    """100 pieces x 30 instances, against a reference written right beside it (the same 3000 points into a plain
+    geometry), so a loaded PC does not decide it."""
+    hou.hipFile.clear(suppress_save_prompt=True)
+    c = containers.create()
+    ids = containers.add_pieces(c, [(FILES[i % 2], "p%d" % i, hou.hmath.buildTranslate(i, 0, 0)) for i in range(100)])
+    t = time.perf_counter()
+    clone.clone([("piece", c.sessionId(), i) for i in ids], "instance", 30, move=(0, 0, 2), rotate=(0, 10, 0))
+    took = time.perf_counter() - t
+    t = time.perf_counter()
+    g = containers._empty()
+    for k in range(3000):
+        p = g.createPoint()
+        p.setAttribValue("pf_name", "p%d_%d" % (k % 100, k))
+        containers._set_xform(p, hou.hmath.buildTranslate(k, 0, 0))
+    ref = time.perf_counter() - t
+    print("  clone 100 pieces x 30: %.2f s, reference %.3f s, ratio %.1f" % (took, ref, took / ref))
+    out["perf_clone_3000"] = took / ref < RATIO_CEIL
+
+
 def mutate(mod, old, new):
     path = mod.__file__
     with open(path, encoding="utf-8") as f:
@@ -113,6 +135,8 @@ MUTATIONS = [   # (name, check, module, old, new)
     ("copy_shares", "object_copy_independent", K, '    if kind == "copy":\n        return hou.copyNodesTo([node], node.parent())[0]',
      '    if False:\n        return hou.copyNodesTo([node], node.parent())[0]'),
     ("instance_unpacked", "object_instance_follows_packed", K, '        om.parm("pack").set(1)', "        pass"),
+    ("copy_scans_points", "perf_clone_3000", C, "        src = pt(piece)", "        src = _point(geo, piece)"),
+    ("transform_scans_points", "perf_clone_3000", C, "        _set_xform(pt(piece), m)", "        _set_xform(_point(geo, piece), m)"),
     ("reference_not_merged", "object_reference_follows", K, '    om.parm("objpath1").set(node.path())', '    om.parm("objpath1").set("")'),
 ]
 
@@ -121,6 +145,7 @@ def run():
     out = {}
     try:
         checks(out)
+        cost(out)
     except Exception as e:  # noqa: BLE001 - an exception is a red check
         out["_exception"] = "%s: %s" % (type(e).__name__, e)
     return out

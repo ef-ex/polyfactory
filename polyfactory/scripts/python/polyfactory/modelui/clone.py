@@ -54,7 +54,14 @@ def clone(pids, kind="copy", count=1, move=(0, 0, 0), rotate=(0, 0, 0), scale=1.
     pids, count = list(pids), int(count)
     if not pids or count < 1:
         return []
-    start = {pid: pieces_ui.get_xform(pid) for pid in pids}
+    local = {}   # one read per container (get_xform per piece scans every point: quadratic)
+    for pid in pids:
+        if isinstance(pid, tuple):
+            c = scene.MixedScene._split(pid)[0]
+            if c not in local:
+                local[c] = containers.transforms(c)
+    start = {pid: (local[scene.MixedScene._split(pid)[0]][pid[2]] * scene.MixedScene._split(pid)[0].worldTransform()
+                   if isinstance(pid, tuple) else pieces_ui.get_xform(pid)) for pid in pids}
     new, xforms = [], {}
     with hou.undos.group("modelUI: clone (%s)" % kind):
         per_container = {}
