@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pythonPanelDocument>
+  <interface name="pf_modelui_stack" label="Modify (modelUI)" icon="MISC_python" showNetworkNavigationBar="false" help_url="">
+    <script><![CDATA[
+def onCreateInterface():
+    from polyfactory.modelui import stack_panel
+    return stack_panel.create_interface()
+
+
+def onDestroyInterface():
+    from polyfactory.modelui import stack_panel
+    stack_panel.destroy_interface(getattr(hou.session, "_pf_modelui_stack", None))
+]]></script>
+    <includeInPaneTabMenu menu_position="0" create_separator="false"/>
+    <includeInToolbarMenu menu_position="0" create_separator="false"/>
+  </interface>
+</pythonPanelDocument>
