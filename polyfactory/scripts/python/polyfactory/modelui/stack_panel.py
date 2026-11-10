@@ -508,9 +508,10 @@ class ModifyPanel(QtWidgets.QWidget):
     def open_as_nodes(self):
         """The network editor shows the object's nodes with the selected entry (or the top) current and in view."""
         obj = self.obj()
-        ne = hou.ui.curDesktop().paneTabOfType(hou.paneTabType.NetworkEditor)
-        if obj is None or ne is None:
+        if obj is None:
             return
+        desk = hou.ui.curDesktop()
+        ne = next((t for t in hou.ui.paneTabs() if t.type() == hou.paneTabType.NetworkEditor), None) or desk.createFloatingPaneTab(hou.paneTabType.NetworkEditor)   # the desk has none
         nodes = stack.chain(obj)
         node = self.entry() or (nodes[-1] if nodes else None)
         with hou.undos.disabler():
