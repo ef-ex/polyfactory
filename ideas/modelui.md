@@ -330,6 +330,156 @@ Layout of one container (a geometry object marked as a modelUI container):
 - Promote (first modifier): the piece becomes its own geometry object (its source, object transform = the piece
   transform) and its point leaves the stash, in one undo group.
 
+## F2c modifier stack (Modify panel; branch `modelui-stack`)
+
+Status: implemented, unverified (independent audit pending). Resume: branch `modelui-stack` (worktree
+`F:/projects/polyfactory-stack`), merged with `modelui` up to cc0f407; verify against `git log`. Next: the audit, then
+merge into `modelui` (F2b's e18f8a5 and later come in then). Next item after that (coordinator decision 2026-11-10, not
+built): stacks of clones follow Max: a modifier added to an original reaches its instances, a reference gets the
+original's modifiers below its own, a modifier added to an instance goes on the shared stack; promoting an instanced
+piece (`pf_clone_kind` / `pf_clone_of`) must keep the sharing (promote the original's stack once, instances point at it
+through a packed Object Merge, as F2b does for objects).
+
+Decisions (Hannes, 2026-11-05 and the F2c brief), as built:
+- The stack lists **real Houdini SOP nodes**: an object's stack is its display node and that node's first-input
+  ancestors (`stack.chain`), top = the display node, like Max. Nodes added in the network editor show too (their
+  type's name and icon); the panel and the network editor always show the same thing.
+- **No Max sub-object levels**: Houdini's own component selection is the "Edit Poly". Choosing a stack entry takes the
+  viewer into the object (SOP level) and enters that entry's own viewer state (PolyExtrude's handle, Edit's tools,
+  Subdivide, the lattice cage's Edit); clearing the entry, or choosing another object, brings the viewer back to object
+  level in Q/W's state (select/pose).
+- **Operation registry** `modelui/operations.py` (framework layer 5): one entry per node (label, node type, context,
+  icon from the node type, group fields, pick inputs with the parms a pick sets, defaults, optional helper network,
+  optional "whose viewer state"). First list: Extrude (PolyExtrude 2.0, dist 0.1), Subdivide, Bevel (PolyBevel 3.0,
+  offset 0.05), Lattice (Lattice Deform with its own cage), Edit, plus PolyWire. A texturing mode adds a
+  `MODES["texture"]` list of COPs; the panel takes a `mode`.
+- **"Lattice" is ambiguous** (open question for Hannes): Max's Lattice modifier turns edges into struts and joints;
+  Houdini's Lattice SOP is Max's FFD. Both are listed: "Lattice (Lattice Deform)" (FFD-like) and "PolyWire (Max's
+  Lattice struts)"; removing one is deleting one registry line.
+- **Lattice cage like FFD**: adding Lattice Deform builds a Bound (with divisions) of the lattice's input as the rest
+  lattice and an Edit of it as the deformed lattice; the lattice's divisions follow the Bound's by expression (the docs
+  require equal divisions). Choosing the Lattice entry shows the cage Edit's state.
+- **Multi-input nodes and group fields as UI**: a "Pick <input>" button per registry input (the next object selected
+  in the viewport or the Scene Explorer goes in through an Object Merge "Into This Object"; a container piece through an
+  Object Merge with `@pf_piece=N` + Unpack; picking again replaces the old merge; the parms the input needs are set,
+  e.g. PolyExtrude spine "Curve From Second Input", PolyBevel profile "Curve"), and a "Use selection" button per group
+  field. Adding an operation uses the component selection when it was made on the node the new entry reads (the top,
+  by default); its type goes to the node's group-type menu, or is converted (`hou.Selection.convert`) to the type the
+  field takes.
+- **Container pieces**: a selected piece shows as one row; its first modifier calls `containers.promote()` and adds
+  the node inside ONE undo group ("modelUI: add <op>"); the stack then works on the new object.
+- **Undo**: every stack edit is one undo step (add, move, on/off, delete, collapse, pick, use selection). Choosing
+  entries and moving the viewer in and out are not undo entries.
+- **Collapse** = Max's "Collapse To": a Stash SOP holding the chosen entry's evaluated geometry replaces it and
+  everything below (the whole stack with no entry chosen); entries above stay; side inputs nothing else needs are
+  deleted. **Delete** rewires whatever read the entry (any input) to the entry below, moves the display/render flags
+  when it was the top and removes its side inputs (picked merges, cage). The base cannot be deleted, moved or switched
+  off (as in Max). **Open as nodes**: the network editor goes into the object with the entry (or the top) current.
+- **Desk**: the Modify panel (`pf_modelui_stack`) is the first, current tab of the top-right pane of ModelUI.desk; the
+  parameter editor of the chosen entry is embedded below the stack (`hou.qt.ParmDialog`, a splitter between, 350/650).
+
+Findings (H22.0.442; probes `F:/cache/modelui/f2c/probe*.py`, `F:/cache/modelui/f2c2/`):
+- **Houdini runs Qt events inside `SceneViewer.setPwd()`** (and possibly other HOM calls): the panel's 0 ms coalescing
+  timer fired there and rebuilt the stack list (`list.clear()`) while the list was still handling the click on an
+  entry; the clicked item was deleted under Qt's mouse handler and Houdini segfaulted. Seen 4 times on 2026-11-09 (the
+  run after the `enter_recorded` mutation, which left the viewer in "showhandle"; the next run's rows changed while
+  going in), reproduced in one short run on 2026-11-10 with `faulthandler` (stack: `_entry_chosen` -> `_enter` ->
+  `setPwd` -> `refresh` -> `list.clear`). Fix: every user action and every refresh runs under `ModifyPanel._hold()`; a
+  refresh asked for meanwhile is deferred to the event loop after the action (`_pending`). Houdini writes no crash
+  log for these; the GUI suites now write a Python fault stack (`result.json.fault.txt`) and the runner kills a
+  crashed Houdini after 30 s (it hung after saving its crash .hip, which used to cost the 90 min timeout).
+- **Houdini's viewer calls run long nested event loops**: `setPwd` / `setCurrentState` took up to ~2 s on the loaded PC,
+  with Qt timers (the panel's, the test's steps) firing inside. Going out with `setPwd("/obj")` the viewer passes
+  through "showhandle" and "geo" before ours ("select"), `currentState()` read right after can be stale, and in most
+  runs Houdini entered the object's "geo" tool state once more AFTER the panel had finished (choosing another object
+  while inside; after an undo of a promote it moved the viewer into the container, copytopoints::2.0). In "geo" a
+  click (and Python's `setCurrentState("geo")`) CREATES a geometry object. Fix: the panel listens to the viewer's
+  `StateEntered` events (`SceneViewer.addEventCallback`, removed when modelUI goes off) and, for `SETTLE` = 1 s after
+  its own leave has finished, puts a non-select/pose state at object level (or a viewer inside a container) back to
+  object level in Q/W's state (`_settle`). The window counts from the END of the leave because the nested loops made
+  the leave itself take seconds. Also: when Houdini takes the viewer out first, the panel restores the state itself
+  (`_went_in`), and `setPwd` may drop the object selection on the way out (some runs): the chosen object stays chosen
+  (before: the object the viewer had been in was re-selected, overriding the person's choice).
+- A panel deleted without `close_down` (Houdini destroying a pane's panel; `onDestroyInterface` names the panel in
+  `hou.session`, which need not be the one going) kept its viewer and node callbacks and acted as a stray panel (seen
+  in a GUI run). Its `destroyed` signal now drops them (`_forget`, from the panel's Python attributes).
+- The previous builder's "panel not found" was an early form of the suite (the desk's panel keeps the class it was
+  built with, so a mutation could not reach it): fixed before this round by driving a fresh panel from the live module
+  in its own off-screen window. "entry_select_no_undo False / enter_recorded False" in its logs was the mutation run
+  turning its paired check red, as intended, not a failing baseline.
+- `hou.NodeType.defaultState()` returns "" for PolyExtrude/Edit/Lattice/Subdivide even in the GUI, but
+  `SceneViewer.enterCurrentNodeState()` enters "polyextrude::2.0", "edit", "lattice", "subdivide".
+- `SceneViewer.setPwd(<object>)` drops the object-level node selection; selecting the object again while the viewer
+  is inside moves the viewer back to /obj (linked panes). So while the viewer is inside an object with nothing else
+  selected, the stack shows that object; leaving puts its selection back.
+- Back at /obj, Houdini may enter the current object's own tool state "geo", where a click CREATES a geometry object:
+  the panel always returns to "select" or "pose". After an undo of a promote Houdini moved the viewer into the
+  container (state copytopoints::2.0): a container is never a stack and the viewer comes back to /obj.
+- `hou.Node.destroy()` splices: outputs are reconnected to the destroyed node's first input and the display flag moves
+  to an input Houdini picks (a merge's second input in a probe), hence the explicit rewire and flags in `stack.delete`.
+- Nested `hou.undos.group`s are one undo entry (promote's own group inside the add group).
+- PolyExtrude 2.0 has no group-type parm (it guesses prims or edges); PolyBevel 3.0 and Edit have one; Subdivide's
+  group parm is `subdivide`; Lattice Deform's method is its folder tab (`stdswitcher1`).
+- `hou.qt.ParmDialog(node)` embeds Houdini's parameter editor (`setNode` to switch); it reports no size hint, and
+  `QWidget.grab()` does not draw its contents (the panel pictures show an empty area there).
+- A desk switch keeps the Python panel Houdini built first (onCreateInterface is not called again, nor by
+  `setActiveInterface`); replacing that widget in its pane crashed Houdini in a test run.
+- With an entry chosen the viewer is inside the object and the network editor (same link group) is there too.
+
+Checks (every check paired with a source mutation seen red):
+- `hython tests/modelui/check_stack.py`: 42 checks, 42 paired mutations red. Oracle: point positions compared exactly
+  with a reference chain built next to the object (never with the code under test). Covers chain order, add (top,
+  above an entry, defaults, group from the selection, type-menu and converted group, one undo, undo restores), move,
+  on/off, delete (rewire, flags, side inputs, base never), lattice cage, pick (Object Merge, object space, replace,
+  self refused, a container piece unpacked in world space), collapse (equals the chain, one undo, undo restores,
+  collapse to an entry), promote + first modifier, registry matches Houdini (types, parms, menu tokens, input counts).
+  Cannot see: Qt, viewer states, the parameter editor, hip save/load, time-dependent chains (collapse bakes the
+  current frame), a side consumer below the collapse point keeps the nodes it reads.
+- `PF_GUI_SCRIPT=gui_f2c.py PF_F1_SCRATCH=<own folder> python tests/modelui/run_gui_f1.py` through
+  `bash F:/cache/modelui/gui_lock.sh`: CHECKS_GUI checks green in both baselines, MUTS_GUI paired mutations red
+  (`MUTATIONS` in the file); a mutation run ends at its paired check (shorter; nothing a broken build does afterwards
+  spills into later runs); every run starts with an empty undo history and leaves the viewer at /obj in "select"; a stray panel's viewer
+  callback is removed between runs; the next step waits while the panel is inside a HOM call (nested loop); each step
+  logs its suite line, the panel logs its viewer decisions (logger `polyfactory.modelui.stack_panel`, debug), and a
+  segfault leaves its Python stack in `result.json.fault.txt` (the runner kills a crashed Houdini after 30 s).
+  `PF_F2C_ONLY=<mutations>` (one baseline + those), `PF_F2C_ISOLATE=1` (a baseline after each), `PF_F1_QUICK=1`.
+  Covered: in the desk and following the switch; follows the Scene Explorer, a viewport pick, network-editor inserts
+  and deletes; `no_rebuild_inside_click` (the segfault above: setPwd made to run Qt's events, a pending refresh that
+  changes a row, the entry chosen: the row item must still exist when the choice returns; mutation
+  `refresh_inside_action`); an entry shows its state inside the object, its parameters (editor at least 200 px), no
+  undo entry, stays inside with the object shown; no entry = back to object level; another object
+  = back to object level in select/pose with that object chosen, also when setPwd drops the selection (emulated:
+  setPwd + clearAllSelected) and when a late state change follows (emulated with "showhandle"; mutations
+  `stays_inside_other`, `settle_ignored`, `leave_reselects_old`);
+  Modifier List add (on top, its state, one undo, undo follows); component selection -> group; Up and Down, on/off
+  box, Delete, Collapse, Open as nodes (from object level), each with undo followed; Pick wires the picked object and
+  returns to the object; a piece shows one row, its first modifier promotes (one undo, undo restores, viewer back at
+  object level); no stray object made during the whole run (`no_stray_objects`; mutation `wrong_object_state`
+  leaves the viewer in "geo": 40+ objects); a panel deleted without close_down leaves no callback
+  (`deleted_panel_lets_go`); modelUI off leaves no node or viewer callback.
+  Not the real input path: the Modifier List dropdown (its `activated` signal is emitted), the on/off box
+  (`setCheckState`), the component selection (`setCurrentGeometrySelection`), the entry in `no_rebuild_inside_click`
+  (`setSelected`: under the mutation a real click kills Houdini and every later run).
+  Cannot see: the look (and the parameter editor's contents: grab() leaves them empty), a handle DRAG inside an
+  entry's state, Houdini's own reselect in a node state, hip reload, floating panels, the Delete key, Qt events run
+  inside other HOM calls than setPwd (the guard covers every action; the check drives setPwd only), pieces_ui clicks
+  inside an object (SOP level).
+
+GUI run state (2026-11-10): "panel not found" was an early failure, gone since the 11-09 21:02 runs (`panel_in_desk`
+green in every baseline since: the .pypanel is registered from this worktree's `python_panels/`, the desk names
+`pf_modelui_stack`, the check finds it by `activeInterface().name()`). Full run full3 (`F:/cache/modelui/f2c2`): all
+baselines green, two mutations green: `undo_not_followed` (fixed before full4, red there) and `leave_reselects_old`
+(Houdini had already taken the viewer out, so the emulated selection drop in setPwd never ran; the check now drops it
+after the panel's own `_to_object_level` too). full4 died in the harness (`cleanup` printed a deleted panel; now its
+`id()`). Pending: a targeted GUI run of the two, then one full run.
+
+Known limits:
+- "Use selection" takes the viewer's component selection only when it was made on the entry's INPUT node; Houdini
+  selects on the displayed (top) node, so for an existing entry the practical way is the entry's own state
+  (PolyExtrude/PolyBevel/Edit reselect themselves). At add time the default (top) works.
+- One object at a time (Max can add one modifier to several objects as an instance): several selected = no stack.
+- A lattice moved above other entries keeps its cage built from where it was added.
+
 ## Resume pointer (F1 framework core: done; F2 next)
 
 - Branch `modelui`; verify against `git log`. F1 code: `polyfactory/scripts/python/polyfactory/modelui/` (`switch.py`,
@@ -473,6 +623,10 @@ Layout of one container (a geometry object marked as a modelUI container):
 - Align (F2d): Python, as transform maths on a handful of matrices plus UI marshalling (dialogs, picking); tight boxes
   read point positions once per item (`pointFloatAttribValues`) and transform them with numpy; no geometry is created or
   changed, the result goes through `pieces_ui.set_xforms` (one stash edit per container).
+- Modifier stack (F2c): `stack.py`, `operations.py` and the Modify panel `stack_panel.py` only create, wire, flag and
+  select nodes, follow the viewer and build Qt widgets (marshalling). The geometry work is the nodes': collapse stores
+  the evaluated geometry in a Stash SOP (`geometry().freeze()` is a copy, no per-element Python), a picked piece is
+  chosen by an Object Merge group expression, the selection conversion is `hou.Selection.convert`.
 
 ## Framework (layers shared by every mode)
 

@@ -75,6 +75,17 @@ def checks():
     nodes = [hou.node("/obj")] + list(hou.node("/obj").children())
     out["unwatch_stops"] = (not any(cb[1] == s._event for n in nodes for cb in n.eventCallbacks())
                             and not any(cb == s._hip_event for cb in hou.hipFile.eventCallbacks()))
+
+    # a dead panel's watcher (RuntimeError) must not silence the watchers after it, and is dropped
+    s2 = scene.ObjectScene()
+    later = []
+
+    def dead():
+        raise RuntimeError("Failed to obtain a C++ object")
+    s2.watch(dead)
+    s2.watch(lambda: later.append(1))
+    s2._notify()
+    out["dead_watcher_isolated"] = later == [1] and dead not in s2._watchers and len(s2._watchers) == 1
     return out
 
 
@@ -112,6 +123,8 @@ MUTATIONS = {
     "unwatch_keeps_callbacks": ("unwatch_stops", lambda: _patch(scene.ObjectScene, "_arm",
                                 _arm_only_on)),
     "unwatch_keeps_hip_callback": ("unwatch_stops", lambda: _patch(scene.ObjectScene, "unwatch", _unwatch_keep_hip)),
+    "notify_plain_loop": ("dead_watcher_isolated", lambda: _patch(scene.ObjectScene, "_notify",
+                          lambda self: [fn() for fn in list(self._watchers)])),
 }
 
 
