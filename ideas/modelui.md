@@ -471,7 +471,12 @@ green in every baseline since: the .pypanel is registered from this worktree's `
 baselines green, two mutations green: `undo_not_followed` (fixed before full4, red there) and `leave_reselects_old`
 (Houdini had already taken the viewer out, so the emulated selection drop in setPwd never ran; the check now drops it
 after the panel's own `_to_object_level` too). full4 died in the harness (`cleanup` printed a deleted panel; now its
-`id()`). Pending: a targeted GUI run of the two, then one full run.
+`id()`). Later runs: f2c6 showed the final baseline's follows_* red: a dead panel's scene watcher raised inside
+`MixedScene._notify` and silenced the next panel; fixed in the product (each watcher isolated, dead ones removed,
+check `dead_watcher_isolated`), and `no_stray_objects` now also spies on the states asked for. f2c8 full: PASS, all
+mutations red. On the merged tree (2026-11-10, m1): 70 baseline lines ok, every mutation red except
+`leave_reselects_old`, which is timing-dependent (red in f2c4 and f2c8, green in m1: it only differs from the product
+when the panel is still inside the object at leave time). Known weak check; making it deterministic is open.
 
 Known limits:
 - "Use selection" takes the viewer's component selection only when it was made on the entry's INPUT node; Houdini

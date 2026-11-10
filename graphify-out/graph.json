@@ -1710,7 +1710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui",
-      "community": 92,
+      "community": 382,
       "norm_label": "batch_ui.py"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow",
-      "community": 92,
+      "community": 382,
       "norm_label": "assetgrouprow"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_init",
-      "community": 92,
+      "community": 382,
       "norm_label": ".__init__()"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_setup_ui",
-      "community": 92,
+      "community": 382,
       "norm_label": "._setup_ui()"
     },
     {
@@ -1750,7 +1750,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_name",
-      "community": 92,
+      "community": 382,
       "norm_label": ".get_name()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_category",
-      "community": 92,
+      "community": 382,
       "norm_label": ".get_category()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_tags",
-      "community": 92,
+      "community": 382,
       "norm_label": ".get_tags()"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_is_checked",
-      "community": 92,
+      "community": 382,
       "norm_label": ".is_checked()"
     },
     {
@@ -1790,7 +1790,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_apply_defaults",
-      "community": 92,
+      "community": 382,
       "norm_label": ".apply_defaults()"
     },
     {
@@ -1800,7 +1800,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_set_export_status",
-      "community": 92,
+      "community": 382,
       "norm_label": ".set_export_status()"
     },
     {
@@ -1810,7 +1810,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_1",
-      "community": 92,
+      "community": 382,
       "norm_label": "asset group row widget used by the inline batch mode in assetexportdialog."
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_14",
-      "community": 92,
+      "community": 382,
       "norm_label": "one row in the detected-assets list.      displays a checkbox, sequential inde"
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_103",
-      "community": 92,
+      "community": 382,
       "norm_label": "returns the per-row name, or empty string if blank (caller applies dialog-level"
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_116",
-      "community": 92,
+      "community": 382,
       "norm_label": "fill in category/tags only if the prim had no attributes for them."
     },
     {
@@ -1850,7 +1850,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_123",
-      "community": 92,
+      "community": 382,
       "norm_label": "update the status dot to reflect export progress.          args:"
     },
     {
@@ -42120,7 +42120,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 168,
+      "community": 195,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -42160,7 +42160,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 195,
+      "community": 383,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -42170,7 +42170,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 195,
+      "community": 383,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -42180,7 +42180,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 195,
+      "community": 383,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -42190,7 +42190,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 195,
+      "community": 383,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -42200,7 +42200,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 195,
+      "community": 383,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -42210,7 +42210,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 195,
+      "community": 383,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -42770,7 +42770,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 168,
+      "community": 195,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -42790,7 +42790,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 195,
+      "community": 383,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -54447,7 +54447,7 @@
       "label": "Resume pointer (F1 framework core: done; F2 next)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L483",
+      "source_location": "L488",
       "_origin": "ast",
       "id": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next",
       "community": 299,
@@ -54457,7 +54457,7 @@
       "label": "F1 findings (2026-11-05, Houdini 22.0.442, Windows)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L548",
+      "source_location": "L553",
       "_origin": "ast",
       "id": "ideas_modelui_f1_findings_2026_11_05_houdini_22_0_442_windows",
       "community": 299,
@@ -54467,7 +54467,7 @@
       "label": "Decisions (Hannes, 2026-11-05)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L595",
+      "source_location": "L600",
       "_origin": "ast",
       "id": "ideas_modelui_decisions_hannes_2026_11_05",
       "community": 299,
@@ -54477,7 +54477,7 @@
       "label": "Decision log (house rule 2: why Python)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L616",
+      "source_location": "L621",
       "_origin": "ast",
       "id": "ideas_modelui_decision_log_house_rule_2_why_python",
       "community": 299,
@@ -54487,7 +54487,7 @@
       "label": "Framework (layers shared by every mode)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L631",
+      "source_location": "L636",
       "_origin": "ast",
       "id": "ideas_modelui_framework_layers_shared_by_every_mode",
       "community": 299,
@@ -54497,7 +54497,7 @@
       "label": "Mapping to Houdini",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L644",
+      "source_location": "L649",
       "_origin": "ast",
       "id": "ideas_modelui_mapping_to_houdini",
       "community": 299,
@@ -54507,7 +54507,7 @@
       "label": "Feature list",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L656",
+      "source_location": "L661",
       "_origin": "ast",
       "id": "ideas_modelui_feature_list",
       "community": 299,
@@ -54517,7 +54517,7 @@
       "label": "Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L674",
+      "source_location": "L679",
       "_origin": "ast",
       "id": "ideas_modelui_measurements_one_object_per_piece_2026_11_05_houdini_22_0_442_windows_hannes_kitbash_library",
       "community": 299,
@@ -54527,7 +54527,7 @@
       "label": "References",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L698",
+      "source_location": "L703",
       "_origin": "ast",
       "id": "ideas_modelui_references",
       "community": 299,
@@ -76165,9 +76165,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations",
-      "target": "modelui_operations_for_node",
-      "confidence_score": 1.0
+      "target": "modelui_operations_for_node"
     },
     {
       "relation": "contains",
@@ -76175,9 +76175,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations",
-      "target": "modelui_operations_get",
-      "confidence_score": 1.0
+      "target": "modelui_operations_get"
     },
     {
       "relation": "contains",
@@ -76185,9 +76185,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations",
-      "target": "modelui_operations_icon",
-      "confidence_score": 1.0
+      "target": "modelui_operations_icon"
     },
     {
       "relation": "contains",
@@ -76195,9 +76195,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations",
-      "target": "modelui_operations_ops",
-      "confidence_score": 1.0
+      "target": "modelui_operations_ops"
     },
     {
       "relation": "rationale_for",
@@ -76205,9 +76205,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations_rationale_1",
-      "target": "modelui_operations",
-      "confidence_score": 1.0
+      "target": "modelui_operations"
     },
     {
       "relation": "calls",
@@ -76216,9 +76216,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations_icon",
-      "target": "modelui_operations_get",
-      "confidence_score": 1.0
+      "target": "modelui_operations_get"
     },
     {
       "relation": "rationale_for",
@@ -76226,9 +76226,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/operations.py",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_operations_rationale_56",
-      "target": "modelui_operations_for_node",
-      "confidence_score": 1.0
+      "target": "modelui_operations_for_node"
     },
     {
       "relation": "contains",
@@ -78008,9 +78008,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/scene.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_scene_objectscene_notify",
-      "target": "modelui_scene_objectscene_unwatch",
-      "confidence_score": 1.0
+      "target": "modelui_scene_objectscene_unwatch"
     },
     {
       "relation": "calls",
@@ -78117,9 +78117,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/scene.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_scene_rationale_124",
-      "target": "modelui_scene_current",
-      "confidence_score": 1.0
+      "target": "modelui_scene_current"
     },
     {
       "relation": "method",
@@ -78277,9 +78277,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/scene.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_scene_rationale_133",
-      "target": "modelui_scene_mixedscene",
-      "confidence_score": 1.0
+      "target": "modelui_scene_mixedscene"
     },
     {
       "relation": "calls",
@@ -78419,9 +78419,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_add",
-      "confidence_score": 1.0
+      "target": "modelui_stack_add"
     },
     {
       "relation": "contains",
@@ -78429,9 +78429,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "contains",
@@ -78439,9 +78439,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_apply_group",
-      "confidence_score": 1.0
+      "target": "modelui_stack_apply_group"
     },
     {
       "relation": "contains",
@@ -78449,9 +78449,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "contains",
@@ -78459,9 +78459,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_collapse",
-      "confidence_score": 1.0
+      "target": "modelui_stack_collapse"
     },
     {
       "relation": "contains",
@@ -78469,9 +78469,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_delete",
-      "confidence_score": 1.0
+      "target": "modelui_stack_delete"
     },
     {
       "relation": "contains",
@@ -78479,9 +78479,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_destroy_unneeded",
-      "confidence_score": 1.0
+      "target": "modelui_stack_destroy_unneeded"
     },
     {
       "relation": "contains",
@@ -78489,9 +78489,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_lattice_cage",
-      "confidence_score": 1.0
+      "target": "modelui_stack_lattice_cage"
     },
     {
       "relation": "contains",
@@ -78499,9 +78499,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_move",
-      "confidence_score": 1.0
+      "target": "modelui_stack_move"
     },
     {
       "relation": "contains",
@@ -78509,9 +78509,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_object_of",
-      "confidence_score": 1.0
+      "target": "modelui_stack_object_of"
     },
     {
       "relation": "contains",
@@ -78519,9 +78519,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_own_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_own_object"
     },
     {
       "relation": "contains",
@@ -78529,9 +78529,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L232",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_pick_input",
-      "confidence_score": 1.0
+      "target": "modelui_stack_pick_input"
     },
     {
       "relation": "contains",
@@ -78539,9 +78539,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L264",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_picked",
-      "confidence_score": 1.0
+      "target": "modelui_stack_picked"
     },
     {
       "relation": "contains",
@@ -78549,9 +78549,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_set_enabled",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_enabled"
     },
     {
       "relation": "contains",
@@ -78559,9 +78559,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_set_top",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_top"
     },
     {
       "relation": "contains",
@@ -78569,9 +78569,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_state_node",
-      "confidence_score": 1.0
+      "target": "modelui_stack_state_node"
     },
     {
       "relation": "contains",
@@ -78579,9 +78579,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L272",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack",
-      "target": "modelui_stack_use_selection",
-      "confidence_score": 1.0
+      "target": "modelui_stack_use_selection"
     },
     {
       "relation": "rationale_for",
@@ -78589,9 +78589,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_1",
-      "target": "modelui_stack",
-      "confidence_score": 1.0
+      "target": "modelui_stack"
     },
     {
       "relation": "calls",
@@ -78600,9 +78600,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_add",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "calls",
@@ -78611,9 +78611,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_collapse",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "calls",
@@ -78622,9 +78622,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_delete",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "calls",
@@ -78633,9 +78633,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_move",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "rationale_for",
@@ -78643,9 +78643,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_20",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "calls",
@@ -78654,9 +78654,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L179",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_set_enabled",
-      "target": "modelui_stack_chain",
-      "confidence_score": 1.0
+      "target": "modelui_stack_chain"
     },
     {
       "relation": "rationale_for",
@@ -78664,9 +78664,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_32",
-      "target": "modelui_stack_object_of",
-      "confidence_score": 1.0
+      "target": "modelui_stack_object_of"
     },
     {
       "relation": "calls",
@@ -78675,9 +78675,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_add",
-      "target": "modelui_stack_set_top",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_top"
     },
     {
       "relation": "calls",
@@ -78686,9 +78686,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L226",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_collapse",
-      "target": "modelui_stack_set_top",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_top"
     },
     {
       "relation": "calls",
@@ -78697,9 +78697,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_delete",
-      "target": "modelui_stack_set_top",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_top"
     },
     {
       "relation": "calls",
@@ -78708,9 +78708,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_move",
-      "target": "modelui_stack_set_top",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_top"
     },
     {
       "relation": "calls",
@@ -78719,9 +78719,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_collapse",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "calls",
@@ -78730,9 +78730,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L196",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_delete",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "calls",
@@ -78741,9 +78741,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_destroy_unneeded",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "calls",
@@ -78752,9 +78752,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_pick_input",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "rationale_for",
@@ -78762,9 +78762,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_42",
-      "target": "modelui_stack_ancestors",
-      "confidence_score": 1.0
+      "target": "modelui_stack_ancestors"
     },
     {
       "relation": "calls",
@@ -78773,9 +78773,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L227",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_collapse",
-      "target": "modelui_stack_destroy_unneeded",
-      "confidence_score": 1.0
+      "target": "modelui_stack_destroy_unneeded"
     },
     {
       "relation": "calls",
@@ -78784,9 +78784,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_delete",
-      "target": "modelui_stack_destroy_unneeded",
-      "confidence_score": 1.0
+      "target": "modelui_stack_destroy_unneeded"
     },
     {
       "relation": "calls",
@@ -78795,9 +78795,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_pick_input",
-      "target": "modelui_stack_destroy_unneeded",
-      "confidence_score": 1.0
+      "target": "modelui_stack_destroy_unneeded"
     },
     {
       "relation": "rationale_for",
@@ -78805,9 +78805,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_54",
-      "target": "modelui_stack_destroy_unneeded",
-      "confidence_score": 1.0
+      "target": "modelui_stack_destroy_unneeded"
     },
     {
       "relation": "calls",
@@ -78816,9 +78816,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_add",
-      "target": "modelui_stack_own_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_own_object"
     },
     {
       "relation": "rationale_for",
@@ -78826,9 +78826,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_62",
-      "target": "modelui_stack_own_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_own_object"
     },
     {
       "relation": "calls",
@@ -78837,9 +78837,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_add",
-      "target": "modelui_stack_apply_group",
-      "confidence_score": 1.0
+      "target": "modelui_stack_apply_group"
     },
     {
       "relation": "rationale_for",
@@ -78847,9 +78847,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_72",
-      "target": "modelui_stack_apply_group",
-      "confidence_score": 1.0
+      "target": "modelui_stack_apply_group"
     },
     {
       "relation": "calls",
@@ -78858,9 +78858,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L277",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_use_selection",
-      "target": "modelui_stack_apply_group",
-      "confidence_score": 1.0
+      "target": "modelui_stack_apply_group"
     },
     {
       "relation": "calls",
@@ -78879,9 +78879,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_92",
-      "target": "modelui_stack_add",
-      "confidence_score": 1.0
+      "target": "modelui_stack_add"
     },
     {
       "relation": "rationale_for",
@@ -78889,9 +78889,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_131",
-      "target": "modelui_stack_lattice_cage",
-      "confidence_score": 1.0
+      "target": "modelui_stack_lattice_cage"
     },
     {
       "relation": "rationale_for",
@@ -78899,9 +78899,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_151",
-      "target": "modelui_stack_state_node",
-      "confidence_score": 1.0
+      "target": "modelui_stack_state_node"
     },
     {
       "relation": "rationale_for",
@@ -78909,9 +78909,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_158",
-      "target": "modelui_stack_move",
-      "confidence_score": 1.0
+      "target": "modelui_stack_move"
     },
     {
       "relation": "rationale_for",
@@ -78919,9 +78919,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_178",
-      "target": "modelui_stack_set_enabled",
-      "confidence_score": 1.0
+      "target": "modelui_stack_set_enabled"
     },
     {
       "relation": "rationale_for",
@@ -78929,9 +78929,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L187",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_187",
-      "target": "modelui_stack_delete",
-      "confidence_score": 1.0
+      "target": "modelui_stack_delete"
     },
     {
       "relation": "rationale_for",
@@ -78939,9 +78939,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_208",
-      "target": "modelui_stack_collapse",
-      "confidence_score": 1.0
+      "target": "modelui_stack_collapse"
     },
     {
       "relation": "rationale_for",
@@ -78949,9 +78949,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L233",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_233",
-      "target": "modelui_stack_pick_input",
-      "confidence_score": 1.0
+      "target": "modelui_stack_pick_input"
     },
     {
       "relation": "rationale_for",
@@ -78959,9 +78959,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L265",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_265",
-      "target": "modelui_stack_picked",
-      "confidence_score": 1.0
+      "target": "modelui_stack_picked"
     },
     {
       "relation": "rationale_for",
@@ -78969,9 +78969,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack.py",
       "source_location": "L273",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_rationale_273",
-      "target": "modelui_stack_use_selection",
-      "confidence_score": 1.0
+      "target": "modelui_stack_use_selection"
     },
     {
       "relation": "contains",
@@ -78979,9 +78979,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_action",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_action"
     },
     {
       "relation": "contains",
@@ -78989,9 +78989,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_alive",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_alive"
     },
     {
       "relation": "contains",
@@ -78999,9 +78999,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L584",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_create_interface",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_create_interface"
     },
     {
       "relation": "contains",
@@ -79009,9 +79009,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L590",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_destroy_interface",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_destroy_interface"
     },
     {
       "relation": "contains",
@@ -79019,9 +79019,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L567",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_forget",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_forget"
     },
     {
       "relation": "contains",
@@ -79029,9 +79029,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L601",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_install",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_install"
     },
     {
       "relation": "contains",
@@ -79039,9 +79039,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_modifypanel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel"
     },
     {
       "relation": "contains",
@@ -79049,9 +79049,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L597",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_panel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_panel"
     },
     {
       "relation": "contains",
@@ -79059,9 +79059,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "contains",
@@ -79069,9 +79069,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L610",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_uninstall",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_uninstall"
     },
     {
       "relation": "contains",
@@ -79079,9 +79079,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "rationale_for",
@@ -79089,9 +79089,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_1",
-      "target": "modelui_stack_panel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel"
     },
     {
       "relation": "calls",
@@ -79100,9 +79100,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L355",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_enter",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79111,9 +79111,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L181",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_inside",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79122,9 +79122,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_leave_object",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79133,9 +79133,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L253",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79144,9 +79144,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L436",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_selection_for",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79155,9 +79155,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_set_watching",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79166,9 +79166,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L402",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_settle",
-      "target": "modelui_stack_panel_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_viewer"
     },
     {
       "relation": "calls",
@@ -79177,9 +79177,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L460",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "calls",
@@ -79188,9 +79188,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_collapse",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "calls",
@@ -79199,9 +79199,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L446",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_selection_for",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "calls",
@@ -79210,9 +79210,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L548",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_take_pick",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "calls",
@@ -79221,9 +79221,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L557",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_use_selection",
-      "target": "modelui_stack_panel_status",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_status"
     },
     {
       "relation": "calls",
@@ -79232,9 +79232,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L204",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_entry",
-      "target": "modelui_stack_panel_alive",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_alive"
     },
     {
       "relation": "calls",
@@ -79243,9 +79243,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L240",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_alive",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_alive"
     },
     {
       "relation": "calls",
@@ -79254,9 +79254,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L429",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_row_changed",
-      "target": "modelui_stack_panel_alive",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_alive"
     },
     {
       "relation": "calls",
@@ -79265,9 +79265,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L543",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_take_pick",
-      "target": "modelui_stack_panel_alive",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_alive"
     },
     {
       "relation": "rationale_for",
@@ -79275,9 +79275,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_52",
-      "target": "modelui_stack_panel_action",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_action"
     },
     {
       "relation": "calls",
@@ -79286,9 +79286,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L585",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_create_interface",
-      "target": "modelui_stack_panel_modifypanel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel"
     },
     {
       "relation": "method",
@@ -79296,9 +79296,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L451",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_add",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_add"
     },
     {
       "relation": "method",
@@ -79306,9 +79306,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L160",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_arm",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm"
     },
     {
       "relation": "method",
@@ -79316,9 +79316,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L526",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_arm_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm_pick"
     },
     {
       "relation": "method",
@@ -79326,9 +79326,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L309",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_build_extras",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_build_extras"
     },
     {
       "relation": "method",
@@ -79336,9 +79336,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_close_down",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_close_down"
     },
     {
       "relation": "method",
@@ -79346,9 +79346,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L493",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_collapse",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_collapse"
     },
     {
       "relation": "method",
@@ -79356,9 +79356,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L482",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_delete_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_delete_entry"
     },
     {
       "relation": "method",
@@ -79366,9 +79366,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L353",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_enter",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_enter"
     },
     {
       "relation": "method",
@@ -79376,9 +79376,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "method",
@@ -79386,9 +79386,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L413",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_entry_chosen",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry_chosen"
     },
     {
       "relation": "method",
@@ -79396,9 +79396,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_hold",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_hold"
     },
     {
       "relation": "method",
@@ -79406,9 +79406,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_init",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_init"
     },
     {
       "relation": "method",
@@ -79416,9 +79416,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "method",
@@ -79426,9 +79426,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L374",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_leave_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_leave_object"
     },
     {
       "relation": "method",
@@ -79436,9 +79436,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L475",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_move_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_move_entry"
     },
     {
       "relation": "method",
@@ -79446,9 +79446,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_node_event",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_node_event"
     },
     {
       "relation": "method",
@@ -79456,9 +79456,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "method",
@@ -79466,9 +79466,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L468",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_op_chosen",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_op_chosen"
     },
     {
       "relation": "method",
@@ -79476,9 +79476,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L508",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_open_as_nodes",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_open_as_nodes"
     },
     {
       "relation": "method",
@@ -79486,9 +79486,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "method",
@@ -79496,9 +79496,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_row_changed",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_row_changed"
     },
     {
       "relation": "method",
@@ -79506,9 +79506,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L434",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_selection_for",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_selection_for"
     },
     {
       "relation": "method",
@@ -79516,9 +79516,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "method",
@@ -79526,9 +79526,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L398",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_settle",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_settle"
     },
     {
       "relation": "method",
@@ -79536,9 +79536,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L334",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_show_parms",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_show_parms"
     },
     {
       "relation": "method",
@@ -79546,9 +79546,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L536",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_take_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_take_pick"
     },
     {
       "relation": "method",
@@ -79556,9 +79556,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L189",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_target",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_target"
     },
     {
       "relation": "method",
@@ -79566,9 +79566,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L388",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_to_object_level",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_to_object_level"
     },
     {
       "relation": "method",
@@ -79576,9 +79576,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L295",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "method",
@@ -79586,9 +79586,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L554",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_use_selection",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_use_selection"
     },
     {
       "relation": "method",
@@ -79596,9 +79596,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L406",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel",
-      "target": "modelui_stack_panel_modifypanel_viewer_event",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_viewer_event"
     },
     {
       "relation": "calls",
@@ -79607,9 +79607,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_init",
-      "target": "modelui_stack_panel_modifypanel_move_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_move_entry"
     },
     {
       "relation": "calls",
@@ -79618,9 +79618,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_init",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "calls",
@@ -79629,9 +79629,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L606",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_install",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "calls",
@@ -79640,9 +79640,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_close_down",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "calls",
@@ -79651,9 +79651,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_set_watching",
-      "target": "modelui_stack_panel_modifypanel_arm",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm"
     },
     {
       "relation": "calls",
@@ -79662,9 +79662,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_set_watching",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -79673,9 +79673,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_set_watching",
-      "target": "modelui_stack_panel_modifypanel_show_parms",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_show_parms"
     },
     {
       "relation": "rationale_for",
@@ -79683,9 +79683,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_133",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "calls",
@@ -79694,9 +79694,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L613",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_uninstall",
-      "target": "modelui_stack_panel_modifypanel_set_watching",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_set_watching"
     },
     {
       "relation": "calls",
@@ -79705,9 +79705,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L592",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_destroy_interface",
-      "target": "modelui_stack_panel_modifypanel_close_down",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_close_down"
     },
     {
       "relation": "calls",
@@ -79716,9 +79716,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L260",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_arm",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm"
     },
     {
       "relation": "rationale_for",
@@ -79726,9 +79726,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_161",
-      "target": "modelui_stack_panel_modifypanel_arm",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm"
     },
     {
       "relation": "calls",
@@ -79737,9 +79737,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L359",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_enter",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79748,9 +79748,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_leave_object",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79759,9 +79759,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L251",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79770,9 +79770,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L437",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_selection_for",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79781,9 +79781,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L403",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_settle",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79792,9 +79792,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_target",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "rationale_for",
@@ -79802,9 +79802,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L179",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_179",
-      "target": "modelui_stack_panel_modifypanel_inside",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_inside"
     },
     {
       "relation": "calls",
@@ -79813,9 +79813,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_target",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_target"
     },
     {
       "relation": "rationale_for",
@@ -79823,9 +79823,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_190",
-      "target": "modelui_stack_panel_modifypanel_target",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_target"
     },
     {
       "relation": "calls",
@@ -79834,9 +79834,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L455",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "calls",
@@ -79845,9 +79845,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L494",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_collapse",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "calls",
@@ -79856,9 +79856,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L510",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_open_as_nodes",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "calls",
@@ -79867,9 +79867,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "calls",
@@ -79878,9 +79878,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L297",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_update",
-      "target": "modelui_stack_panel_modifypanel_obj",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_obj"
     },
     {
       "relation": "calls",
@@ -79889,9 +79889,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L455",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79900,9 +79900,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L497",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_collapse",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79911,9 +79911,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L483",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_delete_entry",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79922,9 +79922,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L418",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_entry_chosen",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79933,9 +79933,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L476",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_move_entry",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79944,9 +79944,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L515",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_open_as_nodes",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79955,9 +79955,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L297",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_update",
-      "target": "modelui_stack_panel_modifypanel_entry",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_entry"
     },
     {
       "relation": "calls",
@@ -79966,9 +79966,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L232",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_hold",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_hold"
     },
     {
       "relation": "rationale_for",
@@ -79976,9 +79976,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_208",
-      "target": "modelui_stack_panel_modifypanel_hold",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_hold"
     },
     {
       "relation": "calls",
@@ -79987,9 +79987,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L464",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -79998,9 +79998,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L505",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_collapse",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -80009,9 +80009,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L490",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_delete_entry",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -80020,9 +80020,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L479",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_move_entry",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -80031,9 +80031,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L242",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_leave_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_leave_object"
     },
     {
       "relation": "calls",
@@ -80042,9 +80042,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L237",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_settle",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_settle"
     },
     {
       "relation": "calls",
@@ -80053,9 +80053,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_take_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_take_pick"
     },
     {
       "relation": "calls",
@@ -80064,9 +80064,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L291",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_refresh",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "calls",
@@ -80075,9 +80075,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L432",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_row_changed",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "rationale_for",
@@ -80085,9 +80085,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L227",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_227",
-      "target": "modelui_stack_panel_modifypanel_refresh",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_refresh"
     },
     {
       "relation": "calls",
@@ -80096,9 +80096,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L534",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_arm_pick",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "calls",
@@ -80107,9 +80107,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L423",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_entry_chosen",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "calls",
@@ -80118,9 +80118,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L306",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_update",
-      "target": "modelui_stack_panel_modifypanel_build_extras",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_build_extras"
     },
     {
       "relation": "calls",
@@ -80129,9 +80129,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L307",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_update",
-      "target": "modelui_stack_panel_modifypanel_show_parms",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_show_parms"
     },
     {
       "relation": "calls",
@@ -80140,9 +80140,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L564",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_use_selection",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "rationale_for",
@@ -80150,9 +80150,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L296",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_296",
-      "target": "modelui_stack_panel_modifypanel_update",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_update"
     },
     {
       "relation": "calls",
@@ -80161,9 +80161,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L325",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_build_extras",
-      "target": "modelui_stack_panel_modifypanel_arm_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm_pick"
     },
     {
       "relation": "calls",
@@ -80172,9 +80172,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L330",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_build_extras",
-      "target": "modelui_stack_panel_modifypanel_use_selection",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_use_selection"
     },
     {
       "relation": "calls",
@@ -80183,9 +80183,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L498",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_collapse",
-      "target": "modelui_stack_panel_modifypanel_show_parms",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_show_parms"
     },
     {
       "relation": "calls",
@@ -80194,9 +80194,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L486",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_delete_entry",
-      "target": "modelui_stack_panel_modifypanel_show_parms",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_show_parms"
     },
     {
       "relation": "calls",
@@ -80205,9 +80205,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L465",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_modifypanel_enter",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_enter"
     },
     {
       "relation": "calls",
@@ -80216,9 +80216,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_entry_chosen",
-      "target": "modelui_stack_panel_modifypanel_enter",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_enter"
     },
     {
       "relation": "rationale_for",
@@ -80226,9 +80226,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L354",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_354",
-      "target": "modelui_stack_panel_modifypanel_enter",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_enter"
     },
     {
       "relation": "calls",
@@ -80237,9 +80237,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L532",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_arm_pick",
-      "target": "modelui_stack_panel_modifypanel_leave_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_leave_object"
     },
     {
       "relation": "calls",
@@ -80248,9 +80248,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L489",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_delete_entry",
-      "target": "modelui_stack_panel_modifypanel_leave_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_leave_object"
     },
     {
       "relation": "calls",
@@ -80259,9 +80259,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L422",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_entry_chosen",
-      "target": "modelui_stack_panel_modifypanel_leave_object",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_leave_object"
     },
     {
       "relation": "calls",
@@ -80270,9 +80270,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L382",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_leave_object",
-      "target": "modelui_stack_panel_modifypanel_to_object_level",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_to_object_level"
     },
     {
       "relation": "calls",
@@ -80281,9 +80281,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L404",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_settle",
-      "target": "modelui_stack_panel_modifypanel_to_object_level",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_to_object_level"
     },
     {
       "relation": "rationale_for",
@@ -80291,9 +80291,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L399",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_399",
-      "target": "modelui_stack_panel_modifypanel_settle",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_settle"
     },
     {
       "relation": "calls",
@@ -80302,9 +80302,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L458",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_add",
-      "target": "modelui_stack_panel_modifypanel_selection_for",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_selection_for"
     },
     {
       "relation": "calls",
@@ -80313,9 +80313,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L555",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_use_selection",
-      "target": "modelui_stack_panel_modifypanel_selection_for",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_selection_for"
     },
     {
       "relation": "rationale_for",
@@ -80323,9 +80323,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L435",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_435",
-      "target": "modelui_stack_panel_modifypanel_selection_for",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_selection_for"
     },
     {
       "relation": "calls",
@@ -80334,9 +80334,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L472",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_modifypanel_op_chosen",
-      "target": "modelui_stack_panel_modifypanel_add",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_add"
     },
     {
       "relation": "rationale_for",
@@ -80344,9 +80344,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L452",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_452",
-      "target": "modelui_stack_panel_modifypanel_add",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_add"
     },
     {
       "relation": "rationale_for",
@@ -80354,9 +80354,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L509",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_509",
-      "target": "modelui_stack_panel_modifypanel_open_as_nodes",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_open_as_nodes"
     },
     {
       "relation": "rationale_for",
@@ -80364,9 +80364,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L527",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_527",
-      "target": "modelui_stack_panel_modifypanel_arm_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_arm_pick"
     },
     {
       "relation": "rationale_for",
@@ -80374,9 +80374,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L537",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_537",
-      "target": "modelui_stack_panel_modifypanel_take_pick",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_modifypanel_take_pick"
     },
     {
       "relation": "rationale_for",
@@ -80384,9 +80384,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L568",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_568",
-      "target": "modelui_stack_panel_forget",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_forget"
     },
     {
       "relation": "calls",
@@ -80395,9 +80395,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L604",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_install",
-      "target": "modelui_stack_panel_panel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_panel"
     },
     {
       "relation": "calls",
@@ -80406,9 +80406,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L612",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_uninstall",
-      "target": "modelui_stack_panel_panel",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_panel"
     },
     {
       "relation": "rationale_for",
@@ -80416,9 +80416,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L602",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_602",
-      "target": "modelui_stack_panel_install",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_install"
     },
     {
       "relation": "rationale_for",
@@ -80426,9 +80426,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/stack_panel.py",
       "source_location": "L611",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_stack_panel_rationale_611",
-      "target": "modelui_stack_panel_uninstall",
-      "confidence_score": 1.0
+      "target": "modelui_stack_panel_uninstall"
     },
     {
       "relation": "contains",
@@ -80559,9 +80559,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/switch.py",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_switch_rationale_40",
-      "target": "modelui_switch_rollback",
-      "confidence_score": 1.0
+      "target": "modelui_switch_rollback"
     },
     {
       "relation": "calls",
@@ -80580,9 +80580,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/switch.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_switch_rationale_53",
-      "target": "modelui_switch_install",
-      "confidence_score": 1.0
+      "target": "modelui_switch_install"
     },
     {
       "relation": "calls",
@@ -80601,9 +80601,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/switch.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_switch_rationale_83",
-      "target": "modelui_switch_uninstall",
-      "confidence_score": 1.0
+      "target": "modelui_switch_uninstall"
     },
     {
       "relation": "calls",
@@ -80622,9 +80622,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/switch.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_switch_rationale_94",
-      "target": "modelui_switch_toggle_later",
-      "confidence_score": 1.0
+      "target": "modelui_switch_toggle_later"
     },
     {
       "relation": "rationale_for",
@@ -80632,9 +80632,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/switch.py",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_switch_rationale_109",
-      "target": "modelui_switch_register_toggle_hotkey",
-      "confidence_score": 1.0
+      "target": "modelui_switch_register_toggle_hotkey"
     },
     {
       "relation": "contains",
@@ -119649,9 +119649,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_checks",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_checks"
     },
     {
       "relation": "contains",
@@ -119659,9 +119659,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_fixture",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_fixture"
     },
     {
       "relation": "contains",
@@ -119669,9 +119669,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L396",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_main",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_main"
     },
     {
       "relation": "contains",
@@ -119679,9 +119679,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L326",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_mutate"
     },
     {
       "relation": "contains",
@@ -119689,9 +119689,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_names",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_names"
     },
     {
       "relation": "contains",
@@ -119699,9 +119699,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_pos",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_pos"
     },
     {
       "relation": "contains",
@@ -119709,9 +119709,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_ref",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_ref"
     },
     {
       "relation": "contains",
@@ -119719,9 +119719,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L386",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack",
-      "target": "modelui_check_stack_run",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_run"
     },
     {
       "relation": "rationale_for",
@@ -119729,9 +119729,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_rationale_1",
-      "target": "modelui_check_stack",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack"
     },
     {
       "relation": "calls",
@@ -119740,9 +119740,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_checks",
-      "target": "modelui_check_stack_pos",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_pos"
     },
     {
       "relation": "calls",
@@ -119751,9 +119751,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_ref",
-      "target": "modelui_check_stack_pos",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_pos"
     },
     {
       "relation": "calls",
@@ -119762,9 +119762,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_checks",
-      "target": "modelui_check_stack_names",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_names"
     },
     {
       "relation": "calls",
@@ -119784,9 +119784,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_checks",
-      "target": "modelui_check_stack_ref",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_ref"
     },
     {
       "relation": "rationale_for",
@@ -119794,9 +119794,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_rationale_37",
-      "target": "modelui_check_stack_ref",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_ref"
     },
     {
       "relation": "calls",
@@ -119805,9 +119805,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_checks",
-      "target": "modelui_check_stack_fixture",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_fixture"
     },
     {
       "relation": "calls",
@@ -119816,9 +119816,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L389",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_run",
-      "target": "modelui_check_stack_checks",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_checks"
     },
     {
       "relation": "calls",
@@ -119827,9 +119827,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L403",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_main",
-      "target": "modelui_check_stack_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_mutate"
     },
     {
       "relation": "calls",
@@ -119838,9 +119838,9 @@
       "source_file": "tests/modelui/check_stack.py",
       "source_location": "L397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_check_stack_main",
-      "target": "modelui_check_stack_run",
-      "confidence_score": 1.0
+      "target": "modelui_check_stack_run"
     },
     {
       "relation": "contains",
@@ -121602,9 +121602,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_choose",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_choose"
     },
     {
       "relation": "contains",
@@ -121612,9 +121612,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L514",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_cleanup",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_cleanup"
     },
     {
       "relation": "contains",
@@ -121622,9 +121622,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_click",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_click"
     },
     {
       "relation": "contains",
@@ -121632,9 +121632,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_click_row",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_click_row"
     },
     {
       "relation": "contains",
@@ -121642,9 +121642,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L617",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_driver",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_driver"
     },
     {
       "relation": "contains",
@@ -121652,9 +121652,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_explorer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_explorer"
     },
     {
       "relation": "contains",
@@ -121662,9 +121662,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L675",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_finish"
     },
     {
       "relation": "contains",
@@ -121672,9 +121672,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_geos",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_geos"
     },
     {
       "relation": "contains",
@@ -121682,9 +121682,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L684",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_guard",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_guard"
     },
     {
       "relation": "contains",
@@ -121692,9 +121692,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_labels",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_labels"
     },
     {
       "relation": "contains",
@@ -121702,9 +121702,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L646",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_line",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_line"
     },
     {
       "relation": "contains",
@@ -121712,9 +121712,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "contains",
@@ -121722,9 +121722,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L546",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_mutate"
     },
     {
       "relation": "contains",
@@ -121732,9 +121732,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_off_screen"
     },
     {
       "relation": "contains",
@@ -121742,9 +121742,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_panel",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_panel"
     },
     {
       "relation": "contains",
@@ -121752,9 +121752,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L653",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_pump",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_pump"
     },
     {
       "relation": "contains",
@@ -121762,9 +121762,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L507",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_q",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_q"
     },
     {
       "relation": "contains",
@@ -121772,9 +121772,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_rows",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_rows"
     },
     {
       "relation": "contains",
@@ -121782,9 +121782,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_screen_point",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_screen_point"
     },
     {
       "relation": "contains",
@@ -121792,9 +121792,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L693",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_start",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_start"
     },
     {
       "relation": "contains",
@@ -121802,9 +121802,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_suite",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_suite"
     },
     {
       "relation": "contains",
@@ -121812,9 +121812,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_top_first",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_top_first"
     },
     {
       "relation": "contains",
@@ -121822,9 +121822,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L495",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_undo_open"
     },
     {
       "relation": "contains",
@@ -121832,9 +121832,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_viewer"
     },
     {
       "relation": "contains",
@@ -121842,9 +121842,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_visible_on_screen"
     },
     {
       "relation": "contains",
@@ -121852,9 +121852,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c",
-      "target": "modelui_gui_f2c_why",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_why"
     },
     {
       "relation": "rationale_for",
@@ -121862,9 +121862,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_1",
-      "target": "modelui_gui_f2c",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c"
     },
     {
       "relation": "calls",
@@ -121873,9 +121873,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L519",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_cleanup",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121884,9 +121884,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L620",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_driver",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121895,9 +121895,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L679",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_finish",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121906,9 +121906,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L686",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_guard",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121917,9 +121917,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L669",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_pump",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121928,9 +121928,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L511",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_q",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121939,9 +121939,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L705",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_start",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121950,9 +121950,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L191",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121961,9 +121961,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_why",
-      "target": "modelui_gui_f2c_log",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_log"
     },
     {
       "relation": "calls",
@@ -121972,9 +121972,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L686",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_guard",
-      "target": "modelui_gui_f2c_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_visible_on_screen"
     },
     {
       "relation": "calls",
@@ -121983,9 +121983,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_off_screen",
-      "target": "modelui_gui_f2c_visible_on_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_visible_on_screen"
     },
     {
       "relation": "calls",
@@ -121994,9 +121994,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L685",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_guard",
-      "target": "modelui_gui_f2c_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_off_screen"
     },
     {
       "relation": "calls",
@@ -122005,9 +122005,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L701",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_start",
-      "target": "modelui_gui_f2c_off_screen",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_off_screen"
     },
     {
       "relation": "calls",
@@ -122016,9 +122016,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_viewer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_viewer"
     },
     {
       "relation": "calls",
@@ -122027,9 +122027,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_screen_point",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_screen_point"
     },
     {
       "relation": "calls",
@@ -122038,9 +122038,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_panel",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_panel"
     },
     {
       "relation": "calls",
@@ -122049,9 +122049,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_explorer",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_explorer"
     },
     {
       "relation": "calls",
@@ -122060,9 +122060,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L364",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_click",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_click"
     },
     {
       "relation": "rationale_for",
@@ -122070,9 +122070,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_94",
-      "target": "modelui_gui_f2c_click_row",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_click_row"
     },
     {
       "relation": "calls",
@@ -122081,9 +122081,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L210",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_click_row",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_click_row"
     },
     {
       "relation": "calls",
@@ -122092,9 +122092,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_rows",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_rows"
     },
     {
       "relation": "calls",
@@ -122103,9 +122103,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_why",
-      "target": "modelui_gui_f2c_rows",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_rows"
     },
     {
       "relation": "calls",
@@ -122114,9 +122114,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_top_first",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_top_first"
     },
     {
       "relation": "rationale_for",
@@ -122124,9 +122124,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_113",
-      "target": "modelui_gui_f2c_choose",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_choose"
     },
     {
       "relation": "calls",
@@ -122135,9 +122135,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L331",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_choose",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_choose"
     },
     {
       "relation": "calls",
@@ -122146,9 +122146,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_labels",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_labels"
     },
     {
       "relation": "calls",
@@ -122157,9 +122157,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_why",
-      "target": "modelui_gui_f2c_labels",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_labels"
     },
     {
       "relation": "rationale_for",
@@ -122167,9 +122167,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_124",
-      "target": "modelui_gui_f2c_why",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_why"
     },
     {
       "relation": "calls",
@@ -122178,9 +122178,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L340",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_why",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_why"
     },
     {
       "relation": "rationale_for",
@@ -122188,9 +122188,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_134",
-      "target": "modelui_gui_f2c_geos",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_geos"
     },
     {
       "relation": "calls",
@@ -122199,9 +122199,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L162",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_suite",
-      "target": "modelui_gui_f2c_geos",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_geos"
     },
     {
       "relation": "calls",
@@ -122210,9 +122210,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L627",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_driver",
-      "target": "modelui_gui_f2c_suite",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_suite"
     },
     {
       "relation": "calls",
@@ -122221,9 +122221,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L517",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_cleanup",
-      "target": "modelui_gui_f2c_undo_open",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_undo_open"
     },
     {
       "relation": "calls",
@@ -122232,9 +122232,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L522",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_cleanup",
-      "target": "modelui_gui_f2c_q",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_q"
     },
     {
       "relation": "calls",
@@ -122243,9 +122243,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L622",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_driver",
-      "target": "modelui_gui_f2c_cleanup",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_cleanup"
     },
     {
       "relation": "calls",
@@ -122254,9 +122254,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L626",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_driver",
-      "target": "modelui_gui_f2c_mutate",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_mutate"
     },
     {
       "relation": "calls",
@@ -122265,9 +122265,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L703",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_start",
-      "target": "modelui_gui_f2c_driver",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_driver"
     },
     {
       "relation": "calls",
@@ -122276,9 +122276,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L664",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_pump",
-      "target": "modelui_gui_f2c_line",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_line"
     },
     {
       "relation": "rationale_for",
@@ -122286,9 +122286,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L647",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_rationale_647",
-      "target": "modelui_gui_f2c_line",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_line"
     },
     {
       "relation": "calls",
@@ -122297,9 +122297,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L666",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_pump",
-      "target": "modelui_gui_f2c_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_finish"
     },
     {
       "relation": "calls",
@@ -122308,9 +122308,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L703",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_start",
-      "target": "modelui_gui_f2c_pump",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_pump"
     },
     {
       "relation": "calls",
@@ -122319,9 +122319,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L687",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_guard",
-      "target": "modelui_gui_f2c_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_finish"
     },
     {
       "relation": "calls",
@@ -122330,9 +122330,9 @@
       "source_file": "tests/modelui/gui_f2c.py",
       "source_location": "L706",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "modelui_gui_f2c_start",
-      "target": "modelui_gui_f2c_finish",
-      "confidence_score": 1.0
+      "target": "modelui_gui_f2c_finish"
     },
     {
       "relation": "contains",
@@ -151469,9 +151469,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_f2c_modifier_stack_modify_panel_branch_modelui_stack",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_f2c_modifier_stack_modify_panel_branch_modelui_stack"
     },
     {
       "relation": "contains",
@@ -157768,5 +157768,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ba3ced0a1665b56a1de962bfcb682594bf313c08"
+  "built_at_commit": "489d198c06796d7ac69205a4e0d966875b747a38"
 }
