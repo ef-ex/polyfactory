@@ -228,7 +228,12 @@ def suite(out):
     # (2026-11-10: SceneViewer.setPwd ran the panel's timer, list.clear() deleted the clicked item, Houdini segfaulted).
     # setPwd here also runs Qt's events, as Houdini's did; a pending refresh changes a row (a rename). The row is chosen
     # with setSelected, not a click: without the guard a real click kills this Houdini and every later run.
-    row = [p.list.item(i) for i in range(p.list.count()) if p.list.item(i).data(Qt.UserRole) == ex.sessionId()][0]
+    rows_ = [p.list.item(i) for i in range(p.list.count()) if p.list.item(i).data(Qt.UserRole) == ex.sessionId()]
+    if not rows_:   # a broken build (mutation wrong_object_state) lost the row already: judge the stray-object check now,
+        out["no_stray_objects"] = geos() == start_geos   # by assertion, instead of dying on the missing row
+        log("  row of the entry missing; objects", geos(), "at the start", start_geos)
+        return
+    row = rows_[0]
     own = "setPwd" in hou.SceneViewer.__dict__
     orig = hou.SceneViewer.setPwd
 
@@ -282,9 +287,11 @@ def suite(out):
     hou.SceneViewer.setPwd = dropping
     to_obj = p._to_object_level   # full3 (2026-11-10): Houdini had already taken the viewer out, so setPwd never ran,
 
-    def dropping_out(sv_):        # nothing was dropped and mutation leave_reselects_old stayed green: drop it here too
-        to_obj(sv_)
-        hou.clearAllSelected()
+    def dropping_out(sv_):        # nothing was dropped and mutation leave_reselects_old stayed green: drop it here too,
+        before = (sv_.pwd(), sv_.currentState())   # but only when the viewer really moved (_settle calls this every
+        to_obj(sv_)                                # refresh and a no-op does not touch Houdini's selection)
+        if (sv_.pwd(), sv_.currentState()) != before:
+            hou.clearAllSelected()
     p._to_object_level = dropping_out
     try:
         click_row(e.list, other.sessionId())
