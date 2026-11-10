@@ -24,11 +24,21 @@ KEYS = [
     ("h", "h.pf_modelui_align", "Alt+Ctrl+A"),
     ("h", "h.pf_modelui_quick_align", "Alt+Ctrl+Shift+A"),
     ("h", "h.pf_modelui_normal_align", "Alt+Ctrl+N"),
+    # F2e copy / paste, over viewers only (a main-menu symbol assigned in the viewer context runs there and nowhere else:
+    # probe 2026-11-10). Houdini binds Ctrl+C / Ctrl+V to h.copy / h.paste in context h (ours is more specific) and in a
+    # few SOP/LOP tool states (KineFX, APEX, RBD, stage manager: theirs is more specific and stays); Ctrl+Shift+V only
+    # in such tool states
+    ("h.pane.gview", "h.pf_modelui_copy", "Ctrl+C"),
+    ("h.pane.gview", "h.pf_modelui_paste", "Ctrl+V"),
+    ("h.pane.gview", "h.pf_modelui_paste_at", "Ctrl+Shift+V"),
 ]
 # modelUI's own actions (= main menu item ids in MainMenuCommon.xml), registered in memory before their keys
 COMMANDS = {"h.pf_modelui_align": ("Align...", "modelUI: align the selection to a target (3ds Max Align)"),
             "h.pf_modelui_quick_align": ("Quick Align", "modelUI: the selection's pivot to a target's pivot"),
-            "h.pf_modelui_normal_align": ("Normal Align...", "modelUI: a face of the selection onto a face of a target")}
+            "h.pf_modelui_normal_align": ("Normal Align...", "modelUI: a face of the selection onto a face of a target"),
+            "h.pf_modelui_copy": ("Copy Selection", "modelUI: the selected pieces and objects to the clipboard"),
+            "h.pf_modelui_paste": ("Paste", "modelUI: the clipboard into this scene, same world transforms"),
+            "h.pf_modelui_paste_at": ("Paste at Look-at Point", "modelUI: the clipboard, standing at the look-at point")}
 
 
 def _changes():

@@ -46,6 +46,30 @@ from polyfactory.modelui import align
 align.normal_align()
 ]]></scriptCode>
       </scriptItem>
+      <separatorItem/>
+      <scriptItem id="h.pf_modelui_copy">
+        <label>Copy Selection</label>
+        <scriptCode><![CDATA[
+from polyfactory.modelui import clipboard
+clipboard.copy()
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.pf_modelui_paste">
+        <label>Paste</label>
+        <scriptCode><![CDATA[
+import hdefereval
+from polyfactory.modelui import clipboard
+hdefereval.executeDeferred(clipboard.paste)   # after the menu action: its own undo step, "modelUI: paste"
+]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="h.pf_modelui_paste_at">
+        <label>Paste at Look-at Point</label>
+        <scriptCode><![CDATA[
+import hdefereval
+from polyfactory.modelui import clipboard
+hdefereval.executeDeferred(clipboard.paste_at_look_at)   # after the menu action: its own undo step, "modelUI: paste"
+]]></scriptCode>
+      </scriptItem>
     </subMenu>
   </menuBar>
 </mainMenu>
