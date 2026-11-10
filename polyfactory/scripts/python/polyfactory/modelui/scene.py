@@ -67,8 +67,10 @@ class ObjectScene:
                 self._node(pid).setDisplayFlag(not hide)
 
     def delete(self, pids):
+        from polyfactory.modelui import clone   # (clone imports this module)
         nodes = [self._node(pid) for pid in pids]
         with hou.undos.group("modelUI: delete"):
+            clone.hand_over(nodes)
             for n in nodes:
                 n.destroy()
 

@@ -30,6 +30,126 @@ def size(node):
     return node.displayNode().geometry().boundingBox().sizevec()
 
 
+def wbox(node):
+    """World box of an object's display geometry (corners through its world transform)."""
+    b, m = node.displayNode().geometry().boundingBox(), node.worldTransform()
+    pts = [hou.Vector3(x, y, z) * m for x in (b.minvec()[0], b.maxvec()[0]) for y in (b.minvec()[1], b.maxvec()[1])
+           for z in (b.minvec()[2], b.maxvec()[2])]
+    return [min(v[i] for v in pts) for i in range(3)] + [max(v[i] for v in pts) for i in range(3)]
+
+
+def stash_point(c, piece):
+    return [q for q in containers.points(c).points() if q.intAttribValue("pf_piece") == piece][0]
+
+
+def clone_kind(c, piece):
+    g = containers.points(c)
+    return stash_point(c, piece).stringAttribValue("pf_clone_kind") if g.findPointAttrib("pf_clone_kind") else ""
+
+
+def checks2(out):
+    """F2b audit follow-ups: settings, parent, pivot, mixed clones, delete hand-over, rollback."""
+    hou.hipFile.clear(suppress_save_prompt=True)
+    s = scene.current()
+    c = containers.create()
+    a, b = containers.add_pieces(c, [(FILES[0], "a", hou.hmath.buildTranslate(1, 0, 0)), (FILES[1], "b", None)])
+    pa, pb = ("piece", c.sessionId(), a), ("piece", c.sessionId(), b)
+    root = hou.node("/obj").createNode("null", "parent")
+    root.parmTuple("t").set((0, 2, 0))
+    obj = hou.node("/obj").createNode("geo", "boxy")
+    for ch in obj.children():
+        ch.destroy()
+    box = obj.createNode("box")
+    box.setDisplayFlag(True)
+    obj.setFirstInput(root)
+    obj.parmTuple("t").set((0, 0, 9))
+    obj.parmTuple("r").set((0, 45, 0))
+    obj.parmTuple("p").set((2, 0, 0))
+    obj.parm("shop_materialpath").set("/mat/pf_test")
+    obj.parm("viewportlod").set("box")
+
+    # mixed selection, a move: every copy has its own original's source, k moves further
+    starts = {pid: pieces_ui.get_xform(pid) for pid in (pa, pb, obj.sessionId())}
+    new = clone.clone([pa, pb, obj.sessionId()], "copy", 2, move=(0, 0, 5))
+    ok = len(new) == 6
+    for j, pid in enumerate((pa, pb, obj.sessionId())):
+        for k in (1, 2):
+            cp = new[2 * j + k - 1]
+            ok = ok and vclose(pieces_ui.get_xform(cp).extractTranslates(),
+                               starts[pid].extractTranslates() + hou.Vector3(0, 0, 5) * k)
+            if isinstance(pid, tuple):
+                ok = ok and (stash_point(c, cp[2]).stringAttribValue("pf_source")
+                             == stash_point(c, pid[2]).stringAttribValue("pf_source"))
+    out["mixed_copies_follow_their_original"] = ok
+    hou.undos.performUndo()
+
+    # an Instance takes the original's settings and parent, and sits on it exactly (a turned original)
+    ins = hou.nodeBySessionId(clone.clone([obj.sessionId()], "instance", 1, move=(0, 0, 3))[0])
+    out["instance_keeps_settings"] = (ins.parm("shop_materialpath").eval() == "/mat/pf_test"
+                                      and ins.parm("viewportlod").evalAsString() == "box")
+    out["instance_keeps_parent"] = ins.input(0) == root
+    out["instance_on_original"] = all(abs(x - y - d) < TOL for x, y, d in zip(wbox(ins), wbox(obj), (0, 0, 3) * 2))
+    out["object_clone_kind_recorded"] = ins.userData("pf_clone_kind") == "instance"
+    hou.undos.performUndo()
+
+    # an object turns about its pivot
+    w0 = hou.Vector3(obj.parmTuple("p").eval()) * obj.worldTransform()
+    cp = hou.nodeBySessionId(clone.clone([obj.sessionId()], "copy", 1, rotate=(0, 90, 0))[0])
+    w1 = hou.Vector3(cp.parmTuple("p").eval()) * cp.worldTransform()
+    out["object_turns_about_pivot"] = vclose(w0, w1) and abs(cp.parmTuple("r").eval()[1] - 135) < 1e-3
+    hou.undos.performUndo()
+
+    # a piece Reference is recorded as one
+    r = clone.clone([pa], "reference", 1)[0]
+    out["piece_reference_recorded"] = clone_kind(c, r[2]) == "reference"
+    hou.undos.performUndo()
+
+    # a Copy of an Instance is independent of the original
+    i1 = hou.nodeBySessionId(clone.clone([obj.sessionId()], "instance", 1)[0])
+    ci = hou.nodeBySessionId(clone.clone([i1.sessionId()], "copy", 1)[0])
+    box.parmTuple("size").set((2, 3, 4))
+    out["copy_of_instance_independent"] = (vclose(size(ci), (1, 1, 1)) and ci.node("original") is None
+                                           and ci.parm("shop_materialpath").eval() == "/mat/pf_test")
+    hou.undos.performUndo()   # the size
+    hou.undos.performUndo()   # the copy
+    hou.undos.performUndo()   # the instance
+
+    # deleting an original: its first remaining clone becomes the original, the others show it
+    box.parmTuple("size").set((2, 3, 4))
+    i1, i2 = [hou.nodeBySessionId(i) for i in clone.clone([obj.sessionId()], "instance", 2)]
+    ref = hou.nodeBySessionId(clone.clone([obj.sessionId()], "reference", 1)[0])
+    own = ref.createNode("xform", "own")
+    own.setFirstInput(ref.node("original"))
+    own.parm("scale").set(2)
+    own.setDisplayFlag(True)
+    n1, n2, nr = i1.path(), i2.path(), ref.path()
+    scene.MixedScene().delete([obj.sessionId()])   # a new one: scene.current() keeps the class it was made with,
+    # so a mutation of scene.py would not reach it
+    i1, i2, ref = hou.node(n1), hou.node(n2), hou.node(nr)
+    out["delete_original_hands_over"] = (
+        hou.node("/obj/boxy") is None and i1.node("original") is None and vclose(size(i1), (2, 3, 4))
+        and not i1.userData("pf_clone_kind") and i2.node("original").parm("objpath1").eval() == n1
+        and vclose(size(i2), (2, 3, 4)) and vclose(size(ref), (4, 6, 8)))
+    hou.undos.performUndo()
+    out["delete_hand_over_undoes"] = (hou.node("/obj/boxy") is not None and hou.node(n1).node("original") is not None)
+
+    # an error halfway leaves nothing behind
+    rows0, objs0, u0 = len(containers.piece_rows(c)), len(hou.node("/obj").children()), hou.undos.undoLabels()
+    real = pieces_ui.set_xforms
+
+    def boom(x):
+        raise RuntimeError("check_clone: injected error")
+    pieces_ui.set_xforms = boom
+    try:
+        clone.clone([pa, obj.sessionId()], "copy", 2)
+    except RuntimeError:
+        pass
+    finally:
+        pieces_ui.set_xforms = real
+    out["error_rolls_back"] = (len(containers.piece_rows(c)) == rows0 and len(hou.node("/obj").children()) == objs0
+                               and hou.undos.undoLabels()[:len(u0)] == u0[:len(u0)] and len(hou.undos.undoLabels()) == len(u0))
+
+
 def checks(out):
     hou.hipFile.clear(suppress_save_prompt=True)
     s = scene.current()
@@ -120,23 +240,34 @@ def mutate(mod, old, new):
     return lambda: exec(compile(src, path, "exec"), mod.__dict__)
 
 
-K, C = clone, containers
+K, C, S = clone, containers, scene
 MUTATIONS = [   # (name, check, module, old, new)
-    ("no_steps", "copies_step_by_step", K, "                xforms[cp] = step(start[pid], k, move, rotate, scale)",
-     "                xforms[cp] = step(start[pid], 1, move, rotate, scale)"),
+    ("no_steps", "copies_step_by_step", K, "                xforms[cp] = step(start[pid], k, move, rotate, scale, pivot)",
+     "                xforms[cp] = step(start[pid], 1, move, rotate, scale, pivot)"),
     ("scale_not_compounded", "copies_step_by_step", K, "hou.hmath.buildScale(scale ** k, scale ** k, scale ** k)",
      "hou.hmath.buildScale(scale, scale, scale)"),
     ("turn_about_origin", "copies_step_by_step", K, "    d = (hou.hmath.buildTranslate(-p) * hou.hmath.buildScale(",
      "    d = (hou.hmath.buildTranslate(0, 0, 0) * hou.hmath.buildScale("),
     ("not_selected", "clones_selected", K, "    scene.current().select(new)", "    pass"),
     ("copy_recorded_as_clone", "piece_copy_independent", K, '"" if kind == "copy" else kind', '"instance"'),
-    ("no_undo_group", "clone_one_undo_step", K, '    with hou.undos.group("modelUI: clone (%s)" % kind):', "    if True:"),
+    ("no_undo_group", "clone_one_undo_step", K, '    with hou.undos.group(label):', "    if True:"),
     ("relation_dropped", "piece_instance_recorded", C, '            p.setAttribValue("pf_clone_kind", kind)', "            pass"),
-    ("copy_shares", "object_copy_independent", K, '    if kind == "copy":\n        return hou.copyNodesTo([node], node.parent())[0]',
-     '    if False:\n        return hou.copyNodesTo([node], node.parent())[0]'),
+    ("copy_shares", "object_copy_independent", K, '    if kind == "copy":   # always independent', '    if False:   # always independent'),
     ("instance_unpacked", "object_instance_follows_packed", K, '        om.parm("pack").set(1)', "        pass"),
     ("copy_scans_points", "perf_clone_3000", C, "        src = pt(piece)", "        src = _point(geo, piece)"),
     ("transform_scans_points", "perf_clone_3000", C, "        _set_xform(pt(piece), m)", "        _set_xform(_point(geo, piece), m)"),
+    ("interleaved", "mixed_copies_follow_their_original", K, "[p[2] for p in items for _ in range(count)]",
+     "[p[2] for _ in range(count) for p in items]"),
+    ("settings_dropped", "instance_keeps_settings", K, "    for pt in src.parmTuples():", "    for pt in []:"),
+    ("parent_dropped", "instance_keeps_parent", K, "    n.setFirstInput(node.input(0))\n    om =", "    om ="),
+    ("instance_xform_doubled", "instance_on_original", K, '    om.parm("xformtype").set("none")', '    om.parm("xformtype").set("local")'),
+    ("kind_not_recorded", "object_clone_kind_recorded", K, '    n.setUserData("pf_clone_kind", kind)', "    pass"),
+    ("turn_about_translate", "object_turns_about_pivot", K, "                pivot = hou.Vector3(node.parmTuple(", "                pivot = None and hou.Vector3(node.parmTuple("),
+    ("reference_as_copy", "piece_reference_recorded", K, '"" if kind == "copy" else kind', '"" if kind != "instance" else kind'),
+    ("copy_keeps_link", "copy_of_instance_independent", K, "        src = root_original(node)", "        src = node"),
+    ("no_hand_over", "delete_original_hands_over", S, "            clone.hand_over(nodes)", "            pass"),
+    ("hand_over_outside_undo", "delete_hand_over_undoes", S, '        with hou.undos.group("modelUI: delete"):\n            clone.hand_over(nodes)', '        with hou.undos.disabler():\n            clone.hand_over(nodes)\n        with hou.undos.group("modelUI: delete"):'),
+    ("no_rollback", "error_rolls_back", K, "            hou.undos.performUndo()\n        raise", "            pass\n        raise"),
     ("reference_not_merged", "object_reference_follows", K, '    om.parm("objpath1").set(node.path())', '    om.parm("objpath1").set("")'),
 ]
 
@@ -145,6 +276,7 @@ def run():
     out = {}
     try:
         checks(out)
+        checks2(out)
         cost(out)
     except Exception as e:  # noqa: BLE001 - an exception is a red check
         out["_exception"] = "%s: %s" % (type(e).__name__, e)
