@@ -587,6 +587,13 @@ def suite(out):
 
         def med(v):
             return sorted(v)[len(v) // 2]
+        def ref_list():   # fixed reference workload: a plain list of the same 2000 names, filled and selected, x10
+            for _ in range(10):
+                w = QtWidgets.QListWidget()
+                w.addItems([n.name() for n in hou.node("/obj").children()])
+                w.selectAll()
+                w.deleteLater()
+        refs = [ms(ref_list) for _ in range(3)]   # right before and right after the Explorer timings
         builds, made = [], []
         for _ in range(3):
             builds.append(ms(lambda: made.append(explorer.Explorer())))
@@ -603,13 +610,19 @@ def suite(out):
         out["explorer_no_rebuild_when_unchanged"] = ptrs == [
             shiboken6.getCppPointer(w2.list.item(i))[0] for i in range(w2.list.count())]
         sel = ms(w2.list.selectAll)
+        refs += [ms(ref_list) for _ in range(3)]
         w2.close_down()
         w2.deleteLater()
         m = {"build": med(builds), "after_rename": med(renames), "idle": med(idles), "select_all": sel}
-        log("  perf 2000 objects, medians (ms)", {k: round(v, 1) for k, v in m.items()})
-        # ceilings 3x the warm medians measured 2026-11-05 (45 / 42 / 19 / 138 ms)
-        out["perf_explorer_2000"] = (m["build"] < 135 and m["after_rename"] < 126 and m["idle"] < 57
-                                     and m["select_all"] < 414)
+        ref = med(refs)
+        log("  perf 2000 objects, medians (ms)", {k: round(v, 1) for k, v in m.items()}, "reference", round(ref, 1),
+            "ratios", {k: round(v / ref, 2) for k, v in m.items()})
+        # judged against the reference measured right beside it, so another job loading the PC does not decide it
+        # (absolute ceilings failed at 100 % CPU, 2026-11-09). Ceilings: 3x the highest ratio of the 2026-11-09 warm
+        # runs at 62-100 % CPU (build 2.2, after rename 2.5, idle 2.9, select all 7.4; one reference = 10 lists).
+        # Blind spot: a load that slows the Explorer's HOM calls much more than plain Qt lists.
+        ceil = {"build": 7.0, "after_rename": 8.0, "idle": 9.0, "select_all": 22.0}
+        out["perf_explorer_2000"] = all(m[k] / ref < ceil[k] for k in ceil)
     pref1 = pref_listing()
     out["prefs_untouched"] = pref1 == pref0
     if pref1 != pref0:

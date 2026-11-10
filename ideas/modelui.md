@@ -18,6 +18,47 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- 2026-11-09: F2a audit 5 (agent-195, evidence `F:/cache/modelui/audit_f2a5/`) confirmed the leak fix; its five items
+  are fixed, each with a gui_f2a check seen red under its mutation (no sixth audit, per Hannes' coordinator: modelui
+  goes to main and Hannes tries it himself; next for this builder: F2b Clone dialog):
+  1 Space+LMB on a piece turned no camera in W: the click gesture owned every plain left press on a container, also
+    in Houdini's view state (Space puts the viewer in "objview"). Both piece gestures now decline in `VIEW_STATES`
+    (objview, view). Check `space_lmb_on_piece_turns_camera` (W and Q, press on a container, camera restored after with
+    `setDefaultCamera` so the next run frames the same; mutation `view_state_ignored`). Why Q looked different in the
+    audit: not the state. With the press on mid's body, the pre-fix code (the mutation run) owned it in Q exactly as
+    in W (camera still); the audit's S2 press got `owned False`, which this gesture only answers when no container is
+    under the point, so its Q press most likely landed off the piece (the probe did not log the node under it:
+    unverified).
+  2 A gesture that raises got no "cancel" (a drag's preview stayed): `_call` now sends it "cancel" when it loses what
+    it held (`gesture_error_reverts_preview`, an injected error in the preview write; `cancel_on_error_dropped`).
+  3 A stale swallowed button after a lost release: a new press of that button clears it
+    (`stale_eaten_cleared_by_press`; `eaten_kept_on_press`). Blind spot: a move with the button up already clears the
+    entry, so the check seeds it (audit 5 probe L_altmmb_after_lost is how it survives in the wild). QTest note: a
+    press of a button QTest still holds sends a release first.
+  4 A left press with another button down is Houdini's (`left_with_other_down_declined`; `other_down_ignored`). Found:
+    in PySide6 `~Qt.LeftButton` is RightButton (no mask), so `buttons() & ~LeftButton` missed the middle button; the
+    test is `buttons() == LeftButton`. The check hides the whole chord from Houdini (a half-seen chord left Houdini's
+    drag and its undo group open).
+  5 Blind spots closed: `no_drag_buttons_reach_houdini` (MMB/RMB press and release reach the window with no drag;
+    `non_left_always_swallowed`), `off_before_commit_restores` (modelUI off between release and the deferred commit,
+    the commit held back from QTest's timer pump; `off_ignores_pending`).
+  Test hygiene: in the first full run the mutation proxy_reused_unfiltered put a kept handle null under the body press,
+  so Houdini got the drag and the synthetic lost release left its undo group open for every later run (then a hang).
+  The audit-5 drag cases now hide every left event modelUI did not take or gave up from Houdini (`hide_left`).
+  GUI suites of different builders must not overlap on this PC: a concurrent test Houdini (F2d's) slowed F1's
+  `perf_explorer_2000` past its ceiling, and two off-screen Houdinis can take focus from each other (a focus change
+  cancels drags). The gate script waits for other test Houdinis and holds `F:/cache/modelui/gui.lock`.
+  Load-robust checks (the PC ran at 62-100 % CPU from another session's audio job): F1's `perf_explorer_2000` is
+  judged as a ratio to a fixed reference workload measured right beside it (a plain QListWidget filled with the same
+  2000 names and selected, 10 times); ceilings 3x the highest ratio of the 2026-11-09 warm runs (build 7, after
+  rename 8, idle 9, select all 22); `slow_refresh` stays red (ratio ~2700-6000). Blind spot: a load that slows the
+  Explorer's HOM calls much more than plain Qt lists. gui_f2a's handle click waits until the handle is under the click
+  point (`queryNodeAtPixel` sees its null; a loaded PC drew it late and the click cleared the selection).
+  Found in a final baseline: switching modelUI off while Houdini cooked ("Cannot delete nodes while cooking", a timer
+  fires inside a long cook) left the handle null and stopped the rest of `pieces_ui.uninstall` (containers stayed
+  unselectable). `_delete_marked` now retries the refused nodes every 100 ms (up to 5 s) and lets uninstall finish;
+  check `uninstall_retries_busy_delete` (the first delete refused like that; mutation `no_delete_retry`).
+  Verified 2026-11-09: PF_GUI_SCRIPT=gui_f2a.py run_gui_f1.py exit 0 (62 / 62 checks green in the baselines, 68 paired mutations red); run_gui_f1.py exit 0 (64 mutations red); hython check_containers, check_scene_model, check_units exit 0.
 - 2026-11-09: F2a audit-4 finding 1 fixed, checks green; F2a audit 5 pending (implemented, not audited). Audit 4
   (evidence `F:/cache/modelui/audit_f2a4/`): a middle click during a modelUI body drag reached Houdini, which started
   its own handle drag (MMB drags the handle anywhere in "pose") and left its undo group open ("Cannot undo within an
@@ -143,6 +184,53 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
   registered before it); a drag that starts on a piece but not on the handle does nothing (Houdini never sees clicks
   on containers); only translate drags are driven by the checks (rotate/scale are Houdini's own handle modes);
   promote has no caller yet (F2c's first modifier); copy/paste between hips is F2e.
+
+## F2d Align (branch `modelui-align`; audit 1 by agent-202 fixed; no second audit, per Hannes' coordinator)
+
+- What: Max's Align Selection, Quick Align and Normal Align for pieces and loose objects alike (`modelui/align.py`, a
+  switch feature after `pieces_ui`). Align: Alt+Ctrl+A or polyfactory > Align..., click a target, the dialog. Quick
+  Align: Alt+Ctrl+Shift+A, click a target (one undo step). Normal Align: Alt+Ctrl+N, click a face of the selection,
+  then a face of the target, the dialog. While picking: a cross cursor over viewers only; Esc (wherever the keyboard
+  focus is, except text fields) or a right click ends the pick; Alt and Space (Houdini's view states) and the middle
+  button stay Houdini's; a selected target is refused (Max).
+- Reference read: Autodesk help 2024 (Align, Quick Align, Normal Align, Aligning Objects).
+- Decisions: every selected item is aligned on its own (Max); the current and target point (Minimum / Center / Pivot
+  Point / Maximum) per axis, on tight world boxes (the item's points, not its local box turned into world space); a
+  piece's pivot is its origin, an object's is `p` (probe: the fixed point of Houdini's rotation is
+  `Vector3(p) * worldTransform()`); orientation: one axis turns the shortest way, two or three take the target's
+  orientation, pivot and scale stay; Match Scale matches world row lengths; orientation and scale first, then the
+  position on the new box. The preview runs outside the undo history; Apply is one undo step; Cancel, Esc, the close
+  box and modelUI going off put the stored values back bit for bit (container stash points, object transform
+  parameters). A result that needs shear (an object with a pivot rotation and a non-uniform scale under Match Scale, a
+  piece in a non-uniformly scaled container) gets the nearest transform and a status warning (`Session.unstored`).
+  Keys: `keys.KEYS` rows in context `h` on the menu item ids (commands registered in memory, reverted exactly); Max's
+  own keys are Houdini's (Alt+A textport and network editor, Shift+A viewer loop select / home / pose, Alt+N File >
+  New); the chosen ones had no binding in any of the 277 hotkey contexts (probe 2026-11-09). The pick gesture is asked
+  first and gets Esc anywhere (`input_layer.add_gesture(first=True, keys_anywhere=True)`); a click intersects only the
+  object the viewport draws under the cursor (`queryNodeAtPixel`), on the handle's proxy null every piece and object
+  whose box the ray passes.
+- Differences from Max: Houdini is Y up (Max's Z Position is Y here); points per axis and Apply closes the dialog
+  (Max: one point choice for all axes, step by step with Apply); Match Scale is world scale (includes a container's or
+  parent's scale); Normal Align offsets only along the normal (no in-plane X/Y offset) and moves a multi-selection
+  rigidly; no normal arrows while picking (status prompts instead).
+- Findings: `Geometry.intersect` on a packed prim turns the face normal like a direction (about 16 degrees off under a
+  (10, 6, 8) piece scale): Align intersects the piece's own geometry in its space and uses the inverse transpose.
+  `intersect` returns the geometric face normal, not `N`. `Geometry.boundingBox(transform)` transforms the box's
+  corners (not tight). An object with a pivot rotation and a non-uniform scale is sheared: a full orientation match
+  can still be stored, Match Scale cannot.
+- Costs (hython, 2026-11-09): open + one preview with 500 of 2000 pieces 89-241 ms (6.9 s + 1 s before audit 1: a
+  per-piece walk of the container's prims and points; now each container is read once, `containers.transforms`, and
+  `containers.set_transforms` is linear); a scan over 2000 loose library meshes 51-106 ms, intersecting 2 of 2001
+  geometries (box test first); a viewport click intersects 1.
+- Checks: `hython tests/modelui/check_align.py`: 26 checks, 34 paired mutations red (oracle independent of align.py:
+  Object Merge into world, Unpack, a least-squares local-to-world fit; the cost ceiling is a ratio to a reference
+  workload timed in the same run, the scan is judged by its count). `PF_GUI_SCRIPT=gui_f2d.py run_gui_f1.py`: 19
+  checks, each with its paired mutation (`view_state_click_passes` added at the merge with F2a's view-state rule).
+  Blind spots: hidden pieces align by their pivot; the exact result for sheared items (only that it is reported);
+  animated or locked parameters; the dialog's look; Esc and the close box on a dialog (Qt's reject(), the path Cancel
+  takes, not driven); the menu bar itself (the check runs the shipped items' scripts; the keys reach the same items);
+  the real mouse cursor (checked through `_cursor_tick` with points, the test windows are off screen); orthographic
+  and multi-viewer picking.
 
 ## F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)
 
@@ -331,6 +419,9 @@ Layout of one container (a geometry object marked as a modelUI container):
 - Input layer (F1): Python handles the gestures; the application-level filter itself is C++ (`appfilter.cpp`), because
   a Python QApplication filter makes PySide wrap every receiving QObject and crashed Houdini in the Maya surface project.
   The scene model and the Scene Explorer are Python: node selection, names and flags are HOM calls, no geometry.
+- Align (F2d): Python, as transform maths on a handful of matrices plus UI marshalling (dialogs, picking); tight boxes
+  read point positions once per item (`pointFloatAttribValues`) and transform them with numpy; no geometry is created or
+  changed, the result goes through `pieces_ui.set_xforms` (one stash edit per container).
 
 ## Framework (layers shared by every mode)
 
@@ -366,7 +457,8 @@ First milestone (the kitbash loop), preceded by the object-count measurement (10
 - Shift+drag clone (Copy); Clone dialog with Copy / Instance / Reference and number of copies.
 - Copy and paste objects between scenes (open a kitbash scene, copy a part, paste into the working scene).
 - Modify panel: the stack (add from the node list, reorder, on/off, delete, collapse to mesh, open as nodes).
-- Align: Align to target (position min/center/pivot/max per axis, orientation, scale), quick align, normal align.
+- Align: Align to target (position min/center/pivot/max per axis, orientation, scale), quick align, normal align
+  (F2d: built, see F2d Align).
 - Snapping, pivot editing, undo for everything.
 
 Next:

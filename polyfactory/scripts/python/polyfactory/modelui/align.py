@@ -560,8 +560,8 @@ def _gesture(kind, ev, viewer):
         return False
     if kind == "press":
         mods = ev.modifiers() & ~Qt.KeypadModifier
-        if viewer is None or mods & Qt.AltModifier:
-            return False
+        if viewer is None or mods & Qt.AltModifier or viewer.currentState() in pieces_ui.VIEW_STATES:
+            return False   # Alt+drag and Space+drag (Houdini's view states) turn the camera
         if ev.button() == Qt.RightButton:
             input_layer.later(cancel_pick)
             return True

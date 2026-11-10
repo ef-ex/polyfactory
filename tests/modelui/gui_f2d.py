@@ -271,6 +271,23 @@ def suite(out):
     win.removeEventFilter(flt)
     yield 300
     out["alt_click_passes"] = picking() and int(QtCore.QEvent.MouseButtonPress) in seen and align._state["dialog"] is None
+    g_t = screen_point(sv, gl, centre(t))   # Space held: Houdini's view state; its clicks are never ours (a click, no turn)
+    QTest.mouseMove(win, L(win, g_t))
+    gl.setFocus()
+    QTest.keyPress(win, Qt.Key_Space)
+    yield 300
+    st_space = sv.currentState()
+    seen = []
+    flt = _Probe(seen)
+    win.installEventFilter(flt)
+    QTest.mouseClick(win, LMB, NOM, L(win, g_t))
+    win.removeEventFilter(flt)
+    yield 300
+    QTest.keyRelease(win, Qt.Key_Space)
+    yield 300
+    log("  space click: state", st_space, "press seen", int(QtCore.QEvent.MouseButtonPress) in seen, "picking", picking())
+    out["view_state_click_passes"] = (st_space in pieces_ui.VIEW_STATES and picking()
+                                      and int(QtCore.QEvent.MouseButtonPress) in seen and align._state["dialog"] is None)
     key(Qt.Key_Escape, NOM)
     yield 300
     out["esc_ends_pick"] = pick_clean() and align._state["dialog"] is None
@@ -443,6 +460,7 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
                                                   "        else:\n            pass\n        _finished()\n        super().done(r)\n\n\nclass NormalDialog")]),
     ("selected_target_taken", "selected_target_refused", AL, [("    if pid in st[\"sel\"]:\n        _status(\"The target", "    if False:\n        _status(\"The target")]),
     ("alt_taken", "alt_click_passes", AL, [("        if viewer is None or mods & Qt.AltModifier:", "        if viewer is None:")]),
+    ("view_state_taken", "view_state_click_passes", AL, [(" or viewer.currentState() in pieces_ui.VIEW_STATES:\n            return False   # Alt+drag", ":\n            return False   # Alt+drag")]),
     ("esc_ignored", "esc_ends_pick", AL, [("        if ev.key() == Qt.Key_Escape:", "        if False:")]),
     ("rmb_ignored", "right_click_ends_pick", AL, [("        if ev.button() == Qt.RightButton:", "        if False:")]),
     ("no_quick_key", "quick_align_key", "keys", [('    ("h", "h.pf_modelui_quick_align", "Alt+Ctrl+Shift+A"),\n', "")]),
