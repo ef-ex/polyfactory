@@ -170,6 +170,7 @@ def checks(out):
     out["failed_add_leaves_nothing"] = (raised and len(obj.children()) == n_kids and names(obj) == ["base", "ex", "sd"]
                                         and obj.displayNode() == sd and len(hou.undos.undoLabels()) == n_undo)
 
+
     # --- lattice with its own cage --------------------------------------------------------------------------------
     la = stack.add(obj.sessionId(), "lattice")
     cage = [n for n in obj.children() if n.type().name() == "edit"][0]   # found by type, not by the wiring under test
@@ -306,6 +307,19 @@ def checks(out):
                                          and all((hou.Vector3(a) - hou.Vector3(b_)).length() < 1e-4
                                                  for a, b_ in zip(pos(g), want)))
 
+
+    # --- a failed add that recorded no undo step leaves the user's previous action alone ----------------------------
+    obj = fixture()[0]
+    good = stack.add(obj.sessionId(), "extrude")
+    good_name = good.name()
+    n_kids, n_undo = len(obj.children()), len(hou.undos.undoLabels())
+    try:
+        stack.add(999999999, "extrude")   # _own_object raises before any node is created
+        raised = False
+    except Exception:
+        raised = True
+    out["failed_add_keeps_previous"] = (raised and obj.node(good_name) is not None
+                                        and len(obj.children()) == n_kids and len(hou.undos.undoLabels()) == n_undo)
     return out
 
 
@@ -323,6 +337,7 @@ S, O = stack, operations
 MUTATIONS = [   # (name, check, module, old, new)
     ("move_cage_stays", "move_lattice_cage_follows", S, "                new[k].input(1).setInput(0, new[k - 1])", "                pass"),
     ("failed_add_kept", "failed_add_leaves_nothing", S, "        hou.undos.performUndo()", "        pass"),
+    ("failed_add_keeps_previous_undone", "failed_add_keeps_previous", S, "        if len(hou.undos.undoLabels()) > steps:   # the failed add recorded its step: take it all back\n            hou.undos.performUndo()", "        hou.undos.performUndo()"),
     ("chain_top_first", "chain_base_first", S, "    return out[::-1]", "    return out"),
     ("new_top_not_shown", "add_on_top", S, "            else:\n                _set_top(n)\n        else:", "            else:\n                pass\n        else:"),
     ("no_defaults", "add_defaults", S, "            n.parm(parm).set(v)\n        if selection", "            pass\n        if selection"),

@@ -93,10 +93,12 @@ def add(pid, key, above=None, selection=None, mode="model"):
     entry ``above`` (default: the top). ``selection`` = (pattern, hou.geometryType) of the component selection on the
     entry the new node reads, or None. One undo step. Returns the new node."""
     op = operations.get(key, mode)
+    steps = len(hou.undos.undoLabels())
     try:
         return _add(pid, op, above, selection)
     except Exception:
-        hou.undos.performUndo()   # the failed add (node, wiring, promote) is one closed undo step: take it all back
+        if len(hou.undos.undoLabels()) > steps:   # the failed add recorded its step: take it all back
+            hou.undos.performUndo()               # (none recorded: an undo here would drop the user's previous action)
         raise
 
 
