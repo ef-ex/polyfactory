@@ -306,9 +306,14 @@ Code: `modelui/feedback.py` (state, markings rendering, folder writer, log buffe
 "F12")` in `keys.py`, so it is reverted exactly with the other keys (Houdini 22 binds nothing to F12 by default: grep of
 `config/Hotkeys`; the context is `h`, not the viewer's: a viewer-only binding did not fire over the viewer in the GUI run,
 mutation `f12_viewer_only`). The menu item runs the overlay 250 ms later so its popup is not in the frozen frame.
+Audit fixes (agent-231): a failed save removes its half folder and writes the same feedback to `%TEMP%/pf_feedback/<user>/...`,
+then a dialog names where it went (`feedback.save_safe`); an unreadable attachment is listed with its error, not fatal; the
+images are rendered on the UI thread, the worker only writes files (no `hou` there); a black screen grab retries with the
+widget render and sets `"screenshot_black"` in feedback.json; `build` comes from git at F12 time, only when the repo above is
+polyfactory's; switching modelUI off closes an open overlay (nothing sent).
 Decision log (rule 2): Python is UI marshalling here (Qt overlay, file writing, HOM reads); no geometry.
 
-Checks: hython `tests/modelui/check_feedback.py` (17 checks, 19 mutations red: write order observed at write time, every
+Checks: hython `tests/modelui/check_feedback.py` (25 checks, 29 mutations red: write order observed at write time, every
 json field, pixel colours / widths / alpha of markings.png and marked.png from given strokes, note box and text, same-second
 collision, state sections, log ring 200 lines and removal); GUI `PF_GUI_SCRIPT=gui_feedback.py` through `run_gui_f1.py`
 (F12 over the viewer and over the network editor opens the overlay; a stroke + note + comment + Ctrl+Enter writes a complete

@@ -22,15 +22,16 @@ ERASE_RADIUS = 10
 
 
 def _grab(mw):
-    """The main window as the screen shows it (GL viewport included); the widget's own render when that is empty."""
+    """(image, black): the main window as the screen shows it (GL viewport included); when that is black or fails, the
+    widget's own render; ``black`` is True when the last try was black too."""
     img = QtGui.QImage()
     try:
         img = mw.screen().grabWindow(int(mw.winId()), 0, 0, mw.width(), mw.height()).toImage()
     except Exception:  # noqa: BLE001
         LOG.exception("screen grab failed")
-    if img.isNull():
+    if img.isNull() or feedback.is_black(img):
         img = mw.grab().toImage()
-    return img
+    return img, feedback.is_black(img)
 
 
 def _near(points, x, y, r):
@@ -67,11 +68,11 @@ class _Note(QtWidgets.QFrame):
 
 
 class Overlay(QtWidgets.QWidget):
-    def __init__(self, mw, shot, state):
+    def __init__(self, mw, shot, state, black=False, build=None):
         super().__init__(mw, Qt.Window | Qt.FramelessWindowHint)
         self.setObjectName("pf_feedback_overlay")
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.shot, self.state = shot, state
+        self.shot, self.state, self.black, self.build = shot, state, black, build
         self.ppp = shot.width() / max(1, mw.width())
         self.pix = QtGui.QPixmap.fromImage(shot)
         self.strokes, self.notes, self.files = [], [], []
@@ -236,32 +237,52 @@ class Overlay(QtWidgets.QWidget):
             return
         self.done = True
         strokes, notes = self.payload()
+        mk = feedback.render_markings((self.shot.width(), self.shot.height()), strokes, notes, self.ppp)   # UI thread
         args = (self.shot, strokes, notes, self.comment.toPlainText().strip(), list(self.files), self.state,
                 {"width": self.rect().width(), "height": self.rect().height(), "pixels_per_point": self.ppp})
+        kw = {"rendered": (feedback.render_marked(self.shot, mk), mk), "black": self.black, "build": self.build}
         self.close()
-        threading.Thread(target=_save_thread, args=args, daemon=True).start()
+        threading.Thread(target=_save_thread, args=(args, kw), daemon=True).start()
 
     def closeEvent(self, ev):  # noqa: N802
         hou.session.__dict__.pop(KEY, None)
         super().closeEvent(ev)
 
 
-def _status(msg, severity=None):
+def _report(folder, err):
+    """On the main thread (deferred): the status line, and a dialog when the save fell back."""
     try:
-        hou.ui.setStatusMessage(msg, severity or hou.severityType.Message)
+        if err is None:
+            hou.ui.setStatusMessage("Feedback saved: " + folder.replace("\\", "/"))
+        else:
+            hou.ui.setStatusMessage("Feedback saved to the fallback folder: " + folder.replace("\\", "/"),
+                                    hou.severityType.Warning)
+            hou.ui.displayMessage("The feedback could not be saved to %s (%s).\n\nIt was saved here instead:\n%s"
+                                  % (feedback.root(), err, folder.replace("\\", "/")),
+                                  severity=hou.severityType.Error, title="modelUI feedback")
     except Exception:  # noqa: BLE001
-        pass
+        LOG.exception("feedback report failed")
 
 
-def _save_thread(*args):
+def _failed(err):
+    try:
+        hou.ui.displayMessage("The feedback could not be saved anywhere: %s" % err, severity=hou.severityType.Error,
+                              title="modelUI feedback")
+    except Exception:  # noqa: BLE001
+        LOG.exception("feedback report failed")
+
+
+def _save_thread(args, kw):
+    """Worker thread: file I/O only (no hou here; the report is deferred to the main thread)."""
     import hdefereval
     try:
-        folder = feedback.save(*args)
-        msg, sev = "Feedback saved: " + folder.replace("\\", "/"), None
+        folder, err = feedback.save_safe(*args, **kw)
     except Exception as e:  # noqa: BLE001
-        LOG.exception("feedback save failed")
-        msg, sev = "Feedback NOT saved: %s" % e, hou.severityType.Error
-    hdefereval.executeDeferred(lambda: _status(msg, sev))
+        LOG.exception("feedback save failed everywhere")
+        msg = "%s: %s" % (type(e).__name__, e)
+        hdefereval.executeDeferred(lambda: _failed(msg))
+        return
+    hdefereval.executeDeferred(lambda: _report(folder, err))
 
 
 def show():
@@ -270,7 +291,8 @@ def show():
         return None
     mw = hou.qt.mainWindow()
     state = feedback.collect_state()   # before the overlay changes anything
-    ov = Overlay(mw, _grab(mw), state)
+    shot, black = _grab(mw)
+    ov = Overlay(mw, shot, state, black, feedback.build_id())
     hou.session.__dict__[KEY] = ov
     ov.show()
     ov.raise_()

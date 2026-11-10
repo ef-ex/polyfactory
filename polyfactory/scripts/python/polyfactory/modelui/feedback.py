@@ -16,6 +16,7 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 
 DEFAULT_ROOT = "F:/ai/feedback/modelui"
 LOGGER = "polyfactory.modelui"
@@ -66,6 +67,10 @@ def install():
 
 def uninstall():
     s = _session()
+    ov = s.pop("_pf_modelui_feedback_overlay", None)   # modelUI off: an open overlay closes (nothing is sent)
+    if ov is not None:
+        ov.done = True
+        ov.close()
     r = s.pop("_pf_modelui_feedback_log", None)
     if r is not None:
         lg = logging.getLogger(LOGGER)
@@ -197,14 +202,25 @@ def person():
         return os.environ.get("USERNAME") or "unknown"
 
 
-def build_id():
-    """The polyfactory commit this Houdini runs, else "unknown"."""
-    here = os.path.dirname(os.path.abspath(__file__))
+def build_id(cwd=None):
+    """The polyfactory commit (short hash) this Houdini runs, else "unknown": only when the git root above this file is
+    polyfactory's own (it has polyfactory/scripts/python/polyfactory/modelui). Call it on the main thread."""
+    here = cwd or os.path.dirname(os.path.abspath(__file__))
     try:
-        r = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=here, capture_output=True, text=True, timeout=5)
-        return r.stdout.strip() or "unknown"
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel", "HEAD"], cwd=here, capture_output=True, text=True,
+                           timeout=5, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        top, head = r.stdout.split()[:2]
+        mine = os.path.isdir(os.path.join(top, "polyfactory", "scripts", "python", "polyfactory", "modelui"))
+        return head[:7] if mine else "unknown"
     except Exception:  # noqa: BLE001
         return "unknown"
+
+
+def is_black(img):
+    """True when every pixel of ``img`` is black (a screen grab of a window that is off screen or not drawn)."""
+    from hutil.Qt import QtGui
+    b = bytes(img.convertToFormat(QtGui.QImage.Format_RGB32).constBits())   # B, G, R, 255 per pixel: no padding
+    return b.count(0) == 3 * (len(b) // 4)
 
 
 def _write_json(path, data):
@@ -212,10 +228,13 @@ def _write_json(path, data):
         json.dump(data, f, indent=2)
 
 
-def save(shot, strokes, notes, comment, attachments, state, window, when=None, base=None, user=None, build=None):
+def save(shot, strokes, notes, comment, attachments, state, window, when=None, base=None, user=None, build=None,
+         rendered=None, black=False):
     """Write one feedback folder; returns its path. ``shot``: QImage (the frozen frame); ``attachments``: file paths;
-    ``window``: {width, height, pixels_per_point} (``pixels`` is added). Order: state.json, the images, attachments,
-    feedback.json last. A folder name taken by a second send in the same second gets ``-2``, ``-3``..."""
+    ``window``: {width, height, pixels_per_point} (``pixels`` is added); ``rendered``: (marked, markings) QImages made on
+    the main thread (else made here); ``black``: the grab was black. Order: state.json, the images, attachments,
+    feedback.json last. A name taken by a second send in the same second gets ``-2``, ``-3``... A failure removes the
+    half-written folder and raises."""
     when = when or datetime.datetime.now()
     user = user or person()
     base = os.path.join(base or root(), user)
@@ -227,27 +246,48 @@ def save(shot, strokes, notes, comment, attachments, state, window, when=None, b
             break
         except FileExistsError:
             k += 1
+            if k > 1000:
+                raise
             folder = os.path.join(base, "%s-%d" % (name, k))
-    _write_json(os.path.join(folder, "state.json"), state)
-    scale = shot.width() / max(1, window["width"])
-    mk = render_markings((shot.width(), shot.height()), strokes, notes, scale)
-    for fn, img in (("screenshot.png", shot), ("marked.png", render_marked(shot, mk)), ("markings.png", mk)):
-        if not img.save(os.path.join(folder, fn)):
-            raise OSError("could not write " + fn)
-    att = []
-    if attachments:
-        os.makedirs(os.path.join(folder, "attachments"))
-        for src in attachments:
-            n, dst = os.path.basename(src), None
-            dst = os.path.join(folder, "attachments", n)
-            i = 1
-            while os.path.exists(dst):
-                i += 1
-                dst = os.path.join(folder, "attachments", "%d_%s" % (i, n))
-            shutil.copy2(src, dst)
-            att.append({"name": os.path.basename(dst), "from": src.replace("\\", "/")})
-    _write_json(os.path.join(folder, "feedback.json"), {
-        "user": user, "time": when.isoformat(timespec="seconds"), "build": build or build_id(),
-        "comment": comment, "notes": notes, "strokes": strokes, "attachments": att,
-        "window": dict(window, pixels=[shot.width(), shot.height()]), "units": UNITS})
+    try:
+        _write_json(os.path.join(folder, "state.json"), state)
+        if rendered is None:
+            mk = render_markings((shot.width(), shot.height()), strokes, notes, shot.width() / max(1, window["width"]))
+            rendered = (render_marked(shot, mk), mk)
+        for fn, img in (("screenshot.png", shot), ("marked.png", rendered[0]), ("markings.png", rendered[1])):
+            if not img.save(os.path.join(folder, fn)):
+                raise OSError("could not write " + fn)
+        att = []
+        if attachments:
+            os.makedirs(os.path.join(folder, "attachments"))
+            for src in attachments:
+                n = os.path.basename(src)
+                dst, i = os.path.join(folder, "attachments", n), 1
+                while os.path.exists(dst):
+                    i += 1
+                    dst = os.path.join(folder, "attachments", "%d_%s" % (i, n))
+                try:
+                    shutil.copy2(src, dst)
+                    att.append({"name": os.path.basename(dst), "from": src.replace("\\", "/")})
+                except OSError as e:   # one unreadable file never loses the feedback
+                    att.append({"name": None, "from": src.replace("\\", "/"), "error": str(e)})
+        _write_json(os.path.join(folder, "feedback.json"), {
+            "user": user, "time": when.isoformat(timespec="seconds"), "build": build or "unknown",
+            "comment": comment, "notes": notes, "strokes": strokes, "attachments": att,
+            "screenshot_black": bool(black),
+            "window": dict(window, pixels=[shot.width(), shot.height()]), "units": UNITS})
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
     return folder
+
+
+def save_safe(*args, **kw):
+    """``save``; when it fails, the same feedback goes to ``<temp>/pf_feedback`` instead. Returns (folder, error): error
+    is None on success, else the first failure's text (the folder is then the fallback). Raises when both fail."""
+    try:
+        return save(*args, **kw), None
+    except Exception as e:  # noqa: BLE001
+        LOG.exception("feedback save failed, using the fallback folder")
+        err = "%s: %s" % (type(e).__name__, e)
+    return save(*args, **dict(kw, base=os.path.join(tempfile.gettempdir(), "pf_feedback"))), err
