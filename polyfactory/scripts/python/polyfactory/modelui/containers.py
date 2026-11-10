@@ -198,9 +198,16 @@ def set_transforms(container, xforms):
     _commit(container, geo, "transform")
 
 
-def copy_pieces(container, pieces):
-    """Copies of ``pieces`` (same source, transform and visibility, a new unique name). Returns the new ids in order."""
+def copy_pieces(container, pieces, kind=""):
+    """Copies of ``pieces`` (same source, transform and visibility, a new unique name). Returns the new ids in order.
+    ``kind`` "instance" or "reference" (Clone dialog) records the relation on the new points: ``pf_clone_kind``
+    (string) and ``pf_clone_of`` (int, the original's pf_piece; 0 = none). Pieces share their source file anyway; the
+    relation is for the modifier stack (F2c): what a modifier on the original does to its instances and references."""
     geo = points(container)
+    if kind:
+        for n, d in (("pf_clone_kind", ""), ("pf_clone_of", 0)):
+            if geo.findPointAttrib(n) is None:   # containers made before the Clone dialog
+                geo.addAttrib(hou.attribType.Point, n, d)
     nxt = geo.intAttribValue("pf_next_piece")
     ids = []
     names = _names(geo)
@@ -212,6 +219,9 @@ def copy_pieces(container, pieces):
             p.setAttribValue(n, src.attribValue(n))
         p.setAttribValue("pf_name", _unique_name(names, src.stringAttribValue("pf_name")))
         p.setAttribValue("pf_piece", nxt)
+        if kind:
+            p.setAttribValue("pf_clone_kind", kind)
+            p.setAttribValue("pf_clone_of", piece)
         ids.append(nxt)
         nxt += 1
     geo.setGlobalAttribValue("pf_next_piece", nxt)
