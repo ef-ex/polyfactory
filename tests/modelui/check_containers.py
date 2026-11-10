@@ -161,22 +161,25 @@ def checks(out, perf):
         copy = ms(lambda: (containers.copy_pieces(big, [bid[8]]), len(prims(big))))
         sel = ms(lambda: s2.select([("piece", big.sessionId(), bid[9])]))
         listing = ms(lambda: [(s2.name(p), s2.hidden(p)) for p in s2.pieces()])
+        out["_bulk"], out["_ref"] = {}, {}
         for n_bulk in (2000, 5000):
-            hou.hipFile.clear(suppress_save_prompt=True)
-            cb = containers.create("bulk")
             items = [(FILES[i % len(FILES)], "b%d" % i, xf((i % 70, 0, i // 70))) for i in range(n_bulk)]
-            t = time.perf_counter()
-            containers.add_pieces(cb, items)
-            out_t = time.perf_counter() - t
-            out.setdefault("_bulk", {})[n_bulk] = out_t
-            t = time.perf_counter()   # reference right beside it: the same points written into a plain geometry
-            g = containers._empty()
-            for path, name, m in items:
-                p = g.createPoint()
-                p.setAttribValue("pf_source", path)
-                p.setAttribValue("pf_name", name)
-                containers._set_xform(p, m)
-            out.setdefault("_ref", {})[n_bulk] = time.perf_counter() - t
+            for _ in range(3):   # the fastest of 3, measured in turns with its reference: a load spike hits one try
+                hou.hipFile.clear(suppress_save_prompt=True)
+                cb = containers.create("bulk")
+                t = time.perf_counter()
+                containers.add_pieces(cb, items)
+                out_t = time.perf_counter() - t
+                out["_bulk"][n_bulk] = min(out_t, out["_bulk"].get(n_bulk, out_t))
+                t = time.perf_counter()   # reference right beside it: the same points written into a plain geometry
+                g = containers._empty()
+                for path, name, m in items:
+                    p = g.createPoint()
+                    p.setAttribValue("pf_source", path)
+                    p.setAttribValue("pf_name", name)
+                    containers._set_xform(p, m)
+                r = time.perf_counter() - t
+                out["_ref"][n_bulk] = min(r, out["_ref"].get(n_bulk, r))
         bulk, ref = out.pop("_bulk"), out.pop("_ref")
         ratio = {n: bulk[n] / ref[n] for n in bulk}
         print("  bulk add (605 files, no cook): 2000 %.2f s, 5000 %.2f s; reference %.2f / %.2f s; ratios %.1f / %.1f"
