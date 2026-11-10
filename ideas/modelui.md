@@ -282,6 +282,21 @@ Ctrl+C / Ctrl+V (Ctrl+Shift+V = paste at the look-at point) over a viewer while 
 
 Paste keeps world transforms, or ("at look-at point") moves the set as a whole so its box centre and bottom stand on the point. Pieces go into the selected piece's container, else the first, else a new one; objects are reloaded under `/obj` and placed by world matrix. Pasted items end up selected; the paste is one undo step ("modelUI: paste"; menu pastes are deferred past Houdini's "Menu Action" group). Limits: an object inside a subnet pastes to `/obj` (its parent stays behind, world transform kept); channel references to other nodes dangle. Checks: `tests/modelui/check_clipboard.py` (copy and paste in separate hython processes, 9 checks, 11 paired mutations red), `tests/modelui/gui_f2e.py` (keys, menu, key revert).
 
+## Feedback round 1 (2026-11-10, branch `modelui-fb1`)
+
+Hannes' first-use notes. (1) `ModelUI.desk` no longer has the network editor / tree view / material palette section;
+the stack panel's "open as nodes" floats a network editor when the desk has none. (2) The Explorer's "Add kitbash
+pieces..." button is gone (menu item and `kitbash.add_dialog()` stay). (3) Asset Browser drops: with modelUI on and the
+drop point over a Scene Viewer, `AssetDropHandler.handle_dropped_at` calls `kitbash.drop_asset`: one kitbash piece in the
+mixed container, standing where the cursor ray meets y = 0 (look-at point when it misses), selected, one undo step.
+Old failure: the handler created a SOP-type `pf_asset_place` node in the network editor's pwd (`/obj`, which is not an
+`ObjNode`, so no geo was made) and `createNode` raised, which the handler's `except` only printed. (4) Alt+A / Alt+Shift+A /
+Alt+N are bound to Align / Quick Align / Normal Align in context `h.pane.gview` only (reverted by `keys.revert`);
+Alt+Ctrl variants kept; the Explorer has Align, Quick Align, Normal Align buttons with the keys in the tooltip.
+Checks: `tests/modelui/gui_fb1.py` (13 mutations, each seen red). Unverified: a real OS drag from the browser, the exact
+exception of the old drop in a GUI session (the cause is from reading the code and a headless createNode), Alt+A with a
+real keyboard (QTest key events only).
+
 ## F12 feedback (branch `modelui-feedback`; implemented, unverified by an audit)
 
 Press F12 anywhere in Houdini's main window while modelUI is on (or polyfactory > Send feedback (F12) any time): the
