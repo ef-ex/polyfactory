@@ -93,6 +93,14 @@ def add(pid, key, above=None, selection=None, mode="model"):
     entry ``above`` (default: the top). ``selection`` = (pattern, hou.geometryType) of the component selection on the
     entry the new node reads, or None. One undo step. Returns the new node."""
     op = operations.get(key, mode)
+    try:
+        return _add(pid, op, above, selection)
+    except Exception:
+        hou.undos.performUndo()   # the failed add (node, wiring, promote) is one closed undo step: take it all back
+        raise
+
+
+def _add(pid, op, above, selection):
     with hou.undos.group("modelUI: add " + op["label"]):
         obj = _own_object(pid)
         nodes = chain(obj)
@@ -156,6 +164,9 @@ def move(node, step):
     with hou.undos.group("modelUI: move modifier"):
         for k in range(1, len(new)):   # bottom up: each node's new input is already wired below it, so no cycle
             new[k].setInput(0, new[k - 1])
+            op = operations.for_node(new[k])
+            if op and op.get("build") == "lattice_cage" and new[k].input(1) is not None:
+                new[k].input(1).setInput(0, new[k - 1])   # the cage's rest Bound follows the lattice's input
         if new[-1].sessionId() != nodes[-1].sessionId():
             _set_top(new[-1])
     return True

@@ -160,6 +160,16 @@ def checks(out):
     sd = obj.node("sd")
     out["base_never_deleted"] = not stack.delete(b) and names(obj) == ["base", "ex", "sd"]
 
+    # --- a failed add leaves nothing behind -----------------------------------------------------------------------
+    n_kids, n_undo = len(obj.children()), len(hou.undos.undoLabels())
+    try:
+        stack.add(obj.sessionId(), "bevel", selection=("0", hou.geometryType.Vertices))
+        raised = False
+    except ValueError:
+        raised = True
+    out["failed_add_leaves_nothing"] = (raised and len(obj.children()) == n_kids and names(obj) == ["base", "ex", "sd"]
+                                        and obj.displayNode() == sd and len(hou.undos.undoLabels()) == n_undo)
+
     # --- lattice with its own cage --------------------------------------------------------------------------------
     la = stack.add(obj.sessionId(), "lattice")
     cage = [n for n in obj.children() if n.type().name() == "edit"][0]   # found by type, not by the wiring under test
@@ -177,13 +187,25 @@ def checks(out):
         la.input(1).parm("divsx").set(4)
     out["lattice_divs_follow_cage"] = not la.errors() and la.parm("divsx").eval() == 4
     out["lattice_state_on_cage"] = stack.state_node(la) == cage
+    def cage_follows():
+        a, b_ = la.input(1).geometry(), la.input(0).geometry()
+        return a is not None and b_ is not None and a.boundingBox().sizevec() == b_.boundingBox().sizevec()
+    with hou.undos.disabler():
+        ex.parm("dist").set(2.0)   # the extrude grows the box: the cage must see that, or it stays 1x1x1
+    ok = cage_follows()
+    ok = stack.move(la, -1) and la.input(0) == ex and cage_follows() and ok   # across sd, down
+    ok = stack.move(la, -1) and names(obj)[-1] == "sd" and cage_follows() and ok   # across ex, down: now reads the box
+    ok = stack.move(la, +1) and stack.move(la, +1) and names(obj)[-1] == la.name() and cage_follows() and ok
+    out["move_lattice_cage_follows"] = bool(ok) and la.input(1).input(0) == la.input(0)
+    with hou.undos.disabler():
+        ex.parm("dist").set(0.5)
     n_children = len(obj.children())
     stack.delete(la)
     out["delete_takes_side_inputs"] = len(obj.children()) == n_children - 3 and names(obj) == ["base", "ex", "sd"]
     out["delete_top_shows_below"] = (out["delete_top_shows_below"] and obj.displayNode() == obj.node("sd")
                                      and obj.node("sd").isRenderFlagSet())
-    hou.undos.performUndo()
-    hou.undos.performUndo()
+    for _ in range(6):   # delete, the four moves, the add
+        hou.undos.performUndo()
 
     # --- pick inputs (Object Merge) --------------------------------------------------------------------------------
     spine = hou.node("/obj").createNode("geo", "spine")
@@ -299,6 +321,8 @@ def mutate(mod, old, new):
 
 S, O = stack, operations
 MUTATIONS = [   # (name, check, module, old, new)
+    ("move_cage_stays", "move_lattice_cage_follows", S, "                new[k].input(1).setInput(0, new[k - 1])", "                pass"),
+    ("failed_add_kept", "failed_add_leaves_nothing", S, "        hou.undos.performUndo()", "        pass"),
     ("chain_top_first", "chain_base_first", S, "    return out[::-1]", "    return out"),
     ("new_top_not_shown", "add_on_top", S, "            else:\n                _set_top(n)\n        else:", "            else:\n                pass\n        else:"),
     ("no_defaults", "add_defaults", S, "            n.parm(parm).set(v)\n        if selection", "            pass\n        if selection"),
