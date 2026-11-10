@@ -20,7 +20,7 @@ import hou
 from hutil.Qt import QtCore, QtGui, QtWidgets
 from PySide6.QtTest import QTest
 
-from polyfactory.modelui import containers, input_layer, kitbash, pieces_ui, scene, switch
+from polyfactory.modelui import clone, containers, input_layer, kitbash, pieces_ui, scene, switch
 
 OUT = os.environ["PF_F1_OUT"]
 LOGF = open(OUT + ".log", "w", buffering=1)
@@ -905,6 +905,29 @@ def suite(out):
     vp.setDefaultCamera(cam0)
     yield 300
 
+    # --- Clone dialog: its fields reach clone() (never shown here; the cloning itself: check_clone.py) -----------------
+    s.select([mid])
+    yield 300
+    rows0, m0 = len(containers.piece_rows(c)), tr(mid)
+    dlg = clone.CloneDialog()
+    dlg.kind["instance"].setChecked(True)
+    dlg.count.setValue(3)
+    for box_, v in zip(dlg.move + dlg.rotate, (2.0, 0.0, 0.0, 0.0, 0.0, 0.0)):
+        box_.setValue(v)
+    dlg.scale.setValue(100.0)
+    dlg.accept()
+    yield 300
+    sel = s.selected()
+    kinds = [p_.stringAttribValue("pf_clone_kind") for p_ in containers.points(c).points()
+             if ("piece", c.sessionId(), p_.intAttribValue("pf_piece")) in sel]
+    log("  clone dialog: rows", rows0, "->", len(containers.piece_rows(c)), "kinds", kinds,
+        "last moved", tuple(tr(sel[-1]) - m0) if sel else None)
+    out["clone_dialog_ok"] = (len(containers.piece_rows(c)) == rows0 + 3 and kinds == ["instance"] * 3
+                              and (tr(sel[-1]) - m0 - hou.Vector3(6, 0, 0)).length() < 1e-3)
+    hou.undos.performUndo()
+    dlg.deleteLater()
+    yield 200
+
     skip_save = os.environ.get("PF_F2A_SKIP") == "save"   # diagnosis only
     path = os.path.dirname(OUT) + "/save_check.hip"   # a throwaway hip in this run's own folder
     s.select([mid])
@@ -1005,7 +1028,7 @@ def cleanup():
 
 
 MODS = {"pieces_ui": pieces_ui, "input_layer": input_layer, "containers": containers, "scene": scene,
-        "kitbash": kitbash}
+        "kitbash": kitbash, "clone": clone}
 
 
 def mutate(modname, pairs):
@@ -1088,6 +1111,7 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("demo_always_on", "ctrl_shift_click_toggles", "input_layer", [('    if os.environ.get("PF_MODELUI_DEMO") == "1":\n        add_gesture("demo_drag", DEMO)', '    if True:\n        add_gesture("demo_drag", DEMO)')]),
     ("no_toggle", "ctrl_shift_click_toggles", PS, [('    elif mode == "toggle":\n        new = [p for p in cur if p != hit] if hit in cur', '    elif False:\n        new = [p for p in cur if p != hit] if hit in cur')]),
     ("proxy_kept", "uninstall_clean", PS, [("                n.destroy()", "                pass")]),
+    ("dialog_count_ignored", "clone_dialog_ok", "clone", [('"count": self.count.value()', '"count": 1')]),
     ("look_at_ignored", "kitbash_at_look_at", "kitbash", [("    p = sv.curViewport().defaultCamera().pivot()\n    return hou.Vector3(p[0], 0.0, p[2])", "    return hou.Vector3()")]),
     ("no_delete_retry", "uninstall_retries_busy_delete", PS, [("    if busy and tries:", "    if False:")]),
     ("cancel_on_error_dropped", "gesture_error_reverts_preview", "input_layer", [('            if dropped and kind != "cancel":', '            if False:')]),

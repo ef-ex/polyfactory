@@ -18,6 +18,27 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- 2026-11-10: **F2b Clone dialog** (polyfactory > Clone... and the Scene Explorer's button; `modelui/clone.py`),
+  implemented, unverified by an audit. Max's Clone Options plus an Array-lite: Copy / Instance / Reference, number of
+  copies, and per copy a move (world units), a turn (degrees, about the world axes through the item's own position)
+  and a scale (% per copy, compounding); copy k gets k steps. The dialog opens with the values used last. Mixed
+  selections: every item clones by its kind; one undo step; the clones are selected.
+  - Objects: Copy = the object with its whole network (`copyNodesTo`). Instance = a new object whose only node is an
+    Object Merge of the original ("original", transform none, packed, pivot origin): it always shows the original's
+    result. Reference = the same Object Merge unpacked, the place for its own nodes on top (user data
+    `pf_clone_kind`). Houdini follows a rename of the original in the merge path.
+  - Pieces: Copy = a new piece (`containers.copy_pieces`). Instance / Reference = a new piece too (pieces share their
+    source file already) with point attributes `pf_clone_kind` (string, "instance"/"reference") and `pf_clone_of`
+    (int, the original's pf_piece; 0 = none). Open for F2c (modifier stack): what a modifier on the original does to
+    its piece instances and references (decision for Hannes: follow Max, so instances get it too).
+  - Shift+drag stays an immediate Copy without the dialog (Hannes' decision 2026-11-05; Max opens the dialog after a
+    Shift+drag).
+  - Checks: hython `tests/modelui/check_clone.py` (copies step by step: position, axes with turn and compounding
+    scale computed as vectors; selected; one undo for pieces and objects together; piece copies carry no relation;
+    piece instance recorded; object Copy independent, Instance packed and following the original, Reference
+    unpacked and following; 10 mutations red) and gui_f2a `clone_dialog_ok` (the dialog's fields reach clone:
+    Instance x3, 2 units each; mutation `dialog_count_ignored`). Blind spots: the dialog is never shown in the tests
+    (layout, off-screen guard), what F2c does with the piece relation.
 - 2026-11-10: **Add kitbash pieces...** (the artist's way to get pieces in; Hannes could not try F2a without it):
   polyfactory menu and the Scene Explorer's button. A file dialog at $PF_ASSET_LIBRARY (default F:/3d/kitbashLib),
   several USD files at once; the pieces go into the current container (the selected piece's, else the first, else a
@@ -279,6 +300,7 @@ Layout of one container (a geometry object marked as a modelUI container):
   as a string parameter) -> Pack; merged. A file used by 300 pieces is loaded once.
 - `pieces`: a Stash SOP holding ONE POINT PER PIECE: `P`, `orient`, `scale`, `pf_source` (string), `pf_name`
   (string), `pf_piece` (int, unique in the container), `pf_hidden` (int).
+  Clone dialog (F2b) adds, on instance/reference clones only: `pf_clone_kind` (string), `pf_clone_of` (int).
 - `visible` (one wrangle over all points: drop hidden pieces) -> `copy` (Copy to Points, matched by `pf_source`,
   `pf_*` onto the packed prims): the display and render output.
 - Why: native nodes and one batched cook for all pieces (rule 2/4); every edit (move, copy, hide, delete, rename) is
