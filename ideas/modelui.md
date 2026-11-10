@@ -18,6 +18,16 @@ Why it matters: every time he reaches the modeling part he gets annoyed by the n
 
 ## Resume pointer (F2a: container backend, piece selection, Shift+drag Copy)
 
+- 2026-11-10: **Add kitbash pieces...** (the artist's way to get pieces in; Hannes could not try F2a without it):
+  polyfactory menu and the Scene Explorer's button. A file dialog at $PF_ASSET_LIBRARY (default F:/3d/kitbashLib),
+  several USD files at once; the pieces go into the current container (the selected piece's, else the first, else a
+  new one) in a row along X, centred where the viewport looks (camera pivot dropped to the ground), each standing on
+  the ground and spaced by its bounding box (gap 10 % of the widest), selected afterwards, one undo step
+  (`modelui/kitbash.py`). Checks: hython `tests/modelui/check_kitbash.py` (row on the ground with the gaps, centred;
+  one undo; selected; current container reused; a moved and turned container still puts the row at the look-at point;
+  6 mutations red) and gui_f2a `kitbash_at_look_at` (camera pivot at (7, 3, -4): the piece lands at x 7, z -4 on the
+  ground; mutation `look_at_ignored`). Blind spot: the dialog itself (hou.ui.selectFile with multiple_select returns
+  the files separated by ';', parsed by `add_dialog`, untested), the menu entry and button clicks.
 - 2026-11-09: F2a audit 5 (agent-195, evidence `F:/cache/modelui/audit_f2a5/`) confirmed the leak fix; its five items
   are fixed, each with a gui_f2a check seen red under its mutation (no sixth audit, per Hannes' coordinator: modelui
   goes to main and Hannes tries it himself; next for this builder: F2b Clone dialog):
