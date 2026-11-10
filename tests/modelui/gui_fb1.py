@@ -195,6 +195,15 @@ def suite(out):
     err = undo_open()
     hou.undos.performUndo()
     out["drop_one_undo"] = len(sc.pieces()) == n0 and not err
+    # a failing modelUI drop is reported and never falls through to the old network-editor path
+    old_called, real = [], kitbash.drop_asset
+    kitbash.drop_asset = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("probe"))
+    real_hd, browser_ui.AssetDropHandler._handle_drop = browser_ui.AssetDropHandler._handle_drop, staticmethod(lambda *a, **k: old_called.append(1))
+    try:
+        browser_ui.AssetDropHandler().handle_dropped_at({"file_path": FILES[3], "name": "dropped"}, g)
+    finally:
+        kitbash.drop_asset, browser_ui.AssetDropHandler._handle_drop = real, real_hd
+    out["drop_failure_no_fallthrough"] = not old_called and len(sc.pieces()) == n0
     # off: every binding back exactly
     switch.uninstall()
     yield 600
@@ -279,7 +288,8 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("revert_noop", "keys_revert_exact", "keys", [("    changes, n, kept = _changes(), 0, []\n    while changes:", "    changes, n, kept = _changes(), 0, []\n    while False:")]),
     ("no_quick_button", "explorer_buttons", "explorer", [('("Quick Align", "quick_align", "Shift+A"), ', "")]),
     ("kitbash_button_back", "explorer_buttons", "explorer", [('("Align", "align", "A")', '("Add kitbash pieces...", "align", "A"), ("Align", "align", "A")')]),
-    ("drop_ignored", "drop_one_piece_same_container", "browser_ui", [("            if not switch.is_on() or not asset_data", "            if True or not asset_data")]),
+    ("drop_ignored", "drop_one_piece_same_container", "browser_ui", [("            if not on or not asset_data", "            if True or not asset_data")]),
+    ("drop_failure_falls_through", "drop_failure_no_fallthrough", "browser_ui", [("            return on" + chr(10), "            return False" + chr(10))]),
     ("drop_at_lookat", "drop_at_cursor_on_ground", "kitbash", [("    return add_files([path], at=at)", "    return add_files([path])")]),
     ("drop_two_undo_steps", "drop_one_undo", "kitbash", [("    return add_files([path], at=at)", "    r = add_files([path], at=at)\n    hou.node('/obj').createNode('null')\n    return r")]),
 ]

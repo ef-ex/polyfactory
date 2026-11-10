@@ -1,7 +1,7 @@
 # Graph Report - polyfactory-fb1  (2026-11-10)
 
 ## Corpus Check
-- 253 files · ~1,086,928 words
+- 253 files · ~1,087,028 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `96b3ed76`
+- Built from commit: `4a87b4b0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

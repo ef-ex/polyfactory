@@ -800,14 +800,17 @@ class AssetDropHandler(QtCore.QObject):
     @staticmethod
     def _drop_into_modelui(asset_data: dict, pos: QtCore.QPoint) -> bool:
         """modelUI on and the point over a Scene Viewer: the asset becomes a kitbash piece on the ground there."""
+        on = False
         try:
             from polyfactory.modelui import kitbash, switch
-            if not switch.is_on() or not asset_data.get("file_path"):
+            on = switch.is_on()
+            if not on or not asset_data.get("file_path"):
                 return False
             return bool(kitbash.drop_asset(asset_data["file_path"], pos))
-        except Exception as e:
+        except Exception as e:   # modelUI on: say so, never fall through to the network-editor path
             print(f"[AssetDropHandler] modelUI drop failed: {e}")
-            return False
+            hou.ui.setStatusMessage("modelUI: could not add the asset: %s" % e, severity=hou.severityType.Error)
+            return on
 
     @staticmethod
     def _handle_drop(asset_data: dict, enter_state: bool) -> None:
