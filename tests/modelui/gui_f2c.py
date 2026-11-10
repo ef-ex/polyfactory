@@ -164,6 +164,16 @@ def suite(out):
     ok = switch.install()
     yield 1500
     sv, gl = viewer()
+    # every state the code asks the viewer for: "geo" would make the next click create an object (mutation
+    # wrong_object_state); the objects alone were not reliably there to see when the run ended
+    asked = STATE["asked"] = []
+    orig_scs = hou.SceneViewer.setCurrentState
+    STATE["orig_scs"] = orig_scs
+
+    def recording(self, name, *a, **kw):
+        asked.append(name)
+        return orig_scs(self, name, *a, **kw)
+    hou.SceneViewer.setCurrentState = recording
     sv.setViewportLayout(hou.geometryViewportLayout.Single)
     sv.curViewport().changeType(hou.geometryViewportType.Perspective)
     yield 300
@@ -230,7 +240,7 @@ def suite(out):
     # with setSelected, not a click: without the guard a real click kills this Houdini and every later run.
     rows_ = [p.list.item(i) for i in range(p.list.count()) if p.list.item(i).data(Qt.UserRole) == ex.sessionId()]
     if not rows_:   # a broken build (mutation wrong_object_state) lost the row already: judge the stray-object check now,
-        out["no_stray_objects"] = geos() == start_geos   # by assertion, instead of dying on the missing row
+        out["no_stray_objects"] = geos() == start_geos and "geo" not in asked   # by assertion, instead of dying on the missing row
         log("  row of the entry missing; objects", geos(), "at the start", start_geos)
         return
     row = rows_[0]
@@ -467,7 +477,7 @@ def suite(out):
     log("  deleted panel: armed", armed, "callbacks left", left)
 
     # no object made on the way: the viewer was never left in a state where a click or entering it creates one ("geo")
-    out["no_stray_objects"] = geos() == start_geos
+    out["no_stray_objects"] = geos() == start_geos and "geo" not in asked
     log("  objects at the end", geos(), "at the start", start_geos)
 
     # --- modelUI off: nothing of ours left on the nodes --------------------------------------------------------------
@@ -502,6 +512,8 @@ def _q(f):
 
 
 def cleanup():
+    if "orig_scs" in STATE:
+        hou.SceneViewer.setCurrentState = STATE.pop("orig_scs")
     leak = undo_open()
     if leak:
         log("  UNDO LEAK before cleanup:", leak)
