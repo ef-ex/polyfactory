@@ -1,7 +1,8 @@
 """Headless checks of modelUI Align (F2d): the maths of Align, Quick Align and Normal Align on real pieces and objects,
 the hit test, and the preview / Apply / Cancel session. Each check has a paired source mutation that must turn it red.
 
-Run:  hython tests/modelui/check_align.py     (exit 0 = all green AND every mutation reddened its paired check)
+Run:  hython tests/modelui/check_align.py     (exit 0 = all green AND every mutation reddened its paired check;
+      the checks run in a watched child hython: a crash or a run past PF_ALIGN_TIMEOUT s fails with exit 3)
 Throwaway session, never saves a .hip. Uses two kitbash library files (F:/3d/kitbashLib).
 
 The oracle is independent of align.py: an item's WORLD points come from an Object Merge (into this object) of its
@@ -572,5 +573,43 @@ def main():
     return 1 if bad else 0
 
 
+def guarded():
+    """Run the checks in a child hython and watch it: a Houdini crash ("Fatal error: ...", after which hython hangs
+    instead of exiting, 2026-11-10) or a run past PF_ALIGN_TIMEOUT seconds (default 1200; a full run takes 3-9 min)
+    kills it at once and fails the gate (exit 3), so a hang never blocks anyone. The child dumps Python's stack on a
+    crash (faulthandler), so the next crash says where it happened."""
+    import subprocess
+    import threading
+    env = dict(os.environ, PF_ALIGN_CHILD="1", PYTHONUNBUFFERED="1")
+    p = subprocess.Popen([sys.executable, os.path.abspath(__file__)], env=env, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT, text=True, errors="replace")
+    crashed = []
+
+    def pipe():
+        for line in p.stdout:
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            if "Fatal error" in line:
+                crashed.append(line.strip())
+                subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], capture_output=True)
+    t = threading.Thread(target=pipe, daemon=True)
+    t.start()
+    try:
+        code = p.wait(timeout=float(os.environ.get("PF_ALIGN_TIMEOUT", "1200")))
+    except subprocess.TimeoutExpired:
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], capture_output=True)
+        print("FAIL: TIMEOUT, killed the check's hython (pid %d)" % p.pid)
+        return 3
+    t.join(5)
+    if crashed:
+        print("FAIL: Houdini crashed in the check (%s); killed it" % crashed[0])
+        return 3
+    return code
+
+
 if __name__ == "__main__":
+    if os.environ.get("PF_ALIGN_CHILD") != "1":
+        sys.exit(guarded())
+    import faulthandler
+    faulthandler.enable(all_threads=True)
     sys.exit(main())
