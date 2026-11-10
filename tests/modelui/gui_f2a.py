@@ -572,6 +572,10 @@ def suite(out):
     yield 200
     s.select([left, mid])
     yield 300
+    vp.frameAll()   # E/R grab the outer piece: a grab on Houdini's handle is Houdini's rotate, not ours
+    yield 300
+    _sv = [t for t in hou.ui.paneTabs() if t.type() == hou.paneTabType.SceneViewer][0]
+    off_handle = lambda: pieces_ui._under(_sv, at(left))[3] != pieces_ui.proxy()
     gl.setFocus()
     QTest.keyClick(win, Qt.Key_E)
     yield 600
@@ -580,8 +584,9 @@ def suite(out):
     _vx, _vy, vw_, vh_ = vp.size()
     axis = (piv - hou.Vector3(vp.mapToWorld(vw_ // 2, vh_ // 2)[1])).normalized()
     p_b = {i: tr(i) for i in (left, mid)}
-    yield from press_drag(at(mid), NOM, steps=6, dx=10, dy=0)
-    oks = []
+    e_off = off_handle()
+    yield from press_drag(at(left), NOM, steps=6, dx=10, dy=0)
+    oks = [e_off]
     for i, pb in p_b.items():
         a_, b2 = pb - piv, tr(i) - piv
         a_p, b_p = a_ - axis * a_.dot(axis), b2 - axis * b2.dot(axis)
@@ -596,10 +601,11 @@ def suite(out):
     yield 600
     p_b = {i: tr(i) for i in (left, mid)}
     s_b = {i: pieces_ui.get_xform(i).explode()["scale"] for i in (left, mid)}
-    yield from press_drag(at(mid), NOM, steps=6, dx=10, dy=0)
+    r_off = off_handle()   # R: 60 px at exp(0.01/px); the old "> 1.2" also passed Houdini's scale handle
+    yield from press_drag(at(left), NOM, steps=6, dx=10, dy=0)
     ratio = (tr(left) - piv).length() / (p_b[left] - piv).length()
     uni = all(abs(pieces_ui.get_xform(i).explode()["scale"][k] / s_b[i][k] - ratio) < 1e-3 for i in (left, mid) for k in range(3))
-    out["r_body_drag_scales"] = (ratio > 1.2 and abs((tr(mid) - piv).length() / (p_b[mid] - piv).length() - ratio) < 1e-3
+    out["r_body_drag_scales"] = (r_off and abs(ratio - math.exp(0.6)) < 0.02 and abs((tr(mid) - piv).length() / (p_b[mid] - piv).length() - ratio) < 1e-3
                                  and uni)
     log("  R drag ratio %.4f" % ratio, "uniform", uni)
     hou.undos.performUndo()
@@ -1108,6 +1114,7 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("grid_hardcoded", "ctrl_drag_snaps", PS, [("        return float(sv.referencePlane().cellSize()[0]) or 1.0", "        return 0.1")]),
     ("e_drag_moves", "e_body_drag_rotates", PS, [('        if st["xmode"] in ("rotate", "scale"):', '        if False:')]),
     ("mode_keys_ignored", "e_body_drag_rotates", PS, [('        _state["xmode"] = XMODES[ev.text().upper()]', '        pass')]),
+    ("r_slow", "r_body_drag_scales", PS, [("                f = max(0.01, math.exp(0.01 * dx))", "                f = max(0.01, math.exp(0.004 * dx))")]),
     ("r_not_uniform", "r_body_drag_scales", PS, [("                k = hou.hmath.buildScale(f, f, f)", "                k = hou.hmath.buildScale(f, 1, 1)")]),
     ("no_snap", "ctrl_drag_snaps", PS, [('            if st["snap"]:', '            if False:')]),
     ("objects_not_draggable", "body_drag_moves_object", PS, [('        elif n.type().name() == "geo" and n.userData(PROXY_MARK) != "1" and moving:', '        elif False:')]),
