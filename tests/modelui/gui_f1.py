@@ -537,7 +537,10 @@ def suite(out):
         out["rename_follows"] = rows()[1:2] == ["zz"]
         n0 = len(caught)
         w.list.item(1).setText("my hull")   # not a valid node name
-        yield 200
+        for _ in range(30):   # the row shows the node's name again on the panel's next refresh (late under load:
+            yield 100         # 200 ms was too short at 100 % CPU, 2026-11-10)
+            if rows()[1:2] == ["zz"]:
+                break
         out["invalid_rename_recovers"] = caught[n0:] == [] and b.name() == "zz" and rows()[1:2] == ["zz"]
         w.list.item(2).setCheckState(Qt.Unchecked)
         out["row_hides"] = not c.isDisplayFlagSet()

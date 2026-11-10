@@ -1022,8 +1022,11 @@ def undo_open():
         hou.undos.performUndo()
     except hou.Error as e:
         if hou.node("/obj/pf_undo_probe") is not None:
-            with hou.undos.disabler():
-                n.destroy()
+            try:
+                with hou.undos.disabler():
+                    n.destroy()
+            except hou.OperationFailed:   # "Cannot delete nodes while cooking" (a cook under load): the next run's
+                pass                       # hip clear removes it; the probe must not end the whole suite (2026-11-10)
         return e.instanceMessage().strip().splitlines()[-1]
     return None if hou.node("/obj/pf_undo_probe") is None else "undo did not remove the probe"
 
