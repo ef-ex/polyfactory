@@ -19,6 +19,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from polyfactory.modelui import containers, pieces_ui, scene  # noqa: E402
 
 FILES = sorted(f.replace("\\", "/") for f in glob.glob("F:/3d/kitbashLib/*/*.usd"))
+RATIO_CEIL = {2000: 56.0, 5000: 27.0}   # perf_bulk_add: 3x the ratios measured 2026-11-10 at 100 % CPU (18.7 / 9.0,
+# 18.0 / 8.2; mostly the 605 source chains, a fixed cost); the rescanning version: 168 / 130
 TOL = 1e-4   # float32 P/orient/scale at |values| <= 50
 
 
@@ -167,10 +169,22 @@ def checks(out, perf):
             containers.add_pieces(cb, items)
             out_t = time.perf_counter() - t
             out.setdefault("_bulk", {})[n_bulk] = out_t
-        print("  bulk add (605 files, no cook): 2000 %.2f s, 5000 %.2f s" % (out["_bulk"][2000], out["_bulk"][5000]))
-        bulk = out.pop("_bulk")
-        # ~3x the measured 0.90 s / 1.01 s (2026-11-06; the audit's quadratic version: 18.2 s for 5000)
-        out["perf_bulk_add"] = bulk[2000] < 3.0 and bulk[5000] < 3.5
+            t = time.perf_counter()   # reference right beside it: the same points written into a plain geometry
+            g = containers._empty()
+            for path, name, m in items:
+                p = g.createPoint()
+                p.setAttribValue("pf_source", path)
+                p.setAttribValue("pf_name", name)
+                containers._set_xform(p, m)
+            out.setdefault("_ref", {})[n_bulk] = time.perf_counter() - t
+        bulk, ref = out.pop("_bulk"), out.pop("_ref")
+        ratio = {n: bulk[n] / ref[n] for n in bulk}
+        print("  bulk add (605 files, no cook): 2000 %.2f s, 5000 %.2f s; reference %.2f / %.2f s; ratios %.1f / %.1f"
+              % (bulk[2000], bulk[5000], ref[2000], ref[5000], ratio[2000], ratio[5000]))
+        # judged against the reference, so a loaded PC does not decide it (absolute ceilings 3.0 / 3.5 s failed at
+        # 100 % CPU, 2026-11-10). Ceilings: RATIO_CEIL (3x the highest ratio measured, see the doc); the audit's
+        # quadratic version (bulk_add_rescans) ran 10-30x slower than the linear one.
+        out["perf_bulk_add"] = ratio[2000] < RATIO_CEIL[2000] and ratio[5000] < RATIO_CEIL[5000]
         print("  perf 2000 pieces: add all %.2f s, move one %.1f ms, copy one %.1f ms, select one %.1f ms, "
               "list names %.1f ms" % (t_add, move, copy, sel, listing))
         # target from the brief: select/move/copy one piece under ~50 ms at 2000 pieces
