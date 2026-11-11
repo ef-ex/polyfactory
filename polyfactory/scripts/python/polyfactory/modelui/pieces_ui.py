@@ -15,6 +15,7 @@ import math
 
 import hou
 from hutil.Qt import QtCore, QtWidgets
+from PySide6.QtOpenGLWidgets import QOpenGLWidget
 
 from polyfactory.modelui import containers, input_layer, scene
 
@@ -147,16 +148,29 @@ def pick(vp, x, y, mode="replace"):
     return hit
 
 
-def _under(sv, g):
-    """(viewport, x, y, object under the point) for global point ``g`` in viewer ``sv``."""
+def _viewer_gl(sv):
+    """The GL widget that draws viewer ``sv``'s viewports: the largest visible QOpenGLWidget inside the viewer's
+    rectangle, whatever other (overlay) widgets or windows lie over the point that was clicked."""
+    r, best = sv.qtScreenGeometry(), None
     for top in QtWidgets.QApplication.topLevelWidgets():
-        if top.isVisible() and top.frameGeometry().contains(g):
-            gl = top.childAt(top.mapFromGlobal(g))
-            if gl is not None:
-                vp, x, y = viewport_at(sv, gl, g)
-                if vp is not None:
-                    return vp, x, y, vp.queryNodeAtPixel(x, y)
-            break
+        if not top.isVisible():
+            continue
+        for w in top.findChildren(QOpenGLWidget):
+            wr = QtCore.QRect(w.mapToGlobal(QtCore.QPoint(0, 0)), w.size())
+            if w.isVisible() and r.contains(wr) and (best is None or wr.width() * wr.height() > best[0]):
+                best = (wr.width() * wr.height(), w)
+    return best[1] if best is not None else None
+
+
+def _under(sv, g):
+    """(viewport, x, y, object under the point) for global point ``g`` in viewer ``sv``. The pixel is computed from
+    the viewer's own GL widget, not from the widget the point happens to be over (a transparent overlay or another
+    visible window there would give a wrong origin or end the search)."""
+    gl = _viewer_gl(sv)
+    if gl is not None:
+        vp, x, y = viewport_at(sv, gl, g)
+        if vp is not None:
+            return vp, x, y, vp.queryNodeAtPixel(x, y)
     return None, 0, 0, None
 
 

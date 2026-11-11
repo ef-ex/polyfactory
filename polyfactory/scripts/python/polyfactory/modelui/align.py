@@ -22,6 +22,8 @@ proxy null, every piece and object whose box the ray passes. The cross cursor sh
 pick wherever the keyboard focus is (outside text fields).
 Python here is transform maths and UI marshalling (house rule 2, decision log in ideas/modelui.md).
 """
+import logging
+
 import numpy as np
 
 import hou
@@ -30,6 +32,7 @@ from hutil.Qt import QtCore, QtGui, QtWidgets
 from polyfactory.modelui import containers, input_layer, pieces_ui, scene
 
 Qt = QtCore.Qt
+LOG = logging.getLogger("polyfactory.modelui")
 POINTS = ("min", "center", "pivot", "max")
 LABELS = {"min": "Minimum", "center": "Center", "pivot": "Pivot Point", "max": "Maximum"}
 XFORM_PARMS = ("t", "r", "s", "shear", "p", "pr", "scale")   # what setWorldTransform may change on an object
@@ -264,13 +267,20 @@ def hit_ray(o, d, nodes=None):
 
 def hit_at(vp, x, y):
     """The hit under viewport pixel (x, y): only in the object the viewport draws there (its pick buffer), or, on
-    the handle's proxy null, in every piece and object whose box the ray passes."""
+    the handle's proxy null, in every piece and object whose box the ray passes. A miss leaves its reason in
+    ``_state["miss"]``."""
     d, o = vp.mapToWorld(x, y)
     n = vp.queryNodeAtPixel(x, y)
+    _state["miss"] = None
     if n is None:
         _state["last_scan"] = 0
+        _state["miss"] = "nothing is drawn under the pixel (%d, %d)" % (x, y)
         return None
-    return hit_ray(o, d, [n] if _pickable(n) else None)
+    ok = _pickable(n)
+    h = hit_ray(o, d, [n] if ok else None)
+    if h is None:
+        _state["miss"] = ("the ray found no face on %s" % n.path()) if ok else             "not pickable: %s (%s, display flag %s)" % (n.path(), n.type().name(), n.isDisplayFlagSet())
+    return h
 
 
 # --- preview, Apply, Cancel -------------------------------------------------------------------------------------------
@@ -377,12 +387,16 @@ class Session:
 
 
 class AlignSession(Session):
-    def __init__(self, pids, target):
+    def __init__(self, pids, target=None):
         super().__init__(pids, "align")
+        self.target = item(target) if target is not None else None   # None: the dialog is open, the pick is running
+
+    def set_target(self, target):
         self.target = item(target)
 
     def update(self, opts):
-        self.preview(solve(self.items, self.target, opts))
+        if self.target is not None:
+            self.preview(solve(self.items, self.target, opts))
 
 
 class NormalSession(Session):
@@ -405,8 +419,10 @@ class AlignDialog(QtWidgets.QDialog):
         super().__init__(parent)
         self.session = session
         self.setWindowTitle("Align Selection (%s)" % title)
-        self.setModal(True)
+        self.setModal(False)   # while the target is picked the viewport must stay clickable; modal once it is chosen
         lay = QtWidgets.QVBoxLayout(self)
+        self.target_label = QtWidgets.QLabel("Target: click an object in the viewport")
+        lay.addWidget(self.target_label)
         pos = QtWidgets.QGroupBox("Align Position (World)")
         grid = QtWidgets.QGridLayout(pos)
         grid.addWidget(QtWidgets.QLabel("Current Object"), 0, 1)
@@ -435,6 +451,7 @@ class AlignDialog(QtWidgets.QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         lay.addWidget(bb)
+        self.apply_button.setEnabled(session.target is not None)
         for cb, cur, tg in self.pos:
             cb.toggled.connect(self.refresh)
             cur.currentIndexChanged.connect(self.refresh)
@@ -465,7 +482,20 @@ class AlignDialog(QtWidgets.QDialog):
     def refresh(self, *_):
         self.session.update(self.options())
 
+    def set_target(self, pid, name):
+        """The pick found its target: name it, start the live preview, and from now on block the main window."""
+        self.session.set_target(pid)
+        self.target_label.setText("Target: %s" % name)
+        self.setWindowTitle("Align Selection (%s)" % name)
+        self.apply_button.setEnabled(True)
+        self.refresh()
+        self.setWindowModality(Qt.ApplicationModal)
+        self.show()
+
     def done(self, r):   # every way out (Apply, Cancel, Esc, the close box) passes here
+        _end_pick()   # a dialog closed while the target is still being picked ends the pick too
+        if getattr(r, "value", r) == 1 and self.session.target is None:
+            r = 0
         if getattr(r, "value", r) == 1:   # QDialog.Accepted (an int or an enum member)
             _state["opts"] = self.options()   # the next Align starts from these (Max remembers them)
             self.session.apply()
@@ -534,7 +564,10 @@ def _show(dlg):
     mw = hou.qt.mainWindow()
     if mw is not None:
         dlg.adjustSize()
-        dlg.move(mw.geometry().center() - dlg.rect().center())
+        if isinstance(dlg, AlignDialog):   # open during the pick: off the viewer's middle, where the objects are
+            dlg.move(mw.geometry().right() - dlg.width() - 60, mw.geometry().top() + 140)
+        else:
+            dlg.move(mw.geometry().center() - dlg.rect().center())
     dlg.show()
 
 
@@ -591,24 +624,28 @@ def _picked(viewer, g):
     h = hit_at(vp, x, y) if vp is not None else None
     st["last_hit"] = h
     if h is None:
-        _status(PROMPTS[st["step"]])
+        why = _state["miss"] if vp is not None else "no viewport of the viewer is under the click"
+        _state["miss"] = why
+        LOG.info("align pick missed: %s", why)
+        _status("Nothing to pick there (%s). %s" % (why, PROMPTS[st["step"]]), True)
         return
     pid = h[0]
     if st["step"] == "normal_src":
         if pid not in st["sel"]:
+            LOG.info("normal align pick missed: the hit (%s) is not in the selection", scene.current().name(pid))
             _status("Normal Align: that is not in the selection. " + PROMPTS["normal_src"], True)
             return
         st["src"], st["step"] = h, "normal_tgt"
         _status(PROMPTS["normal_tgt"])
         return
     if pid in st["sel"]:
+        LOG.info("align pick missed: the hit (%s) is in the selection", scene.current().name(pid))
         _status("The target must not be selected. " + PROMPTS[st["step"]], True)
         return
     _end_pick()
     parent = hou.qt.mainWindow()
     if st["kind"] == "align":
-        name = scene.current().name(pid)
-        _show(AlignDialog(AlignSession(st["sel"], pid), name, _state["opts"], parent))
+        _state["dialog"].set_target(pid, scene.current().name(pid))
     elif st["kind"] == "quick":
         commit(quick([item(p) for p in st["sel"]], item(pid)), "quick align")
         _finished()
@@ -633,6 +670,8 @@ def _start(kind):
     if _state.get("timer") is None:
         _state["timer"] = QtCore.QTimer(interval=50, timeout=_cursor_tick)
     _state["timer"].start()
+    if kind == "align":   # the options are on screen from the start (Max); the target fills in when it is picked
+        _show(AlignDialog(AlignSession(sel), "pick target", _state["opts"], hou.qt.mainWindow()))
     _cursor_tick()
     _status(PROMPTS[step])
     return True
@@ -642,7 +681,9 @@ def _cursor_tick(pos=None):
     """Max's pick cursor: the cross while a pick runs and the cursor (``pos``, default where it is) is over a viewer;
     Houdini's own cursor everywhere else."""
     pos = QtGui.QCursor.pos() if pos is None else pos
-    over = _state["pick"] is not None and any(sv.qtScreenGeometry().contains(pos) for sv in input_layer._viewers())
+    dlg = _state["dialog"]
+    over = (_state["pick"] is not None and any(sv.qtScreenGeometry().contains(pos) for sv in input_layer._viewers())
+            and not (dlg is not None and dlg.isVisible() and dlg.frameGeometry().contains(pos)))
     if over and not _state["cursor"]:
         QtWidgets.QApplication.setOverrideCursor(Qt.CrossCursor)
         _state["cursor"] = True
@@ -663,6 +704,9 @@ def cancel_pick():
     if _state["pick"] is not None:
         _end_pick()
         _status("")
+        d = _state["dialog"]
+        if isinstance(d, AlignDialog) and d.session.target is None:   # Align's dialog was open for the pick
+            d.reject()
 
 
 def align():

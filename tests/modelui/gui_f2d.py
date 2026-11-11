@@ -15,6 +15,7 @@ items by their ids).
 """
 import glob
 import json
+import logging
 import os
 import traceback
 
@@ -97,6 +98,21 @@ class _Probe(QtCore.QObject):
         return False
 
 
+class _Lines(logging.Handler):
+    def __init__(self, lines):
+        super().__init__()
+        self.lines = lines
+
+    def emit(self, record):
+        self.lines.append(record.getMessage())
+
+
+def no_target():
+    """Align's dialog (open during the pick) has not got its target."""
+    d = align._state["dialog"]
+    return d is None or d.session.target is None
+
+
 def picking():
     return align._state["pick"] is not None
 
@@ -153,7 +169,8 @@ def suite(out):
 
     def wait_dialog():
         for _ in range(20):
-            if align._state["dialog"] is not None:
+            d_ = align._state["dialog"]
+            if d_ is not None and getattr(d_.session, "target", 1) is not None:   # Align's dialog is open before its target
                 break
             yield 100
 
@@ -213,7 +230,7 @@ def suite(out):
         "selected", sc.selected())
     log("  target click intersected", align._state.get("last_scan"), "geometries")
     out["pick_scans_one"] = align._state.get("last_scan") == 1
-    out["target_click_opens_dialog"] = (isinstance(dlg, align.AlignDialog) and dlg.session.target["pid"] == t
+    out["target_click_opens_dialog"] = (isinstance(dlg, align.AlignDialog) and dlg.session.target is not None and dlg.session.target["pid"] == t
                                         and int(QtCore.QEvent.MouseButtonPress) not in seen and pick_clean()
                                         and sc.selected() == sel0)
     if dlg is None:
@@ -263,14 +280,14 @@ def suite(out):
     yield 100
     click(centre(a))   # selected: not a target
     yield 300
-    out["selected_target_refused"] = picking() and align._state["dialog"] is None
+    out["selected_target_refused"] = picking() and no_target()
     seen = []
     flt = _Probe(seen)
     win.installEventFilter(flt)
     click(centre(t), mods=Qt.AltModifier)   # Houdini's tumble key: never ours (a click, so the camera stays)
     win.removeEventFilter(flt)
     yield 300
-    out["alt_click_passes"] = picking() and int(QtCore.QEvent.MouseButtonPress) in seen and align._state["dialog"] is None
+    out["alt_click_passes"] = picking() and int(QtCore.QEvent.MouseButtonPress) in seen and no_target()
     g_t = screen_point(sv, gl, centre(t))   # Space held: Houdini's view state; its clicks are never ours (a click, no turn)
     QTest.mouseMove(win, L(win, g_t))
     gl.setFocus()
@@ -287,7 +304,7 @@ def suite(out):
     yield 300
     log("  space click: state", st_space, "press seen", int(QtCore.QEvent.MouseButtonPress) in seen, "picking", picking())
     out["view_state_click_passes"] = (st_space in pieces_ui.VIEW_STATES and picking()
-                                      and int(QtCore.QEvent.MouseButtonPress) in seen and align._state["dialog"] is None)
+                                      and int(QtCore.QEvent.MouseButtonPress) in seen and no_target())
     key(Qt.Key_Escape, NOM)
     yield 300
     out["esc_ends_pick"] = pick_clean() and align._state["dialog"] is None
@@ -388,6 +405,99 @@ def suite(out):
     out["off_cancels_dialog"] = (moved and align._state["dialog"] is None and not dlg.isVisible()
                                  and raw([a, bx]) == r0 and len(hou.undos.undoLabels()) == u0)
 
+    # --- Hannes' F12 scenario (feedback round 2): shelf-default box / torus / tube objects, the tube selected, state
+    # "select", Alt+A over the viewer, click the box -------------------------------------------------------------------
+    hou.hipFile.clear(suppress_save_prompt=True)
+    objs = {}
+    for nm, sop, t in (("box_object1", "box", (0, 0, 0)), ("torus_object1", "torus", (-4, 0, 2)), ("tube_object1", "tube", (4, 0, 0))):
+        g = hou.node("/obj").createNode("geo", nm)
+        g.createNode(sop)
+        g.parmTuple("t").set(t)
+        objs[nm] = g
+    yield 200
+    switch.install()
+    yield 800
+    sv, gl = viewer()
+    sv.setCurrentState("select")
+    sv.curViewport().frameAll()
+    yield 500
+    win = gl.window().windowHandle()
+    tube_id, box_id = objs["tube_object1"].sessionId(), objs["box_object1"].sessionId()
+    sc = scene.current()
+    sc.select([tube_id])
+    yield 300
+    u0, r0 = len(hou.undos.undoLabels()), raw([tube_id])
+    key(Qt.Key_A, Qt.AltModifier)
+    yield 400
+    dlg0 = align._state["dialog"]
+    out["shelf_dialog_open_before_pick"] = (isinstance(dlg0, align.AlignDialog) and dlg0.isVisible() and picking()
+                                            and "click an object" in dlg0.target_label.text()
+                                            and not dlg0.apply_button.isEnabled() and not dlg0.isModal())
+    align._cursor_tick(sv.qtScreenGeometry().center())
+    cur = QtWidgets.QApplication.overrideCursor()
+    out["shelf_cross_cursor_real"] = cur is not None and cur.shape() == Qt.CrossCursor
+    # a miss says why: to the log (what F12's state.json shows) and to the status bar
+    lines = []
+    h_ = _Lines(lines)
+    lg = logging.getLogger("polyfactory.modelui")
+    lg.addHandler(h_)
+    lg.setLevel(logging.INFO)
+    gl_ = gl.mapToGlobal(QtCore.QPoint(15, 15))
+    QTest.mouseMove(win, L(win, gl_))
+    QTest.mouseClick(win, LMB, NOM, L(win, gl_))
+    yield 400
+    lg.removeHandler(h_)
+    log("  miss lines", lines, "state", align._state.get("miss"))
+    out["align_miss_logs_reason"] = (picking() and any("align pick missed" in x and "nothing is drawn" in x for x in lines)
+                                     and align._state.get("miss") is not None)
+    click(hou.Vector3(0, 0, 0))
+    yield from wait_dialog()
+    dlg = align._state["dialog"]
+    log("  shelf: dialog", dlg, "pick", align._state["pick"], "miss", align._state.get("miss"))
+    out["shelf_target_click_picks_box"] = (dlg is not None and dlg is dlg0 and getattr(dlg.session, "target", None) is not None
+                                           and dlg.session.target["pid"] == box_id
+                                           and dlg.target_label.text() == "Target: box_object1" and dlg.isModal())
+    if out["shelf_target_click_picks_box"]:
+        cb, cur_, tg = dlg.pos[0]
+        cb.setChecked(True)
+        cur_.setCurrentIndex(align.POINTS.index("min"))
+        tg.setCurrentIndex(align.POINTS.index("max"))
+        yield 200
+        out["shelf_preview_moves_tube"] = raw([tube_id]) != r0 and len(hou.undos.undoLabels()) == u0
+        QTest.mouseClick(dlg.cancel_button, LMB)
+        yield 300
+        out["shelf_cancel_restores"] = raw([tube_id]) == r0 and align._state["dialog"] is None
+    # Cancel while the target is still being picked ends the pick and the dialog, nothing changed
+    align.align()
+    yield 200
+    d_ = align._state["dialog"]
+    QTest.mouseClick(d_.cancel_button, LMB)
+    yield 300
+    out["cancel_during_pick_ends_all"] = (pick_clean() and align._state["dialog"] is None and not d_.isVisible()
+                                          and raw([tube_id]) == r0 and len(hou.undos.undoLabels()) == u0)
+    # a transparent widget over the viewer (Houdini has overlays too) must not change where the click lands
+    mw_ = hou.qt.mainWindow()
+    ov = QtWidgets.QWidget(mw_)
+    ov.setGeometry(QtCore.QRect(mw_.mapFromGlobal(sv.qtScreenGeometry().topLeft()), sv.qtScreenGeometry().size()))
+    ov.show()
+    ov.raise_()
+    STATE["overlay"] = ov
+    yield 200
+    align.align()
+    yield 200
+    click(hou.Vector3(0, 0, 0))
+    yield from wait_dialog()
+    dlg = align._state["dialog"]
+    out["pick_under_overlay_widget"] = (dlg is not None and getattr(dlg.session, "target", None) is not None
+                                        and dlg.session.target["pid"] == box_id)
+    if dlg is not None:
+        QTest.mouseClick(dlg.cancel_button, LMB)
+        yield 300
+    ov.deleteLater()
+    STATE["overlay"] = None
+    align.cancel_pick()
+    align.cancel_pick()
+
 
 def undo_open():
     n = hou.node("/obj").createNode("null", "pf_undo_probe")
@@ -409,6 +519,9 @@ def _q(f):
 
 
 def cleanup():
+    if STATE.get("overlay") is not None:
+        _q(STATE["overlay"].deleteLater)
+        STATE["overlay"] = None
     leak = undo_open()
     if leak:
         log("  UNDO LEAK before cleanup:", leak)
@@ -426,7 +539,7 @@ def cleanup():
         _q(keys.revert)
 
 
-MODS = {"align": align, "keys": keys, "input_layer": input_layer}
+MODS = {"align": align, "keys": keys, "input_layer": input_layer, "pieces_ui": pieces_ui}
 
 
 def mutate(modname, pairs):
@@ -438,6 +551,14 @@ def mutate(modname, pairs):
         if new.count(old) != 1:
             raise RuntimeError("mutation snippet not found exactly once: %r" % old)
         new = new.replace(old, rep)
+    if modname == "pieces_ui":   # its module state must survive: only the picking functions are swapped
+        ns = {"__name__": mod.__name__, "__file__": mod.__file__}
+        exec(compile(new, mod.__file__, "exec"), ns)
+        names = ("_under", "_viewer_gl")
+        saved = {k: getattr(mod, k) for k in names}
+        for k in names:
+            setattr(mod, k, ns[k])
+        return lambda: [setattr(mod, k, v) for k, v in saved.items()]
     exec(compile(new, mod.__file__, "exec"), mod.__dict__)
 
     def restore():
@@ -469,6 +590,15 @@ MUTATIONS = [   # (mutation, the check it must redden, module, [(old, new)])
     ("normal_src_is_target", "normal_align_clicks", AL, [('NormalSession(st["sel"], st["src"], h)', 'NormalSession(st["sel"], h, h)')]),
     ("menu_does_nothing", "menu_starts_align", AL, [('    """Align Selection: pick the target, then the dialog."""\n    return _start("align")', '    """Align Selection: pick the target, then the dialog."""\n    return False')]),
     ("off_keeps_pick", "off_ends_pick", AL, [("    _state[\"on\"] = False\n    _end_pick()\n    d = _state", "    _state[\"on\"] = False\n    d = _state")]),
+    ("shelf_cross_missing", "shelf_cross_cursor_real", AL, [("        QtWidgets.QApplication.setOverrideCursor(Qt.CrossCursor)", "        QtWidgets.QApplication.setOverrideCursor(Qt.ArrowCursor)")]),
+    ("no_dialog_before_pick", "shelf_dialog_open_before_pick", AL, [('        _show(AlignDialog(AlignSession(sel), "pick target", _state["opts"], hou.qt.mainWindow()))', '        _state["dialog"] = AlignDialog(AlignSession(sel), "pick target", _state["opts"], hou.qt.mainWindow())')]),
+    ("miss_not_logged", "align_miss_logs_reason", AL, [('        LOG.info("align pick missed: %s", why)\n', "")]),
+    ("cancel_keeps_pick", "cancel_during_pick_ends_all", AL, [("        _end_pick()   # a dialog closed while", "        pass   # a dialog closed while")]),
+    ("pick_from_clicked_widget", "pick_under_overlay_widget", "pieces_ui", [("    gl = _viewer_gl(sv)\n    if gl is not None:", "    gl = hou.qt.mainWindow().childAt(hou.qt.mainWindow().mapFromGlobal(g))\n    if gl is not None:")]),
+    ("target_not_set", "shelf_target_click_picks_box", AL, [("        self.session.set_target(pid)\n", "")]),
+    ("no_preview_on_target", "shelf_preview_moves_tube", AL, [("        self.refresh()\n        self.setWindowModality", "        self.setWindowModality")]),
+    ("shelf_cancel_keeps", "shelf_cancel_restores", AL, [("        else:\n            self.session.cancel()\n        _finished()\n        super().done(r)\n\n\nclass NormalDialog",
+                                                         "        else:\n            pass\n        _finished()\n        super().done(r)\n\n\nclass NormalDialog")]),
     ("off_keeps_dialog", "off_cancels_dialog", AL, [("    if d is not None:\n        d.reject()", "    if d is not None:\n        pass")]),
 ]
 RUNS = [(None, None, None, None)] + MUTATIONS + [(None, None, None, None)]
