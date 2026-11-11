@@ -18210,7 +18210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 357,
+      "community": 53,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -18220,7 +18220,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 357,
+      "community": 53,
       "norm_label": "ui_mainpages"
     },
     {
@@ -18230,7 +18230,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 357,
+      "community": 53,
       "norm_label": ".setupui()"
     },
     {
@@ -18240,7 +18240,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 357,
+      "community": 53,
       "norm_label": ".retranslateui()"
     },
     {
@@ -18610,7 +18610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_init",
-      "community": 53,
+      "community": 184,
       "norm_label": "__init__.py"
     },
     {
@@ -18620,7 +18620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_py_grips",
-      "community": 53,
+      "community": 184,
       "norm_label": "py_grips.py"
     },
     {
@@ -18630,7 +18630,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips",
-      "community": 53,
+      "community": 184,
       "norm_label": "pygrips"
     },
     {
@@ -18650,7 +18650,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_mousereleaseevent",
-      "community": 53,
+      "community": 184,
       "norm_label": ".mousereleaseevent()"
     },
     {
@@ -18660,7 +18660,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_resizeevent",
-      "community": 53,
+      "community": 184,
       "norm_label": ".resizeevent()"
     },
     {
@@ -19770,7 +19770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_init",
-      "community": 323,
+      "community": 184,
       "norm_label": "__init__.py"
     },
     {
@@ -19780,7 +19780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget",
-      "community": 323,
+      "community": 184,
       "norm_label": "py_table_widget.py"
     },
     {
@@ -19790,7 +19790,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget",
-      "community": 323,
+      "community": 184,
       "norm_label": "pytablewidget"
     },
     {
@@ -19800,7 +19800,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qtablewidget",
-      "community": 323,
+      "community": 184,
       "norm_label": "qtablewidget"
     },
     {
@@ -19810,7 +19810,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_init",
-      "community": 323,
+      "community": 184,
       "norm_label": ".__init__()"
     },
     {
@@ -19820,7 +19820,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_set_stylesheet",
-      "community": 323,
+      "community": 184,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -19830,7 +19830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_style",
-      "community": 323,
+      "community": 184,
       "norm_label": "style.py"
     },
     {
@@ -20130,7 +20130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_init",
-      "community": 184,
+      "community": 323,
       "norm_label": "__init__.py"
     },
     {
@@ -20140,7 +20140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_py_toggle",
-      "community": 184,
+      "community": 323,
       "norm_label": "py_toggle.py"
     },
     {
@@ -20150,7 +20150,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle",
-      "community": 184,
+      "community": 323,
       "norm_label": "pytoggle"
     },
     {
@@ -20160,7 +20160,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qcheckbox",
-      "community": 184,
+      "community": 323,
       "norm_label": "qcheckbox"
     },
     {
@@ -20170,7 +20170,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_init",
-      "community": 184,
+      "community": 323,
       "norm_label": ".__init__()"
     },
     {
@@ -20180,7 +20180,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_position",
-      "community": 184,
+      "community": 323,
       "norm_label": ".position()"
     },
     {
@@ -20190,7 +20190,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_setup_animation",
-      "community": 184,
+      "community": 323,
       "norm_label": ".setup_animation()"
     },
     {
@@ -20210,7 +20210,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_paintevent",
-      "community": 184,
+      "community": 323,
       "norm_label": ".paintevent()"
     },
     {
@@ -34227,7 +34227,7 @@
       "label": "driver()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L612",
+      "source_location": "L613",
       "_origin": "ast",
       "id": "modelui_gui_f2d_driver",
       "community": 20,
@@ -34237,7 +34237,7 @@
       "label": "pump()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L636",
+      "source_location": "L637",
       "_origin": "ast",
       "id": "modelui_gui_f2d_pump",
       "community": 20,
@@ -34247,7 +34247,7 @@
       "label": "finish()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L649",
+      "source_location": "L650",
       "_origin": "ast",
       "id": "modelui_gui_f2d_finish",
       "community": 20,
@@ -34257,7 +34257,7 @@
       "label": "guard()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L658",
+      "source_location": "L659",
       "_origin": "ast",
       "id": "modelui_gui_f2d_guard",
       "community": 20,
@@ -34267,7 +34267,7 @@
       "label": "start()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L667",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "modelui_gui_f2d_start",
       "community": 20,
@@ -62260,7 +62260,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_grips/__init__.py",
       "source_location": "L1",
-      "community": 53,
+      "community": 184,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_grips_init_py"
     },
@@ -62332,7 +62332,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_table_widget/__init__.py",
       "source_location": "L1",
-      "community": 323,
+      "community": 184,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_table_widget_init_py"
     },
@@ -62359,7 +62359,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/py_toggle.py",
       "source_location": "L46",
-      "community": 184,
+      "community": 323,
       "norm_label": "position()",
       "id": "py_toggle_py_toggle_position"
     },
@@ -62368,7 +62368,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/__init__.py",
       "source_location": "L1",
-      "community": 184,
+      "community": 323,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_toggle_init_py"
     },
@@ -155539,9 +155539,9 @@
       "source_file": "ideas/modelui.md",
       "source_location": "L300",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
-      "target": "ideas_modelui_feedback_round_2_2026_11_11_branch_modelui_fb1",
-      "confidence_score": 1.0
+      "target": "ideas_modelui_feedback_round_2_2026_11_11_branch_modelui_fb1"
     },
     {
       "relation": "contains",
@@ -161808,5 +161808,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a794f1ce3dfda46ff382eab171688d8234cefd86"
+  "built_at_commit": "208f3659c785ad4b22bea59e5cac6af7c30d1e3c"
 }
