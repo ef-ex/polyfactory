@@ -241,7 +241,11 @@ def build():
         return w
 
     inp = hda.indirectInputs()[0]
-    mark = wr("mark", inp, "i@_in = 1;", 1, group="`chs('../group')`")
+    dfl = wr("defaults", inp,
+             'if (!hasattrib(0, "prim", "pf_plate_id")) setprimattrib(0, "pf_plate_id", @primnum, -1, "set");'+"\n"+
+             'if (!hasattrib(0, "prim", "pf_plate_area")) setprimattrib(0, "pf_plate_area", @primnum, 0.0, "set");'+"\n"+
+             'if (!hasattrib(0, "prim", "pf_plate_height")) setprimattrib(0, "pf_plate_height", @primnum, 0.0, "set");', 1)
+    mark = wr("mark", dfl, "i@_in = 1;", 1, group="`chs('../group')`")
     # non-quad faces (tris, ngons incl. concave) are triangulated, then at least one bilinear level
     # turns everything into quads (bilinear on a concave ngon makes degenerate quads, so no ngons reach it)
     prep = wr("prep", mark, 'int nq = 0; for (int p = 0; p < nprimitives(0); p++) { int c = primvertexcount(0, p); if (c != 4) nq = 1; setprimgroup(0, "_ngon", p, c > 4, "set"); } i@_nq = nq;', 0)
@@ -276,18 +280,21 @@ def build():
     bev2.parm("divisions").setExpression("ch('../bevel_segments')")
     bev2.parm("offset").setExpression("min(ch('../bevel_amount'), 0.45 * abs(min(ch('../height_min'), ch('../height_max')) + ch('../groove_depth')))")
     sw3 = node("switch", "rim_on", eg2, bev2)
-    sw3.parm("input").setExpression("ch('../bevel_amount') > 0")
+    sw3.parm("input").setExpression("ch('../bevel_amount') > 0 && detail('../edges_rim', '_nrim', 0) > 0")
     eg1 = wr("edges_corner", sw3, vex("pf_plating_edgegroups"), 0)
     bev1 = node("polybevel::3.0", "corner_bevel", eg1, grouptype=2, group="_corner", filletshape=4)
     bev1.parm("divisions").setExpression("ch('../corner_segments')")
-    bev1.parm("offset").setExpression("ch('../corner_radius')")
+    bev1.parm("offset").setExpression("min(ch('../corner_radius'), 0.3 * detail('../edges_corner', '_minedge', 1))")
     sw2 = node("switch", "corner_on", eg1, bev1)
-    sw2.parm("input").setExpression("ch('../corner_radius') > 0")
+    sw2.parm("input").setExpression("ch('../corner_radius') > 0 && detail('../edges_corner', '_ncorner', 0) > 0")
     fix = wr("corner_fillets_are_sides", sw2, 'if (i@_part == 0) i@_part = 2;', 1)
     # floor removal
     rm = node("blast", "drop_groove", fix, group="_groove", grouptype=4, negate=0, removegrp=0)
     sw4 = node("switch", "floor_remove", fix, rm)
     sw4.parm("input").setExpression("strcmp(chs('../floor'),'remove')==0")
+    nanm = wr("nan_mark", sw4, 'setpointgroup(0, "_nan", @ptnum, isnan(@P.x) || isnan(@P.y) || isnan(@P.z), "set"); if (@ptnum == 0) setpointgroup(0, "_nan", 0, isnan(@P.x) || isnan(@P.y) || isnan(@P.z), "set");', 2)
+    nanb = node("blast", "nan_drop", nanm, group="_nan", grouptype=3, negate=0, removegrp=0)   # degenerate bevels on pole-tight facets can yield NaN points: drop them, never ship NaN
+    sw4 = nanb
     fin = wr("finalize", sw4,
              'int pt = i@_part;\n'
              'setprimgroup(0,"pf_plate_top",@primnum, pt==1,"set");\n'

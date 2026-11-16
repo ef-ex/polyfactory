@@ -216,3 +216,28 @@ Cannot see: beauty of the procedural planets, GPU-vs-CPU OpenCL differences, GUI
 - The colour ramp is a 3-stop ramp (a native ramp parm cannot be bound); the procedural looks are first guesses; the addon's icon-view thumbnails are not shown (picks are named menus).
 - `Starfield Background` world shader of the addon: not ported (see Spacescape / Nebula).
 - No independent audit yet; the preview SOP has no GUI check.
+
+## Plating + greebles (tool #2: `pf::plating_generator`, `pf::greeble_scatter`)
+
+Status: **implemented, unverified** (no independent audit). Own checks: `hython tests/spacetools/run_plating_checks.py` (25 pass) and `--mutate` (10 mutations, all red). Looked at renders in `F:\cache\spacetools\plating_work\` (`m1.png` layouts, `m2.png` sphere/box/L/tri, `m3.png` greebles). Build: `devScripts/create_pf_plating_generator_hda.py`, `create_pf_greeble_scatter_hda.py` (VEX in `devScripts/vex/pf_plating_*.vfl`, `pf_greeble_*.vfl`) -> `polyfactory/otls/pf_plating_generator.hda`, `pf_greeble_scatter.hda`. (`pf_hull_panels.hda` is a COP texture tool; not related.)
+
+### How the Blender tool works
+- **Plating** (`plating_gen/plating_functions.py create_plates`): subdivide, pick *groove edges* (pattern: random edge loops walked through valence-4 vertices that stop at an existing groove, optional diagonal "triangle" cuts, rectangle outlines, "Ruby Dragon" random-walk blobs, or selected/seam edges, plus cuts at sharp face angles), split faces into plate groups, sink the grooves (custom shrink/fatten), give each plate group a random height in [min,max], taper, bevel, corner bevel, rivets. Presets (`presets/panel/*.json`) are lists of *levels*; a later level plates the faces chosen from the earlier one (tops / grooves).
+- **Greebles** (`greeble_gen/greeble_functions.py`): *overlapping* = N random rectangles (width/length fractions) on random faces; *non-overlapping* = every quad recursively `__quadsect`-ed into 4 cells with deviation, each cell gets a greeble with probability `coverage`. A greeble is "grafted" into the rectangle (footprint from the rectangle, height from range or kept aspect). Kits: 34 `.blend` pieces (Defaults, Hull Details, Panels, Custom Greebles).
+
+### Mapping
+- Layout: Criss-Cross, +Triangles, Rectangles, Rectangles+Criss-Cross, Irregular Blobs, From Edge Group. Plates = union-find over non-groove half-edges (halfedge VEX, one detail wrangle each for cut / plates). Groove ring + sink and raise/taper = `polyextrude::2.0` (split by connected component, per-plate distance through `_zs`); the plate split needed `edgecusp` on the `_split` edge group (polyextrude's own split-group parm did not separate plates in H22). Rim + vertical corner bevels = `polybevel::3.0`; rivets = copytopoints on convex top corners; `Cd` per plate optional.
+- Output contract: prim `pf_plate_id` (int, -1 = untouched face), `pf_plate_area`, `pf_plate_height` (float), prim groups `pf_plate_top/side/groove/bottom/rivet`; greebles: prim `pf_greeble_id`, `pf_kit`, `pf_host` (int), `pf_kit_name`, group `pf_greeble`, plate attrs inherited from the host face. No `_*` left (test-enforced).
+- **Levels** = chain nodes: next Plating Generator with *Faces* = `pf_plate_top`; Greeble Scatter *Faces* = `pf_plate_top` (on plates) or `pf_plate_side` (plate edges). Ids of a later level start after the earlier ones.
+- Presets: all 19 Blender panel presets become the Plating Preset menu (level 0 values; multi-level ones say so in the label); the greeble presets set the Greeble Scatter parms. Preset callback is Python (UI marshalling, sets parm values from a JSON section).
+- Kit: the 34 Blender pieces exported with Blender (`F:\cache\spacetools\greeble_export.py`, OBJs in `greeble_kit/`) and embedded in the HDA as `kit_blender.bgeo.sc`; every piece is normalised to a unit footprint on z=0 (kit-prep wrangle), input 2 takes any user kit (islands or `pf_kit`). Placement is one point per greeble + `copytopoints` (piece attribute `pf_kit`), no per-piece loops.
+
+### Decisions / differences
+- Python only in the two preset callbacks. Everything else native + VEX; no OpenCL (cell counts are small).
+- Non-quads (tris, concave ngons) are triangulated then bilinear-subdivided at least once so every cell is a quad.
+- Rounded corners skip edges shorter than 1.5x the radius, rim bevel is capped at 0.45x plate thickness, NaN points that polybevel can still produce on pole-tight sphere facets are dropped (not shipped). Gaps: bevels are native polybevel, so very small plates with big bevel values just get none.
+- Triangle layout is not a pixel-faithful port (cut-walk uses a diagonal across the next quad); rectangles use cell counts like Blender, not world sizes. Random streams differ from numpy, so seeds do not reproduce Blender layouts.
+- Not ported: the add-on's seam/selected-edge workflow beyond the Edge Group parm, vertex-colour options other than random per plate/greeble, custom-library picking UI, the Animation Nodes variant, level-based UI (replaced by chaining).
+
+### Not verified
+No independent audit; no GUI look (TAB menu, help, panel layout never opened in a live Houdini); overlap measured with axis-aligned boxes (exact on grid/box, conservative on curved/rotated cases); layout beauty only by my eye on renders; performance on large meshes untested (halfedge loops are single-threaded detail wrangles).

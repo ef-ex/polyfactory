@@ -240,13 +240,16 @@ def build():
 
     surf_in = hda.indirectInputs()[0]
     kit_in = hda.indirectInputs()[1]
-    dfl = wr("defaults", surf_in, "i@_sel = 0; i@_k = -1; i@pf_kit = -1; i@pf_greeble_id = -1; i@pf_host = -1; s@pf_kit_name = \"\";", 1)
-    sel = wr("mark_faces", dfl, "i@_sel = 1;", 1, group="`chs('../group')`")
+    dfl = wr("defaults", surf_in, "i@_sel = 0; i@_k = -1; i@_island = 0; i@pf_kit = -1; i@pf_greeble_id = -1; i@pf_host = -1; s@pf_kit_name = \"\";", 1)
+    dpt = wr("defaults_pt", dfl, 'i@pf_kit = -1; i@pf_greeble_id = -1; i@pf_host = -1; v@scale = {1,1,1}; p@orient = {0,0,0,1}; if (@ptnum == 0) setpointgroup(0, "_gpt", 0, 0, "set");', 2)
+    sel = wr("mark_faces", dpt, "i@_sel = 1;", 1, group="`chs('../group')`")
     # kit: embedded library (filtered by set) or input 2
     lib = node("file", "kit_library", file="opdef:..?" + SECTION)
     filt = wr("kit_filter", lib, 'string k = chs("../kit"); if (k != "all" && s@pf_kit_set != k) removeprim(0, @primnum, 1);', 1)
     conn = node("connectivity", "kit_islands", kit_in, connecttype=0, attribname="_island")
-    swk = node("switch", "kit_source", filt, conn)
+    connp = node("attribdelete", "kit_island_pt", conn, doptdel=1, ptdel="_island")
+    conn2 = wr("kit_tag", connp, 's@pf_kit_set = ""; s@pf_kit_name = "";', 1)
+    swk = node("switch", "kit_source", filt, conn2)
     swk.parm("input").setExpression("strcmp(chs('../kit'), 'input') == 0")
     prep = wr("kit_normalise", swk, vex("pf_greeble_kitprep"), 0)
     place = hda.createNode("attribwrangle", "place")
@@ -266,7 +269,7 @@ def build():
         'if (hasattrib(1, "prim", "pf_plate_area"))   { float v = prim(1, "pf_plate_area", host);    setprimattrib(0, "pf_plate_area", @primnum, v, "set"); }\n'
         'if (hasattrib(1, "prim", "pf_plate_height")) { float v = prim(1, "pf_plate_height", host);  setprimattrib(0, "pf_plate_height", @primnum, v, "set"); }\n'
         'if (hasattrib(1, "prim", "Cd"))              { vector v = prim(1, "Cd", host);              setprimattrib(0, "Cd", @primnum, v, "set"); }\n'
-        'i@_sel = 0;\n'
+        'i@_sel = 0; i@_island = 0;\n'
         'setprimgroup(0, "pf_greeble", @primnum, 1, "set");\n')
     col = wr("greeble_color", post, 'float k = float(i@pf_greeble_id) * 0.37 + float(chi("../seed")) * 1.7; float cr = rand(k); float cg = rand(k + 7.31); float cb = rand(k + 13.7); v@Cd = set(cr, cg, cb) * 0.8 + 0.2;', 1)
     swc = node("switch", "color_on", post, col)
