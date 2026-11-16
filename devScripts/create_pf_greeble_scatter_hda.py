@@ -271,6 +271,25 @@ def build():
         'if (hasattrib(1, "prim", "Cd"))              { vector v = prim(1, "Cd", host);              setprimattrib(0, "Cd", @primnum, v, "set"); }\n'
         'i@_sel = 0; i@_island = 0;\n'
         'setprimgroup(0, "pf_greeble", @primnum, 1, "set");\n')
+    # the surface's uv (any class) would mismatch the greebles at the merge: each greeble gets its host face's uv at its corners
+    guv = hda.createNode("attribwrangle", "greeble_uv")
+    guv.setInput(0, post); guv.setInput(1, surf)
+    guv.parm("class").set(0)
+    guv.parm("snippet").set("""int cls = hasattrib(1, "prim", "uv") ? 1 : hasattrib(1, "point", "uv") ? 2 : hasattrib(1, "vertex", "uv") ? 3 : 0;
+if (cls == 0) return;
+for (int p = 0; p < nprimitives(0); p++) {
+    int h = prim(0, "pf_host", p);
+    if (h < 0) continue;
+    if (cls == 1) { vector pu = prim(1, "uv", h); setprimattrib(0, "uv", p, pu, "set"); continue; }
+    vector uv = cls == 2 ? point(1, "uv", primpoint(1, h, 0)) : vertex(1, "uv", primvertex(1, h, 0));
+    int n = primvertexcount(0, p);
+    for (int i = 0; i < n; i++) {
+        if (cls == 2) setpointattrib(0, "uv", vertexpoint(0, primvertex(0, p, i)), uv, "set");
+        else setvertexattrib(0, "uv", p, i, uv, "set");
+    }
+}
+""")
+    post = guv
     col = wr("greeble_color", post, 'float k = float(i@pf_greeble_id) * 0.37 + float(chi("../seed")) * 1.7; float cr = rand(k); float cg = rand(k + 7.31); float cb = rand(k + 13.7); v@Cd = set(cr, cg, cb) * 0.8 + 0.2;', 1)
     swc = node("switch", "color_on", post, col)
     swc.parm("input").setExpression("ch('../random_color')")
@@ -288,7 +307,9 @@ def build():
         cur = node("attribdelete", "clean_" + cname, gd, **{flag: 1, {"doptdel": "ptdel", "dovtxdel": "vtxdel", "doprimdel": "primdel", "dodtldel": "dtldel"}[flag]: "_*"})
     gguard = wr("gguard", cur, 'if (nprimitives(0) > 0) setprimgroup(0, "_g", 0, 0, "set"); if (npoints(0) > 0) setpointgroup(0, "_g", 0, 0, "set");', 0)
     gclean = node("groupdelete", "clean_groups", gguard, deletions=1, group1="_*", grouptype1=0)
-    out = node("null", "OUT", gclean)
+    swe = node("switch", "empty_passthru", gclean, surf_in)     # empty input: pass it through, no group warnings
+    swe.parm("input").setExpression("npoints('../defaults') == 0")
+    out = node("null", "OUT", swe)
     out.setDisplayFlag(True); out.setRenderFlag(True)
     hda.layoutChildren()
 
