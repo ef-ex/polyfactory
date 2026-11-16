@@ -38,7 +38,7 @@ def fx_grid(g, n=11, size=4.0):
 
 
 def fx_sphere(g):
-    s = g.createNode("sphere"); s.parm("type").set(1); s.parmTuple("rad").set((1, 1, 1))
+    s = g.createNode("sphere"); s.parm("type").set(2); s.parmTuple("rad").set((1, 1, 1))
     s.parm("freq").set(8) if s.parm("freq") else None
     s.parm("rows").set(16); s.parm("cols").set(32); s.parm("orient").set(1)
     return s
@@ -49,27 +49,22 @@ def fx_box(g):
 
 
 def fx_nonconvex(g):
-    """L-shaped slab with an extra bump: concave, ngon caps, tris after a polyreduce-free build."""
+    """L-shaped solid (concave 6-gon caps): ngons, concave faces, consistent outward normals."""
     py = g.createNode("python")
-    py.parm("python").set('''
+    py.parm("python").set("""
 geo = hou.pwd().geometry()
 pts = [(0,0),(3,0),(3,1),(1,1),(1,3),(0,3)]
-H = 0.8
-ps = [[geo.createPoint() for _ in pts] for _ in (0, 1)]
-for k in (0, 1):
-    for i, (x, z) in enumerate(pts):
-        ps[k][i].setPosition((x, k * H, z))
-def poly(vs):
-    p = geo.createPolygon()
-    for v in vs: p.addVertex(v)
-n = len(pts)
-poly([ps[1][i] for i in range(n)])             # top (+y): ccw seen from +y needs reversed xz order
-poly([ps[0][i] for i in reversed(range(n))])
-for i in range(n):
-    j = (i + 1) % n
-    poly([ps[0][i], ps[0][j], ps[1][j], ps[1][i]])
-''')
-    return py
+ps = [geo.createPoint() for _ in pts]
+for p, (x, z) in zip(ps, pts):
+    p.setPosition((x, 0, z))
+poly = geo.createPolygon()
+for p in ps: poly.addVertex(p)
+if poly.normal()[1] < 0:
+    poly.reverse()
+""")
+    ex = g.createNode("polyextrude::2.0"); ex.setInput(0, py)
+    ex.parm("dist").set(0.8); ex.parm("outputback").set(1)
+    return ex
 
 
 def fx_non_quad(g):

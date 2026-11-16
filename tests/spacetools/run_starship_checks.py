@@ -114,7 +114,9 @@ def main():
             check(all((m == "booster") == (p == 3) for m, p in zip(prim_attr(g, "pf_material"), prim_attr(g, "pf_part"))),
                   "c5 pf_material agrees with pf_part")
             # mirror on: the point set is symmetric in X
-            xs = sorted(round(v, 3) for v in pts[0::3])
+            xs = pts[0::3]
+            npos, nneg = sum(1 for v in xs if v > 0.01), sum(1 for v in xs if v < -0.01)
+            check(abs(npos - nneg) <= 0.001 * (npos + nneg), "c6 mirror on: points balanced in X (%d vs %d)" % (npos, nneg))
             check(abs(bb.minvec()[0] + bb.maxvec()[0]) < 0.02, "c6 mirror on: bbox symmetric in X")
     check(len(set(prints.values())) == len(seeds), "c4 %d seeds give %d different ships" % (len(seeds), len(set(prints.values()))))
 

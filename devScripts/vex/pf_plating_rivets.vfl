@@ -4,6 +4,7 @@
 float dist = chf("../rivet_dist");
 float size = chf("../rivet_size");
 int npt = npoints(0);
+if (npt > 0) setpointgroup(0, "_rivpt", 0, 0, "set");
 int cnt[]; resize(cnt, npt);
 int whichp[]; resize(whichp, npt);
 for (int p = 0; p < nprimitives(0); p++) {
@@ -24,6 +25,11 @@ for (int pt = 0; pt < npt; pt++) {
     int np = addpoint(0, P0 + dir * d);
     setpointattrib(0, "N", np, n, "set");
     setpointattrib(0, "pscale", np, size, "set");
-    setpointattrib(0, "_pid", np, prim(0, "pf_plate_id", p), "set");
+    int pid = prim(0, "pf_plate_id", p);
+    setpointattrib(0, "_pid", np, pid, "set");
+    float ph = prim(0, "pf_plate_height", p);
+    float pa = prim(0, "pf_plate_area", p);
+    setpointattrib(0, "_h", np, ph, "set");
+    setpointattrib(0, "_a", np, pa, "set");
     setpointgroup(0, "_rivpt", np, 1, "set");
 }

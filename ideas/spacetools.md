@@ -74,3 +74,78 @@ Everything is a function of the 3D direction, so faces, cross and equirect agree
 
 ### Known gaps / later
 - Flare textures and `dataFile` star catalogue; XML profile import; true colour *ramp* parm (3-stop used); layer count capped at 12; seeds not compatible with Spacescape; no GUI review of the parameter panel; no independent audit yet.
+
+## Starship generator
+
+**Status: implemented, unverified** (no independent audit yet). Asset `polyfactory/otls/pf_starship_generator.hda`
+(op `pf::starship_generator`, TAB: Poly Factory/Modeling, no inputs), built by
+`devScripts/create_pf_starship_generator_hda.py`, checks `tests/spacetools/run_starship_checks.py`
+(`hython tests/spacetools/run_starship_checks.py [nseeds]`). Renders: `F:/cache/spacetools/starship_work/*.png`.
+
+### How the Blender tool works (read from the .blend dump)
+The `Starship` object is only a cube; everything is modifiers. One seed drives everything.
+1. **A "part" (Main Object, 5 Medium, 5 Small objects, all the same recipe)**: Random Extrusion Nodes = cube, Subdivide Mesh level 2
+   (4x4 per side), Jiggle Y/X/Z (each axis coordinate scaled by `2 * noise(that coordinate, seed)`), random per-axis scale
+   (default x 0.5-1.2, y(length) 4-8, z 0.5 on a 2 m cube), Random Extrude (noise ramp mask picks faces, `< Amount 0.5`; each extruded
+   individually by rand(0..1) along the normal, top scaled rand(0.8..1.2)).
+   Then Remesh modifier (SMOOTH, octree depth 4, scale 0.9), Mirror (bisect X), Cleanup (delete mesh islands != 0),
+   Center (bbox centre to origin), Creased Subdivide (noise -> ramp 0.389-0.615 -> edge crease 0.2-0.8, level 3/2/1 for
+   main/medium/small), Auto Smooth 30 deg.
+2. **Starship** object: Big Object (instance the Main Object) -> Scatter Object x2 (medium, then small): Shape Distribution
+   = Mesh to Volume/Volume to Mesh shell of the geometry so far, Distribute Points on Faces (density 0.1), snap to the surface
+   (Geometry Proximity), instance a random collection member, translate along the normal by rand(offset 0.1-0.4 / 0-0.2), rotate in
+   whole steps of (0,90,0) deg, scale rand(0.4-0.6 / 0.1-0.2); the 2nd scatter sees the first's result (small on medium) ->
+   Panelling (Subdivide, then 3 layers [large 0.03 / small 0.01 / micro 0.003] of face extrusion on Voronoi cells with
+   Randomness 0 = a plain grid, cell picked by a noise ramp) -> Booster (raycast along the length axis from +/-100 to the hull,
+   instance "Booster Variable": 16-gon cylinder, end cap scaled .8 / pushed in .5 / scaled .8 / out .1; scale 0.5) -> Materials ->
+   Mirror (bisect + merge) -> Resize (uniform, length 15) -> UV Project -> Auto Smooth.
+3. Text objects (Get/Link/Seed Text), cameras, materials (MAT: nodes) are presentation, not geometry: not recreated.
+
+### Mapping to Houdini (all native nodes + VEX; the only Python is the builder script / parameter interface)
+| Blender | Houdini |
+|---|---|
+| Cube + Subdivide Mesh 2 | `box` polymesh, divrate 5 (4x4, 96 quads) |
+| Jiggle XYZ + Random Vector | wrangle `*_shape` (noise of the coordinate itself, `1 + Jiggle*(2n-1)`, then lerp scale) |
+| Random Extrude | wrangle `*_extsel` (noise ramp mask, `zscale`, `_tap`) + `polyextrude::2.0` individual (`zscale` attr) + wrangle `*_taper` on `extrudeFront` |
+| Remesh smooth octree depth d | `vdbfrompolygons` voxel = longest side / (0.9 * 2^d) + `convertvdb` to polygons |
+| Mirror bisect X (hull only) | `mirror` (clip, keep original, consolidate 0.001) behind a switch |
+| Cleanup (islands) | `connectivity` + detail wrangle (biggest island) + prim wrangle `removeprim`; (Blender keeps island 0) |
+| Center | `matchsize` to origin |
+| Creased Subdivide | vertex wrangle (`creaseweight` per edge from noise at the edge midpoint, `* level * 3`) + `subdivide` OSD cc |
+| For each of N variants | `block_begin`(input) / `block_begin`(metadata) / `block_end`(count, merge) |
+| Distribute + Instance on Points | `scatter::2.0` by density + wrangle (variant, scale, normal offset, orient steps) + `copytopoints::2.0` by `_variant` |
+| Panelling | `subdivide` (osdbilinear) + 3 x (prim wrangle grid-cell hash -> group `_pnl`, `polyextrude::2.0` components along POINT normals) |
+| Booster raycast | detail wrangle makes the ray origin, point wrangle `intersect()` onto the ship, `copytopoints` of a `tube` + 2 `polyextrude` nozzle |
+| Mirror + Resize | `mirror`(clip) behind switch, `matchsize` uniform by Z = Length |
+| Auto Smooth | `normal` vertex, cusp = Smooth Angle |
+
+Output (conventions): `pf_part` prim int (0 hull, 1 medium, 2 small, 3 booster), `pf_panel` prim int (0 plain, 1/2/3 layer),
+`pf_material` prim string (`hull`/`booster`), vertex `N`. Nothing else, no groups; `_*` swept (see "Decisions").
+
+### Decisions (with reasons)
+- **Axes**: length along Z, ship symmetric in X, nose -Z, engine +Z (Houdini forward = -Z). Blender's length axis is Y.
+- **Jiggle** = `1 + Jiggle*(2*noise-1)`; Blender is `2*noise`. Houdini `noise` is not Blender's normalised FBM; the shape of the range is similar, not equal.
+- **Remesh**: VDB SDF -> polygons instead of Blender's smooth remesh; same voxel size rule. Not the same surface, same character.
+- **Hull/part default subdivision**: hull 2 (Blender's object modifier 3, but the Starship Controls say 2), medium/small 1, for cook time (see below).
+- **Crease sharpness** = `crease * level * 3`. Blender crease 1 = sharp for ever; the x3 was LOOKED AT against the reference render (boxy parts); it is a guess, not read from the file.
+- **Scatter**: points are scattered on the surface itself, not on the Mesh-to-Volume shell snapped back (the shell only smooths the distribution). Normal = scatter normal.
+- **Booster count**: one (Blender: one, doubled by the mirror when Projection X != 0).
+- **Panels**: Blender's per-layer cell sizes/noise thresholds could not be read from the dump; cell = Panel Size, /2, /4 with a hash `< Panel Amount`.
+  Panels extrude along POINT normals: `components` mode with the default face normal moved a whole region along ONE average normal (measured: bbox 57x138x40 instead of 9.6x3.7x17).
+- **`_*` hygiene**: a `sweep` (scaffold wrangles create one `_s` of each class, then `attribdelete _*`) so the delete never warns "no match"; node-required leftovers `creaseweight`/`name` removed there too.
+- **Zero-area faces** (2-6 per 250k from the mirror seam / extrusions) are removed at the end rather than traced; unfixed root cause.
+- Python is used for nothing but the HDA builder (nodes, parms, help). Nothing inexpressible in native nodes/VEX turned up.
+
+### Not done / gaps
+No UVs (Blender's UV Project), no materials/shader, no text objects, no multiple boosters or booster variants, no interactive "Blueprint"/displacement example setups
+(`example_starship_*.blend` use displacement/window lights on top of the same geometry), no Mesh-to-Volume shell for scatter,
+no `Seed Add` per-part fine control (variants derive from one seed), no custom collections (Blender lets you drop in your own parts).
+Cook: default ~10 s and ~90-170k faces (Panel Subdivision defaults to 0; 1 quadruples it) (varies by seed); Detail 5 takes over a minute. Not benchmarked beyond that.
+Mirror seam of the booster at x=0 and the welding of parts crossing x=0 were not inspected closely.
+
+### Verification (current build)
+`tests/spacetools/run_starship_checks.py`: c1 clean cook for 10 seeds (every node, no error/warning), c2 non-empty/finite/Length exact/zero-area, c3 deterministic,
+c4 10 different ships, c5 no `_*` + exact attribute whitelist + storage + no groups, c6 each parm branch with its expected effect.
+Mutations seen red (`PF_MUTATE=<name> hython ...`): boost_off (5 checks), panels_off (3), mirror_off (the "points balanced in X" check; the bbox-symmetry check alone stayed green, so it was added), no_cleanup (attribute whitelist), no_zero_removal (zero-area). Last full run: 10 seeds, 0 fails.
+CANNOT SEE: whether it looks like the original (compare images by eye), self-intersections, mirror-seam watertightness.
+**Next**: independent audit (coordinator), then the interface pass (presets/help screenshots).

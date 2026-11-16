@@ -242,10 +242,14 @@ def build():
 
     inp = hda.indirectInputs()[0]
     mark = wr("mark", inp, "i@_in = 1;", 1, group="`chs('../group')`")
-    sub = node("subdivide", "subdivide", mark, algorithm=4)
-    sub.parm("iterations").setExpression("ch('../subdiv')")
-    sw0 = node("switch", "subdiv_on", mark, sub)
-    sw0.parm("input").setExpression("ch('../subdiv') > 0")
+    # non-quad faces (tris, ngons incl. concave) are triangulated, then at least one bilinear level
+    # turns everything into quads (bilinear on a concave ngon makes degenerate quads, so no ngons reach it)
+    prep = wr("prep", mark, 'int nq = 0; for (int p = 0; p < nprimitives(0); p++) { int c = primvertexcount(0, p); if (c != 4) nq = 1; setprimgroup(0, "_ngon", p, c > 4, "set"); } i@_nq = nq;', 0)
+    tri = node("divide", "triangulate_ngons", prep, group="_ngon", convex=1, usemaxsides=1, numsides=3)
+    sub = node("subdivide", "subdivide", tri, algorithm=4)
+    sub.parm("iterations").setExpression("max(ch('../subdiv'), detail('../prep', '_nq', 0))")
+    sw0 = node("switch", "subdiv_on", tri, sub)
+    sw0.parm("input").setExpression("max(ch('../subdiv'), detail('../prep', '_nq', 0)) > 0")
     cut = wr("cut", sw0, vex("pf_plating_cut", True), 0)
     plates = wr("plates", cut, vex("pf_plating_plates"), 0)
     cusp = node("edgecusp", "cusp", plates, group="_split", updatenorms=0)
@@ -267,21 +271,22 @@ def build():
     parts = wr("parts", ex2,
                'i@_part = inprimgroup(0,"_top",@primnum) ? 1 : inprimgroup(0,"_side",@primnum) ? 2 : '
                'inprimgroup(0,"_groove",@primnum) ? 3 : inprimgroup(0,"_bottom",@primnum) ? 4 : 0;', 1)
-    eg1 = wr("edges_corner", parts, vex("pf_plating_edgegroups"), 0)
+    eg2 = wr("edges_rim", parts, vex("pf_plating_edgegroups"), 0)
+    bev2 = node("polybevel::3.0", "rim_bevel", eg2, grouptype=2, group="_rim", filletshape=4)
+    bev2.parm("divisions").setExpression("ch('../bevel_segments')")
+    bev2.parm("offset").setExpression("min(ch('../bevel_amount'), 0.45 * abs(min(ch('../height_min'), ch('../height_max')) + ch('../groove_depth')))")
+    sw3 = node("switch", "rim_on", eg2, bev2)
+    sw3.parm("input").setExpression("ch('../bevel_amount') > 0")
+    eg1 = wr("edges_corner", sw3, vex("pf_plating_edgegroups"), 0)
     bev1 = node("polybevel::3.0", "corner_bevel", eg1, grouptype=2, group="_corner", filletshape=4)
     bev1.parm("divisions").setExpression("ch('../corner_segments')")
     bev1.parm("offset").setExpression("ch('../corner_radius')")
     sw2 = node("switch", "corner_on", eg1, bev1)
     sw2.parm("input").setExpression("ch('../corner_radius') > 0")
-    eg2 = wr("edges_rim", sw2, vex("pf_plating_edgegroups"), 0)
-    bev2 = node("polybevel::3.0", "rim_bevel", eg2, grouptype=2, group="_rim", filletshape=4)
-    bev2.parm("divisions").setExpression("ch('../bevel_segments')")
-    bev2.parm("offset").setExpression("ch('../bevel_amount')")
-    sw3 = node("switch", "rim_on", eg2, bev2)
-    sw3.parm("input").setExpression("ch('../bevel_amount') > 0")
+    fix = wr("corner_fillets_are_sides", sw2, 'if (i@_part == 0) i@_part = 2;', 1)
     # floor removal
-    rm = node("blast", "drop_groove", sw3, group="_groove", grouptype=4, negate=0, removegrp=0)
-    sw4 = node("switch", "floor_remove", sw3, rm)
+    rm = node("blast", "drop_groove", fix, group="_groove", grouptype=4, negate=0, removegrp=0)
+    sw4 = node("switch", "floor_remove", fix, rm)
     sw4.parm("input").setExpression("strcmp(chs('../floor'),'remove')==0")
     fin = wr("finalize", sw4,
              'int pt = i@_part;\n'
@@ -290,29 +295,28 @@ def build():
              'setprimgroup(0,"pf_plate_groove",@primnum, pt==3,"set");\n'
              'setprimgroup(0,"pf_plate_bottom",@primnum, pt==4,"set");\n'
              , 1)
-    col = wr("plate_color", fin, 'if (i@_plate < 0 || i@_part <= 0) return; float k = float(i@pf_plate_id) * 0.37 + float(chi("../height_seed")) * 1.7; float cr = rand(k); float cg = rand(k + 7.31); float cb = rand(k + 13.7); v@Cd = set(cr, cg, cb) * 0.8 + 0.2;', 1)
-    swc = node("switch", "color_on", fin, col)
-    swc.parm("input").setExpression("ch('../random_color')")
-    fin = swc
-    # NOTE: _plate is lost by polyextrude on side prims? it is copied (prim attrs) - verified in tests.
-    # rivets
-    riv = wr("rivet_points", fin, vex("pf_plating_rivets"), 0)
+    # rivets: points at convex top corners, taken before the bevels so a corner is still one top face
+    riv = wr("rivet_points", parts, vex("pf_plating_rivets"), 0)
     rpts = node("blast", "only_rivet_points", riv, group="_rivpt", grouptype=3, negate=1)
     ball = node("sphere", "rivet_ball", type=1)
     ball.parm("type").set(1)  # polygon
-    ball.parm("freq").set(2) if ball.parm("freq") else None
-    ball.parmTuple("rad").set((0.5, 0.5, 0.5)) if ball.parmTuple("rad") else None
     ball.parm("rows").setExpression("ch('../rivet_detail')")
     ball.parm("cols").setExpression("ch('../rivet_detail')*2")
-    ball.parm("orient").set(2)  # Z axis
+    ball.parm("orient").set(2)
     cp = node("copytopoints::2.0", "rivet_copies", ball, rpts)
+    cp.parm("targetattribs").set(0) if cp.parm("targetattribs") else None
     rid = wr("rivet_attrs", cp,
-             'setprimgroup(0,"pf_plate_rivet",@primnum,1,"set"); i@pf_plate_id = point(0,"_pid",primpoint(0,@primnum,0)); i@_part = 5; i@_plate = -1;', 1)
-    # the copies carry point attr _pid only if copytopoints forwards it; harmless otherwise
+             'int pp = primpoint(0,@primnum,0);\n'
+             'setprimgroup(0,"pf_plate_rivet",@primnum,1,"set");\n'
+             'i@pf_plate_id = point(0,"_pid",pp); f@pf_plate_height = point(0,"_h",pp); f@pf_plate_area = point(0,"_a",pp);\n'
+             'i@_part = 5; i@_plate = i@pf_plate_id; i@_in = 0; f@_zs = 0;', 1)
     mrg = node("merge", "merge_rivets", fin, rid)
     sw5 = node("switch", "rivets_on", fin, mrg)
     sw5.parm("input").setExpression("ch('../rivets')")
-    cur = sw5
+    col = wr("plate_color", sw5, 'if (i@_plate < 0 || i@_part <= 0) return; float k = float(i@pf_plate_id) * 0.37 + float(chi("../height_seed")) * 1.7; float cr = rand(k); float cg = rand(k + 7.31); float cb = rand(k + 13.7); v@Cd = set(cr, cg, cb) * 0.8 + 0.2;', 1)
+    swc = node("switch", "color_on", sw5, col)
+    swc.parm("input").setExpression("ch('../random_color')")
+    cur = swc
     for cname, cls, flag in (("pt", 2, "doptdel"), ("vtx", 3, "dovtxdel"), ("prim", 1, "doprimdel"), ("dtl", 0, "dodtldel")):
         gd = wr("guard_" + cname, cur, "i@_g = 0;", cls)       # makes sure the delete below always has a match
         cur = node("attribdelete", "clean_" + cname, gd, **{flag: 1, {"doptdel": "ptdel", "dovtxdel": "vtxdel", "doprimdel": "primdel", "dodtldel": "dtldel"}[flag]: "_*"})
