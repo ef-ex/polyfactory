@@ -47,7 +47,12 @@ def cook(**p):
     mut = os.environ.get("PF_MUTATE")
     if mut:   # mutation proof: each edit must turn some check red
         n.allowEditingOfContents()
-        if mut == "boost_off":
+        if mut.startswith("bypass:"):   # audit: PF_MUTATE=bypass:node1,node2
+            for nm in mut[7:].split(","):
+                n.node(nm).bypass(True)
+        elif mut.startswith("snip:"):   # audit: PF_MUTATE=snip:node  (empty the wrangle snippet)
+            n.node(mut[5:]).parm("snippet").set("")
+        elif mut == "boost_off":
             n.node("boost_sw").parm("input").setExpression("0")
         elif mut == "panels_off":
             n.node("panel_sw").parm("input").setExpression("0")
@@ -145,7 +150,7 @@ def main():
     check(not bad and set(prim_attr(n.geometry(), "pf_part")) == {0, 3}, "c6 density 0 -> only hull + booster")
     n, bad = cook(med_density=0, **base)
     check(not bad and set(prim_attr(n.geometry(), "pf_part")) >= {0, 2}, "c6 medium density 0 keeps small parts")
-    for label, kw in (("mirror off", dict(mirror=0)), ("subdiv 0 hull", dict(subdiv_hull=0)),
+    for label, kw in (("mirror off", dict(mirror=0)), ("all off (audit: cleanup_grp warns)", dict(jiggle=0.0, ext_amount=0.0, med_density=0, small_density=0, panels=0, boosters=0, mirror=0)), ("subdiv 0 hull", dict(subdiv_hull=0)),
                       ("jiggle 0", dict(jiggle=0.0)), ("ext_amount 0", dict(ext_amount=0.0)),
                       ("variants 1", dict(variants=1)), ("panel_subdiv 1", dict(panel_subdiv=1)),
                       ("subdiv parts 1", dict(subdiv_med=1, subdiv_small=1)), ("detail 3 rot_step 0", dict(rot_step=(0.0, 0.0, 0.0)))):
