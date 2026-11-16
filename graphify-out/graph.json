@@ -13400,7 +13400,7 @@
       "source_location": "L569",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece",
-      "community": 192,
+      "community": 153,
       "norm_label": "cornerpiece"
     },
     {
@@ -13410,7 +13410,7 @@
       "source_location": "L575",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece_init",
-      "community": 192,
+      "community": 153,
       "norm_label": ".__init__()"
     },
     {
@@ -13730,7 +13730,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "polychain_corner_rationale_570",
-      "community": 192,
+      "community": 153,
       "norm_label": "one module of the composed corner run, already resolved onto a leg."
     },
     {
@@ -43164,14 +43164,14 @@
       "norm_label": "run_mutations()"
     },
     {
-      "label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      hyt",
+      "label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      h",
       "file_type": "rationale",
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L1",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_rationale_1",
       "community": 289,
-      "norm_label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      hyt"
+      "norm_label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      h"
     },
     {
       "label": "run_space_direction.py",
@@ -45290,7 +45290,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 168,
+      "community": 195,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -45330,7 +45330,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 195,
+      "community": 299,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -45340,7 +45340,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 195,
+      "community": 299,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -45350,7 +45350,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 195,
+      "community": 299,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -45360,7 +45360,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 195,
+      "community": 299,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -45370,7 +45370,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 195,
+      "community": 299,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -45380,7 +45380,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 195,
+      "community": 299,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -45940,7 +45940,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 168,
+      "community": 195,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -45960,7 +45960,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 195,
+      "community": 299,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -47900,7 +47900,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 172,
+      "community": 163,
       "norm_label": "section()"
     },
     {
@@ -47940,7 +47940,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 163,
+      "community": 295,
       "norm_label": ".style()"
     },
     {
@@ -47970,7 +47970,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -47980,7 +47980,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -47990,7 +47990,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -48090,7 +48090,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 172,
+      "community": 216,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -48230,7 +48230,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -48240,7 +48240,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -48260,7 +48260,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -48270,7 +48270,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 163,
+      "community": 295,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -48390,7 +48390,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 172,
+      "community": 247,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -48460,7 +48460,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 163,
+      "community": 295,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         cor"
     },
     {
@@ -48470,7 +48470,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 163,
+      "community": 295,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it ha"
     },
     {
@@ -48480,7 +48480,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 163,
+      "community": 295,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -48540,7 +48540,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 172,
+      "community": 216,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit h"
     },
     {
@@ -48620,7 +48620,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 172,
+      "community": 247,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -140717,9 +140717,9 @@
       "source_file": "tests/spacetools/audit_sky_mutate.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_audit_sky_mutate",
-      "target": "spacetools_audit_sky_mutate_run",
-      "confidence_score": 1.0
+      "target": "spacetools_audit_sky_mutate_run"
     },
     {
       "relation": "rationale_for",
@@ -140727,9 +140727,9 @@
       "source_file": "tests/spacetools/audit_sky_mutate.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_audit_sky_mutate_rationale_1",
-      "target": "spacetools_audit_sky_mutate",
-      "confidence_score": 1.0
+      "target": "spacetools_audit_sky_mutate"
     },
     {
       "relation": "contains",
@@ -166729,5 +166729,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4fd9d9a7576fe8a067708e8842b8eeb4917fe070"
+  "built_at_commit": "58bf2deb80edaa3a38ff298c1f48c7d9968e1a3a"
 }

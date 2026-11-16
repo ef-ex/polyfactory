@@ -429,6 +429,10 @@ def build():
     cl2 = sweep("cleanup", -6, y - 5, nrm)
     clg = mk("groupdelete", "cleanup_grp", -6, y - 9, cl2, parms={"group1": "*"},
              comment="Working groups (extrudeFront, extrudeSide, _sel ...) must not leave.")
+    # Group Delete warns when nothing matches (all optional features off): bypass it then.
+    # Python expression = parameter marshalling only (no geometry work).
+    clg.parm("enable1").setExpression(
+        "int(bool(hou.pwd().inputs()[0].geometry().primGroups()))", hou.exprLanguage.Python)
     out.setInput(0, clg)
     out.setPosition(hou.Vector2(-6, y - 10))
 
@@ -500,10 +504,10 @@ def interface():
         _i("variants", "Variants", 5, 1, 12,
            "How many different shapes are built for medium parts and, separately, for small parts. "
            "More variants look less repetitive and cook longer."),
-        _f("med_density", "Medium Density", 0.15, 0.0, 2.0, "Medium parts per unit of surface area. 0 turns them off."),
+        _f("med_density", "Medium Density", 0.15, 0.0, 1.5, "Medium parts per unit of surface area. 0 turns them off."),
         _f("med_scale", "Medium Scale", (0.4, 0.6), 0.01, 3.0, "Random size range, as a fraction of the hull's own size.", 2),
         _f("med_offset", "Medium Offset", (0.1, 0.4), -2.0, 5.0, "How far a medium part is lifted off the surface.", 2),
-        _f("small_density", "Small Density", 0.15, 0.0, 2.0, "Small parts per unit of surface area. 0 turns them off."),
+        _f("small_density", "Small Density", 0.15, 0.0, 1.5, "Small parts per unit of surface area. 0 turns them off."),
         _f("small_scale", "Small Scale", (0.1, 0.2), 0.01, 3.0, "Random size range, as a fraction of the hull's own size.", 2),
         _f("small_offset", "Small Offset", (0.0, 0.2), -2.0, 5.0, "How far a small part is lifted off the surface.", 2),
         _f("rot_step", "Rotation Step", (0.0, 90.0, 0.0), 0.0, 360.0,

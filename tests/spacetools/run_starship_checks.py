@@ -160,6 +160,13 @@ def main():
     bb = n.geometry().boundingBox()
     n2, _ = cook(**base)
     check(len(n.geometry().prims()) != len(n2.geometry().prims()), "c6 mirror off changes the output")
+    # worst-case density cook ceiling (audit: 2.0+2.0 took >3 min); hard max must stay cheap
+    import time
+    mx = min(GEO.createNode("pf::starship_generator").parm(k).parmTemplate().maxValue() for k in ("med_density", "small_density"))
+    n = GEO.createNode("pf::starship_generator")
+    n.parm("med_density").set(mx); n.parm("small_density").set(mx)
+    t0 = time.time(); n.cook(force=True); dt = time.time() - t0
+    check(dt < 30, "c7 worst-case densities (%.1f each) cook %.1fs < 30s" % (mx, dt))
     print("FAILS: %d" % len(FAILS))
     sys.exit(1 if FAILS else 0)
 
