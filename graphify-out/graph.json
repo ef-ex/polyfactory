@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init",
-      "community": 297,
+      "community": 187,
       "norm_label": "__init__.py"
     },
     {
@@ -460,7 +460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init_rationale_1",
-      "community": 297,
+      "community": 187,
       "norm_label": "asset library module for polyfactory handles kitbash asset management, export,"
     },
     {
@@ -1450,7 +1450,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "sopnode",
-      "community": 137,
+      "community": 187,
       "norm_label": "sopnode"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 321,
+      "community": 92,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 321,
+      "community": 92,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 321,
+      "community": 92,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1580,7 +1580,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 321,
+      "community": 187,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 321,
+      "community": 92,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1600,7 +1600,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "asset_library_batch_importer_read_str_attrib",
-      "community": 321,
+      "community": 26,
       "norm_label": "_read_str_attrib()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 321,
+      "community": 26,
       "norm_label": "geometry"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 321,
+      "community": 92,
       "norm_label": "_sanitize()"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 321,
+      "community": 92,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 321,
+      "community": 92,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 321,
+      "community": 92,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 321,
+      "community": 187,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 321,
+      "community": 92,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_282",
-      "community": 321,
+      "community": 26,
       "norm_label": "read a string primitive attribute value; return default if absent."
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 321,
+      "community": 92,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database",
-      "community": 297,
+      "community": 187,
       "norm_label": "database.py"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database_rationale_1",
-      "community": 297,
+      "community": 187,
       "norm_label": "sqlite database management for asset library"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 321,
+      "community": 92,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -3120,7 +3120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_exporter",
-      "community": 297,
+      "community": 187,
       "norm_label": "exporter.py"
     },
     {
@@ -3130,7 +3130,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_exporter_export_asset",
-      "community": 297,
+      "community": 187,
       "norm_label": "export_asset()"
     },
     {
@@ -3140,7 +3140,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "asset_library_exporter_build_export_network",
-      "community": 297,
+      "community": 187,
       "norm_label": "_build_export_network()"
     },
     {
@@ -3150,7 +3150,7 @@
       "source_location": "L319",
       "_origin": "ast",
       "id": "asset_library_exporter_prims_to_group_string",
-      "community": 297,
+      "community": 187,
       "norm_label": "_prims_to_group_string()"
     },
     {
@@ -3160,7 +3160,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "asset_library_exporter_export_geometry",
-      "community": 297,
+      "community": 187,
       "norm_label": "_export_geometry()"
     },
     {
@@ -3170,7 +3170,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "asset_library_exporter_get_geometry_stats",
-      "community": 297,
+      "community": 187,
       "norm_label": "_get_geometry_stats()"
     },
     {
@@ -3180,7 +3180,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "asset_library_exporter_sanitize_filename",
-      "community": 297,
+      "community": 187,
       "norm_label": "_sanitize_filename()"
     },
     {
@@ -3190,7 +3190,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "asset_library_exporter_cleanup",
-      "community": 297,
+      "community": 187,
       "norm_label": "_cleanup()"
     },
     {
@@ -3200,7 +3200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_1",
-      "community": 297,
+      "community": 187,
       "norm_label": "asset exporter - builds node network and exports geometry"
     },
     {
@@ -3210,7 +3210,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_12",
-      "community": 297,
+      "community": 187,
       "norm_label": "export asset with the given configuration          args:         export_data:"
     },
     {
@@ -3220,7 +3220,7 @@
       "source_location": "L215",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_215",
-      "community": 297,
+      "community": 187,
       "norm_label": "build the export node network          args:         source_node: source geom"
     },
     {
@@ -3230,7 +3230,7 @@
       "source_location": "L320",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_320",
-      "community": 297,
+      "community": 187,
       "norm_label": "convert list of primitives to group string          args:         prims: list"
     },
     {
@@ -3240,7 +3240,7 @@
       "source_location": "L360",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_360",
-      "community": 297,
+      "community": 187,
       "norm_label": "export geometry to usd file          args:         node: node to export from"
     },
     {
@@ -3250,7 +3250,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_405",
-      "community": 297,
+      "community": 187,
       "norm_label": "get geometry statistics          args:         node: node to analyze"
     },
     {
@@ -3260,7 +3260,7 @@
       "source_location": "L433",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_433",
-      "community": 297,
+      "community": 187,
       "norm_label": "sanitize string for use as filename          args:         name: original nam"
     },
     {
@@ -3270,7 +3270,7 @@
       "source_location": "L452",
       "_origin": "ast",
       "id": "asset_library_exporter_rationale_452",
-      "community": 297,
+      "community": 187,
       "norm_label": "remove temporary nodes and restore display flag and network path          args"
     },
     {
@@ -4170,7 +4170,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render",
-      "community": 297,
+      "community": 187,
       "norm_label": "render.py"
     },
     {
@@ -4180,7 +4180,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 321,
+      "community": 92,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4190,7 +4190,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 321,
+      "community": 92,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4200,7 +4200,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_render_render_turntable",
-      "community": 297,
+      "community": 187,
       "norm_label": "render_turntable()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "asset_library_render_create_render_scene",
-      "community": 297,
+      "community": 187,
       "norm_label": "_create_render_scene()"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L231",
       "_origin": "ast",
       "id": "asset_library_render_render_frames",
-      "community": 297,
+      "community": 187,
       "norm_label": "_render_frames()"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "asset_library_render_cleanup",
-      "community": 297,
+      "community": 187,
       "norm_label": "_cleanup()"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render_rationale_1",
-      "community": 297,
+      "community": 187,
       "norm_label": "turntable renderer - creates rotating preview animations for assets"
     },
     {
@@ -4250,7 +4250,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 321,
+      "community": 92,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4260,7 +4260,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 321,
+      "community": 92,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_render_rationale_49",
-      "community": 297,
+      "community": 187,
       "norm_label": "render a turntable animation of the geometry          args:         geo_node:"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "asset_library_render_rationale_90",
-      "community": 297,
+      "community": 187,
       "norm_label": "create a temporary usd render scene with geometry, camera, and lights"
     },
     {
@@ -4290,7 +4290,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "asset_library_render_rationale_232",
-      "community": 297,
+      "community": 187,
       "norm_label": "render frames using viewport flipbook          args:         lop_net: lop net"
     },
     {
@@ -4300,7 +4300,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "asset_library_render_rationale_308",
-      "community": 297,
+      "community": 187,
       "norm_label": "remove temporary nodes and panes          args:         temp_nodes: list of n"
     },
     {
@@ -42104,6 +42104,126 @@
       "norm_label": "dev helper: hython tests/spacetools/nebula_look.py <preset> <res n> [steps] [lay"
     },
     {
+      "label": "nebula_presets_sheet.py",
+      "file_type": "code",
+      "source_file": "tests/spacetools/nebula_presets_sheet.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_nebula_presets_sheet",
+      "community": 379,
+      "norm_label": "nebula_presets_sheet.py"
+    },
+    {
+      "label": "Dev helper: contact sheet of all presets (ours equirect, tonemapped) next to the",
+      "file_type": "rationale",
+      "source_file": "tests/spacetools/nebula_presets_sheet.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_nebula_presets_sheet_rationale_1",
+      "community": 379,
+      "norm_label": "dev helper: contact sheet of all presets (ours equirect, tonemapped) next to the"
+    },
+    {
+      "label": "persp_from_equirect.py",
+      "file_type": "code",
+      "source_file": "tests/spacetools/persp_from_equirect.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_persp_from_equirect",
+      "community": 377,
+      "norm_label": "persp_from_equirect.py"
+    },
+    {
+      "label": "R()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/persp_from_equirect.py",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "spacetools_persp_from_equirect_r",
+      "community": 377,
+      "norm_label": "r()"
+    },
+    {
+      "label": "Dev helper: perspective view of our equirect (houdini convention) with the sampl",
+      "file_type": "rationale",
+      "source_file": "tests/spacetools/persp_from_equirect.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_persp_from_equirect_rationale_1",
+      "community": 377,
+      "norm_label": "dev helper: perspective view of our equirect (houdini convention) with the sampl"
+    },
+    {
+      "label": "run_nebula.py",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula",
+      "community": 350,
+      "norm_label": "run_nebula.py"
+    },
+    {
+      "label": "check()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_check",
+      "community": 350,
+      "norm_label": "check()"
+    },
+    {
+      "label": "render()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_render",
+      "community": 350,
+      "norm_label": "render()"
+    },
+    {
+      "label": "ds()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_ds",
+      "community": 350,
+      "norm_label": "ds()"
+    },
+    {
+      "label": "blur()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L86",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_blur",
+      "community": 350,
+      "norm_label": "blur()"
+    },
+    {
+      "label": "corr()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_corr",
+      "community": 350,
+      "norm_label": "corr()"
+    },
+    {
+      "label": "pf_nebula_generator checks (hython): finite/HDR sanity, determinism, seed sensit",
+      "file_type": "rationale",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_run_nebula_rationale_1",
+      "community": 350,
+      "norm_label": "pf_nebula_generator checks (hython): finite/hdr sanity, determinism, seed sensit"
+    },
+    {
       "label": "run_space_direction.py",
       "file_type": "code",
       "source_file": "tests/spacetools/run_space_direction.py",
@@ -42192,6 +42312,76 @@
       "id": "spacetools_run_spacescape_checks_rationale_1",
       "community": 323,
       "norm_label": "pf_spacescape checks. run:  hython tests/spacetools/run_spacescape_checks.py   ("
+    },
+    {
+      "label": "run_starship_checks.py",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks",
+      "community": 370,
+      "norm_label": "run_starship_checks.py"
+    },
+    {
+      "label": "check()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_check",
+      "community": 370,
+      "norm_label": "check()"
+    },
+    {
+      "label": "cook()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_cook",
+      "community": 370,
+      "norm_label": "cook()"
+    },
+    {
+      "label": "prim_attr()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_prim_attr",
+      "community": 370,
+      "norm_label": "prim_attr()"
+    },
+    {
+      "label": "fingerprint()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_fingerprint",
+      "community": 370,
+      "norm_label": "fingerprint()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_main",
+      "community": 370,
+      "norm_label": "main()"
+    },
+    {
+      "label": "`pf::starship_generator` checks against the SHIPPED asset, in a throwaway sessio",
+      "file_type": "rationale",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "spacetools_run_starship_checks_rationale_1",
+      "community": 370,
+      "norm_label": "`pf::starship_generator` checks against the shipped asset, in a throwaway sessio"
     },
     {
       "label": "spacescape_common.py",
@@ -50870,7 +51060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "community": 149,
+      "community": 297,
       "norm_label": "polychain build \u2014 incident log and recurring-failure analysis"
     },
     {
@@ -50880,7 +51070,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "ideas_build_retrospective_1_the_one_sentence_finding",
-      "community": 149,
+      "community": 297,
       "norm_label": "1. the one-sentence finding"
     },
     {
@@ -50890,7 +51080,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2_incident_log",
-      "community": 149,
+      "community": 297,
       "norm_label": "2. incident log"
     },
     {
@@ -50900,7 +51090,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2a_verification_integrity_the_dominant_class_20_instances",
-      "community": 149,
+      "community": 297,
       "norm_label": "2a. verification integrity \u2014 the dominant class (~20 instances)"
     },
     {
@@ -50910,7 +51100,7 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
-      "community": 149,
+      "community": 297,
       "norm_label": "2b. wrong conclusions that propagated"
     },
     {
@@ -50920,7 +51110,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2c_harness_and_infrastructure",
-      "community": 149,
+      "community": 297,
       "norm_label": "2c. harness and infrastructure"
     },
     {
@@ -50930,7 +51120,7 @@
       "source_location": "L370",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
-      "community": 149,
+      "community": 297,
       "norm_label": "2d. my own spec and briefing failures"
     },
     {
@@ -50940,7 +51130,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "ideas_build_retrospective_3_the_patterns",
-      "community": 149,
+      "community": 297,
       "norm_label": "3. the patterns"
     },
     {
@@ -50950,7 +51140,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "community": 149,
+      "community": 297,
       "norm_label": "4. what should become a skill, an instruction, or code"
     },
     {
@@ -50960,7 +51150,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents",
-      "community": 149,
+      "community": 297,
       "norm_label": "4a. highest value \u2014 a verification-integrity discipline (p1, p2, p3; ~20 incidents)"
     },
     {
@@ -50970,7 +51160,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling",
-      "community": 149,
+      "community": 297,
       "norm_label": "4b. houdini domain gotchas \u2192 extend `houdini-procedural-modeling`"
     },
     {
@@ -50980,7 +51170,7 @@
       "source_location": "L457",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill",
-      "community": 149,
+      "community": 297,
       "norm_label": "4c. multi-agent operations \u2192 workflow-brief boilerplate (or a skill)"
     },
     {
@@ -50990,7 +51180,7 @@
       "source_location": "L469",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4d_spec_level_rules_for_this_project",
-      "community": 149,
+      "community": 297,
       "norm_label": "4d. spec-level rules for this project"
     },
     {
@@ -51000,7 +51190,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost",
-      "community": 149,
+      "community": 297,
       "norm_label": "5. what worked and must not be lost"
     },
     {
@@ -51010,7 +51200,7 @@
       "source_location": "L495",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6_status_what_of_4_is_enforced_in_code_what_is_in_skills_what_is_still_prose",
-      "community": 149,
+      "community": 297,
       "norm_label": "6. status \u2014 what of \u00a74 is enforced in code, what is in skills, what is still prose"
     },
     {
@@ -51020,7 +51210,7 @@
       "source_location": "L503",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6a_4a_verification_integrity",
-      "community": 149,
+      "community": 297,
       "norm_label": "6a. \u00a74a \u2014 verification integrity"
     },
     {
@@ -51030,7 +51220,7 @@
       "source_location": "L528",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6b_4b_houdini_domain_gotchas",
-      "community": 149,
+      "community": 297,
       "norm_label": "6b. \u00a74b \u2014 houdini domain gotchas"
     },
     {
@@ -51040,7 +51230,7 @@
       "source_location": "L537",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6c_4c_multi_agent_operations",
-      "community": 149,
+      "community": 297,
       "norm_label": "6c. \u00a74c \u2014 multi-agent operations"
     },
     {
@@ -51050,7 +51240,7 @@
       "source_location": "L545",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6d_4d_spec_level_rules",
-      "community": 149,
+      "community": 297,
       "norm_label": "6d. \u00a74d \u2014 spec-level rules"
     },
     {
@@ -51060,7 +51250,7 @@
       "source_location": "L552",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6e_1_and_5_measured_what_the_v2_regime_did_to_v1_2026_08_25_cycle_v4_verified_independently_on_head_7fabfff",
-      "community": 149,
+      "community": 297,
       "norm_label": "6e. \u00a71 and \u00a75, measured: what the v2 regime did to v1 (2026-08-25, cycle v4, verified independently on head `7fabfff`)"
     },
     {
@@ -53910,7 +54100,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 370,
+      "community": 17,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -53920,7 +54110,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 370,
+      "community": 17,
       "norm_label": "what the literature adds"
     },
     {
@@ -53930,7 +54120,7 @@
       "source_location": "L1876",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 370,
+      "community": 17,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -53940,7 +54130,7 @@
       "source_location": "L1913",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 370,
+      "community": 17,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -53950,7 +54140,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 370,
+      "community": 17,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -53960,7 +54150,7 @@
       "source_location": "L2068",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 370,
+      "community": 17,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -53970,7 +54160,7 @@
       "source_location": "L2094",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 370,
+      "community": 17,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -56030,7 +56220,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_w\u0113t\u0101_barbershop_wig",
-      "community": 350,
+      "community": 229,
       "norm_label": "1. weta: barbershop \u2192 wig"
     },
     {
@@ -56040,7 +56230,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_1_lineage_and_status",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.1 lineage and status"
     },
     {
@@ -56050,7 +56240,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_2_the_paradigm_why_this_is_not_houdini",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.2 the paradigm \u2014 why this is not houdini"
     },
     {
@@ -56060,7 +56250,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_3_grooming_tools",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.3 grooming tools"
     },
     {
@@ -56070,7 +56260,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_4_clumping_a_first_class_subsystem_not_a_modifier",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.4 clumping \u2014 a first-class subsystem, not a modifier"
     },
     {
@@ -56080,7 +56270,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_5_coils_and_braids",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.5 coils and braids"
     },
     {
@@ -56090,7 +56280,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_6_selection_and_masking",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.6 selection and masking"
     },
     {
@@ -56100,7 +56290,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_7_the_animation_side_the_part_houdini_has_no_equivalent_for",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.7 the animation side \u2014 the part houdini has no equivalent for"
     },
     {
@@ -56110,7 +56300,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_8_transferring_a_groom",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.8 transferring a groom"
     },
     {
@@ -56120,7 +56310,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_9_feathers_apteryx",
-      "community": 350,
+      "community": 229,
       "norm_label": "1.9 feathers \u2014 apteryx"
     },
     {
@@ -57140,7 +57330,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "ideas_polychain_4_the_kernel_phase_1_algorithms",
-      "community": 377,
+      "community": 144,
       "norm_label": "4. the kernel \u2014 phase 1 algorithms"
     },
     {
@@ -57150,7 +57340,7 @@
       "source_location": "L328",
       "_origin": "ast",
       "id": "ideas_polychain_4_1_decompose",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.1 decompose"
     },
     {
@@ -57160,7 +57350,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_polychain_4_2_plan_the_fitting_solve_pure_math_no_geometry_yet",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.2 plan (the fitting solve \u2014 pure math, no geometry yet)"
     },
     {
@@ -57170,7 +57360,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "ideas_polychain_4_3_corners",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.3 corners"
     },
     {
@@ -57180,7 +57370,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "ideas_polychain_4_4_place_deform",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.4 place + deform"
     },
     {
@@ -57190,7 +57380,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "ideas_polychain_4_5_surface_conform_input_4",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.5 surface conform (input 4)"
     },
     {
@@ -57200,7 +57390,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "ideas_polychain_4_6_finalize",
-      "community": 377,
+      "community": 144,
       "norm_label": "4.6 finalize"
     },
     {
@@ -60870,7 +61060,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 144,
+      "community": 375,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -60880,7 +61070,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 144,
+      "community": 375,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -60890,7 +61080,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 144,
+      "community": 375,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -60900,7 +61090,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 144,
+      "community": 375,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -60910,7 +61100,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 144,
+      "community": 375,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -60920,7 +61110,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 144,
+      "community": 375,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -62710,7 +62900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 149,
+      "community": 321,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -62720,7 +62910,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 149,
+      "community": 321,
       "norm_label": "the five pieces"
     },
     {
@@ -62730,7 +62920,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 149,
+      "community": 321,
       "norm_label": "what stays from v1"
     },
     {
@@ -62740,7 +62930,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 149,
+      "community": 321,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -62750,7 +62940,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 149,
+      "community": 321,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -62760,7 +62950,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 149,
+      "community": 321,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -62770,7 +62960,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 149,
+      "community": 321,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -62780,7 +62970,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 149,
+      "community": 321,
       "norm_label": "the v2 commands"
     },
     {
@@ -62936,7 +63126,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/__init__.py",
       "source_location": "L1",
-      "community": 297,
+      "community": 187,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_asset_library_init_py"
     },
@@ -139590,6 +139780,107 @@
       "target": "spacetools_nebula_look"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/nebula_presets_sheet.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "spacetools_nebula_presets_sheet_rationale_1",
+      "target": "spacetools_nebula_presets_sheet",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/persp_from_equirect.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "spacetools_persp_from_equirect",
+      "target": "spacetools_persp_from_equirect_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/persp_from_equirect.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "spacetools_persp_from_equirect_rationale_1",
+      "target": "spacetools_persp_from_equirect",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula",
+      "target": "spacetools_run_nebula_blur",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula",
+      "target": "spacetools_run_nebula_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula",
+      "target": "spacetools_run_nebula_corr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula",
+      "target": "spacetools_run_nebula_ds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula",
+      "target": "spacetools_run_nebula_render",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula_rationale_1",
+      "target": "spacetools_run_nebula",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_nebula.py",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "spacetools_run_nebula_corr",
+      "target": "spacetools_run_nebula_blur",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/spacetools/run_space_direction.py",
@@ -139713,6 +140004,110 @@
       "weight": 1.0,
       "source": "spacetools_run_spacescape_checks_main",
       "target": "spacetools_spacescape_common_tonemap_png"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks",
+      "target": "spacetools_run_starship_checks_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks",
+      "target": "spacetools_run_starship_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks",
+      "target": "spacetools_run_starship_checks_fingerprint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks",
+      "target": "spacetools_run_starship_checks_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks",
+      "target": "spacetools_run_starship_checks_prim_attr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks_rationale_1",
+      "target": "spacetools_run_starship_checks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks_main",
+      "target": "spacetools_run_starship_checks_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks_main",
+      "target": "spacetools_run_starship_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks_main",
+      "target": "spacetools_run_starship_checks_prim_attr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/spacetools/run_starship_checks.py",
+      "source_location": "L99",
+      "weight": 1.0,
+      "source": "spacetools_run_starship_checks_main",
+      "target": "spacetools_run_starship_checks_fingerprint",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -163269,5 +163664,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "46070e5178898c2717475eaf0569bd7d96af9345"
+  "built_at_commit": "7954f17c0664e8efc379042dbb3eb284fc4b588e"
 }

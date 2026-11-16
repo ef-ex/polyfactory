@@ -1,0 +1,198 @@
+// pf_plating_cut.vfl - Detail wrangle. Decides WHERE the grooves go.
+// Port of Blender plating_functions.generate_plate_selection_pattern* / ruby_dragon:
+//   crisscross / triangles : random edge, walk the edge loop through valence-4 vertices, stop at
+//                            an existing groove (this is what gives the treemap-like T-junctions)
+//   rectangles             : random edge, trace a W x H cell outline
+//   irregular              : random-walk blobs of faces ("Ruby Dragon")
+// Output: detail int[] _gp (groove edges as point pairs), prim int _rg (blob id),
+// and quads split along a diagonal (the triangle plates).
+string pat  = chs("../pattern");
+int    seed = chi("../seed");
+float  amount = chf("../amount");
+float  tripct = chf("../triangle_amount") / 100.0;
+int    nv = nvertices(0), npr = nprimitives(0);
+
+int ins[]; resize(ins, npr);
+int sel[];
+for (int p = 0; p < npr; p++) { ins[p] = prim(0, "_in", p); if (ins[p]) append(sel, p); }
+int nsel = len(sel);
+
+int g[];  resize(g, nv);
+int gp[];
+int dg[];
+int dflag[]; resize(dflag, npr);
+int rg[]; resize(rg, npr);
+int cnt[] = {0};
+
+function void cutloop(int h0; export int ins[]; int seed; float tripct; export int g[]; export int gp[];
+                      export int dg[]; export int dflag[]; export int cnt[]){
+    if (h0 < -1) { ins[0] = 0; }
+    if (g[h0] || isbnd(h0, ins)) return;
+    markedge(h0, g, gp);
+    for (int dir = 0; dir < 2; dir++) {
+        int h = dir == 0 ? h0 : hedge_nextequiv(0, h0);
+        int guard = 0;
+        while (guard++ < 100000) {
+            int v = hedge_dstpoint(0, h);
+            if (!valence4(v)) break;
+            if (marked_at(v, g) > 1) break;
+            int h2 = straight(h);
+            if (h2 < 0) break;
+            if (ins[hedge_prim(0, h2)] == 0) break;
+            if (tripct > 0 && rn(seed, cnt) < tripct) {
+                // diagonal across the quad ahead, carry on parallel from its far corner
+                int gq = hedge_prim(0, h2);
+                int g2 = hedge_next(0, h2);
+                int g3 = hedge_next(0, g2);
+                int t  = hedge_dstpoint(0, g2);
+                int hn = hedge_nextequiv(0, g3);
+                if (primvertexcount(0, gq) == 4 && dflag[gq] == 0 && pointedge(0, v, t) < 0
+                    && hn != g3 && ins[hedge_prim(0, hn)] == 1) {
+                    dflag[gq] = 1;
+                    append(dg, gq); append(dg, v); append(dg, t);
+                    append(gp, v); append(gp, t);
+                    h = hn;
+                    continue;
+                }
+            }
+            if (g[h2] || isbnd(h2, ins)) break;
+            markedge(h2, g, gp);
+            h = h2;
+        }
+    }
+}
+
+function int ivary(int a; int b; int seed; export int cnt[]){
+    int lo = min(a, b), hi = max(a, b);
+    return lo + int(rn(seed, cnt) * (hi - lo + 1) * 0.99999);
+}
+function void rectloop(int h0; int W; int H; export int ins[]; export int g[]; export int gp[]){
+    if (h0 < -1) { ins[0] = 0; }
+    if (g[h0] || isbnd(h0, ins)) return;
+    int lst[]; int cur = h0; int ok = 1;
+    for (int side = 0; side < 4 && ok; side++) {
+        int len_ = (side % 2 == 0) ? W : H;
+        int n = 0;
+        for (int i = 0; i < len_; i++) {
+            if (cur < 0 || isbnd(cur, ins)) break;
+            append(lst, cur); n++;
+            if (i < len_ - 1) {
+                if (!valence4(hedge_dstpoint(0, cur))) break;
+                int nx = straight(cur);
+                if (nx < 0 || ins[hedge_prim(0, nx)] == 0) break;
+                cur = nx;
+            }
+        }
+        if (n == 0) ok = 0;
+        else cur = hedge_next(0, cur);
+    }
+    if (ok) foreach (int hh; lst) markedge(hh, g, gp);
+}
+
+int nedges = 0;
+foreach (int p; sel) {
+    int h = primhedge(0, p);
+    for (int k = 0; k < primvertexcount(0, p); k++) {
+        int e = hedge_nextequiv(0, h);
+        if (e == h || h < e || ins[hedge_prim(0, e)] == 0) nedges++;
+        h = hedge_next(0, h);
+    }
+}
+
+if (nsel > 0) {
+    int dorect = (pat == "rectangles" || pat == "rectangles_cuts");
+    int docut  = (pat == "crisscross" || pat == "triangles" || pat == "rectangles_cuts");
+    if (dorect) {
+        int rc[] = {0};
+        for (int i = 0; i < chi("../rect_count"); i++) {
+            int h = randhedge(pickprim(sel, seed + 17, rc), seed + 17, rc);
+            int W = ivary(chi("../rect_w_min"), chi("../rect_w_max"), seed + 17, rc);
+            int H = ivary(chi("../rect_h_min"), chi("../rect_h_max"), seed + 17, rc);
+            rectloop(h, W, H, ins, g, gp);
+        }
+    }
+    if (docut) {
+        int na = int(amount / 100.0 * nedges);
+        float tp = (pat == "triangles") ? tripct : 0.0;
+        int sc[] = {0};
+        for (int i = 0; i < na; i++) {
+            int h = randhedge(pickprim(sel, seed, sc), seed, sc);
+            cutloop(h, ins, seed + 5, tp, g, gp, dg, dflag, cnt);
+        }
+    }
+    if (pat == "irregular") {
+        // Blender "Ruby Dragon": blobs of faces, each as large as (100-p)% of all faces
+        float pct = chf("../irregular_amount");
+        int steps = int(nsel * (100.0 - pct) / 100.0);
+        int order[] = sel;
+        int rc[] = {0};
+        for (int i = nsel - 1; i > 0; i--) {
+            int j = int(rn(seed, rc) * (i + 1) * 0.99999);
+            int t = order[i]; order[i] = order[j]; order[j] = t;
+        }
+        int found[]; resize(found, npr);
+        int gid = 0;
+        foreach (int f; order) {
+            if (found[f]) continue;
+            found[f] = 1; gid++; rg[f] = gid;
+            int members[]; append(members, f);
+            int cur = f;
+            int step = 0;
+            int guard = 0;
+            while (step < steps && guard++ < 4 * npr + 100) {
+                int cand[];  resize(cand, 0);
+                int hh = primhedge(0, cur);
+                for (int k = 0; k < primvertexcount(0, cur); k++) {
+                    int e = hedge_nextequiv(0, hh);
+                    if (e != hh) {
+                        int q = hedge_prim(0, e);
+                        if (ins[q] && !found[q]) append(cand, q);
+                    }
+                    hh = hedge_next(0, hh);
+                }
+                if (len(cand) > 0) {
+                    int q = cand[int(rn(seed, rc) * len(cand) * 0.99999)];
+                    found[q] = 1; rg[q] = gid; append(members, q); cur = q;
+                } else {
+                    cur = members[int(rn(seed, rc) * len(members) * 0.99999)];
+                    int free_ = 0;
+                    int h2 = primhedge(0, cur);
+                    for (int k = 0; k < primvertexcount(0, cur); k++) {
+                        int e = hedge_nextequiv(0, h2);
+                        if (e != h2) { int q = hedge_prim(0, e); if (ins[q] && !found[q]) free_ = 1; }
+                        h2 = hedge_next(0, h2);
+                    }
+                    if (!free_) break;
+                    step = -1;
+                }
+                step++;
+            }
+        }
+        for (int p = 0; p < npr; p++) setprimattrib(0, "_rg", p, rg[p], "set");
+    }
+}
+
+// apply the diagonal splits (points are untouched, so the point-pair list stays valid)
+for (int i = 0; i + 2 < len(dg); i += 3) {
+    int p = dg[i], a = dg[i + 1], b = dg[i + 2];
+    int pts[] = primpoints(0, p);
+    int n = len(pts), ia = -1, ib = -1;
+    for (int k = 0; k < n; k++) { if (pts[k] == a) ia = k; if (pts[k] == b) ib = k; }
+    if (ia < 0 || ib < 0) continue;
+    int p1[], p2[];
+    for (int k = ia; ; k = (k + 1) % n) { append(p1, pts[k]); if (k == ib) break; }
+    for (int k = ib; ; k = (k + 1) % n) { append(p2, pts[k]); if (k == ia) break; }
+    int np1 = addprim(0, "poly", p1);
+    int np2 = addprim(0, "poly", p2);
+    int nps[] = array(np1, np2);
+    foreach (int np; nps) {
+        setprimattrib(0, "_in", np, 1, "set");
+        if (hasattrib(0, "prim", "pf_plate_id"))     { int v = prim(0, "pf_plate_id", p);        setprimattrib(0, "pf_plate_id", np, v, "set"); }
+        if (hasattrib(0, "prim", "pf_plate_height")) { float v = prim(0, "pf_plate_height", p);  setprimattrib(0, "pf_plate_height", np, v, "set"); }
+        if (hasattrib(0, "prim", "pf_plate_area"))   { float v = prim(0, "pf_plate_area", p);    setprimattrib(0, "pf_plate_area", np, v, "set"); }
+        if (hasattrib(0, "prim", "_part"))           { int v = prim(0, "_part", p);              setprimattrib(0, "_part", np, v, "set"); }
+        if (hasattrib(0, "prim", "Cd"))              { vector v = prim(0, "Cd", p);              setprimattrib(0, "Cd", np, v, "set"); }
+    }
+    removeprim(0, p, 0);
+}
+i[]@_gp = gp;

@@ -1,0 +1,17 @@
+// pf_plating_edgegroups.vfl - Detail wrangle. Edge groups for the plate bevels.
+//   _corner : edges between two plate-side faces that turn more than 25 degrees (vertical corners)
+//   _rim    : edges between a plate top (_part 1) and a plate side (_part 2)
+int nv = nvertices(0);
+for (int h = 0; h < nv; h++) {
+    int e = hedge_nextequiv(0, h);
+    if (e == h || h > e) continue;
+    int p1 = hedge_prim(0, h), p2 = hedge_prim(0, e);
+    int a = prim(0, "_part", p1), b = prim(0, "_part", p2);
+    int s = hedge_srcpoint(0, h), d = hedge_dstpoint(0, h);
+    if ((a == 1 && b == 2) || (a == 2 && b == 1)) setedgegroup(0, "_rim", s, d, 1);
+    if (a == 2 && b == 2) {
+        vector n1 = normalize(prim_normal(0, p1, 0.5, 0.5));
+        vector n2 = normalize(prim_normal(0, p2, 0.5, 0.5));
+        if (degrees(acos(clamp(dot(n1, n2), -1.0, 1.0))) > 25.0) setedgegroup(0, "_corner", s, d, 1);
+    }
+}

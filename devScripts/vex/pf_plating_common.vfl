@@ -1,0 +1,50 @@
+// pf_plating_common.vfl - shared helpers, prepended to the plating wranglers at build time.
+// Half-edge handle == linear vertex index of its source (probed on H22.0.442), so a per-vertex
+// array doubles as a per-half-edge array.
+
+// boundary of the plated region (mesh border, or the neighbour is not being plated)?
+function int isbnd(int h; export int ins[]){
+    if (h < -1) ins[0] = 0;   // export = pass by reference (a by-value array copy per call is 100x slower)
+    int e = hedge_nextequiv(0, h);
+    if (e == h) return 1;
+    return ins[hedge_prim(0, e)] == 0;
+}
+function int valence4(int v){ return len(neighbours(0, v)) == 4; }
+// outgoing half-edge that continues the line straight through dst(h); -1 at a boundary
+function int straight(int h){
+    int n1 = hedge_next(0, h);
+    int q  = hedge_nextequiv(0, n1);
+    if (q == n1) return -1;
+    return hedge_next(0, q);
+}
+function void markedge(int h; export int g[]; export int lst[]){
+    int a = hedge_srcpoint(0, h);
+    int b = hedge_dstpoint(0, h);
+    int e = h; int guard = 0;
+    do { g[e] = 1; e = hedge_nextequiv(0, e); guard++; } while (e != h && guard < 16);
+    append(lst, a); append(lst, b);
+}
+function int marked_at(int v; export int g[]){
+    if (v < -1) g[0] = 0;
+    int c = 0;
+    foreach (int q; neighbours(0, v)) {
+        int he = pointedge(0, v, q);
+        if (he >= 0) c += g[he];
+    }
+    return c;
+}
+function float rn(int seed; export int c[]){
+    c[0]++;
+    return rand(seed * 0.7131 + c[0] * 1.6180339);
+}
+function int pickprim(export int sel[]; int seed; export int c[]){
+    if (seed < -1000000000) sel[0] = 0;
+    return sel[int(rn(seed, c) * len(sel) * 0.99999)];
+}
+// random half-edge of prim p
+function int randhedge(int p; int seed; export int c[]){
+    int h = primhedge(0, p);
+    int k = int(rn(seed, c) * primvertexcount(0, p) * 0.99999);
+    for (int j = 0; j < k; j++) h = hedge_next(0, h);
+    return h;
+}
