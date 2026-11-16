@@ -181,9 +181,43 @@ def part_c():
     check("MUT library present looks different from the procedural fallback", float(np.abs(a - ok).mean()) > 0.05)
 
 
+# ---- D: pf::planet_preview ------------------------------------------------------------------------------------
+def part_d():
+    folder = SCRATCH + "/checks/terran"            # baked by part B
+    hou.hipFile.clear(suppress_save_prompt=True)
+    hou.hda.installFile(ROOT + "/polyfactory/otls/pf_planet_preview.hda")
+    n = hou.node("/obj").createNode("geo").createNode("pf::planet_preview")
+    n.parm("folder").set(folder)
+    n.parm("prefix").set("terran")
+    for k, v in dict(use_clouds=0, use_emission=0, ambient=1, atm_strength=0).items():
+        n.parm(k).set(v)
+    n.cook(force=True)
+    bad = [(c.path(), c.errors(), c.warnings()) for c in [n] + list(n.children()) if c.errors() or c.warnings()]
+    check("planet_preview: cooks clean", not bad, str(bad)[:200])
+    geo = n.geometry()
+    P = np.array([list(p.position()) for p in geo.points()])
+    Cd = np.array(geo.pointFloatAttribValues("Cd")).reshape(-1, 3)
+    d = P / np.linalg.norm(P, axis=1, keepdims=True)
+    eq = bake.read_exr(folder + "/terran_surface_equirect.exr")
+    want = sky.sample_equirect(eq, d)[..., :3]
+    rel = float(np.abs(Cd - want).mean() / want.mean())
+    check("planet_preview: Cd == baked equirect at the point direction (rel < 1e-3)", len(P) > 20000 and rel < 1e-3, "%.2e, %d points" % (rel, len(P)))
+    relm = float(np.abs(Cd - sky.sample_equirect(eq, d * [-1, 1, 1])[..., :3]).mean() / want.mean())
+    check("MUT planet_preview: mirrored lookup is clearly different", relm > 0.05, "%.3f" % relm)
+    for k, v in dict(use_clouds=1, use_emission=1, ambient=0.05, atm_strength=1, height_scale=0.2).items():
+        n.parm(k).set(v)
+    n.cook(force=True)
+    g2 = n.geometry()
+    C2 = np.array(g2.pointFloatAttribValues("Cd"))
+    r = np.linalg.norm(np.array(g2.pointFloatAttribValues("P")).reshape(-1, 3), axis=1)
+    check("planet_preview: lit/cloud/emission/height pass finite, displaced radius varies", np.isfinite(C2).all() and r.std() > 1e-3,
+          "radius std %.4f" % r.std())
+
+
 if __name__ == "__main__":
     part_a()
     part_b()
     part_c()
+    part_d()
     print("FAILED: " + ", ".join(FAILS) if FAILS else "ALL PASS")
     sys.exit(1 if FAILS else 0)
