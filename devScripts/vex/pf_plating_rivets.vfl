@@ -1,0 +1,35 @@
+// pf_plating_rivets.vfl - Detail wrangle. Adds rivet points (group _rivpt) at the convex corners of
+// every plate top: a point touched by exactly one top face is a corner of the plate outline.
+// The point sits `rivet_dist` in from the corner towards that face's centre.
+float dist = chf("../rivet_dist");
+float size = chf("../rivet_size");
+int npt = npoints(0);
+if (npt > 0) setpointgroup(0, "_rivpt", 0, 0, "set");
+int cnt[]; resize(cnt, npt);
+int whichp[]; resize(whichp, npt);
+for (int p = 0; p < nprimitives(0); p++) {
+    if (prim(0, "_part", p) != 1) continue;
+    foreach (int pt; primpoints(0, p)) { cnt[pt]++; whichp[pt] = p; }
+}
+for (int pt = 0; pt < npt; pt++) {
+    if (cnt[pt] != 1) continue;
+    int p = whichp[pt];
+    vector P0 = point(0, "P", pt);
+    vector c = {0,0,0};
+    int ps[] = primpoints(0, p);
+    foreach (int q; ps) c += point(0, "P", q);
+    c /= len(ps);
+    vector dir = normalize(c - P0);
+    vector n = normalize(prim_normal(0, p, 0.5, 0.5));
+    float d = min(dist, 0.45 * length(c - P0));
+    int np = addpoint(0, P0 + dir * d);
+    setpointattrib(0, "N", np, n, "set");
+    setpointattrib(0, "pscale", np, size * 0.5, "set");   // unit-radius ball: size is the diameter
+    int pid = prim(0, "pf_plate_id", p);
+    setpointattrib(0, "_pid", np, pid, "set");
+    float ph = prim(0, "pf_plate_height", p);
+    float pa = prim(0, "pf_plate_area", p);
+    setpointattrib(0, "_h", np, ph, "set");
+    setpointattrib(0, "_a", np, pa, "set");
+    setpointgroup(0, "_rivpt", np, 1, "set");
+}

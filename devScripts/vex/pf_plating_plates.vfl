@@ -1,0 +1,99 @@
+// pf_plating_plates.vfl - Detail wrangle. Turns groove edges into plates.
+// Plate = connected set of faces not separated by a groove (union-find over half-edges).
+// Writes: prim _plate (-1 = not plated), pf_plate_id, pf_plate_area, pf_plate_height, thickness,
+//         prim group _plated, edge group _split (edges between different plates / unplated faces).
+string pat = chs("../pattern");
+int nv = nvertices(0), npr = nprimitives(0);
+int ins[]; resize(ins, npr);
+for (int p = 0; p < npr; p++) ins[p] = prim(0, "_in", p);
+
+int g[]; resize(g, nv);
+int gp[] = detail(0, "_gp");
+for (int i = 0; i + 1 < len(gp); i += 2) {
+    int h = pointedge(0, gp[i], gp[i + 1]);
+    if (h < 0) continue;
+    int e = h; int guard = 0;
+    do { g[e] = 1; e = hedge_nextequiv(0, e); guard++; } while (e != h && guard < 16);
+}
+string eg = chs("../edge_group");
+int cutang = chi("../cut_by_angle");
+float lim = chf("../angle_limit");
+float dev = chf("../angle_dev");
+float lo = lim * (1.0 - dev), hi = lim * (1.0 + dev);
+int useang = cutang && pat != "edges";
+
+int par[]; resize(par, npr);
+for (int i = 0; i < npr; i++) par[i] = i;
+function int uf_find(export int par[]; int x0){
+    int x = x0;
+    while (par[x] != x) { par[x] = par[par[x]]; x = par[x]; }
+    return x;
+}
+for (int h = 0; h < nv; h++) {
+    int e = hedge_nextequiv(0, h);
+    if (e == h) continue;
+    int p1 = hedge_prim(0, h), p2 = hedge_prim(0, e);
+    if (!ins[p1] || !ins[p2] || p1 == p2) continue;
+    int groove = g[h];
+    if (pat == "irregular") {
+        int r1 = prim(0, "_rg", p1); int r2 = prim(0, "_rg", p2);
+        if (r1 != r2) groove = 1;
+    }
+    if (pat == "edges" && eg != "") {
+        if (inedgegroup(0, eg, hedge_srcpoint(0, h), hedge_dstpoint(0, h))) groove = 1;
+    }
+    if (!groove && useang) {
+        vector n1 = normalize(prim_normal(0, p1, 0.5, 0.5));
+        vector n2 = normalize(prim_normal(0, p2, 0.5, 0.5));
+        float ang = degrees(acos(clamp(dot(n1, n2), -1.0, 1.0)));
+        if (ang > lo && ang < hi) groove = 1;
+    }
+    if (groove) continue;
+    int r1 = uf_find(par, p1), r2 = uf_find(par, p2);
+    if (r1 != r2) { if (r1 < r2) par[r2] = r1; else par[r1] = r2; }
+}
+
+int idmap[]; resize(idmap, npr);
+for (int i = 0; i < npr; i++) idmap[i] = -1;
+if (nv > 0) setedgegroup(0, "_split", hedge_srcpoint(0, 0), hedge_dstpoint(0, 0), 0);
+int nplates = 0;
+int plate[]; resize(plate, npr);
+float area[];
+for (int p = 0; p < npr; p++) {
+    plate[p] = -1;
+    if (!ins[p]) continue;
+    int r = uf_find(par, p);
+    if (idmap[r] < 0) { idmap[r] = nplates++; append(area, 0.0); }
+    plate[p] = idmap[r];
+    area[plate[p]] += primintrinsic(0, "measuredarea", p);
+}
+
+int off = 0;
+if (hasattrib(0, "prim", "pf_plate_id")) {
+    for (int p = 0; p < npr; p++) if (!ins[p]) off = max(off, prim(0, "pf_plate_id", p) + 1);
+}
+int seed = chi("../height_seed");
+float hmin = chf("../height_min"), hmax = chf("../height_max");
+float depth = chf("../groove_depth");
+float hts[]; resize(hts, nplates);
+for (int i = 0; i < nplates; i++) hts[i] = fit01(rand(seed * 0.913 + (i + off) * 1.6180339), hmin, hmax);
+
+for (int p = 0; p < npr; p++) {
+    setprimattrib(0, "_plate", p, plate[p], "set");
+    if (plate[p] < 0) { setprimgroup(0, "_plated", p, 0, "set"); continue; }
+    setprimgroup(0, "_plated", p, 1, "set");
+    setprimattrib(0, "pf_plate_id", p, plate[p] + off, "set");
+    setprimattrib(0, "pf_plate_area", p, area[plate[p]], "set");
+    setprimattrib(0, "pf_plate_height", p, hts[plate[p]], "set");
+    setprimattrib(0, "_zs", p, hts[plate[p]] + depth, "set");
+    setprimattrib(0, "_part", p, 1, "set");
+}
+for (int h = 0; h < nv; h++) {
+    int e = hedge_nextequiv(0, h);
+    if (e == h) continue;
+    int p1 = hedge_prim(0, h), p2 = hedge_prim(0, e);
+    if (!ins[p1]) continue;
+    if (!ins[p2] || plate[p1] != plate[p2])
+        setedgegroup(0, "_split", hedge_srcpoint(0, h), hedge_dstpoint(0, h), 1);
+}
+i@_nplates = nplates;

@@ -1,0 +1,135 @@
+// pf_greeble_place.vfl - Detail wrangle. Port of Blender greeble_functions.add_greebles_to_mesh
+// (overlapping) and add_non_overlapping_greebles_to_mesh. Input 1 = surface (prim int _sel marks the
+// faces to use), input 2 = normalised kit (see pf_greeble_kitprep.vfl).
+// Adds one point per greeble (point group _gpt) carrying P, orient, scale (width, length, height),
+// pf_kit, pf_greeble_id, pf_host (source prim number).
+string mode = chs("../placement");
+int    seed = chi("../seed");
+int    rseed = chi("../rotation_seed");
+int    keepasp = chi("../keep_aspect");
+int    ovh = chi("../override_height");
+float  hov = chf("../height_override");
+float  wmin = chf("../width_min"), wmax = chf("../width_max");
+float  lmin = chf("../length_min"), lmax = chf("../length_max");
+float  hmin = chf("../height_min"), hmax = chf("../height_max");
+int    customn = chi("../custom_normal");
+vector cn = chv("../normal_direction");
+int    customr = chi("../fixed_rotation");
+int    crot = chi("../rotation_steps");
+
+int nk = detail(1, "_kn");
+float kx[] = detail(1, "_kx");
+float ky[] = detail(1, "_ky");
+float kz[] = detail(1, "_kz");
+float kw[] = detail(1, "_kw");
+float kwsum = 0;
+float kcum[];
+for (int k = 0; k < nk; k++) { kwsum += max(kw[k], 0.0); append(kcum, kwsum); }
+
+int sel[];
+for (int p = 0; p < nprimitives(0); p++)
+    if (prim(0, "_sel", p) && primvertexcount(0, p) == 4) append(sel, p);
+int nsel = len(sel);
+if (nsel == 0 || nk == 0 || kwsum <= 0) return;
+
+int c1[] = {0};   // placement stream
+int c2[] = {0};   // rotation stream
+function float rnd(int s; export int c[]){ c[0]++; return rand(s * 0.7131 + c[0] * 1.6180339); }
+function float uni(int s; export int c[]; float a; float b){ return a + (b - a) * rnd(s, c); }
+function int pickk(float cum[]; int n; float r){
+    float x = r * cum[n - 1];
+    for (int k = 0; k < n; k++) if (x <= cum[k]) return k;
+    return n - 1;
+}
+function vector bil(vector p0; vector p1; vector p2; vector p3; float u; float v){
+    return lerp(lerp(p0, p1, u), lerp(p3, p2, u), v);
+}
+
+// place piece k in the uv rectangle [u0,u1] x [v0,v1] of quad prim p
+function void place(int p; float u0; float u1; float v0; float v1; int k; float h; int rot;
+                    int keepasp; int ovh; float hov; int customn; vector cn;
+                    export float kx[]; export float ky[]; export float kz[]; export int gid[]){
+    if (p < -1) { kx[0] = kx[0]; ky[0] = ky[0]; kz[0] = kz[0]; gid[0] = gid[0]; }
+    int pts[] = primpoints(0, p);
+    vector p0 = point(0, "P", pts[0]), p1 = point(0, "P", pts[1]);
+    vector p2 = point(0, "P", pts[2]), p3 = point(0, "P", pts[3]);
+    float uc = (u0 + u1) * 0.5, vc = (v0 + v1) * 0.5;
+    vector c = bil(p0, p1, p2, p3, uc, vc);
+    vector tu = bil(p0, p1, p2, p3, u1, vc) - bil(p0, p1, p2, p3, u0, vc);
+    vector tv = bil(p0, p1, p2, p3, uc, v1) - bil(p0, p1, p2, p3, uc, v0);
+    float W = length(tu), L = length(tv);
+    vector n = normalize(prim_normal(0, p, 0.5, 0.5));
+    if (customn) n = normalize(cn);
+    vector xa = tu - n * dot(tu, n);
+    if (length(xa) < 1e-8) xa = tv - n * dot(tv, n);
+    xa = normalize(xa);
+    vector ya = cross(n, xa);
+    float fw = W, fl = L;
+    for (int r = 0; r < rot; r++) {            // rotate about the normal in 90 degree steps
+        vector t = xa; xa = ya; ya = -t;
+        float tf = fw; fw = fl; fl = tf;
+    }
+    float sx, sy, sz;
+    if (keepasp) {
+        float s = min(fw / kx[k], fl / ky[k]);
+        sx = s * kx[k]; sy = s * ky[k]; sz = s * kz[k];
+    } else {
+        sx = fw; sy = fl; sz = h;
+    }
+    if (ovh) sz = hov;
+    int pt = addpoint(0, c);
+    matrix3 m = set(xa, ya, n);
+    setpointattrib(0, "orient", pt, quaternion(m), "set");
+    setpointattrib(0, "scale", pt, set(sx, sy, sz), "set");
+    setpointattrib(0, "pf_kit", pt, k, "set");
+    setpointattrib(0, "pf_greeble_id", pt, gid[0], "set");
+    setpointattrib(0, "pf_host", pt, p, "set");
+    setpointgroup(0, "_gpt", pt, 1, "set");
+    gid[0]++;
+}
+int gidv[] = {0};
+
+if (mode == "overlapping") {
+    int na = chi("../amount");
+    for (int i = 0; i < na; i++) {
+        int p = sel[int(rnd(seed, c1) * nsel * 0.99999)];
+        int k = pickk(kcum, nk, rnd(seed, c1));
+        float width = uni(seed, c1, wmin, wmax), length = uni(seed, c1, lmin, lmax);
+        float u0 = uni(seed, c1, 0.0, 1.0 - width), v0 = uni(seed, c1, 0.0, 1.0 - length);
+        float h = uni(seed, c1, hmin, hmax);
+        int rot = customr ? (crot % 4) : int(rnd(rseed, c2) * 3.99999);
+        place(p, u0, u0 + width, v0, v0 + length, k, h, rot, keepasp, ovh, hov, customn, cn, kx, ky, kz, gidv);
+    }
+} else {
+    int levels = chi("../subd_levels");
+    float dev = chf("../deviation");
+    float cov = chf("../coverage");
+    float ds = 0.5 - 0.5 * dev, de = 0.5 + 0.5 * dev;
+    foreach (int p; sel) {
+        float cu0[] = {0.0}, cu1[] = {1.0}, cv0[] = {0.0}, cv1[] = {1.0};
+        for (int pass = 0; pass < levels; pass++) {
+            float nu0[], nu1[], nv0[], nv1[];
+            for (int j = 0; j < len(cu0); j++) {
+                float a0 = cu0[j], a1 = cu1[j], b0 = cv0[j], b1 = cv1[j];
+                float su = a0 + (a1 - a0) * uni(seed, c1, ds, de);
+                float sv = b0 + (b1 - b0) * uni(seed, c1, ds, de);
+                append(nu0, a0); append(nu1, su); append(nv0, b0); append(nv1, sv);
+                append(nu0, su); append(nu1, a1); append(nv0, b0); append(nv1, sv);
+                append(nu0, a0); append(nu1, su); append(nv0, sv); append(nv1, b1);
+                append(nu0, su); append(nu1, a1); append(nv0, sv); append(nv1, b1);
+            }
+            cu0 = nu0; cu1 = nu1; cv0 = nv0; cv1 = nv1;
+        }
+        for (int j = 0; j < len(cu0); j++) {
+            int k = pickk(kcum, nk, rnd(seed, c1));
+            float chk = rnd(seed, c1) * 100.0;
+            float width = uni(seed, c1, wmin, wmax), length = uni(seed, c1, lmin, lmax);
+            float h = uni(seed, c1, hmin, hmax);
+            int rot = customr ? (crot % 4) : int(rnd(rseed, c2) * 3.99999);
+            if (chk > cov) continue;
+            float uc = (cu0[j] + cu1[j]) * 0.5, vc = (cv0[j] + cv1[j]) * 0.5;
+            float hw = (cu1[j] - cu0[j]) * width * 0.5, hl = (cv1[j] - cv0[j]) * length * 0.5;
+            place(p, uc - hw, uc + hw, vc - hl, vc + hl, k, h, rot, keepasp, ovh, hov, customn, cn, kx, ky, kz, gidv);
+        }
+    }
+}
