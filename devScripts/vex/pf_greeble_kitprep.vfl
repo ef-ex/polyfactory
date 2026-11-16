@@ -1,0 +1,53 @@
+// pf_greeble_kitprep.vfl - Detail wrangle. Normalises a greeble kit.
+// Every piece (prim attr pf_kit, or the connected island when the kit came from input 2) is moved so
+// that its footprint is centred on the origin and sits on z = 0, then scaled into a unit footprint
+// x,y in [-0.5, 0.5] and height z in [0, 1].  The original size of each piece is kept in the detail
+// arrays _kx/_ky/_kz (needed for "keep aspect ratio"), its weight in _kw, the count in _kn.
+int npr = nprimitives(0);
+int ids[];                       // distinct source ids, ascending
+int pid[]; resize(pid, npr);
+int pk[]; resize(pk, npr);
+for (int p = 0; p < npr; p++) {
+    int id = hasattrib(0, "prim", "pf_kit") ? prim(0, "pf_kit", p) : prim(0, "_island", p);
+    pid[p] = id;
+    if (find(ids, id) < 0) append(ids, id);
+}
+ids = sort(ids);
+int n = len(ids);
+vector lo[], hi[];
+resize(lo, n); resize(hi, n);
+for (int k = 0; k < n; k++) { lo[k] = {1e30, 1e30, 1e30}; hi[k] = {-1e30, -1e30, -1e30}; }
+float w[]; resize(w, n);
+for (int k = 0; k < n; k++) w[k] = 1.0;
+for (int p = 0; p < npr; p++) {
+    int k = find(ids, pid[p]);
+    pk[p] = k;
+    setprimattrib(0, "_k", p, k, "set");
+    if (hasattrib(0, "prim", "pf_kit_weight")) { float wt = prim(0, "pf_kit_weight", p); w[k] = wt; }
+    foreach (int pt; primpoints(0, p)) {
+        vector P0 = point(0, "P", pt);
+        lo[k] = min(lo[k], P0); hi[k] = max(hi[k], P0);
+    }
+}
+float kx[], ky[], kz[];
+resize(kx, n); resize(ky, n); resize(kz, n);
+for (int k = 0; k < n; k++) {
+    vector sz = hi[k] - lo[k];
+    kx[k] = max(sz.x, 1e-6); ky[k] = max(sz.y, 1e-6); kz[k] = max(sz.z, 1e-6);
+}
+// points: a point belongs to the piece of its first prim
+int done[]; resize(done, npoints(0));
+for (int p = 0; p < npr; p++) {
+    int k = pk[p];
+    foreach (int pt; primpoints(0, p)) {
+        if (done[pt]) continue;
+        done[pt] = 1;
+        vector P0 = point(0, "P", pt);
+        vector c = (lo[k] + hi[k]) * 0.5;
+        vector q = set((P0.x - c.x) / kx[k], (P0.y - c.y) / ky[k], (P0.z - lo[k].z) / kz[k]);
+        setpointattrib(0, "P", pt, q, "set");
+    }
+    setprimattrib(0, "pf_kit", p, k, "set");
+}
+f[]@_kx = kx; f[]@_ky = ky; f[]@_kz = kz; f[]@_kw = w;
+i@_kn = n;

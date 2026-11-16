@@ -321,7 +321,8 @@ def build():
         gd = wr("guard_" + cname, cur, "i@_g = 0;", cls)       # makes sure the delete below always has a match
         cur = node("attribdelete", "clean_" + cname, gd, **{flag: 1, {"doptdel": "ptdel", "dovtxdel": "vtxdel", "doprimdel": "primdel", "dodtldel": "dtldel"}[flag]: "_*"})
     clean = cur
-    gclean = node("groupdelete", "clean_groups", clean)
+    gguard = wr("gguard", clean, 'if (nprimitives(0) > 0) setprimgroup(0, "_g", 0, 0, "set"); if (npoints(0) > 0) setpointgroup(0, "_g", 0, 0, "set");', 0)
+    gclean = node("groupdelete", "clean_groups", gguard)
     gclean.parm("deletions").set(1)
     gclean.parm("group1").set("_*")
     gclean.parm("grouptype1").set(0)  # guess; fixed below
