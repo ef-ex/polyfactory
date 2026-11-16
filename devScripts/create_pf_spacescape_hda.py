@@ -304,6 +304,7 @@ def create():
     defn = hda.type().definition()
     defn.setParmTemplateGroup(_tmpl_group())
     defn.addSection("Help", HELP)
+    sc.add_tab_submenu(defn)
     with open(os.path.join(HERE, "pf_spacescape_module.py"), "r", encoding="utf-8") as f:
         defn.addSection("PythonModule", f.read())
     defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))

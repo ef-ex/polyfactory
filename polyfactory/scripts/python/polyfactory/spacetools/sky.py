@@ -2,7 +2,7 @@
 plus cube/equirect samplers and the seam checks. No hou import. Images are (H, W, C) float32, row 0 = top.
 
 Layout numbers: 0 equirect (4N x 2N), 1 cube cross (4N x 3N), 2 single face (N x N).
-Faces: 0..5 = +X -X +Y -Y +Z -Z (OpenGL cube-face orientation). Convention: 0 houdini, 1 godot.
+Faces: 0..5 = +X -X +Y -Y +Z -Z (OpenGL cube-face orientation). Convention: 0 houdini (Karma/USD lat-long), 1 godot: the same equirect mapping (centre +Z, +X at u=0.25).
 """
 import numpy as np
 
@@ -25,7 +25,7 @@ def pixel_dirs(layout, N, face=0, conv=0):
         W, H = 4 * N, 2 * N
         u = (np.arange(W) + 0.5) / W
         v = (np.arange(H) + 0.5) / H
-        phi = (u if conv == 1 else u - 0.5) * 2 * np.pi
+        phi = u * 2 * np.pi   # conv 0 (Houdini/Karma) == conv 1 (Godot): OpenEXR/USD lat-long, centre +Z
         th = v * np.pi
         s = np.sin(th)[:, None]
         d = np.stack([s * np.sin(phi)[None], np.cos(th)[:, None] + 0 * phi[None], -s * np.cos(phi)[None]], -1)
@@ -70,7 +70,7 @@ def _bilinear(img, fx, fy, wrapx=False):
 
 def sample_equirect(img, d, conv=0):
     H, W = img.shape[:2]
-    u = np.arctan2(d[..., 0], -d[..., 2]) / (2 * np.pi) + (0.0 if conv == 1 else 0.5)
+    u = np.arctan2(d[..., 0], -d[..., 2]) / (2 * np.pi) + (0.5 if conv == 2 else 0.0)   # conv 2 = the old Houdini guess (centre -Z): only used as a 'wrong yaw' mutant
     u = u % 1.0
     v = np.arccos(np.clip(d[..., 1], -1, 1)) / np.pi
     return _bilinear(img, u * W, v * H, wrapx=True)

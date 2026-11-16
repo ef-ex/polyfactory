@@ -57,11 +57,6 @@ for conv in (0, 1):
         th = v*np.pi; ph = u*2*np.pi
         god = np.array([np.sin(th)*np.sin(ph), np.cos(th), -np.sin(th)*np.cos(ph)])   # Godot: u = atan2(x,-z)/2pi
         err_god = max(err_god, np.abs(d - god).max()); err_exr = max(err_exr, np.abs(d - exr_latlong_dir(u, v)).max())
-    if conv == 1:
-        check("conv1 (Godot) == Godot sky.glsl formula", err_god < 1e-4, "%.1e" % err_god)
-        check("conv1 (Godot) == OpenEXR/USD latlong spec", err_exr < 1e-4, "%.1e" % err_exr)
-    else:
-        # NOT a failure: Houdini's latlong centre could not be verified (Karma licence missing in hython). USD/OpenEXR say centre=+Z;
-        # the HDA's "Houdini" mode puts -Z in the centre. WARN until someone looks at a dome light in the GUI.
-        print("WARN conv0 (Houdini) differs from the OpenEXR/USD latlong spec by %.2f (image centre is %s)" % (err_exr, "-Z" if e[H//2, W//2][2] < 0 else "+Z"))
+    check("conv%d == Godot sky.glsl formula" % conv, err_god < 1e-4, "%.1e" % err_god)
+    check("conv%d == OpenEXR/USD latlong spec (Karma dome light; Houdini domelight help)" % conv, err_exr < 1e-4, "%.1e" % err_exr)
 print("FAILED: %s" % fails if fails else "ALL PASS"); sys.exit(1 if fails else 0)

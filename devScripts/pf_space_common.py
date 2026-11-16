@@ -13,7 +13,8 @@ import hou
 
 LAYOUTS = ("Equirect (lat-long) 4N x 2N", "Cube cross 4N x 3N", "Single cube face N x N")
 FACES = ("+X", "-X", "+Y", "-Y", "+Z", "-Z")
-CONVENTIONS = ("Houdini (Y-up, centre = -Z)", "Godot (Y-up, centre = +Z)")
+MAX_RES = 4096   # largest face size that cooks (see the res parm help)
+CONVENTIONS = ("Houdini / Karma (USD lat-long: centre = +Z, +X at u = 0.25)", "Godot (same mapping: centre = +Z)")
 
 # One definition of direction-from-pixel, used by pf_space_direction itself and by any
 # consumer kernel that prefers computing the direction inline (no layer read).
@@ -38,7 +39,7 @@ float4 pf_space_dir(int ix, int iy, int xres, int yres, int layout, int face, in
     if (layout == 0) {
         float u  = ((float)ix  + 0.5f) / (float)xres;
         float vt = ((float)row + 0.5f) / (float)yres;
-        float phi = (conv == 1 ? u : u - 0.5f) * 6.28318530718f;
+        float phi = u * 6.28318530718f;   // Houdini (Karma dome light, USD/OpenEXR lat-long) and Godot agree: u=0.5 is +Z, u=0.25 is +X; `conv` kept for the parm contract
         float th  = vt * 3.14159265359f;
         float s = sin(th);
         return (float4)(s * sin(phi), cos(th), -s * cos(phi), 1.0f);
@@ -71,11 +72,11 @@ def layout_parm_folder(label="Output Layout"):
         help="Equirect: 4N x 2N. Cube cross: 4N x 3N (horizontal cross). Single face: N x N."))
     f.addParmTemplate(hou.MenuParmTemplate("face", "Face", menu_items=tuple(map(str, range(6))), menu_labels=FACES, default_value=0,
         conditionals={hou.parmCondType.DisableWhen: "{ layout != 2 }"}, help="Cube face for the single-face layout."))
-    f.addParmTemplate(hou.IntParmTemplate("res", "Face Size N", 1, default_value=(512,), min=16, max=8192,
-        min_is_strict=True, max_is_strict=False,
-        help="Cube face size N in pixels. Equirect is 4N x 2N (N=512 -> 2048x1024, N=1024 -> 4096x2048)."))
+    f.addParmTemplate(hou.IntParmTemplate("res", "Face Size N", 1, default_value=(512,), min=16, max=MAX_RES,
+        min_is_strict=True, max_is_strict=True,
+        help="Cube face size N in pixels. Equirect is 4N x 2N (N=512 -> 2048x1024, N=1024 -> 4096x2048). Capped at 4096 (16384 x 8192 equirect, 16384 x 12288 cross): measured on the RTX 5060 Ti, N=4096 cooks and reads back, a cross at N=5792 and an equirect at 8192 fail with CL_INVALID_BUFFER_SIZE."))
     f.addParmTemplate(hou.MenuParmTemplate("convention", "Convention", menu_items=("0", "1"), menu_labels=CONVENTIONS, default_value=0,
-        help="Engine convention for the equirect yaw. Both are Y-up with OpenGL cube-face orientation."))
+        help="Equirect yaw. Karma/USD dome lights (OpenEXR lat-long: image centre = +Z, +X at u = 0.25, per the Houdini domelight help) and Godot use the same mapping, so both entries are identical today. Y-up, OpenGL cube-face orientation."))
     outres = hou.IntParmTemplate("outres", "Output Resolution", 2, default_value=(2048, 1024),
         conditionals={hou.parmCondType.DisableWhen: "{ layout >= 0 }"}, help="Resulting image size (read-only).")
     outres.setDefaultExpression(('ch("res")*(1+3*(ch("layout")<2))', 'ch("res")*(1+(ch("layout")==0)+2*(ch("layout")==1))'))
@@ -113,6 +114,30 @@ def configure_opencl(ocl, kernel, inputs, outputs, bindings, expr_prefix="../"):
         vp.setExpression('ch("%s%s")' % (expr_prefix, h), language=hou.exprLanguage.Hscript)
 
 
+TAB_SUBMENU = "Poly Factory/Space"
+TOOLS_SHELF = """<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <tool name="$HDA_DEFAULT_TOOL" label="$HDA_LABEL" icon="$HDA_ICON">
+    <toolMenuContext name="viewer">
+      <contextNetType>COP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>$HDA_TABLE_AND_NAME</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>%s</toolSubmenu>
+    <script scriptType="python"><![CDATA[import coptoolutils
+
+coptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
+  </tool>
+</shelfDocument>
+""" % TAB_SUBMENU
+
+
+def add_tab_submenu(defn):
+    """TAB menu entry under Poly Factory/Space (same mechanism as pf_starship_generator's Poly Factory/Modeling)."""
+    defn.addSection("Tools.shelf", TOOLS_SHELF)
+
+
 def make_cop_hda(type_name, description, out_path, ptg, populate, outputs, help_text="", icon="COP_subnet", inputs=0, on_created=""):
     """Build a COP subnet HDA headless. populate(hda) creates the inner nodes and returns [(node, output_port)]
     feeding HDA output i. outputs: [(label, subnet_output_type_idx)] (0 ID,1 Mono,2 UV,3 RGB,4 RGBA)."""
@@ -143,6 +168,7 @@ def make_cop_hda(type_name, description, out_path, ptg, populate, outputs, help_
     defn.setIcon(icon)
     if help_text:
         defn.addSection("Help", help_text)
+    add_tab_submenu(defn)
     if on_created:
         defn.addSection("OnCreated", on_created)
         defn.setExtraFileOption("OnCreated/IsPython", True)

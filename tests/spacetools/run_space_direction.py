@@ -2,7 +2,7 @@
 
     hython tests/spacetools/run_space_direction.py [--mutate]
 Exits non-zero on any failure. Blind spots: checks the layout maths, not that Houdini's/Godot's
-viewer orients the equirect the same way (the convention menu is documented, not viewer-verified for Houdini).
+viewer orients the equirect the same way (Houdini = OpenEXR/USD lat-long per the local Karma domelight help, Godot per sky.glsl; no viewer was run).
 """
 import os, sys, tempfile
 import numpy as np
@@ -49,12 +49,16 @@ check("equirect==faces (dir, mean<2e-3, p999<2e-2)", r["equirect_vs_faces_mean_p
 check("edges continuous (ratio<2)", r["edge_ratio_max"] < 2.0, "max=%.2f" % r["edge_ratio_max"])
 check("cross==faces exact", r["cross_vs_faces_maxdiff"] == 0.0)
 check("res parm restored", n.parm("res").eval() == N)
-# direction semantics: godot centre looks +Z, houdini centre looks -Z
+# direction semantics: both conventions == OpenEXR/USD lat-long (what Karma dome lights read; Houdini domelight help): the image centre looks +Z,
+# longitude pi/2 (u = 0.25 from the left) looks +X, the top row looks +Y
 n.parm("layout").set(0); n.parm("res").set(16)
-for conv, cz in ((0, -1), (1, 1)):
+for conv in (0, 1):
     n.parm("convention").set(conv)
-    a = bake.layer_array(n, 0)
-    c = a[16, 32]  # near centre (row below equator)
-    check("equirect centre conv=%d z sign" % conv, np.sign(c[2]) == cz and abs(c[2]) > 0.9)
+    a = bake.layer_array(n, 0)                     # (32, 64, 3), row 0 = top
+    c = a[16, 32]                                   # near the centre
+    check("equirect centre conv=%d is +Z" % conv, c[2] > 0.9)
+    q = a[16, 16]                                   # u = 0.25 on the equator
+    check("equirect u=0.25 conv=%d is +X (OpenEXR lat-long)" % conv, q[0] > 0.9)
+    check("equirect top row conv=%d is +Y" % conv, a[0, 5, 1] > 0.9)
 print("FAILED: %s" % fails if fails else "ALL PASS")
 sys.exit(1 if fails else 0)

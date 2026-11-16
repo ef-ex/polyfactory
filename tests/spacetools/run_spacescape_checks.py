@@ -71,7 +71,7 @@ def main():
               "max %.2f median %.2f" % (c["edge_ratio_max"], c["edge_ratio_median"]))
         fm = float(np.mean([data[k][..., :3].mean() for k in sky.FACE_NAMES]))
         rel = c["equirect_vs_faces_mean_p999"][0] / fm
-        relbad = bake.check_set(paths, conv=1)["equirect_vs_faces_mean_p999"][0] / fm   # wrong yaw convention
+        relbad = bake.check_set(paths, conv=2)["equirect_vs_faces_mean_p999"][0] / fm   # wrong yaw convention (conv 2 = half a turn off)
         check(name + ": equirect vs faces mean abs diff / mean < 0.2", rel < 0.2, "%.4f" % rel)
         check("MUT " + name + ": wrong convention is clearly worse", relbad > 2 * rel, "%.4f vs %.4f" % (relbad, rel))
         tonemap_png(data["equirect"], SCRATCH + "/checks/%s_equirect.png" % name, 0.8)
