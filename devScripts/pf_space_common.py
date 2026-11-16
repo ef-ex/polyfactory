@@ -113,7 +113,7 @@ def configure_opencl(ocl, kernel, inputs, outputs, bindings, expr_prefix="../"):
         vp.setExpression('ch("%s%s")' % (expr_prefix, h), language=hou.exprLanguage.Hscript)
 
 
-def make_cop_hda(type_name, description, out_path, ptg, populate, outputs, help_text="", icon="COP_subnet", inputs=0):
+def make_cop_hda(type_name, description, out_path, ptg, populate, outputs, help_text="", icon="COP_subnet", inputs=0, on_created=""):
     """Build a COP subnet HDA headless. populate(hda) creates the inner nodes and returns [(node, output_port)]
     feeding HDA output i. outputs: [(label, subnet_output_type_idx)] (0 ID,1 Mono,2 UV,3 RGB,4 RGBA)."""
     import os
@@ -143,6 +143,9 @@ def make_cop_hda(type_name, description, out_path, ptg, populate, outputs, help_
     defn.setIcon(icon)
     if help_text:
         defn.addSection("Help", help_text)
+    if on_created:
+        defn.addSection("OnCreated", on_created)
+        defn.setExtraFileOption("OnCreated/IsPython", True)
     defn.save(out_path, template_node=hda)
     hda.destroy(); copnet.destroy()
     return out_path

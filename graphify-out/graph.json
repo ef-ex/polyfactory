@@ -42087,7 +42087,7 @@
       "label": "tonemap()",
       "file_type": "code",
       "source_file": "tests/spacetools/nebula_look.py",
-      "source_location": "L24",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "spacetools_nebula_look_tonemap",
       "community": 381,
@@ -53910,7 +53910,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 370,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -53920,7 +53920,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 370,
       "norm_label": "what the literature adds"
     },
     {
@@ -53930,7 +53930,7 @@
       "source_location": "L1876",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 370,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -53940,7 +53940,7 @@
       "source_location": "L1913",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 370,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -53950,7 +53950,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 370,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -53960,7 +53960,7 @@
       "source_location": "L2068",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 370,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -53970,7 +53970,7 @@
       "source_location": "L2094",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 370,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -56030,7 +56030,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_w\u0113t\u0101_barbershop_wig",
-      "community": 229,
+      "community": 350,
       "norm_label": "1. weta: barbershop \u2192 wig"
     },
     {
@@ -56040,7 +56040,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_1_lineage_and_status",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.1 lineage and status"
     },
     {
@@ -56050,7 +56050,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_2_the_paradigm_why_this_is_not_houdini",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.2 the paradigm \u2014 why this is not houdini"
     },
     {
@@ -56060,7 +56060,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_3_grooming_tools",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.3 grooming tools"
     },
     {
@@ -56070,7 +56070,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_4_clumping_a_first_class_subsystem_not_a_modifier",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.4 clumping \u2014 a first-class subsystem, not a modifier"
     },
     {
@@ -56080,7 +56080,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_5_coils_and_braids",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.5 coils and braids"
     },
     {
@@ -56090,7 +56090,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_6_selection_and_masking",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.6 selection and masking"
     },
     {
@@ -56100,7 +56100,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_7_the_animation_side_the_part_houdini_has_no_equivalent_for",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.7 the animation side \u2014 the part houdini has no equivalent for"
     },
     {
@@ -56110,7 +56110,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_8_transferring_a_groom",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.8 transferring a groom"
     },
     {
@@ -56120,7 +56120,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_9_feathers_apteryx",
-      "community": 229,
+      "community": 350,
       "norm_label": "1.9 feathers \u2014 apteryx"
     },
     {
@@ -56130,7 +56130,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_disney_tonic_igroom_disney_s_xgen",
-      "community": 350,
+      "community": 229,
       "norm_label": "2. disney: tonic + igroom + disney's xgen"
     },
     {
@@ -56140,7 +56140,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_1_tonic_volumes_not_curves",
-      "community": 350,
+      "community": 229,
       "norm_label": "2.1 tonic \u2014 volumes, not curves"
     },
     {
@@ -56150,7 +56150,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_2_the_hierarchy_the_crown_jewel",
-      "community": 350,
+      "community": 229,
       "norm_label": "2.2 the hierarchy \u2014 the crown jewel"
     },
     {
@@ -56160,7 +56160,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_3_igroom_and_disney_s_xgen",
-      "community": 350,
+      "community": 229,
       "norm_label": "2.3 igroom and disney's xgen"
     },
     {
@@ -56170,7 +56170,7 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_4_where_houdini_already_crept_into_disney_s_pipeline",
-      "community": 350,
+      "community": 229,
       "norm_label": "2.4 where houdini already crept into disney's pipeline"
     },
     {
@@ -56180,7 +56180,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "ideas_hair_grooming_2_5_sim_side_artist_features_worth_stealing",
-      "community": 350,
+      "community": 229,
       "norm_label": "2.5 sim-side artist features worth stealing"
     },
     {
@@ -60870,7 +60870,7 @@
       "source_location": "L12348",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 370,
+      "community": 144,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -60880,7 +60880,7 @@
       "source_location": "L12365",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 370,
+      "community": 144,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -60890,7 +60890,7 @@
       "source_location": "L12378",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 370,
+      "community": 144,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -60900,7 +60900,7 @@
       "source_location": "L12421",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 370,
+      "community": 144,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -60910,7 +60910,7 @@
       "source_location": "L12435",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 370,
+      "community": 144,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -60920,7 +60920,7 @@
       "source_location": "L12443",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 370,
+      "community": 144,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -61650,7 +61650,7 @@
       "source_location": "L14954",
       "_origin": "ast",
       "id": "ideas_polychain_33_native_network_build_log_cycle_c6_13_9_n8_stages_2_the_miter_assembly",
-      "community": 144,
+      "community": 373,
       "norm_label": "33. native network build log \u2014 cycle c6 (13.9 n8 stages 2+: the miter assembly)"
     },
     {
@@ -61660,7 +61660,7 @@
       "source_location": "L14960",
       "_origin": "ast",
       "id": "ideas_polychain_33_1_d338_the_deletion_32_3_named_paid_and_proven",
-      "community": 144,
+      "community": 373,
       "norm_label": "33.1 d338 \u2014 the deletion 32.3 named, paid and proven"
     },
     {
@@ -61670,7 +61670,7 @@
       "source_location": "L15011",
       "_origin": "ast",
       "id": "ideas_polychain_33_2_d339_fill_count_with_count_0_leaves_a_hole_in_the_y_stack",
-      "community": 144,
+      "community": 373,
       "norm_label": "33.2 d339 \u2014 `fill = count` with `count = 0` leaves a hole in the y stack"
     },
     {
@@ -61680,7 +61680,7 @@
       "source_location": "L15025",
       "_origin": "ast",
       "id": "ideas_polychain_33_3_13_9_n8_stage_2_d340_the_degenerate_corner_was_a_warning_not_geometry",
-      "community": 144,
+      "community": 373,
       "norm_label": "33.3 13.9 n8 stage 2 \u2014 d340: the degenerate corner was a warning, not geometry"
     },
     {
@@ -61690,7 +61690,7 @@
       "source_location": "L15090",
       "_origin": "ast",
       "id": "ideas_polychain_33_4_d341_the_miter_s_deciding_experiment_the_batched_cut_is_a_re_implementation_not_a_port",
-      "community": 144,
+      "community": 373,
       "norm_label": "33.4 d341 \u2014 the miter's deciding experiment: the batched cut is a re-implementation, not a port"
     },
     {
@@ -61700,7 +61700,7 @@
       "source_location": "L15160",
       "_origin": "ast",
       "id": "ideas_polychain_33_5_the_python_share_per_build_class_re_taken_32_4_s_table_two_rows_moved",
-      "community": 144,
+      "community": 373,
       "norm_label": "33.5 the python share per build class, re-taken \u2014 32.4's table, two rows moved"
     },
     {
@@ -139545,9 +139545,9 @@
       "source_file": "tests/spacetools/nebula_compare.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_nebula_compare",
-      "target": "spacetools_nebula_compare_stats",
-      "confidence_score": 1.0
+      "target": "spacetools_nebula_compare_stats"
     },
     {
       "relation": "contains",
@@ -139555,9 +139555,9 @@
       "source_file": "tests/spacetools/nebula_compare.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_nebula_compare",
-      "target": "spacetools_nebula_compare_tm",
-      "confidence_score": 1.0
+      "target": "spacetools_nebula_compare_tm"
     },
     {
       "relation": "rationale_for",
@@ -139565,9 +139565,9 @@
       "source_file": "tests/spacetools/nebula_compare.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_nebula_compare_rationale_1",
-      "target": "spacetools_nebula_compare",
-      "confidence_score": 1.0
+      "target": "spacetools_nebula_compare"
     },
     {
       "relation": "contains",
@@ -162490,9 +162490,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacetools_five_blender_other_space_art_tools_recreated_in_houdini",
-      "target": "ideas_spacetools_spacescape",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_spacescape"
     },
     {
       "relation": "contains",
@@ -162510,9 +162510,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacescape",
-      "target": "ideas_spacetools_design_decisions",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_design_decisions"
     },
     {
       "relation": "contains",
@@ -162520,9 +162520,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacescape",
-      "target": "ideas_spacetools_how_spacescape_works_read_from_spacescapeplugin_src",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_how_spacescape_works_read_from_spacescapeplugin_src"
     },
     {
       "relation": "contains",
@@ -162530,9 +162530,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacescape",
-      "target": "ideas_spacetools_known_gaps_later",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_known_gaps_later"
     },
     {
       "relation": "contains",
@@ -162540,9 +162540,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacescape",
-      "target": "ideas_spacetools_mapping_to_the_hda",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_mapping_to_the_hda"
     },
     {
       "relation": "contains",
@@ -162550,9 +162550,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_spacescape",
-      "target": "ideas_spacetools_verified_own_check_not_an_audit",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_verified_own_check_not_an_audit"
     },
     {
       "relation": "contains",
@@ -163269,5 +163269,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "282af24c5301539ed01274c88ebce1afc27f0d6b"
+  "built_at_commit": "46070e5178898c2717475eaf0569bd7d96af9345"
 }
