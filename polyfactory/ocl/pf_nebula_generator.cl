@@ -6,7 +6,13 @@
 #define PF_PI 3.14159265359f
 #define PF_N9_CAP 16.0f   // octave caps of the two modulation noises (Blender: 16). Lowering them changes the pattern (measured: oracle r 0.75 -> 0.45 at 8)
 #define PF_N8_CAP 16.0f
-#define PF_LIGHT_GAIN 2.0f   // light units -> radiance. Gas-only: Cycles wants ~0.8, with dust ~1.9, EEVEE ~0.5; 2.0 reads well after a filmic tonemap (see doc)
+#define PF_LIGHT_GAIN 1.0f   // sun: irradiance = strength (W/m2), measured in EEVEE with a single-scatter test cube (G/R of the albedo kept, radiance = sigma_s*E/(4pi))
+#define PF_STAR_CORE 0.18f   // effective soft-core radius of a star sprite / its plane half-size (the .blend stars are 2x2 planes with a texture; measured on the EEVEE render: a size-1 large star at ~100 units is ~1 px)
+// The EEVEE render of the world star dust is ~48x dimmer than the node maths says (the camera sees a low-res world probe: sparse 1 px dots,
+// mean 3.8e-4 vs 1.8e-2): radius x0.25 (gain 1) reproduce its mean and dot size.
+#define PF_BG_R 0.25f
+#define PF_BG_GAIN 1.0f
+#define PF_STAR_LIGHT_GAIN 3.14159265f   // point lamp: EEVEE intensity = P/(4pi) W/sr (measured, test cube) = P/(4pi^2) * pi
 
 // ---------------------------------------------------------------- hash / noise
 // Exact port of Blender/Cycles 4.5 noise (intern/cycles/util/hash.h, kernel/svm/noise.h, fractal_noise.h): the same
@@ -113,6 +119,21 @@ float3 pf_euler_apply(float3 v, float3 r)   // Blender XYZ euler (radians): Rz *
     return (float3)(cz * v.x - sz * v.y, sz * v.x + cz * v.y, v.z);
 }
 
+// EEVEE (the reference renderer) loses weakly scattering colour channels. Measured with EEVEE renders of the real scene using constant gas colours
+// (grey k: radiance / linear = 0 at 0.005, 0.45 at 0.01, 0.85 at 0.02, 0.97 at 0.05, 1 from 0.1; the G channel 0.0088 of a purple: 0.2).
+// Piecewise-linear table, scaled by floor / 0.0105 (floor 0 = off).
+float pf_weak1(float c, float k)
+{
+    if (k <= 0.0f) return c;
+    float x = c * (0.0105f / k);
+    const float X[7] = {0.005f, 0.0088f, 0.012f, 0.02f, 0.05f, 0.1f, 1e9f};
+    const float Y[7] = {0.0f, 0.25f, 0.55f, 0.85f, 0.975f, 1.0f, 1.0f};
+    if (x <= X[0]) return 0.0f;
+    for (int i = 1; i < 7; i++) if (x <= X[i]) return c * mix(Y[i - 1], Y[i], (x - X[i - 1]) / (X[i] - X[i - 1]));
+    return c;
+}
+float3 pf_weak_colour(float3 c, float k) { return (float3)(pf_weak1(c.x, k), pf_weak1(c.y, k), pf_weak1(c.z, k)); }
+
 // ---------------------------------------------------------------- stars on the sphere
 void pf_dir_to_face(float3 d, int* face, float* a, float* b)
 {
@@ -122,23 +143,48 @@ void pf_dir_to_face(float3 d, int* face, float* a, float* b)
     else if (ad.y >= ad.z)            { m = ad.y; if (d.y >= 0.0f) { *face = 2; *a = d.x / m;  *b = d.z / m; }  else { *face = 3; *a = d.x / m; *b = -d.z / m; } }
     else                              { m = ad.z; if (d.z >= 0.0f) { *face = 4; *a = d.x / m;  *b = -d.y / m; } else { *face = 5; *a = -d.x / m; *b = -d.y / m; } }
 }
-typedef struct { float3 dir; float exists; float size; float cu; float du; } PfStar;
-// one star per cube-face cell (face,i,j) with probability ~ the cell's solid angle, so density is uniform on the sphere
-PfStar pf_cell_star(int face, int i, int j, int M, uint seed, float rho, float coverage, float nscale, float smin, float smax)
+typedef struct { float3 dir; float exists; float size; float cu; float dist; } PfStar;
+// Small stars are points in a ball of radius Rs (volume units) round the volume centre, seen from the viewer at o: one star per
+// cube-face cell (face,i,j) with probability (density at that direction) x (cell solid angle). The density along a ray through the
+// ball grows with the ray length cubed ((rf^3 - rn^3) / Rs^3 x the average), like the 3D point cloud of the .blend. The star sits at a
+// random depth on its ray, the coverage noise is read at that 3D point and its size is world size / distance.
+PfStar pf_cell_star(int face, int i, int j, int M, uint seed, float rho, float coverage, float nscale, float smin, float smax,
+                    float3 o, float Rs, float unit)
 {
-    PfStar s; s.exists = 0.0f; s.dir = (float3)(0.0f); s.size = 0.0f; s.cu = 0.0f; s.du = 0.0f;
+    PfStar s; s.exists = 0.0f; s.dir = (float3)(0.0f); s.size = 0.0f; s.cu = 0.0f; s.dist = 0.0f;
     uint h = pf_h(pf_h(pf_h((uint)face * 1000003u + (uint)i * 7919u + (uint)j) + seed) ^ 0x1234567u);
     float ra = pf_u01(h), rb = pf_u01(pf_h(h + 1u)), rp = pf_u01(pf_h(h + 2u));
     float a = ((float)i + ra) / (float)M * 2.0f - 1.0f, b = ((float)j + rb) / (float)M * 2.0f - 1.0f;
     float q = 1.0f + a * a + b * b;
     float omega = (2.0f / (float)M) * (2.0f / (float)M) * rsqrt(q * q * q);
     s.dir = pf_cube_face_dir(face, a, b);
-    float mask = pf_fbm(s.dir * nscale + (float3)((float)seed * 0.0137f), 3.0f, 0.5f);   // stars where the noise is low
-    s.exists = (rp < rho * omega) ? (1.0f - smoothstep(coverage - 0.04f, coverage + 0.04f, mask)) : 0.0f;
-    s.size = mix(smin, smax, pf_u01(pf_h(h + 3u)));
+    float bb = dot(o, s.dir), cc = dot(o, o) - Rs * Rs, ds = bb * bb - cc;
+    if (ds <= 0.0f) return s;
+    float sq = sqrt(ds), rn = fmax(0.0f, -bb - sq), rf = -bb + sq;
+    if (rf <= rn) return s;
+    float n3 = rn * rn * rn, f3 = rf * rf * rf;
+    float nfac = (f3 - n3) / (Rs * Rs * Rs);
+    if (rp >= rho * omega * nfac) return s;
+    s.dist = cbrt(n3 + pf_u01(pf_h(h + 5u)) * (f3 - n3));
+    float mask = pf_fbm((o + s.dir * s.dist) * nscale + (float3)((float)seed * 0.0137f), 3.0f, 0.5f);   // stars where the noise is low
+    s.exists = 1.0f - smoothstep(coverage - 0.04f, coverage + 0.04f, mask);
+    s.size = PF_STAR_CORE * mix(smin, smax, pf_u01(pf_h(h + 3u))) / (s.dist * unit);
     s.cu = pf_u01(pf_h(h + 4u));
-    s.du = pf_u01(pf_h(h + 5u));
     return s;
+}
+
+// Large star k: position in volume units (the .blend instances a collection holding a mesh star AND a 2e6 W point light, so the large
+// stars are also the lamps that light the gas). A preset gives the exact positions (large_pos0..2, non-zero); otherwise a hash picks
+// a point inside the volume ball.
+float3 pf_large_pos(int k, int seed, float3 p0, float3 p1, float3 p2)
+{
+    if (k == 0 && dot(p0, p0) > 0.0f) return p0;
+    if (k == 1 && dot(p1, p1) > 0.0f) return p1;
+    if (k == 2 && dot(p2, p2) > 0.0f) return p2;
+    uint hk = pf_h((uint)k * 2654435u + (uint)seed * 40503u);
+    float uz = pf_u01(hk) * 2.0f - 1.0f, ph = pf_u01(pf_h(hk + 1u)) * 2.0f * PF_PI, rz = sqrt(1.0f - uz * uz);
+    float rad = cbrt(pf_u01(pf_h(hk + 5u)));
+    return rad * (float3)(rz * cos(ph), uz, rz * sin(ph));
 }
 
 // ---------------------------------------------------------------- voronoi F1 (3D euclidean, randomness 1): Cycles voronoi_f1 distance
@@ -155,11 +201,12 @@ float pf_voronoi_f1(float3 coord)
 }
 
 // ---------------------------------------------------------------- the cloud (macro: needs the @ramps)
+// The noise reads the coordinates of the .blend's "Empty" (scale 85.545), not of the box (122.73): PP * volume_unit / noise_unit.
 // Evaluates the density chain at object-space point PP with OCT octaves:
 //   t = FBM(map(p) * FBM_coarse(map(p)*coarse_scale), distortion = FBM_fine(map(p)*dist_scale) * dist_mult)
 //   main = main_ramp(t) * main_mult;  gas_val = gas_ramp(t);  gas = gas_val * gas_mult
 #define PF_CLOUD(PP, OCT, MAINV, GASV) { \
-    float3 pq_ = pf_euler_apply((PP) * @map_scale, mrot_) + @map_loc + seedoff_; \
+    float3 pq_ = pf_euler_apply((PP) * (@volume_unit / @noise_unit) * @map_scale, mrot_) + @map_loc + seedoff_; \
     float n9_ = pf_fbm(pq_ * @coarse_scale, fmin((float)(OCT), PF_N9_CAP), @coarse_rough); \
     float n8_ = pf_fbm(pq_ * @dist_scale, fmin((float)(OCT), PF_N8_CAP), @dist_rough); \
     float tv_ = pf_fbm(pf_warp(pq_ * n9_, n8_ * @dist_mult), (float)(OCT), @cloud_rough); \
@@ -170,7 +217,7 @@ float pf_voronoi_f1(float3 coord)
     float4 dd = pf_space_dir(@ix, @iy, @xres, @yres, @layout, @face, @convention);
     if (dd.w < 0.5f) { @color.set((float3)(0.0f)); @alpha.set(0.0f); return; }
     float3 d = dd.xyz;
-    float3 o = @view;
+    float3 o = @view * @view_dist;
     float3 mrot_ = @map_rot * (PF_PI / 180.0f);
     float3 seedoff_ = (float3)(@seed * 17.31f, @seed * -9.77f, @seed * 5.13f);
     int steps = clamp(@steps, 8, 160);
@@ -190,7 +237,10 @@ float pf_voronoi_f1(float3 coord)
 
     float3 Lmain_dir = pf_euler_apply((float3)(0.0f, 0.0f, 1.0f), @light_rot * (PF_PI / 180.0f));   // towards the sun lamp
     float3 Ecol = @light_color * @light_strength;
-    float sun_i = @sun_strength / (4.0f * PF_PI * PF_PI) * PF_LIGHT_GAIN;                                          // W -> intensity (Blender point lamp)
+    float sun_i = @sun_strength / (4.0f * PF_PI * PF_PI) * PF_STAR_LIGHT_GAIN;                                    // W -> intensity (Blender point lamp)
+    int nlarge = clamp(@large_count, 0, 16);
+    float3 LP[16];
+    for (int k = 0; k < 16; k++) LP[k] = k < nlarge ? pf_large_pos(k, @large_seed, @large_pos0, @large_pos1, @large_pos2) : (float3)(0.0f);
 
     float Tarr[160];
     float Tsum = 0.0f;
@@ -214,8 +264,9 @@ float pf_voronoi_f1(float3 coord)
                 float mixf = clamp(dmain * @main_mult, 0.0f, 1.0f);
                 float3 gc = pf_hsv_adjust(@gas_color_ramp(gval), @gas_hue, @gas_sat, @gas_val);
                 gc = pf_hsv_adjust(gc, @hue, @sat, @val);
+                gc = pf_weak_colour(gc, @albedo_floor);
                 float3 albedo = gc * (1.0f - mixf);
-                // lighting: sun lamp with a coarse shadow march + unshadowed point lamp at sun_pos
+                // lighting: sun lamp with a coarse shadow march + unshadowed point lamps at the large stars
                 float3 Lin = (float3)(0.0f);
                 if (@light_strength > 0.0f) {
                     float bl = dot(p, Lmain_dir), cl = dot(p, p) - R * R;
@@ -238,9 +289,11 @@ float pf_voronoi_f1(float3 coord)
                     Lin += Ecol * (PF_LIGHT_GAIN * exp(-tau));
                 }
                 if (@sun_strength > 0.0f) {
-                    float3 dv = @sun_pos - p;
-                    float rw = length(dv) * @volume_unit;
-                    if ((@sun_cutoff <= 0.0f || rw < @sun_cutoff * @volume_unit) && rw > 1e-3f) Lin += @sun_color * (sun_i / (rw * rw));
+                    for (int k = 0; k < 16; k++) {
+                        if (k >= nlarge) break;
+                        float rw = length(LP[k] - p) * @volume_unit;
+                        if (rw > 1e-3f) Lin += @sun_color * (sun_i / (rw * rw));
+                    }
                 }
                 float scat = 1.0f - exp(-dens * dt);
                 L += T * scat * albedo * Lin * (1.0f / (4.0f * PF_PI));
@@ -256,11 +309,10 @@ float pf_voronoi_f1(float3 coord)
 
     // ---- stars (emission seen through the dust: transmittance at the star's distance)
     float3 S = (float3)(0.0f);
-    float rho = (float)@star_count / (4.0f * PF_PI);
-    int M = clamp((int)ceil(sqrt(16.0f * rho)), 8, 1024);
+    float rho = (float)@star_count / (4.0f * PF_PI);                   // average stars per sr (viewer at the centre)
+    float Rs = fmax(@star_radius, 0.01f);
+    int M = clamp((int)ceil(sqrt(16.0f * rho * 8.0f)), 8, 1024);       // x8: a ray through the whole ball is up to 2 Rs long
     float cell_ang = 1.5708f / (float)M;
-    float smax_rad = fmin(radians(@star_size_max), 0.9f * cell_ang);
-    float smin_rad = fmin(radians(@star_size_min), smax_rad);
     int Npix = @layout == 1 ? @yres / 3 : (@layout == 2 ? @xres : @yres / 2);
     float pixang = 1.5708f / (float)Npix;   // angular size of a pixel; sprites are widened to it (energy kept)
     int face; float fa, fb;
@@ -281,12 +333,12 @@ float pf_voronoi_f1(float3 coord)
         for (int q = 0; q < nseen; q++) if (seen[q] == id) dup = true;
         if (dup) continue;
         seen[nseen++] = id;
-        PfStar st = pf_cell_star(f2, i2, j2, M, (uint)(@star_seed * 1000.0f), rho, @star_coverage, @star_noise_scale, smin_rad, smax_rad);
+        PfStar st = pf_cell_star(f2, i2, j2, M, (uint)(@star_seed * 1000.0f), rho, @star_coverage, @star_noise_scale, @star_size_min, @star_size_max, o, Rs, @volume_unit);
         if (st.exists > 0.0f) {
             float se = fmax(st.size, 0.7f * pixang);
             float x = length(d - st.dir) / se;
             if (x < 2.2f) {
-                float dist = t1 * cbrt(st.du);
+                float dist = st.dist;
                 int idx = clamp((int)((dist - t0) / fmax(dt, 1e-6f)), 0, steps - 1);
                 float Ts = (disc > 0.0f && dist > t0) ? Tarr[idx] : 1.0f;
                 float3 sc = pf_hsv_adjust(@star_ramp(st.cu), @star_hue, @star_sat, @star_val);
@@ -298,10 +350,11 @@ float pf_voronoi_f1(float3 coord)
     for (int k = 0; k < 16; k++) {
         if (k >= @large_count) break;
         uint hk = pf_h((uint)k * 2654435u + (uint)@large_seed * 40503u);
-        float uz = pf_u01(hk) * 2.0f - 1.0f, ph = pf_u01(pf_h(hk + 1u)) * 2.0f * PF_PI, rz = sqrt(1.0f - uz * uz);
-        float3 sd = (float3)(rz * cos(ph), uz, rz * sin(ph));
-        float size = radians(mix(@large_size_min, @large_size_max, pf_u01(pf_h(hk + 2u))));
-        float cu = pf_u01(pf_h(hk + 3u)), du = pf_u01(pf_h(hk + 4u));
+        float3 sv = LP[k] - o;
+        float dk = length(sv);
+        float3 sd = sv / fmax(dk, 1e-4f);
+        float size = PF_STAR_CORE * mix(@large_size_min, @large_size_max, pf_u01(pf_h(hk + 2u))) / (fmax(dk, 0.02f) * @volume_unit);
+        float cu = pf_u01(pf_h(hk + 3u));
         float3 dv = d - sd * dot(d, sd);
         float se = fmax(size, 0.7f * pixang);
         float x = length(d - sd) / se;
@@ -312,11 +365,10 @@ float pf_voronoi_f1(float3 coord)
             float spike = pow(fabs(cos(3.0f * ang)), 40.0f);
             float fade = smoothstep(40.0f, 20.0f, x);
             float prof = exp(-2.5f * x * x) + @large_glare * fade * (0.06f / (1.0f + x * x) + 0.30f * spike * exp(-0.15f * x));
-            float dist = t1 * cbrt(du);
-            int idx = clamp((int)((dist - t0) / fmax(dt, 1e-6f)), 0, steps - 1);
-            float Ts = (disc > 0.0f && dist > t0) ? Tarr[idx] : 1.0f;
+            int idx = clamp((int)((dk - t0) / fmax(dt, 1e-6f)), 0, steps - 1);
+            float Ts = (disc > 0.0f && dk > t0) ? Tarr[idx] : 1.0f;
             float3 sc = pf_hsv_adjust(@star_ramp(cu), @star_hue, @star_sat, @star_val);
-            S += sc * @large_strength * prof * Ts;
+            S += sc * @large_strength * prof * Ts * fmin(1.0f, (size * size) / (se * se));
         }
     }
     // background stars: two voronoi star fields, masked by noise (world shader of the .blend)
@@ -324,11 +376,11 @@ float pf_voronoi_f1(float3 coord)
     if (@bg_stars > 0.0f) {
         float3 pw = pf_euler_apply(d, (float3)(0.0f, 0.05585f, 0.10088f)) * 1.39f + (float3)(66.6f, 0.0f, 0.0f);
         float m1 = smoothstep(0.2115f, 0.5317f, pf_fbm(pw * 5.0f, 2.0f, 0.5f));
-        float v1 = clamp(1.0f - pf_voronoi_f1(pw * 44.0f) / 0.2364f, 0.0f, 1.0f);
+        float v1 = clamp(1.0f - pf_voronoi_f1(pw * 44.0f) / (0.2364f * PF_BG_R), 0.0f, 1.0f);
         float m2 = smoothstep(0.5726f, 1.0f, pf_fbm(pw * 1.47f, 2.0f, 0.5f));
-        float v2 = clamp(1.0f - pf_voronoi_f1(pw * 200.0f) / 0.2879f, 0.0f, 1.0f);
+        float v2 = clamp(1.0f - pf_voronoi_f1(pw * 200.0f) / (0.2879f * PF_BG_R), 0.0f, 1.0f);
         bg = (float3)(1.0f, 0.898f, 0.9545f) * (m1 * v1 * 4.0f) + (float3)(1.0f, 0.9711f, 0.9711f) * (m2 * v2 * 2.0f);
-        bg *= @bg_stars;
+        bg *= @bg_stars * PF_BG_GAIN;
     }
     float3 outc = (L + S + bg * T) * @exposure;
     @color.set(outc);

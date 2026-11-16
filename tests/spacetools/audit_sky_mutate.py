@@ -11,7 +11,7 @@ M = {
  # shared direction layer
  "sd_negY": ("sd", SC, "d = (float3)(  a, -1.0f, -b);", "d = (float3)(  a, -1.0f,  b);"),
  "sd_vflip": ("sd", SC, "float th  = vt * 3.14159265359f;", "float th  = (1.0f - vt) * 3.14159265359f;"),
- "sd_yaw": ("sd", SC, "float phi = (conv == 1 ? u : u - 0.5f)", "float phi = (conv == 1 ? u : u - 0.25f)"),
+ "sd_yaw": ("sd", SC, "float phi = u * 6.28318530718f;", "float phi = (u - 0.25f) * 6.28318530718f;"),
  "sd_bakeflip": ("sd", SKY, "return np.ascontiguousarray(a[::-1])", "return np.ascontiguousarray(a)"),
  "sd_crosscell": ("sd", SC, "else if (cx == 3 && cy == 1) f = 5;", "else if (cx == 3 && cy == 1) f = 4;"),
  # spacescape
@@ -33,7 +33,7 @@ M = {
  "nb_seed": ("nb", CL, "(float3)(@seed * 17.31f, @seed * -9.77f, @seed * 5.13f)", "(float3)(0.0f)"),
  "nb_starcount": ("nb", CL, "float rho = (float)@star_count / (4.0f * PF_PI);", "float rho = 0.5f * (float)@star_count / (4.0f * PF_PI);"),
  "nb_starramp": ("nb", CL, "pf_hsv_adjust(@star_ramp(st.cu)", "pf_hsv_adjust(@star_ramp(0.5f)"),
- "nb_pointlamp": ("nb", CL, "Lin += @sun_color * (sun_i / (rw * rw));", ""),
+ "nb_pointlamp": ("nb", CL, "Lin += @sun_color * (sun_i / (rw * rw));", "Lin += (float3)(0.0f);"),
  "nb_exposure": ("nb", CL, "float3 outc = (L + S + bg * T) * @exposure;", "float3 outc = (L + S + bg * T);"),
  "nb_alpha": ("nb", CL, "@alpha.set(1.0f - T);", "@alpha.set(T);"),
  "nb_bg": ("nb", CL, "if (@bg_stars > 0.0f) {", "if (0) {"),
@@ -41,6 +41,13 @@ M = {
  "nb_hue": ("nb", CL, "gc = pf_hsv_adjust(gc, @hue, @sat, @val);", ""),
  "nb_starstrength": ("nb", CL, "S += sc * @star_strength * exp", "S += sc * 2.0f * @star_strength * exp"),
  "nb_largecount": ("nb", CL, "if (k >= @large_count) break;", "if (k >= 1) break;"),
+ # added with the look fix (NEB_FAST=1 runs only the section-5 checks; the look-proxy mutants need the full run)
+ "nb_noiseunit": ("nb", CL, "(@volume_unit / @noise_unit)", "1.0f"),
+ "nb_weak": ("nb", CL, "gc = pf_weak_colour(gc, @albedo_floor);", ""),
+ "nb_sungain": ("nb", CL, "#define PF_LIGHT_GAIN 1.0f", "#define PF_LIGHT_GAIN 2.0f"),
+ "nb_lampgain": ("nb", CL, "#define PF_STAR_LIGHT_GAIN 3.14159265f", "#define PF_STAR_LIGHT_GAIN 1.0f"),
+ "nb_stardepth": ("nb", CL, "s.size = PF_STAR_CORE * mix(smin, smax, pf_u01(pf_h(h + 3u))) / (s.dist * unit);", "s.size = PF_STAR_CORE * mix(smin, smax, pf_u01(pf_h(h + 3u))) / (0.9f * unit);"),
+ "nb_bgsize": ("nb", CL, "#define PF_BG_R 0.25f", "#define PF_BG_R 1.0f"),
  "nb_octmod": ("nb", CL, "fmin((float)(OCT), PF_N9_CAP)", "fmin((float)(OCT), 2.0f)"),
 }
 def run(mid):

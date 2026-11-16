@@ -36,6 +36,7 @@ FOLDERS = [
         ("hue", "float", D["hue"], "Overall Hue (0.5 = none)", dict(min=0, max=1)),
         ("sat", "float", D["sat"], "Overall Saturation", dict(min=0, max=2)),
         ("val", "float", D["val"], "Overall Value", dict(min=0, max=4)),
+        ("albedo_floor", "float", 0.0105, "Weak-Colour Floor", dict(min=0, max=0.1, help="Blender/EEVEE drops gas colour channels below about 0.01 (a dark teal loses its weak channel, so dark gas looks more saturated). Measured and modelled as c * c^2/(c^2+floor^2); 0 = linear.")),
         ("exposure", "float", 1.0, "Exposure (x)", dict(min=0, max=100, help="Linear radiance multiplier of the whole image.")),
     ]),
     ("Noise", [
@@ -56,19 +57,18 @@ FOLDERS = [
         ("light_color", "color", D["light_color"], "Main Light Colour", None),
         ("light_strength", "float", D["light_strength"], "Main Light Strength", dict(min=0, max=1000)),
         ("light_rot", "vec3", D["light_rot"], "Main Light Rotation", dict(help="Blender XYZ Euler degrees; the sun lamp shines along -Z rotated by this.")),
-        ("shadow_steps", "int", 8, "Shadow Steps", dict(min=0, max=48, help="Self-shadowing march of the main light (0 = unshadowed, flat).")),
-        ("sun_color", "color", D["sun_color"], "Point Light Colour", None),
-        ("sun_strength", "float", D["sun_strength"], "Point Light Power (W)", dict(min=0, max=1e8)),
-        ("sun_pos", "vec3", D["sun_pos"], "Point Light Position", dict(help="Volume units (box half-size = 1).")),
-        ("sun_cutoff", "float", D["sun_cutoff"], "Point Light Cutoff Distance", dict(min=0, max=5, help="Volume units; 0 = no cutoff (the samples have it off).")),
+        ("shadow_steps", "int", 24, "Shadow Steps", dict(min=0, max=48, help="Self-shadowing march of the main light (0 = unshadowed, flat).")),
+        ("sun_color", "color", D["sun_color"], "Star Light Colour", None),
+        ("sun_strength", "float", D["sun_strength"], "Star Light Power (W)", dict(min=0, max=1e8, help="Every large star carries a point lamp of this power (as in the .blend, where the large-star collection holds a mesh and a 2e6 W lamp). Unshadowed, 1/r^2.")),
     ]),
     ("Stars", [
         ("star_count", "int", 6000, "Small Stars: Count", dict(min=0, max=200000, help="Before the coverage mask.")),
         ("star_seed", "float", D["star_seed"], "Small Stars: Seed", dict(min=0, max=1000)),
         ("star_coverage", "float", D["star_coverage"], "Small Stars: Coverage", dict(min=0, max=1)),
         ("star_noise_scale", "float", D["star_noise_scale"], "Small Stars: Noise Scale", dict(min=0.1, max=100)),
-        ("star_size_min", "float", 0.03, "Small Stars: Min Radius (deg)", dict(min=0, max=2)),
-        ("star_size_max", "float", 0.25, "Small Stars: Max Radius (deg)", dict(min=0, max=2, help="Capped to 0.9 of a grid cell (about 1 deg at 6000 stars).")),
+        ("star_radius", "float", 1.2, "Small Stars: Cloud Radius", dict(min=0.1, max=10, help="Stars are points inside a ball of this radius (volume units) round the volume centre; seen from inside it, density grows toward the far side like a real 3D star cloud.")),
+        ("star_size_min", "float", 0.01, "Small Stars: Min Size", dict(min=0, max=20, help="World size (Blender units) of the star planes: apparent size = size / distance.")),
+        ("star_size_max", "float", 0.5, "Small Stars: Max Size", dict(min=0, max=20)),
         ("star_ramp", "ramp_c", rp("star_ramp"), "Star Colour Ramp", "Random value per star -> colour."),
         ("star_hue", "float", D["star_hue"], "Star Hue (0.5 = none)", dict(min=0, max=1)),
         ("star_sat", "float", D["star_sat"], "Star Saturation", dict(min=0, max=2)),
@@ -76,17 +76,22 @@ FOLDERS = [
         ("star_strength", "float", D["star_strength"], "Star Emission Strength", dict(min=0, max=1000)),
         ("large_count", "int", D["large_count"], "Large Stars: Count", dict(min=0, max=16)),
         ("large_seed", "int", D["large_seed"], "Large Stars: Seed", dict(min=0, max=100000)),
-        ("large_size_min", "float", D["large_size_min"], "Large Stars: Min Radius (deg)", dict(min=0, max=20)),
-        ("large_size_max", "float", D["large_size_max"], "Large Stars: Max Radius (deg)", dict(min=0, max=20)),
-        ("large_strength", "float", 120.0, "Large Stars: Strength", dict(min=0, max=10000)),
-        ("large_glare", "float", 1.0, "Large Stars: Glare", dict(min=0, max=5, help="6-point streak glare (the .blend does this in the compositor).")),
+        ("large_size_min", "float", D["large_size_min"], "Large Stars: Min Size", dict(min=0, max=50, help="World size, as for the small stars.")),
+        ("large_size_max", "float", D["large_size_max"], "Large Stars: Max Size", dict(min=0, max=50)),
+        ("large_pos0", "vec3", D["large_pos0"], "Large Star 1 Position", dict(help="Volume units. (0,0,0) = hashed from the seed. Also the position of its lamp.")),
+        ("large_pos1", "vec3", D["large_pos1"], "Large Star 2 Position", dict(help="As star 1.")),
+        ("large_pos2", "vec3", D["large_pos2"], "Large Star 3 Position", dict(help="As star 1.")),
+        ("large_strength", "float", 19.4, "Large Stars: Strength", dict(min=0, max=10000)),
+        ("large_glare", "float", 0.0, "Large Stars: Glare", dict(min=0, max=5, help="6-point streak glare (the .blend does this in the compositor).")),
         ("bg_stars", "float", 1.0, "Background Stars", dict(min=0, max=10, help="Voronoi dust of distant stars (the .blend's world shader). 0 = off.")),
     ]),
     ("Transform", [
         ("view", "vec3", D["view"], "Viewer Position", dict(help="Where the sky is seen from, in volume units (box half-size = 1). Default = the sample camera.")),
+        ("view_dist", "float", 0.4, "Viewer Distance (x)", dict(min=0, max=2, help="Scales Viewer Position. 1 = the sample camera (near the edge of the volume, so only one side is filled); 0.4 keeps the viewer inside the cloud so the whole sky has content; 0 = volume centre.")),
         ("map_loc", "vec3", D["map_loc"], "Noise Location", None),
         ("map_rot", "vec3", D["map_rot"], "Noise Rotation", None),
         ("map_scale", "vec3", D["map_scale"], "Noise Scale", None),
+        ("noise_unit", "float", 85.545, "Noise Unit Size", dict(min=1, max=1000, help="Size of the object the noise reads its coordinates from (the .blend's Empty, scale 85.545). Volume Scale / this = how many noise units the volume spans.")),
     ]),
     ("Quality", [
         ("samples", "int", 1, "Samples (jitter)", dict(min=1, max=16, help="Stratified ray jitters averaged per pixel: removes the grain of thin dust edges; cost x samples.")),
@@ -184,7 +189,7 @@ HELP = """= PF Nebula Generator =
 #icon: COP_subnet
 
 """  + """Procedural space nebula as an HDR image, recreated from the Blender "Nebula Generator 3.0.3". A raymarched scattering volume
-(dark dust + luminous gas) lit by a sun lamp and a point lamp, seen from inside, with small/large stars and a star background.
+(dark dust + luminous gas) lit by a sun lamp and by point lamps at the large stars, seen from inside, with small/large stars and a star background.
 
 @outputs
 

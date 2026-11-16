@@ -43,21 +43,23 @@ def convert(name):
     sl = j.get("LIGHT Sun")
     if sl:
         p.update(sun_color=sl["color"], sun_strength=sl["energy"])
-    if st.get("Sun"):
-        p.update(sun_pos=[x / unit for x in st["Sun"]["loc"]], sun_cutoff=(st["Sun"]["cutoff"] / unit) if st["Sun"].get("custom") else 0.0)
+    # the "Sun" point lamp object is not rendered (its collection is excluded); the large-star instances each carry a copy of it,
+    # so the exact instance positions (stars listed twice: mesh + lamp) are the lamp positions
+    lp = [s[0] for s in st.get("Large Stars", {}).get("stars", [])[::2]][:3]
+    for i in range(3):
+        p["large_pos%d" % i] = [round(x, 5) for x in lp[i]] if i < len(lp) else [0.0, 0.0, 0.0]
     cam = j["scene"].get("cam")
     if cam:
         p["view"] = [x / unit for x in cam]
     ls = j.get("Large Stars", {}).get("Large Stars", {})
     ss = j.get("Small Stars", {}).get("Small Stars", {})
-    dist = 0.9 * unit
-    deg = lambda s: math.degrees(s / 2 / dist)
+    deg = lambda s: s   # sizes stay in world units: the kernel divides by the star's distance
     if ls:
         p.update(large_count=int(ls["Number"]), large_seed=int(ls["Seed"]), large_size_min=deg(ls["Min Star Size"]), large_size_max=deg(ls["Max Star Size"]))
     if ss:
         p.update(star_seed=ss["Seed"], star_coverage=ss["Star Coverage"], star_noise_scale=ss["Noise Scale"],
                  star_size_min=deg(ss["Min Star Size"]), star_size_max=deg(ss["Max Star Size"]),
-                 star_count=int(ss["Star Density"] * unit ** 3 * 4.19))
+                 star_count=int(ss["Star Density"] * unit ** 3 * 4.19 * 2.8))   # x2.8: calibrated so the visible star peaks match the EEVEE renders (ours were 2.5-3.5x short)
     p["star_ramp"] = ramp(j["STAR:ColorRamp"], True)
     sh = j["STAR:Hue Saturation Value.001"]; p.update(star_hue=sh["Hue"], star_sat=sh["Saturation"], star_val=sh["Value"])
     p["star_strength"] = j["STAR:Emission"]["Strength"]

@@ -123,12 +123,21 @@
 0.1981220692396164
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 0.3863004465990231,
 -0.617045533804628,
@@ -136,14 +145,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -282,12 +291,21 @@
 0.964544415473938
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 0.586129731663872,
 -0.3816391058172752,
@@ -295,14 +313,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -429,12 +447,21 @@
 0.1981220692396164
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 -0.29839387967500136,
 -0.04577077401587148,
@@ -442,14 +469,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -582,12 +609,21 @@
 0.13111141324043274
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.08397,
+-0.64878,
+0.49734
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.02151,
+-0.49625,
+0.44727
+],
+"large_pos2": [
+0.29272,
+-0.96596,
+-0.22286
+],
 "view": [
 -0.6090978590325556,
 -0.5915295503686142,
@@ -595,14 +631,14 @@
 ],
 "large_count": 3,
 "large_seed": 782,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -751,12 +787,21 @@
 0.1981220692396164
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 0.06179867287196579,
 -1.109595109329793,
@@ -764,14 +809,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -916,12 +961,21 @@
 1.0
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+0.76399,
+-1.26717,
+-1.17561
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+0.88325,
+0.24996,
+-0.70668
+],
+"large_pos2": [
+-0.72124,
+0.18419,
+0.04816
+],
 "view": [
 0.11071724050515508,
 -1.1069885703920301,
@@ -929,14 +983,14 @@
 ],
 "large_count": 3,
 "large_seed": 840,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.473,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1101,6 +1155,21 @@
 1.0
 ],
 "sun_strength": 2000000.0,
+"large_pos0": [
+0.0,
+0.0,
+0.0
+],
+"large_pos1": [
+0.0,
+0.0,
+0.0
+],
+"large_pos2": [
+0.0,
+0.0,
+0.0
+],
 "view": [
 0.04146701643480924,
 -0.3906604471112549,
@@ -1108,14 +1177,14 @@
 ],
 "large_count": 3,
 "large_seed": 799,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.0,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1270,12 +1339,21 @@
 0.7976464033126831
 ],
 "sun_strength": 0.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.12472,
+-0.619,
+0.53194
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.05137,
+-0.45686,
+0.4759
+],
+"large_pos2": [
+0.31763,
+-0.95615,
+-0.27432
+],
 "view": [
 -1.213031252482677,
 -0.2588106673025635,
@@ -1283,14 +1361,14 @@
 ],
 "large_count": 3,
 "large_seed": 782,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.06743304268625111,
-"star_size_max": 0.1945183923641859,
-"star_count": 15491,
+"star_size_min": 0.26,
+"star_size_max": 0.75,
+"star_count": 43376,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1417,6 +1495,21 @@
 0.23864874243736267
 ],
 "sun_strength": 1000000.0,
+"large_pos0": [
+0.0,
+0.0,
+0.0
+],
+"large_pos1": [
+0.0,
+0.0,
+0.0
+],
+"large_pos2": [
+0.0,
+0.0,
+0.0
+],
 "view": [
 1.0201034210994508,
 0.799755023881566,
@@ -1424,14 +1517,14 @@
 ],
 "large_count": 3,
 "large_seed": 783,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.0,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1564,12 +1657,21 @@
 0.5291287899017334
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+0.1558,
+0.98418,
+-0.66253
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.36123,
+0.1944,
+0.0021
+],
+"large_pos2": [
+0.60547,
+0.73471,
+0.70294
+],
 "view": [
 -0.6536788129847786,
 -0.7419360473580711,
@@ -1577,14 +1679,14 @@
 ],
 "large_count": 3,
 "large_seed": 859,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1711,12 +1813,21 @@
 0.1981220692396164
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.4927,
+0.71613,
+-0.4549
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.26632,
+-1.27173,
+0.4821
+],
+"large_pos2": [
+-0.33812,
+1.19567,
+0.28351
+],
 "view": [
 -0.5944326118614244,
 -1.0531986329377752,
@@ -1724,14 +1835,14 @@
 ],
 "large_count": 3,
 "large_seed": 828,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -1864,12 +1975,21 @@
 0.1981220692396164
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 -0.6258787977421517,
 -0.770326807640659,
@@ -1877,14 +1997,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2019,12 +2139,21 @@
 1.0
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.50066,
+-0.07095,
+0.17975
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.08397,
+-0.64878,
+0.49734
+],
+"large_pos2": [
+-0.02151,
+-0.49625,
+0.44727
+],
 "view": [
 -0.6682556007018571,
 -0.7253572039999339,
@@ -2032,14 +2161,14 @@
 ],
 "large_count": 3,
 "large_seed": 781,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 0.2593578564855812,
+"large_size_min": 1.0,
+"large_size_max": 1.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2180,12 +2309,21 @@
 1.0
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.50066,
+-0.07095,
+0.17975
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.08397,
+-0.64878,
+0.49734
+],
+"large_pos2": [
+-0.02151,
+-0.49625,
+0.44727
+],
 "view": [
 -0.09618354802105074,
 0.4187004156164567,
@@ -2193,14 +2331,14 @@
 ],
 "large_count": 3,
 "large_seed": 781,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 0.2593578564855812,
+"large_size_min": 1.0,
+"large_size_max": 1.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2339,12 +2477,21 @@
 0.14141729474067688
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.92972,
+-0.86776,
+0.57856
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.50066,
+-0.07095,
+0.17975
+],
+"large_pos2": [
+-0.08397,
+-0.64878,
+0.49734
+],
 "view": [
 -0.9709618632209213,
 -0.5843797512766322,
@@ -2352,14 +2499,14 @@
 ],
 "large_count": 3,
 "large_seed": 780,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2494,12 +2641,21 @@
 1.0
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+-0.50066,
+-0.07095,
+0.17975
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.08397,
+-0.64878,
+0.49734
+],
+"large_pos2": [
+-0.02151,
+-0.49625,
+0.44727
+],
 "view": [
 -0.3453312243969558,
 -0.6278009725691149,
@@ -2507,14 +2663,14 @@
 ],
 "large_count": 3,
 "large_seed": 781,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 0.2593578564855812,
+"large_size_min": 1.0,
+"large_size_max": 1.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2641,12 +2797,21 @@
 0.003335225861519575
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+0.76399,
+-1.26717,
+-1.17561
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+0.88325,
+0.24996,
+-0.70668
+],
+"large_pos2": [
+-0.72124,
+0.18419,
+0.04816
+],
 "view": [
 0.45519525544019424,
 -0.7378471443013027,
@@ -2654,14 +2819,14 @@
 ],
 "large_count": 3,
 "large_seed": 840,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2814,12 +2979,21 @@
 0.4840008020401001
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+0.81002,
+-0.71539,
+-0.74514
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.0364,
+0.37873,
+0.69172
+],
+"large_pos2": [
+1.15505,
+0.05739,
+0.51961
+],
 "view": [
 -1.0663535421639532,
 0.15381422184338064,
@@ -2827,14 +3001,14 @@
 ],
 "large_count": 3,
 "large_seed": 816,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
@@ -2987,12 +3161,21 @@
 0.4840008020401001
 ],
 "sun_strength": 2000000.0,
-"sun_pos": [
-0.0,
-0.0,
-0.0
+"large_pos0": [
+0.81002,
+-0.71539,
+-0.74514
 ],
-"sun_cutoff": 0.0,
+"large_pos1": [
+-0.0364,
+0.37873,
+0.69172
+],
+"large_pos2": [
+1.15505,
+0.05739,
+0.51961
+],
 "view": [
 -1.0663535421639532,
 0.15381422184338064,
@@ -3000,14 +3183,14 @@
 ],
 "large_count": 3,
 "large_seed": 816,
-"large_size_min": 0.2593578564855812,
-"large_size_max": 1.296789282427906,
+"large_size_min": 1.0,
+"large_size_max": 5.0,
 "star_seed": 5.773,
 "star_coverage": 0.443,
 "star_noise_scale": 18.548,
-"star_size_min": 0.002593578564855812,
-"star_size_max": 0.1296789282427906,
-"star_count": 7745,
+"star_size_min": 0.01,
+"star_size_max": 0.5,
+"star_count": 21688,
 "star_ramp": {
 "interp": "linear",
 "pos": [
