@@ -56,7 +56,7 @@ FOLDERS = [
         ("light_color", "color", D["light_color"], "Main Light Colour", None),
         ("light_strength", "float", D["light_strength"], "Main Light Strength", dict(min=0, max=1000)),
         ("light_rot", "vec3", D["light_rot"], "Main Light Rotation", dict(help="Blender XYZ Euler degrees; the sun lamp shines along -Z rotated by this.")),
-        ("shadow_steps", "int", 4, "Shadow Steps", dict(min=0, max=12, help="Self-shadowing march of the main light (0 = unshadowed, flat).")),
+        ("shadow_steps", "int", 8, "Shadow Steps", dict(min=0, max=48, help="Self-shadowing march of the main light (0 = unshadowed, flat).")),
         ("sun_color", "color", D["sun_color"], "Point Light Colour", None),
         ("sun_strength", "float", D["sun_strength"], "Point Light Power (W)", dict(min=0, max=1e8)),
         ("sun_pos", "vec3", D["sun_pos"], "Point Light Position", dict(help="Volume units (box half-size = 1).")),

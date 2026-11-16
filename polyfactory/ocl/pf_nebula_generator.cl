@@ -4,12 +4,30 @@
 // lamp, seen from a viewer inside it, plus small/large stars and a voronoi star background. See ideas/spacetools.md.
 
 #define PF_PI 3.14159265359f
-#define PF_LIGHT_GAIN 4.0f   // calibrated: our light units -> Cycles sun/point strength (measured mean-luminance ratio 4.1, see doc)
+#define PF_N9_CAP 16.0f   // octave caps of the two modulation noises (Blender: 16). Lowering them changes the pattern (measured: oracle r 0.75 -> 0.45 at 8)
+#define PF_N8_CAP 16.0f
+#define PF_LIGHT_GAIN 2.0f   // light units -> radiance. Gas-only: Cycles wants ~0.8, with dust ~1.9, EEVEE ~0.5; 2.0 reads well after a filmic tonemap (see doc)
 
 // ---------------------------------------------------------------- hash / noise
+// Exact port of Blender/Cycles 4.5 noise (intern/cycles/util/hash.h, kernel/svm/noise.h, fractal_noise.h): the same
+// Mapping location / scale therefore gives the same pattern as the .blend (up to float rounding).
+#define PF_ROT(x, k) (((x) << (k)) | ((x) >> (32 - (k))))
+#define PF_JMIX(a, b, c) { a -= c; a ^= PF_ROT(c, 4); c += b; b -= a; b ^= PF_ROT(a, 6); a += c; c -= b; c ^= PF_ROT(b, 8); b += a; \
+    a -= c; a ^= PF_ROT(c, 16); c += b; b -= a; b ^= PF_ROT(a, 19); a += c; c -= b; c ^= PF_ROT(b, 4); b += a; }
+#define PF_JFINAL(a, b, c) { c ^= b; c -= PF_ROT(b, 14); a ^= c; a -= PF_ROT(c, 11); b ^= a; b -= PF_ROT(a, 25); c ^= b; c -= PF_ROT(b, 16); \
+    a ^= c; a -= PF_ROT(c, 4); b ^= a; b -= PF_ROT(a, 14); c ^= b; c -= PF_ROT(b, 24); }
+inline uint pf_hash_uint2(uint kx, uint ky) { uint a, b, c; a = b = c = 0xdeadbeefU + (2u << 2) + 13u; b += ky; a += kx; PF_JFINAL(a, b, c); return c; }
+inline uint pf_hash_uint3(uint kx, uint ky, uint kz) { uint a, b, c; a = b = c = 0xdeadbeefU + (3u << 2) + 13u; c += kz; b += ky; a += kx; PF_JFINAL(a, b, c); return c; }
+inline uint pf_hash_uint4(uint kx, uint ky, uint kz, uint kw) { uint a, b, c; a = b = c = 0xdeadbeefU + (4u << 2) + 13u; a += kx; b += ky; c += kz; PF_JMIX(a, b, c); a += kw; PF_JFINAL(a, b, c); return c; }
+inline float pf_u2f(uint n) { return (float)n * (1.0f / 4294967295.0f); }
+inline float pf_hf3(float3 k) { return pf_u2f(pf_hash_uint3(as_uint(k.x), as_uint(k.y), as_uint(k.z))); }
+inline float pf_hf4(float4 k) { return pf_u2f(pf_hash_uint4(as_uint(k.x), as_uint(k.y), as_uint(k.z), as_uint(k.w))); }
+inline float3 pf_hash_f3_f3(float3 k) { return (float3)(pf_hf3(k), pf_hf4((float4)(k.x, k.y, k.z, 1.0f)), pf_hf4((float4)(k.x, k.y, k.z, 2.0f))); }
+
+// private helpers for our own (non-Blender) stars: cheap integer hash
 inline uint pf_h(uint x) { x ^= x >> 16; x *= 0x7feb352dU; x ^= x >> 15; x *= 0x846ca68bU; x ^= x >> 16; return x; }
-inline uint pf_h3(int3 c, uint s) { return pf_h(pf_h(pf_h((uint)c.x + s * 0x9E3779B9U) + (uint)c.y) + (uint)c.z); }
 inline float pf_u01(uint h) { return (float)(h >> 8) * (1.0f / 16777216.0f); }
+
 inline float pf_gr(uint h, float x, float y, float z)
 {
     h &= 15u;
@@ -17,40 +35,50 @@ inline float pf_gr(uint h, float x, float y, float z)
     float v = h < 4u ? y : ((h == 12u || h == 14u) ? x : z);
     return ((h & 1u) ? -u : u) + ((h & 2u) ? -v : v);
 }
-// improved Perlin noise, signed, ~[-1,1] (Blender scales it by 0.982 too)
+// Cycles snoise_3d: improved Perlin, signed, scaled by 0.9820
 float pf_perlin(float3 p)
 {
+    p = fmod(p, 100000.0f) + 0.5f * (float3)(fabs(p.x) >= 1000000.0f ? 1.0f : 0.0f, fabs(p.y) >= 1000000.0f ? 1.0f : 0.0f, fabs(p.z) >= 1000000.0f ? 1.0f : 0.0f);
     float3 fl = floor(p);
-    int3 i0 = convert_int3(fl);
+    uint X = (uint)(int)fl.x, Y = (uint)(int)fl.y, Z = (uint)(int)fl.z;
     float3 f = p - fl;
     float3 u = f * f * f * (f * (f * 6.0f - 15.0f) + 10.0f);
-    float g000 = pf_gr(pf_h3(i0, 0u), f.x, f.y, f.z);
-    float g100 = pf_gr(pf_h3(i0 + (int3)(1, 0, 0), 0u), f.x - 1.0f, f.y, f.z);
-    float g010 = pf_gr(pf_h3(i0 + (int3)(0, 1, 0), 0u), f.x, f.y - 1.0f, f.z);
-    float g110 = pf_gr(pf_h3(i0 + (int3)(1, 1, 0), 0u), f.x - 1.0f, f.y - 1.0f, f.z);
-    float g001 = pf_gr(pf_h3(i0 + (int3)(0, 0, 1), 0u), f.x, f.y, f.z - 1.0f);
-    float g101 = pf_gr(pf_h3(i0 + (int3)(1, 0, 1), 0u), f.x - 1.0f, f.y, f.z - 1.0f);
-    float g011 = pf_gr(pf_h3(i0 + (int3)(0, 1, 1), 0u), f.x, f.y - 1.0f, f.z - 1.0f);
-    float g111 = pf_gr(pf_h3(i0 + (int3)(1, 1, 1), 0u), f.x - 1.0f, f.y - 1.0f, f.z - 1.0f);
-    float x00 = mix(g000, g100, u.x), x10 = mix(g010, g110, u.x), x01 = mix(g001, g101, u.x), x11 = mix(g011, g111, u.x);
-    return 0.982f * mix(mix(x00, x10, u.y), mix(x01, x11, u.y), u.z);
+    float v0 = pf_gr(pf_hash_uint3(X, Y, Z), f.x, f.y, f.z);
+    float v1 = pf_gr(pf_hash_uint3(X + 1u, Y, Z), f.x - 1.0f, f.y, f.z);
+    float v2 = pf_gr(pf_hash_uint3(X, Y + 1u, Z), f.x, f.y - 1.0f, f.z);
+    float v3 = pf_gr(pf_hash_uint3(X + 1u, Y + 1u, Z), f.x - 1.0f, f.y - 1.0f, f.z);
+    float v4 = pf_gr(pf_hash_uint3(X, Y, Z + 1u), f.x, f.y, f.z - 1.0f);
+    float v5 = pf_gr(pf_hash_uint3(X + 1u, Y, Z + 1u), f.x - 1.0f, f.y, f.z - 1.0f);
+    float v6 = pf_gr(pf_hash_uint3(X, Y + 1u, Z + 1u), f.x, f.y - 1.0f, f.z - 1.0f);
+    float v7 = pf_gr(pf_hash_uint3(X + 1u, Y + 1u, Z + 1u), f.x - 1.0f, f.y - 1.0f, f.z - 1.0f);
+    float x1 = 1.0f - u.x, y1 = 1.0f - u.y, z1 = 1.0f - u.z;
+    float r = z1 * (y1 * (v0 * x1 + v1 * u.x) + u.y * (v2 * x1 + v3 * u.x)) + u.z * (y1 * (v4 * x1 + v5 * u.x) + u.y * (v6 * x1 + v7 * u.x));
+    return 0.9820f * r;
 }
-// Blender "Noise Texture" FBM, normalised to ~[0,1], lacunarity 2. p is already scaled.
+// Blender "Noise Texture" FBM, normalised ([0,1]-ish), lacunarity 2. p is already scaled.
 float pf_fbm(float3 p, float detail, float rough)
 {
     float fs = 1.0f, amp = 1.0f, maxa = 0.0f, sum = 0.0f;
     int n = (int)detail;
     for (int i = 0; i <= n; i++) { sum += pf_perlin(p * fs) * amp; maxa += amp; amp *= rough; fs *= 2.0f; }
-    float rmd = detail - (float)n;
-    if (rmd > 0.0f) {
+    float rmd = detail - floor(detail);
+    if (rmd != 0.0f) {
         float s2 = sum + pf_perlin(p * fs) * amp;
-        return 0.5f * mix(sum / maxa, s2 / (maxa + amp), rmd) + 0.5f;
+        return mix(0.5f * sum / maxa + 0.5f, 0.5f * s2 / (maxa + amp) + 0.5f, rmd);
     }
     return 0.5f * sum / maxa + 0.5f;
 }
-float3 pf_warp(float3 p, float amount)   // Blender noise "Distortion": p += snoise3(p) * amount
+// Cycles random_float3_offset(seed) = 100 + 100 * hash_float2_to_float((seed, c)), c = 0,1,2
+inline float3 pf_rand_off(float seed)
 {
-    return p + amount * (float3)(pf_perlin(p + (float3)(13.5f, 3.7f, 9.1f)), pf_perlin(p + (float3)(41.3f, 17.9f, 5.3f)), pf_perlin(p + (float3)(7.7f, 29.1f, 23.3f)));
+    uint s = as_uint(seed);
+    return (float3)(100.0f + 100.0f * pf_u2f(pf_hash_uint2(s, as_uint(0.0f))), 100.0f + 100.0f * pf_u2f(pf_hash_uint2(s, as_uint(1.0f))),
+                    100.0f + 100.0f * pf_u2f(pf_hash_uint2(s, as_uint(2.0f))));
+}
+float3 pf_warp(float3 p, float amount)   // Blender noise "Distortion"
+{
+    if (amount == 0.0f) return p;
+    return p + amount * (float3)(pf_perlin(p + pf_rand_off(0.0f)), pf_perlin(p + pf_rand_off(1.0f)), pf_perlin(p + pf_rand_off(2.0f)));
 }
 
 // ---------------------------------------------------------------- colour
@@ -113,20 +141,17 @@ PfStar pf_cell_star(int face, int i, int j, int M, uint seed, float rho, float c
     return s;
 }
 
-// ---------------------------------------------------------------- voronoi F1 (3D), Blender "Voronoi Texture" distance
-float pf_voronoi_f1(float3 p)
+// ---------------------------------------------------------------- voronoi F1 (3D euclidean, randomness 1): Cycles voronoi_f1 distance
+float pf_voronoi_f1(float3 coord)
 {
-    float3 fl = floor(p); float3 f = p - fl;
-    int3 i0 = convert_int3(fl);
-    float best = 8.0f;
-    for (int z = -1; z <= 1; z++) for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
-        int3 c = i0 + (int3)(x, y, z);
-        uint h = pf_h3(c, 77u);
-        float3 o = (float3)(pf_u01(h), pf_u01(pf_h(h + 1u)), pf_u01(pf_h(h + 2u)));
-        float3 dv = (float3)((float)x, (float)y, (float)z) + o - f;
-        best = fmin(best, dot(dv, dv));
+    float3 cell = floor(coord), loc = coord - cell;
+    float best = 1e30f;
+    for (int k = -1; k <= 1; k++) for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
+        float3 off = (float3)((float)i, (float)j, (float)k);
+        float3 pp = off + pf_hash_f3_f3(cell + off);
+        best = fmin(best, length(pp - loc));
     }
-    return sqrt(best);
+    return best;
 }
 
 // ---------------------------------------------------------------- the cloud (macro: needs the @ramps)
@@ -135,8 +160,8 @@ float pf_voronoi_f1(float3 p)
 //   main = main_ramp(t) * main_mult;  gas_val = gas_ramp(t);  gas = gas_val * gas_mult
 #define PF_CLOUD(PP, OCT, MAINV, GASV) { \
     float3 pq_ = pf_euler_apply((PP) * @map_scale, mrot_) + @map_loc + seedoff_; \
-    float n9_ = pf_fbm(pq_ * @coarse_scale, fmin((float)(OCT), 6.0f), @coarse_rough); \
-    float n8_ = pf_fbm(pq_ * @dist_scale, fmin((float)(OCT), 4.0f), @dist_rough); \
+    float n9_ = pf_fbm(pq_ * @coarse_scale, fmin((float)(OCT), PF_N9_CAP), @coarse_rough); \
+    float n8_ = pf_fbm(pq_ * @dist_scale, fmin((float)(OCT), PF_N8_CAP), @dist_rough); \
     float tv_ = pf_fbm(pf_warp(pq_ * n9_, n8_ * @dist_mult), (float)(OCT), @cloud_rough); \
     MAINV = @main_ramp(tv_); GASV = @gas_ramp(tv_); }
 
@@ -195,11 +220,11 @@ float pf_voronoi_f1(float3 p)
                 if (@light_strength > 0.0f) {
                     float bl = dot(p, Lmain_dir), cl = dot(p, p) - R * R;
                     float lend = -bl + sqrt(fmax(bl * bl - cl, 0.0f));
-                    int ns = clamp(@shadow_steps, 0, 12);
+                    int ns = clamp(@shadow_steps, 0, 48);
                     float tau = 0.0f;
                     if (ns > 0) {
                         float dl = lend / (float)ns;
-                        for (int s = 0; s < 12; s++) {
+                        for (int s = 0; s < 48; s++) {
                             if (s >= ns) break;
                             float3 ps = p + Lmain_dir * (((float)s + jit) * dl);
                             float fs = @falloff_ramp(length(ps) / @falloff_size);
@@ -284,8 +309,9 @@ float pf_voronoi_f1(float3 p)
             float3 e1 = normalize(cross(sd, fabs(sd.y) < 0.9f ? (float3)(0.0f, 1.0f, 0.0f) : (float3)(1.0f, 0.0f, 0.0f)));
             float3 e2 = cross(sd, e1);
             float ang = atan2(dot(dv, e2), dot(dv, e1));
-            float spike = pow(fabs(cos(3.0f * ang)), 60.0f);
-            float prof = exp(-2.5f * x * x) + @large_glare * (0.25f * spike / (1.0f + x * x * 0.25f) + 0.15f / (1.0f + x * x));
+            float spike = pow(fabs(cos(3.0f * ang)), 40.0f);
+            float fade = smoothstep(40.0f, 20.0f, x);
+            float prof = exp(-2.5f * x * x) + @large_glare * fade * (0.06f / (1.0f + x * x) + 0.30f * spike * exp(-0.15f * x));
             float dist = t1 * cbrt(du);
             int idx = clamp((int)((dist - t0) / fmax(dt, 1e-6f)), 0, steps - 1);
             float Ts = (disc > 0.0f && dist > t0) ? Tarr[idx] : 1.0f;
