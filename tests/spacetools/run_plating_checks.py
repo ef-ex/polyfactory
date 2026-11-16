@@ -238,7 +238,7 @@ def c_plating_presets(g):
         cnt += 1
         try:
             geo = cook(n)
-            if len(geo.prims()) < 50 or internals(geo):
+            if len(geo.prims()) < 10 or internals(geo):   # pre_subdivisions 0: the 5% big-plate presets are few faces on a 5x5 grid
                 bad.append((k, "empty/leak"))
         except Exception as e:
             bad.append((k, str(e)[:150]))
@@ -246,6 +246,113 @@ def c_plating_presets(g):
     run_preset(n, "Rounded_Corners")
     check("plating: all %d presets apply and cook; Rounded_Corners sets corner_radius 0.037" % cnt,
           cnt >= 15 and not bad and abs(n.parm("corner_radius").eval() - 0.037) < 1e-6, bad[:3])
+
+
+def area_of(geo, grp):
+    return sum(geo.prim(i).intrinsicValue("measuredarea") for i in grp_idx(geo, grp))
+
+
+def topology(geo):
+    """(zero-area prims, edges used by >2 prims, boundary edges) with points welded at 1e-5."""
+    Pp, pp = P(geo), prim_pts(geo)
+    key, wid = {}, []
+    for i, p in enumerate(Pp):
+        wid.append(key.setdefault(tuple(np.round(p, 5)), i))
+    zero, e2 = 0, {}
+    for pr in pp:
+        pts = Pp[pr]
+        n = sum(np.cross(pts[i], pts[(i + 1) % len(pts)]) for i in range(len(pts)))
+        zero += np.linalg.norm(n) / 2 < 1e-10
+        w = [wid[i] for i in pr]
+        for i in range(len(w)):
+            if w[i] != w[(i + 1) % len(w)]:
+                e = tuple(sorted((w[i], w[(i + 1) % len(w)])))
+                e2[e] = e2.get(e, 0) + 1
+    return int(zero), sum(v > 2 for v in e2.values()), sum(v == 1 for v in e2.values())
+
+
+def c_plating_topology(g):
+    """Every preset on a box and a grid: no zero-area faces, no edge shared by >2 faces, and (floor kept) no open edge on a box."""
+    keys = [k for k in mk(g, "pf_plating_generator", fx_grid(g, 3)).parm("preset").parmTemplate().menuItems() if k != "none"]
+    bad = []
+    for fxn, mkf in (("box", lambda: fx_box(g)), ("grid", lambda: fx_grid(g, 6, 4.0))):
+        for k in keys:
+            n = mk(g, "pf_plating_generator", mkf(), subdiv=1)
+            run_preset(n, k)
+            n.parm("subdiv").set(1)
+            z, nm, op = topology(cook(n))
+            if z or nm or (fxn == "box" and op and n.parm("floor").evalAsString() == "keep"):
+                bad.append((fxn, k, z, nm, op))
+    for fxn, mkf in (("box", lambda: fx_box(g)), ("grid", lambda: fx_grid(g, 6, 4.0))):   # flat plates, grooves kept: still a closed mesh
+        z, nm, op = topology(cook(mk(g, "pf_plating_generator", mkf(), subdiv=1, height_min=0, height_max=0, groove_width=0.05)))
+        if z or nm or (fxn == "box" and op):
+            bad.append((fxn, "flat", z, nm, op))
+    check("plating: %d presets + flat plates on box and grid: no zero-area face, no non-manifold edge, box closed" % len(keys), not bad, bad[:3])
+
+
+def c_plating_details(g):
+    """Closed-form oracles for taper, rim bevel, corner bevel, rivets, colour and the side/bottom groups (one plate on a grid)."""
+    base = dict(amount=0, subdiv=0, groove_width=0.1, height_min=0.3, height_max=0.3)
+    gs = lambda **kw: cook(mk(g, "pf_plating_generator", fx_grid(g, 6, 4.0), **{**base, **kw}))
+    b = gs()
+    check("plating: taper 0.1 -> top is (3.9-0.2)^2", abs(area_of(gs(taper=0.1), "pf_plate_top") - 3.7 ** 2) < 1e-3, area_of(gs(taper=0.1), "pf_plate_top"))
+    nb = len(b.prims())
+    ok = all(len(gs(bevel_amount=0.02, bevel_segments=s).prims()) == nb + 20 * s for s in (1, 3))
+    check("plating: rim bevel adds exactly 20 x segments faces (20 rim edges)", ok)
+    c = gs(corner_radius=0.1, corner_segments=8)
+    dside = area_of(b, "pf_plate_side") - area_of(c, "pf_plate_side")
+    check("plating: corner radius rounds the 4 vertical corners (more faces, less wall area)", len(c.prims()) >= nb + 4 * 8 and 0.01 < dside < 0.08, (len(c.prims()) - nb, dside))
+    r = gs(rivets=1, rivet_size=0.1, rivet_dist=0.2, rivet_detail=4)
+    ri = grp_idx(r, "pf_plate_rivet")
+    Pp, pp = P(r), prim_pts(r)
+    A = Pp[sorted(set(p for i in ri for p in pp[i]))]
+    q = A[(A[:, 0] > 0) & (A[:, 2] > 0)]
+    ext = q.max(0) - q.min(0)
+    check("plating: rivets = 4 equal balls (one per plate corner), diameter = Rivet Diameter, off by default",
+          len(ri) > 0 and len(ri) % 4 == 0 and abs(ext[0] - 0.1) < 1e-3 and abs(ext[2] - 0.1) < 1e-3 and not grp_idx(b, "pf_plate_rivet"), (len(ri), ext))
+    cd = gs(amount=40, random_color=1)
+    col = np.array(cd.primFloatAttribValues("Cd")).reshape(-1, 3) if cd.findPrimAttrib("Cd") else None
+    pid = np.array(cd.primIntAttribValues("pf_plate_id"))
+    ok = col is not None and len(set(map(tuple, col.round(4)))) > 2 and all(len(set(map(tuple, col[pid == i].round(4)))) == 1 for i in set(pid) if i >= 0) and gs(amount=40).findPrimAttrib("Cd") is None
+    check("plating: random colour = one Cd per plate, several plates differ; none when off", ok)
+    side = grp_idx(b, "pf_plate_side")
+    ny = [abs(b.prim(i).normal()[1]) for i in side]
+    check("plating: pf_plate_side = the 20 vertical walls (normal.y = 0)", len(side) == 20 and max(ny) < 1e-5, (len(side), max(ny) if ny else None))
+    rm = gs(floor="remove")
+    bt = grp_idx(rm, "pf_plate_bottom")
+    ok = len(bt) == 25 and all(rm.prim(i).normal()[1] < -0.99 for i in bt) and not grp_idx(b, "pf_plate_bottom")
+    check("plating: pf_plate_bottom = the 25 downward back faces when the floor is removed, empty otherwise", ok, len(bt))
+
+
+def c_plating_odd_input(g):
+    """Empty, packed and uv-carrying input cook without warnings; packed is plated; uv survives."""
+    bad = []
+    for hda in ("pf_plating_generator", "pf_greeble_scatter"):
+        e = cook(mk(g, hda, g.createNode("null")))
+        if e.prims():
+            bad.append((hda, "empty gives prims"))
+        pk = g.createNode("pack"); pk.setInput(0, fx_box(g))
+        if hda == "pf_plating_generator" and len(cook(mk(g, hda, pk)).prims()) < 100:
+            bad.append((hda, "packed not plated"))
+        for cls in (1, 2, 3):
+            w = g.createNode("attribwrangle"); w.setInput(0, fx_grid(g, 6, 4.0)); w.parm("class").set(cls); w.parm("snippet").set("v@uv = @P;")
+            try:
+                geo = cook(mk(g, hda, w, **({"coverage": 100} if "greeble" in hda else {})))
+                if not any(a.name() == "uv" for a in (geo.primAttribs(), geo.pointAttribs(), geo.vertexAttribs())[cls - 1]):
+                    bad.append((hda, cls, "uv lost"))
+            except Exception as ex:
+                bad.append((hda, cls, str(ex)[:150]))
+    check("both HDAs: empty / packed / uv input (prim, point, vertex) cook without warnings", not bad, bad[:3])
+
+
+def c_greeble_kit_choice(g):
+    src = fx_grid(g, 6, 4.0)
+    n = {}
+    for kit in ("defaults", "hull", "all"):
+        geo = cook(mk(g, "pf_greeble_scatter", src, kit=kit, coverage=100, subd_levels=2, keep_surface=0))
+        n[kit] = len(set(geo.primIntAttribValues("pf_kit")))
+    check("greeble: kit choice limits the pieces used (400 greebles: Simple <= 6 kinds, Hull <= 16, All > 16)",
+          1 < n["defaults"] <= 6 and 1 < n["hull"] <= 16 and n["all"] > 16, n)
 
 
 # ============================ greeble ======================================
@@ -426,7 +533,7 @@ def c_greeble_presets(g):
 
 
 CHECKS = [c_plating_matrix, c_plating_determinism, c_plating_oracles, c_plating_gap_and_heights, c_plating_floor_remove_closed,
-          c_plating_group_and_chain, c_plating_presets, c_greeble_matrix, c_greeble_determinism, c_greeble_counts,
+          c_plating_group_and_chain, c_plating_presets, c_plating_topology, c_plating_details, c_plating_odd_input, c_greeble_kit_choice, c_greeble_matrix, c_greeble_determinism, c_greeble_counts,
           c_greeble_nonoverlap, c_greeble_transform_oracle, c_greeble_chain_on_plates, c_greeble_presets]
 
 
@@ -465,6 +572,21 @@ MUTATIONS = [
     ("coverage test inverted", "pf_greeble_scatter", lambda n: sub(n, "place", "if (chk > cov) continue;", "if (chk <= cov) continue;"), ["c_greeble_counts"]),
     ("quarter turns ignored", "pf_greeble_scatter", lambda n: sub(n, "place", "for (int r = 0; r < rot; r++)", "for (int r = 0; r < 0; r++)"), ["c_greeble_transform_oracle"]),
     ("greeble seed ignored", "pf_greeble_scatter", lambda n: sub(n, "place", 'int    seed = chi("../seed");', "int    seed = 1;"), ["c_greeble_determinism"]),
+    # added after the independent audit: these changes used to leave the whole suite green
+    ("zero-height plates get side walls again", "pf_plating_generator", lambda n: n.node("flat_plates").bypass(True), ["c_plating_topology"]),
+    ("rivets never added", "pf_plating_generator", lambda n: n.node("rivets_on").parm("input").setExpression("0"), ["c_plating_details"]),
+    ("rim + corner bevels bypassed", "pf_plating_generator", lambda n: [n.node(c).bypass(True) for c in ("rim_bevel", "corner_bevel")], ["c_plating_details"]),
+    ("rim bevel only bypassed", "pf_plating_generator", lambda n: n.node("rim_bevel").bypass(True), ["c_plating_details"]),
+    ("corner bevel only bypassed", "pf_plating_generator", lambda n: n.node("corner_bevel").bypass(True), ["c_plating_details"]),
+    ("taper ignored", "pf_plating_generator", lambda n: n.node("raise").parm("inset").setExpression("0"), ["c_plating_details"]),
+    ("random colour never applied", "pf_plating_generator", lambda n: n.node("color_on").parm("input").setExpression("0"), ["c_plating_details"]),
+    ("pf_plate_side group = top", "pf_plating_generator", lambda n: sub(n, "finalize", 'setprimgroup(0,"pf_plate_side",@primnum, pt==2,"set");', 'setprimgroup(0,"pf_plate_side",@primnum, pt==1,"set");'), ["c_plating_details"]),
+    ("pf_plate_bottom group dropped", "pf_plating_generator", lambda n: sub(n, "finalize", 'setprimgroup(0,"pf_plate_bottom",@primnum, pt==4,"set");', ''), ["c_plating_details"]),
+    ("plating empty-input passthrough off", "pf_plating_generator", lambda n: n.node("empty_passthru").parm("input").setExpression("0"), ["c_plating_odd_input"]),
+    ("plating packed input not unpacked", "pf_plating_generator", lambda n: n.node("unpack_input").parm("input").setExpression("0"), ["c_plating_odd_input"]),
+    ("greeble empty-input passthrough off", "pf_greeble_scatter", lambda n: n.node("empty_passthru").parm("input").setExpression("0"), ["c_plating_odd_input"]),
+    ("greeble uv not given to greebles", "pf_greeble_scatter", lambda n: n.node("greeble_uv").bypass(True), ["c_plating_odd_input"]),
+    ("greeble kit filter ignores the kit choice", "pf_greeble_scatter", lambda n: sub(n, "kit_filter", 'k != "all" && s@pf_kit_set != k', '0'), ["c_greeble_kit_choice"]),
 ]
 
 

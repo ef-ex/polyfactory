@@ -36,7 +36,13 @@ for f in files:
     pp = L[0]["plating_props"]
     notes = []
     if L[0]["type"] != "PlatingGeneratorDecorator":
-        notes.append("level0 is %s: Blender would not plate, HDA applies stale plating_props" % L[0]["type"])
+        notes.append("level0 is %s: no plating; the preset must only reset to defaults (no stale props)" % L[0]["type"])
+        if v:
+            fails.append((name, "stale plating props applied", v))
+        print(name, "|", "; ".join(notes))
+        continue
+    if v.get("subdiv") != pp["pre_subdivisions"]:
+        fails.append((name, "pre_subdivisions", pp["pre_subdivisions"], v.get("subdiv")))
     for a, b in mp:
         if abs(float(pp[a]) - float(v[b])) > 1e-6:
             fails.append((name, a, pp[a], v[b]))
