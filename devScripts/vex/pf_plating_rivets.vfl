@@ -24,7 +24,7 @@ for (int pt = 0; pt < npt; pt++) {
     float d = min(dist, 0.45 * length(c - P0));
     int np = addpoint(0, P0 + dir * d);
     setpointattrib(0, "N", np, n, "set");
-    setpointattrib(0, "pscale", np, size, "set");
+    setpointattrib(0, "pscale", np, size * 0.5, "set");   // unit-radius ball: size is the diameter
     int pid = prim(0, "pf_plate_id", p);
     setpointattrib(0, "_pid", np, pid, "set");
     float ph = prim(0, "pf_plate_height", p);

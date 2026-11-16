@@ -63,7 +63,7 @@ DEFAULTS = {
     "angle_dev": 0.1, "groove_width": 0.02, "groove_depth": 0.0, "height_min": 0.01,
     "height_max": 0.04, "height_seed": 1, "taper": 0.0, "bevel_amount": 0.0, "bevel_segments": 1,
     "corner_radius": 0.0, "corner_segments": 3, "floor": "keep", "rivets": 0, "rivet_dist": 0.05,
-    "rivet_size": 0.02, "rivet_detail": 6, "random_color": 0,
+    "rivet_size": 0.02, "rivet_detail": 4, "random_color": 0,
 }
 
 PATTERNS = [
@@ -165,7 +165,13 @@ def preset_data():
         d = json.load(open(f"{BLENDER_PRESETS}/{fn}"))
         L = d["levels"]
         pp = L[0]["plating_props"]
+        key = os.path.splitext(fn)[0].split(". ", 1)[1].replace(" ", "_").replace("(", "").replace(")", "")
+        if L[0]["type"] != "PlatingGeneratorDecorator":
+            # level 0 is a GreebleDecorator (no plating): its plating_props are stale Blender leftovers, so the preset only resets to defaults
+            out[key] = {"label": os.path.splitext(fn)[0] + "  [greebles only - no plating, use Greeble Scatter]", "values": {}}
+            continue
         v = {
+            "subdiv": pp["pre_subdivisions"],
             "pattern": pm.get(pp["pattern_type"], "crisscross"),
             "amount": pp["amount"], "triangle_amount": pp["triangle_percentage"],
             "irregular_amount": pp["ruby_dragon_percentage"], "groove_width": pp["groove_width"],
@@ -182,10 +188,11 @@ def preset_data():
         }
         label = os.path.splitext(fn)[0]
         if len(L) > 1:
-            label += "  (level 1 of %d - chain more plating nodes on pf_plate_top)" % len(L)
+            label += "  (level 1 of %d - chain more plating nodes on pf_plate_top; later levels: %s)" % (
+                len(L), ", ".join("%s%d subdiv %d" % ("L" if l["type"].startswith("Plat") else "G", i + 2, l["plating_props"]["pre_subdivisions"]) for i, l in enumerate(L[1:])))
         if "Greebles" in fn or "City" in fn:
             label += "  [plates only - add Greeble Scatter]"
-        out[os.path.splitext(fn)[0].split(". ", 1)[1].replace(" ", "_").replace("(", "").replace(")", "")] = {"label": label, "values": v}
+        out[key] = {"label": label, "values": v}
     return out
 
 
@@ -240,7 +247,12 @@ def build():
         w.parm("group").set(group)
         return w
 
-    inp = hda.indirectInputs()[0]
+    inp0 = hda.indirectInputs()[0]
+    # packed prims are unpacked and plated like normal geometry (the unpack only cooks when there are packed prims: no warning)
+    probe = wr("pack_probe", inp0, 'int k = 0; for (int p = 0; p < nprimitives(0); p++) if (primintrinsic(0, "typename", p) == "PackedGeometry") k = 1; i@_npk = k;', 0)
+    unp = node("unpack", "unpack_packed", probe)
+    inp = node("switch", "unpack_input", probe, unp)
+    inp.parm("input").setExpression("detail('../pack_probe', '_npk', 0)")
     dfl = wr("defaults", inp,
              'if (!hasattrib(0, "prim", "pf_plate_id")) setprimattrib(0, "pf_plate_id", @primnum, -1, "set");'+"\n"+
              'if (!hasattrib(0, "prim", "pf_plate_area")) setprimattrib(0, "pf_plate_area", @primnum, 0.0, "set");'+"\n"+
@@ -265,15 +277,17 @@ def build():
     nog = wr("no_groove", cusp, 'setprimgroup(0,"_groove",@primnum,0,"set"); setprimgroup(0,"_front1",@primnum,inprimgroup(0,"_plated",@primnum),"set");', 1)
     sw1 = node("switch", "ring_on", nog, ex1)
     sw1.parm("input").setExpression("ch('../groove_width') > 0 || ch('../groove_depth') > 0")
+    # plates of zero height (height + groove depth = 0) get no side walls: they stay flat (zero-area sides would be non-manifold)
+    flat = wr("flat_plates", sw1, 'int fl = inprimgroup(0, "_front1", @primnum) && abs(f@_zs) < 1e-6; setprimgroup(0, "_flat", @primnum, fl, "set"); if (fl) setprimgroup(0, "_front1", @primnum, 0, "set"); if (@primnum == 0) { foreach (string g; {"_top", "_side", "_bottom"}) setprimgroup(0, g, 0, 0, "set"); }', 1)
     # ex2: raise + taper
-    ex2 = node("polyextrude::2.0", "raise", sw1, group="_front1", splittype=1, dist=1.0,
+    ex2 = node("polyextrude::2.0", "raise", flat, group="_front1", splittype=1, dist=1.0,
                uselocalzscaleattrib=1, localzscaleattrib="_zs", 
                outputfront=1, outputfrontgrp=1, frontgrp="_top", outputside=1, outputsidegrp=1,
                sidegrp="_side", outputback=0, outputbackgrp=1, backgrp="_bottom")
     ex2.parm("inset").setExpression("ch('../taper')")
     ex2.parm("outputback").setExpression("strcmp(chs('../floor'),'remove')==0")
     parts = wr("parts", ex2,
-               'i@_part = inprimgroup(0,"_top",@primnum) ? 1 : inprimgroup(0,"_side",@primnum) ? 2 : '
+               'i@_part = (inprimgroup(0,"_top",@primnum) || inprimgroup(0,"_flat",@primnum)) ? 1 : inprimgroup(0,"_side",@primnum) ? 2 : '
                'inprimgroup(0,"_groove",@primnum) ? 3 : inprimgroup(0,"_bottom",@primnum) ? 4 : 0;', 1)
     eg2 = wr("edges_rim", parts, vex("pf_plating_edgegroups"), 0)
     bev2 = node("polybevel::3.0", "rim_bevel", eg2, grouptype=2, group="_rim", filletshape=4)
@@ -333,7 +347,11 @@ def build():
     gclean.parm("deletions").set(1)
     gclean.parm("group1").set("_*")
     gclean.parm("grouptype1").set(0)  # guess; fixed below
-    out = node("null", "OUT", gclean)
+    ing = wr("guard_pass", inp, "i@_g = 0;", 0)
+    inpc = node("attribdelete", "clean_pass", ing, dodtldel=1, dtldel="_*")
+    swe = node("switch", "empty_passthru", gclean, inpc)     # nothing to plate: pass the input through, no group warnings
+    swe.parm("input").setExpression("npoints('../unpack_input') == 0")
+    out = node("null", "OUT", swe)
     out.setDisplayFlag(True); out.setRenderFlag(True)
     hda.layoutChildren()
 
