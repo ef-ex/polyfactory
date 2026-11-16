@@ -156,7 +156,7 @@ def _ptg():
         F("e_hue", "Hue Shift", 0.0, -0.5, 0.5), F("e_sat", "Saturation", 1.0, 0.0, 3.0)]))
     P.append(folder("f_clouds", "Clouds", [
         F("c_blend", "Blend", 1.0, 0.0, 1.0), F("c_thick", "Thickness", 1.0, 0.0, 3.0, "Cloud opacity multiplier."),
-        F("c_bright", "Brightness", 1.0, 0.0, 3.0)]))
+        F("c_bright", "Brightness", 1.0, 0.0, 1.0, "0..1: the addon clamps it (measured against Blender: 1.4 renders like 1.0).")]))
     P.append(folder("f_atm", "Atmosphere (billboard)", [
         F("a_strength", "Strength", 1.0, 0.0, 4.0), F("a_sat", "Saturation", 1.0, 0.0, 3.0), C("a_color", "Colour", (0.0, 0.259, 1.0), "Hue of the glow."),
         F("a_center", "Center Strength", 0.7, 0.0, 1.0, "Lower = atmosphere also covers the middle of the disc."),
@@ -288,6 +288,7 @@ def create():
     defn.setExtraFileOption("PythonModule/IsPython", True)
     defn.setExtraFileOption("pf/source", __file__.replace("\\", "/"))
     defn.setIcon("COP2_noise")
+    sc.add_tab_submenu(defn)
     defn.save(OUTPUT_HDA, template_node=hda)
     hda.destroy()
     copnet.destroy()

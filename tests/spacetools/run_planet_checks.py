@@ -202,6 +202,12 @@ def part_d():
     want = sky.sample_equirect(eq, d)[..., :3]
     rel = float(np.abs(Cd - want).mean() / want.mean())
     check("planet_preview: Cd == baked equirect at the point direction (rel < 1e-3)", len(P) > 20000 and rel < 1e-3, "%.2e, %d points" % (rel, len(P)))
+    H, W = eq.shape[:2]
+    for tag, dirn, u in (("+Z", [0, 0, 1], 0.5), ("+X", [1, 0, 0], 0.25)):   # cap of points vs the equirect box around the same spot
+        m = d @ np.array(dirn, float) > math.cos(math.radians(4))
+        px = eq[int(H * 0.46):int(H * 0.54), int((u - 0.0111) * W):int((u + 0.0111) * W), :3].reshape(-1, 3).mean(0)
+        err = float(np.abs(Cd[m].mean(0) - px).max() / px.max())
+        check("planet_preview: points around %s show the equirect at u=%.2f (centre +Z, +X at u .25)" % (tag, u), m.sum() > 5 and err < 0.12, "%s vs %s" % (Cd[m].mean(0).round(3), px.round(3)))
     relm = float(np.abs(Cd - sky.sample_equirect(eq, d * [-1, 1, 1])[..., :3]).mean() / want.mean())
     check("MUT planet_preview: mirrored lookup is clearly different", relm > 0.05, "%.3f" % relm)
     for k, v in dict(use_clouds=1, use_emission=1, ambient=0.05, atm_strength=1, height_scale=0.2).items():

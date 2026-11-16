@@ -4,7 +4,7 @@
 
 A sphere that wears the maps baked by pf_custom_planet (sphere mode): albedo, clouds, city/lava emission, height
 displacement, a lambert light and a rim atmosphere, as point colour Cd (+ uv, N). Native sphere SOP + one point wrangle
-(VEX); no Python at run time. The equirect convention is the Houdini one of pf_space_direction (centre = -Z).
+(VEX); no Python at run time. The equirect convention is the Houdini one of pf_space_direction (centre = +Z, +X at u = 0.25, same as Godot).
 """
 import os
 import sys
@@ -15,10 +15,28 @@ HERE = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 _POLYFACTORY = os.environ.get("POLYFACTORY", os.path.join(os.path.dirname(HERE), "polyfactory"))
 OUTPUT_HDA = os.path.join(_POLYFACTORY, "otls", "pf_planet_preview.hda").replace("\\", "/")
 
+SHELF = """<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <tool name="$HDA_DEFAULT_TOOL" label="$HDA_LABEL" icon="$HDA_ICON">
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>$HDA_TABLE_AND_NAME</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>Poly Factory/Space</toolSubmenu>
+    <script scriptType="python"><![CDATA[import soptoolutils
+
+soptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
+  </tool>
+</shelfDocument>
+"""
+
 VEX = r'''
-// pf::planet_preview: equirect maps -> point colour. u,v exactly as pf_space_dir (Houdini convention: centre = -Z).
+// pf::planet_preview: equirect maps -> point colour. u,v exactly as pf_space_dir (Karma/USD lat-long: centre = +Z, +X at u = 0.25).
 vector pn = normalize(@P);
-float u = atan2(pn.x, -pn.z) / (2.0 * PI) + 0.5;
+float u = atan2(pn.x, -pn.z) / (2.0 * PI);
+u -= floor(u);
 float v = 1.0 - acos(clamp(pn.y, -1.0, 1.0)) / PI;        // texture() has v = 0 at the bottom row
 string base = chs("folder") + "/" + chs("prefix");
 vector alb = texture(base + "_surface_equirect.exr", u, v);
@@ -140,6 +158,7 @@ def create():
     wr.parm("snippet").set(VEX.replace('chs("', 'chs("../').replace('chi("', 'chi("../').replace('chf("', 'chf("../').replace('chv("', 'chv("../'))
     defn.addSection("Help", HELP)
     defn.setIcon("SOP_sphere")
+    defn.addSection("Tools.shelf", SHELF)
     defn.save(OUTPUT_HDA, template_node=hda)
     hda.destroy()
     geo.destroy()

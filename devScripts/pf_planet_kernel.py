@@ -296,7 +296,7 @@ MAIN = r"""
         if (bill) C.xyz *= pf_sat(lsl) + 0.02f;
     }
     float gam = 1.0f - shadow_bright + 0.23f;
-    float3 cc = pow(fmax(C.xyz, 0.0f), gam) * c_bright;
+    float3 cc = pow(fmax(C.xyz, 0.0f), gam) * pf_sat(c_bright);
     float ca = C.w * c_thick * c_blend;
     float3 c03 = pf_mix3(e05, cc, pf_sat(ca));
 
