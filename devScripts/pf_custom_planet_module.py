@@ -29,7 +29,7 @@ ATM_NAMES = ["Big", "Medium", "Small", "Very small"]
 def imagedir(node):
     import hou
     d = hou.text.expandString(node.evalParm("imagedir")).strip().replace("\\", "/")
-    if not d or "$" in d or not os.path.isdir(d):
+    if not d or "$" in d:          # unset: the default library; a path that does not exist stays (layers fall back to procedural)
         d = DEFAULT_DIR
     return d
 

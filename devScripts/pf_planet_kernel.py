@@ -139,7 +139,8 @@ inline float3 pf_psurface(float3 d, int seed, int ptype, float sc, float rough, 
         float oc = smoothstep(sea + 0.012f, sea - 0.012f, hh);
         *ocean = oc * (0.72f + 0.28f * smoothstep(sea - 0.22f, sea, hh));
         c = pf_mix3(c, (float3)(0.04f, 0.08f, 0.14f), oc);
-        float ice = smoothstep(1.0f - polar - 0.06f * n2, 1.0f - polar + 0.06f, lat + 0.07f * (n2 - 0.5f));
+        float pc = cos(polar * 1.396f);                      // cap half-angle = polar * 80 degrees
+        float ice = smoothstep(pc - 0.02f, pc + 0.02f, lat + 0.03f * (n2 - 0.5f));
         c = pf_mix3(c, (float3)(0.9f, 0.93f, 0.96f), ice);
         *ocean *= 1.0f - ice;
         float city = smoothstep(0.58f, 0.78f, pf_tri(d, 13U, seed, 7.0f * sc, 4, 0.5f)) * smoothstep(0.45f, 0.7f, n3) * (1.0f - oc) * (1.0f - ice);
@@ -149,8 +150,8 @@ inline float3 pf_psurface(float3 d, int seed, int ptype, float sc, float rough, 
         c = pf_mix3((float3)(0.62f, 0.36f, 0.19f), (float3)(0.80f, 0.60f, 0.40f), smoothstep(0.3f, 0.7f, n2));
         c = pf_mix3(c, (float3)(0.22f, 0.15f, 0.13f), smoothstep(0.55f, 0.75f, a) * 0.8f);
         c *= 0.85f + 0.3f * n3;
-        float pe = 1.0f - polar * 0.6f;
-        c = pf_mix3(c, (float3)(0.93f, 0.9f, 0.88f), smoothstep(pe, pe + 0.08f, lat + 0.06f * (n2 - 0.5f)));
+        float pe = cos(polar * 0.8f);
+        c = pf_mix3(c, (float3)(0.93f, 0.9f, 0.88f), smoothstep(pe, pe + 0.03f, lat + 0.03f * (n2 - 0.5f)));
     } else if (ptype == 2) {                               // ice
         float rid = pf_ridge(d, seed, 3.0f * sc, 5);
         c = pf_mix3((float3)(0.72f, 0.84f, 0.95f), (float3)(0.93f, 0.97f, 1.0f), n2);
@@ -204,7 +205,10 @@ MAIN = r"""
         float4 dd = pf_space_dir(@ix, @iy, xr, yr, IP(layout), IP(face), IP(convention));
         inside = dd.w;
         dv = (float3)(dot(dd.xyz, X), dot(dd.xyz, Y), dot(dd.xyz, Z));
-        uvb = (float2)(0.5f + PR * dv.x, 0.5f + PR * dv.y);
+        float2 vxy = (float2)(dv.x, dv.y);
+        float vr = length(vxy);
+        if (vr > 0.985f) vxy *= 0.985f / vr;           // stay off the soft limb pixels of the disc images
+        uvb = 0.5f + PR * vxy;
         pixang = md == 1 ? (IP(layout) == 0 ? 6.2831853f / (float)xr : 1.5707963f / (float)(IP(layout) == 1 ? yr / 3 : xr)) : 0.01f;
     }
     float aS = radians(s_rot), aW = radians(w_rot), aE = radians(e_rot);
@@ -281,7 +285,7 @@ MAIN = r"""
     float m = bill ? lsl * (1.0f - e_shadowvis) : 0.0f;
     float3 e01 = clamp(em * (1.0f - m), 0.0f, 1.0f);
     float3 e02 = pf_hsvnode(e01, e_hue + 0.5f, e_sat, fmax(e_strength, 0.0f));
-    float3 e04 = e02 * (1.0f - wm);
+    float3 e04 = e02 * pf_sat(1.0f - wm);   // Blender goes negative where the water mask > 1; a map must not
     float3 e05 = w04 + e04;
 
     // ---- clouds
