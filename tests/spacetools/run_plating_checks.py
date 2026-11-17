@@ -532,15 +532,187 @@ def c_greeble_presets(g):
     check("greeble: all %d presets apply and cook with greebles" % len(keys), len(keys) >= 4 and not bad, bad)
 
 
+# ---- pf::plating_preset: the one-node preset menu must equal the chain built level by level ----------------
+BLENDER = "F:/cache/spacetools/plating/plating_greeble_gen/presets/panel"
+_PM = {"0": "crisscross", "2": "triangles", "6": "irregular", "3": "rectangles", "4": "rectangles_cuts"}
+_MP = [("amount", "amount"), ("triangle_percentage", "triangle_amount"), ("ruby_dragon_percentage", "irregular_amount"),
+       ("groove_width", "groove_width"), ("groove_depth", "groove_depth"), ("plate_min_height", "height_min"),
+       ("plate_max_height", "height_max"), ("plate_taper", "taper"), ("bevel_amount", "bevel_amount"),
+       ("bevel_segments", "bevel_segments"), ("corner_width", "corner_radius"), ("corner_bevel_segments", "corner_segments"),
+       ("rivet_corner_distance", "rivet_dist"), ("rivet_diameter", "rivet_size"), ("rectangle_amount", "rect_count"),
+       ("rectangle_width_min", "rect_w_min"), ("rectangle_width_max", "rect_w_max"),
+       ("rectangle_height_min", "rect_h_min"), ("rectangle_height_max", "rect_h_max"), ("pre_subdivisions", "subdiv")]
+_GM = [("greeble_amount", "amount"), ("coverage_amount", "coverage"), ("greeble_subd_levels", "subd_levels"),
+       ("greeble_deviation", "deviation"), ("greeble_min_width", "width_min"), ("greeble_max_width", "width_max"),
+       ("greeble_min_length", "length_min"), ("greeble_max_length", "length_max"), ("greeble_min_height", "height_min"),
+       ("greeble_max_height", "height_max")]
+
+
+def _sec(t):
+    import json
+    return json.loads(hou.nodeType(hou.sopNodeTypeCategory(), t).definition().sections()["presets.json"].contents())
+
+
+def _setv(n, vals):
+    for k, v in vals.items():
+        if n.parm(k) is not None:
+            n.parm(k).set(v)
+
+
+def _menu(n, key):
+    n.parm("preset").set(key)
+    exec(n.parm("preset").parmTemplate().scriptCallback(), {"kwargs": {"node": n, "script_value": key}})
+
+
+def _is_share(l):
+    return l["selection_level"] != "0" and (l["select_remaining"] or l["selection_amount"] < 100)
+
+
+def ref_chain(g, hda, d, key, xf):
+    """The Blender preset levels built as separate pf_plating_generator / pf_greeble_scatter nodes (the harness
+    F:/cache/spacetools/plating_compare/ours.py logic).  The random share selection is taken from the HDA's own
+    select slot (its ranking is not reproducible in numpy); everything else is computed here from the geometry."""
+    PD, GD = _sec("pf_plating_generator"), _sec("pf_greeble_scatter")
+    L = d["levels"]
+    gl = [x for x in L if x["type"] == "GreebleDecorator"]
+    outs = []
+    for i, l in enumerate(L):
+        k = int(l["selection_level"])
+        st = list(l["selection_type"]) if k else []
+        while k and not L[k - 1]["visible"] and L[k - 1]["type"] == "PlatingGeneratorDecorator" and st == ["1"] \
+                and not outs[k - 1].geometry().findPrimGroup("pf_plate_side").prims() and int(L[k - 1]["selection_level"]):
+            k = int(L[k - 1]["selection_level"])
+        src = xf if k == 0 else outs[k - 1]
+        sel = src
+        if k:
+            geo = src.geometry()
+            tg, sg = geo.findPrimGroup("pf_plate_top"), geo.findPrimGroup("pf_plate_side")
+            tops = set(p.number() for p in (tg.prims() if tg else []))
+            sides = set(p.number() for p in (sg.prims() if sg else []))
+            s = set(range(len(geo.prims())))
+            if tops or sides:
+                s = (tops if "0" in st else set()) | (sides if "1" in st else set())
+            if _is_share(l):
+                hs = hda.node("select%d" % (i + 1)).geometry().findPrimGroup("_sel")
+                s = set(p.number() for p in hs.prims())
+            bl = g.createNode("blast")
+            bl.setInput(0, src)
+            bl.parm("group").set(" ".join(str(x) for x in sorted(s)) or "0")
+            bl.parm("negate").set(1)
+            bl.parm("grouptype").set(4)
+            sel = bl
+        if l["type"] == "PlatingGeneratorDecorator":
+            n = g.createNode("pf_plating_generator")
+            n.setInput(0, sel)
+            if i == 0 and k == 0:
+                _menu(n, key)
+            else:
+                pp = l["plating_props"]
+                v = dict(PD["defaults"])
+                for a, b in _MP:
+                    v[b] = pp[a]
+                v.update(pattern=_PM.get(pp["pattern_type"], "crisscross"), floor="remove" if pp["remove_grooves"] else "keep", rivets=int(pp["use_rivets"]))
+                v.pop("group", None)
+                _setv(n, v)
+        else:
+            n = g.createNode("pf_greeble_scatter")
+            n.setInput(0, sel)
+            if len(gl) == 1 and key in GD["presets"]:
+                _menu(n, key)
+                n.parm("group").set("")
+            else:
+                gp = l["greeble_props"]
+                v = dict(GD["defaults"])
+                for a, b in _GM:
+                    v[b] = gp[a]
+                v.update(placement="overlapping" if gp["greeble_pattern_type"] == "0" else "non_overlapping", keep_aspect=int(gp["all_keep_aspect_ratio"]))
+                v.pop("group", None)
+                v.pop("kit", None)
+                _setv(n, v)
+            n.parm("kit").set("defaults")
+        n.parm("random_color").set(0)
+        outs.append(n)
+    mg = g.createNode("merge")
+    for i, l in enumerate(L):
+        if not (l["visible"] and l["is_enabled"]):
+            continue
+        o = outs[i]
+        if l["type"] == "GreebleDecorator" and int(l["selection_level"]) != 0:
+            o = g.createNode("blast")
+            o.setInput(0, outs[i])
+            o.parm("group").set("pf_greeble")
+            o.parm("negate").set(1)
+            o.parm("grouptype").set(4)
+        mg.setNextInput(o)
+    return mg
+
+
+def c_plating_preset_hda(g):
+    import glob
+    import json
+    import re
+    files = sorted(glob.glob(BLENDER + "/*.json"), key=lambda x: int(os.path.basename(x).split(".")[0]))
+    if not files:
+        check("plating_preset: Blender preset folder present", False, BLENDER)
+        return
+    grid = g.createNode("grid")
+    grid.parmTuple("size").set((4, 4))
+    grid.parm("rows").set(17)
+    grid.parm("cols").set(17)
+    grid.parm("orient").set(0)
+    xf = g.createNode("xform")
+    xf.setInput(0, grid)
+    xf.parmTuple("r").set((180, 0, 0))
+    for f in files:
+        fn = os.path.basename(f)[:-5]
+        num = int(fn.split(".")[0])
+        d = json.load(open(f))
+        key = re.sub(r"[^A-Za-z0-9]+", "_", fn.split(". ", 1)[1]).strip("_")
+        h = mk(g, "pf_plating_preset", xf)
+        _menu(h, key)
+        try:
+            geo = cook(h)
+        except AssertionError as e:
+            check("plating_preset %d cooks clean" % num, False, str(e)[:200])
+            continue
+        mkey = fn.split(". ", 1)[1].replace(" ", "_").replace("(", "").replace(")", "")
+        ref = ref_chain(g, h, d, mkey, xf)
+        ref.cook(force=True)
+        rg = ref.geometry()
+        a, b = P(geo), P(rg)
+        same = len(geo.prims()) == len(rg.prims()) and len(a) == len(b)
+        diff = float(np.abs(a - b).max()) if same and len(a) else 9e9
+        check("plating_preset %d (%d levels): prims/points = chained reference, max position diff %.2g" % (num, len(d["levels"]), diff),
+              same and diff < 1e-4, (len(geo.prims()), len(rg.prims()), len(a), len(b), diff))
+        share = [i for i, l in enumerate(d["levels"]) if _is_share(l)]
+        if share:   # share selection: every share level picks plates; "remaining" levels never reuse the first level's plates
+            ids = []
+            for i in share:
+                sg = h.node("select%d" % (i + 1)).geometry()
+                pid = sg.primIntAttribValues("pf_plate_id")
+                ids.append(set(pid[p.number()] for p in sg.findPrimGroup("_sel").prims()))
+            check("plating_preset %d: share levels pick non-empty plate sets" % num, all(ids), [len(x) for x in ids])
+            if len(ids) > 1 and d["levels"][share[1]]["select_remaining"] and not d["levels"][share[0]]["select_remaining"]:
+                check("plating_preset %d: 'remaining' level takes plates the first one did not" % num, not (ids[0] & ids[1]), len(ids[0] & ids[1]))
+    for k in _sec("pf_greeble_scatter")["presets"]:
+        h = mk(g, "pf_plating_preset", xf)
+        _menu(h, "greeble_" + k)
+        try:
+            gg = cook(h)
+            check("plating_preset greeble_%s cooks and makes greebles" % k, gg.findPrimGroup("pf_greeble") is not None and len(gg.prims()) > 256)
+        except AssertionError as e:
+            check("plating_preset greeble_%s cooks clean" % k, False, str(e)[:200])
+
+
 CHECKS = [c_plating_matrix, c_plating_determinism, c_plating_oracles, c_plating_gap_and_heights, c_plating_floor_remove_closed,
           c_plating_group_and_chain, c_plating_presets, c_plating_topology, c_plating_details, c_plating_odd_input, c_greeble_kit_choice, c_greeble_matrix, c_greeble_determinism, c_greeble_counts,
-          c_greeble_nonoverlap, c_greeble_transform_oracle, c_greeble_chain_on_plates, c_greeble_presets]
+          c_greeble_nonoverlap, c_greeble_transform_oracle, c_greeble_chain_on_plates, c_greeble_presets, c_plating_preset_hda]
 
 
 def run_all(only=None):
     FAILS.clear(); PASSES.clear()
     g = fresh()
-    install("pf_plating_generator"); install("pf_greeble_scatter")
+    install("pf_plating_generator"); install("pf_greeble_scatter"); install("pf_plating_preset")
     for c in CHECKS:
         if only and c.__name__ not in only:
             continue
@@ -586,6 +758,12 @@ MUTATIONS = [
     ("plating packed input not unpacked", "pf_plating_generator", lambda n: n.node("unpack_input").parm("input").setExpression("0"), ["c_plating_odd_input"]),
     ("greeble empty-input passthrough off", "pf_greeble_scatter", lambda n: n.node("empty_passthru").parm("input").setExpression("0"), ["c_plating_odd_input"]),
     ("greeble uv not given to greebles", "pf_greeble_scatter", lambda n: n.node("greeble_uv").bypass(True), ["c_plating_odd_input"]),
+    ("preset HDA: level 2 dropped from the result", "pf_plating_preset", lambda n: n.node("result2").parm("input").setExpression("2"), ["c_plating_preset_hda"]),
+    ("preset HDA: level 4 dropped from the result", "pf_plating_preset", lambda n: n.node("result4").parm("input").setExpression("2"), ["c_plating_preset_hda"]),
+    ("preset HDA: greeble level keeps the surface copy", "pf_plating_preset", lambda n: n.node("result2").parm("input").setExpression("0"), ["c_plating_preset_hda"]),
+    ("preset HDA: level always plated, never greebled", "pf_plating_preset", lambda n: n.node("level2").parm("input").setExpression("0"), ["c_plating_preset_hda"]),
+    ("preset HDA: level 2 reads the input surface", "pf_plating_preset", lambda n: n.node("src2").parm("input").setExpression("0"), ["c_plating_preset_hda"]),
+    ("preset HDA: share selection ignored (all plates)", "pf_plating_preset", lambda n: [sub(n, "select%d" % i, "use[p] = r >= a && r < b;", "use[p] = 1;") for i in (2, 3, 4)], ["c_plating_preset_hda"]),
     ("greeble kit filter ignores the kit choice", "pf_greeble_scatter", lambda n: sub(n, "kit_filter", 'k != "all" && s@pf_kit_set != k', '0'), ["c_greeble_kit_choice"]),
 ]
 
