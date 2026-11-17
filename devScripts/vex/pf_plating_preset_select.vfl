@@ -1,0 +1,39 @@
+// Detail wrangle, one per level slot. Input 0 = the level's source geometry.
+// Builds prim group _sel = the faces this level works on (Blender "selection"):
+//  source 0 -> every face; plated source -> pf_plate_top / pf_plate_side (as ticked), then the
+//  slice [lo,hi) of the plates, ranked by a seeded hash of pf_plate_id (stable, exact counts,
+//  later levels that take "the remaining" start where the earlier one ended).
+int src = chi("../srcSLOT"), tops = chi("../topsSLOT"), sides = chi("../sidesSLOT");
+float lo = chf("../loSLOT") / 100.0, hi = chf("../hiSLOT") / 100.0;
+int sd = chi("../sel_seed");
+int np = nprimitives(0);
+int hasp = 0;
+for (int p = 0; p < np; p++)
+        if (inprimgroup(0, "pf_plate_top", p) || inprimgroup(0, "pf_plate_side", p)) { hasp = 1; break; }
+int use[];
+resize(use, np);
+int pids[];
+for (int p = 0; p < np; p++) {
+    int s = 1;
+    if (src > 0 && hasp)
+        s = (tops && inprimgroup(0, "pf_plate_top", p)) ||
+            (sides && inprimgroup(0, "pf_plate_side", p));
+    use[p] = s;
+    if (s) { int q = prim(0, "pf_plate_id", p); append(pids, q); };
+}
+if (src > 0 && hasp && (lo > 0.0 || hi < 1.0)) {
+    pids = sort(pids);
+    int ids[];
+    foreach (int v; pids) if (len(ids) == 0 || ids[-1] != v) append(ids, v);
+    float keys[];
+    foreach (int v; ids) append(keys, rand(float(v) * 1.618 + float(sd) * 13.1));
+    float sk[] = sort(keys);
+    int n = len(ids), a = int(rint(n * lo)), b = int(rint(n * hi));
+    for (int p = 0; p < np; p++)
+        if (use[p]) {
+            int r = find(sk, rand(float(int(prim(0, "pf_plate_id", p))) * 1.618 + float(sd) * 13.1));
+            use[p] = r >= a && r < b;
+        }
+}
+setprimgroup(0, "_sel", 0, 0, "set");
+for (int p = 0; p < np; p++) setprimgroup(0, "_sel", p, use[p], "set");
