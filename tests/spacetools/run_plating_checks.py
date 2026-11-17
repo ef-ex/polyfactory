@@ -17,6 +17,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import json
 import numpy as np
 import hou
 from lib import (cook, fresh, install, fx_grid, fx_sphere, fx_box, fx_nonconvex, fx_non_quad)
@@ -143,8 +144,8 @@ def c_plating_oracles(g):
     tops, pid = tops_by_plate(geo)
     check("plating: grid with no cuts is exactly 1 plate", len(set(pid[i] for i in tops)) == 1, len(set(pid[i] for i in tops)))
     area = sum(geo.prim(i).intrinsicValue("measuredarea") for i in tops)
-    want = (gsz - gw) ** 2
-    check("plating: top area = (size - groove)^2 (closed form)", abs(area - want) < 1e-4, (area, want))
+    want = (gsz - 2 * gw) ** 2   # Blender: every plate edge (also the surface border) is pulled in by Groove Width
+    check("plating: top area = (size - 2 x groove)^2 (closed form, as measured on the Blender original)", abs(area - want) < 1e-4, (area, want))
     ys = [geo.prim(i).positionAtInterior(.5, .5, 0)[1] for i in tops]
     check("plating: top height = plate height", max(abs(y - 0.05) for y in ys) < 1e-5, max(abs(y - 0.05) for y in ys))
     nb = cook(mk(g, "pf_plating_generator", fx_box(g), amount=0, subdiv=1, cut_by_angle=1))
@@ -177,7 +178,7 @@ def c_plating_gap_and_heights(g):
                 dx = max(ra[0] - rb[1], rb[0] - ra[1], 0)
                 dz = max(ra[2] - rb[3], rb[2] - ra[3], 0)
                 mn = min(mn, float(np.hypot(dx, dz)))
-    check("plating: tops of different plates are >= groove width apart (flat grid)", len(ids) > 3 and mn >= gw - 1e-4, (len(ids), mn))
+    check("plating: tops of different plates are 2 x groove width apart (flat grid; Blender)", len(ids) > 3 and abs(mn - 2 * gw) < 1e-4, (len(ids), mn))
     d = cook(mk(g, "pf_plating_generator", fx_grid(g, 6, 4.0), amount=40, groove_width=0.1, groove_depth=0.03, subdiv=2))
     gr = grp_idx(d, "pf_plate_groove")
     Pd, pd_ = P(d), prim_pts(d)
@@ -295,7 +296,7 @@ def c_plating_details(g):
     base = dict(amount=0, subdiv=0, groove_width=0.1, height_min=0.3, height_max=0.3)
     gs = lambda **kw: cook(mk(g, "pf_plating_generator", fx_grid(g, 6, 4.0), **{**base, **kw}))
     b = gs()
-    check("plating: taper 0.1 -> top is (3.9-0.2)^2", abs(area_of(gs(taper=0.1), "pf_plate_top") - 3.7 ** 2) < 1e-3, area_of(gs(taper=0.1), "pf_plate_top"))
+    check("plating: taper 0.1 -> top is (4-0.2-0.2)^2", abs(area_of(gs(taper=0.1), "pf_plate_top") - 3.6 ** 2) < 1e-3, area_of(gs(taper=0.1), "pf_plate_top"))
     nb = len(b.prims())
     ok = all(len(gs(bevel_amount=0.02, bevel_segments=s).prims()) == nb + 20 * s for s in (1, 3))
     check("plating: rim bevel adds exactly 20 x segments faces (20 rim edges)", ok)
@@ -322,6 +323,49 @@ def c_plating_details(g):
     bt = grp_idx(rm, "pf_plate_bottom")
     ok = len(bt) == 25 and all(rm.prim(i).normal()[1] < -0.99 for i in bt) and not grp_idx(b, "pf_plate_bottom")
     check("plating: pf_plate_bottom = the 25 downward back faces when the floor is removed, empty otherwise", ok, len(bt))
+
+
+def c_plating_layout_vs_original(g):
+    """Layout of 12 seeds on a 16x16-cell plane vs the Blender original on the same plane (plating_layout_ref.json,
+    built from the original add-on run in Blender: tests/spacetools/plating_layout_orig.py). Distributions, not pixels:
+    the random generators differ, so each statistic's mean over the seeds must lie within 1.5 sd of the original's
+    (or 5%), and the nesting depth / big-panel share / aspect of Ruby Dragon must look like the original's."""
+    import plating_layout as pl
+    ref = json.load(open(pl.REF))
+    bad = []
+    for n, key in pl.PRESETS.items():
+        rows = []
+        for sd in pl.SEEDS:
+            node = mk(g, "pf_plating_generator", fx_grid(g, 17, 4.0))
+            run_preset(node, key)
+            node.parm("seed").set(123456 + sd)
+            rows.append(pl.metrics(pl.plates_from_geo(cook(node))))
+        for k, vals in ref[str(n)].items():
+            mo, so = float(np.mean(vals)), float(np.std(vals))
+            mu = float(np.mean([r[k] for r in rows]))
+            tol = max(1.5 * so, 0.05 * (abs(mo) + 0.05))
+            if k == "cellfill":
+                tol = 0.004
+            if abs(mu - mo) > tol:
+                bad.append((n, k, round(mu, 3), round(mo, 3), round(tol, 3)))
+    check("plating: layout statistics of presets 1/3/18 (12 seeds) match the Blender original (n, nesting, big share, aspect, corner fill)", not bad, bad[:4])
+
+
+def c_plating_corner_roundness(g):
+    """Corner radius measured from the plate outline: the shortest distance of any top-face point to the sharp
+    rectangle corner is r*(sqrt2-1) for a true round corner. Flat plates (height 0.01 = Blender presets) must round too."""
+    bad = []
+    for h in (0.01, 0.3):
+        for r in (0.037, 0.1):
+            geo = cook(mk(g, "pf_plating_generator", fx_grid(g, 6, 4.0), amount=0, subdiv=0, groove_width=0.01, height_min=h, height_max=h, corner_radius=r, corner_segments=5))
+            tg = grp_idx(geo, "pf_plate_top")
+            pts = P(geo)[sorted({p for i in tg for p in prim_pts(geo)[i]})]
+            c = 2.0 - 0.01
+            d = np.hypot(np.abs(pts[:, 0]) - c, np.abs(pts[:, 2]) - c).min()
+            want = r * (2 ** 0.5 - 1)
+            if abs(d - want) > 0.12 * want:
+                bad.append((h, r, round(float(d), 4), round(want, 4)))
+    check("plating: corner radius = measured plate-outline rounding (flat 0.01 and tall plates, 2 radii)", not bad, bad)
 
 
 def c_plating_odd_input(g):
@@ -710,7 +754,7 @@ def c_plating_preset_hda(g):
 
 
 CHECKS = [c_plating_matrix, c_plating_determinism, c_plating_oracles, c_plating_gap_and_heights, c_plating_floor_remove_closed,
-          c_plating_group_and_chain, c_plating_presets, c_plating_topology, c_plating_details, c_plating_odd_input, c_greeble_kit_choice, c_greeble_matrix, c_greeble_determinism, c_greeble_counts,
+          c_plating_group_and_chain, c_plating_presets, c_plating_topology, c_plating_details, c_plating_corner_roundness, c_plating_layout_vs_original, c_plating_odd_input, c_greeble_kit_choice, c_greeble_matrix, c_greeble_determinism, c_greeble_counts,
           c_greeble_nonoverlap, c_greeble_transform_oracle, c_greeble_chain_on_plates, c_greeble_presets, c_plating_preset_hda]
 
 
@@ -749,6 +793,11 @@ MUTATIONS = [
     ("coverage test inverted", "pf_greeble_scatter", lambda n: sub(n, "place", "if (chk > cov) continue;", "if (chk <= cov) continue;"), ["c_greeble_counts"]),
     ("quarter turns ignored", "pf_greeble_scatter", lambda n: sub(n, "place", "for (int r = 0; r < rot; r++)", "for (int r = 0; r < 0; r++)"), ["c_greeble_transform_oracle"]),
     ("greeble seed ignored", "pf_greeble_scatter", lambda n: sub(n, "place", 'int    seed = chi("../seed");', "int    seed = 1;"), ["c_greeble_determinism"]),
+    ("ruby dragon: random neighbour every step (the old layout)", "pf_plating_generator", lambda n: sub(n, "cut", "int nx = free_neighbour(cur, perm, ins, found);",
+        "int pm2[] = perm; for (int ii = 7; ii > 0; ii--) { int jj = int(rn(seed, rc) * (ii + 1) * 0.99999); int tt = pm2[ii]; pm2[ii] = pm2[jj]; pm2[jj] = tt; } int nx = free_neighbour(cur, pm2, ins, found);"), ["c_plating_layout_vs_original"]),
+    ("corner edges dropped when shorter than 1.5 x radius (old: flat plates stayed square)", "pf_plating_generator", lambda n: sub(n, "edges_corner", "length(ps0 - pd0) > 1e-4", 'length(ps0 - pd0) > max(1e-4, 1.5 * chf("../corner_radius"))'), ["c_plating_corner_roundness", "c_plating_layout_vs_original"]),
+    ("corner bevel offset 10x too small", "pf_plating_generator", lambda n: n.node("corner_bevel").parm("offset").setExpression("ch('../corner_radius')*0.1"), ["c_plating_corner_roundness", "c_plating_layout_vs_original"]),
+    ("groove inset halved (old gap)", "pf_plating_generator", lambda n: n.node("groove_ring").parm("inset").setExpression("ch('../groove_width')*0.5"), ["c_plating_oracles"]),
     # added after the independent audit: these changes used to leave the whole suite green
     ("zero-height plates get side walls again", "pf_plating_generator", lambda n: n.node("flat_plates").bypass(True), ["c_plating_topology"]),
     ("rivets never added", "pf_plating_generator", lambda n: n.node("rivets_on").parm("input").setExpression("0"), ["c_plating_details"]),

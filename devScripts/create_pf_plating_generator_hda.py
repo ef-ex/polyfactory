@@ -60,7 +60,7 @@ DEFAULTS = {
     "pattern": "crisscross", "seed": 1, "subdiv": 2, "amount": 12.0, "triangle_amount": 20.0,
     "irregular_amount": 75.0, "rect_count": 10, "rect_w_min": 3, "rect_w_max": 6,
     "rect_h_min": 3, "rect_h_max": 6, "edge_group": "", "cut_by_angle": 1, "angle_limit": 90.0,
-    "angle_dev": 0.1, "groove_width": 0.02, "groove_depth": 0.0, "height_min": 0.01,
+    "angle_dev": 0.1, "groove_width": 0.01, "groove_depth": 0.0, "height_min": 0.01,
     "height_max": 0.04, "height_seed": 1, "taper": 0.0, "bevel_amount": 0.0, "bevel_segments": 1,
     "corner_radius": 0.0, "corner_segments": 3, "floor": "keep", "rivets": 0, "rivet_dist": 0.05,
     "rivet_size": 0.02, "rivet_detail": 4, "random_color": 0,
@@ -121,7 +121,7 @@ def parm_templates():
         panels.addParmTemplate(t)
     plates = P.FolderParmTemplate("f_plates", "Plates", folder_type=P.folderType.Simple)
     for t in (
-        F("groove_width", "Groove Width", 0, 1, "Gap between neighbouring plates."),
+        F("groove_width", "Groove Width", 0, 1, "How far every plate edge is pulled in. Two neighbouring plates end up 2 x Groove Width apart (Blender: bevel offset of the cut); the outer border of the surface is pulled in by 1 x."),
         F("groove_depth", "Groove Depth", 0, 1, "How far the groove floor sinks below the original surface."),
         F("height_min", "Plate Height Min", -1, 1, "Each plate gets a random height between min and max (negative sinks it)."),
         F("height_max", "Plate Height Max", -1, 1, "Set equal to min for flat heights."),
@@ -280,7 +280,7 @@ def build():
     ex1 = node("polyextrude::2.0", "groove_ring", cusp, group="_plated", splittype=1,
                               outputfront=1, outputside=1, outputsidegrp=1, sidegrp="_groove", outputfrontgrp=1, frontgrp="_front1")
     ex1.parm("dist").setExpression("-ch('../groove_depth')")
-    ex1.parm("inset").setExpression("ch('../groove_width')*0.5")
+    ex1.parm("inset").setExpression("ch('../groove_width')")   # Blender: bevel offset on each side of the cut = inset of every plate edge (gap = 2x, the mesh border is inset by 1x; measured on the original)
     nog = wr("no_groove", cusp, 'setprimgroup(0,"_groove",@primnum,0,"set"); setprimgroup(0,"_front1",@primnum,inprimgroup(0,"_plated",@primnum),"set");', 1)
     sw1 = node("switch", "ring_on", nog, ex1)
     sw1.parm("input").setExpression("ch('../groove_width') > 0 || ch('../groove_depth') > 0")
