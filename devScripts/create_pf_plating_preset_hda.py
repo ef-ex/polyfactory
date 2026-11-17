@@ -97,12 +97,22 @@ SKIP_P = ("preset", "group")
 SKIP_G = ("preset", "group", "kit", "normal_direction")
 
 
+def level_seeds(pp, master):
+    """Blender adds the preset's master_seed to every per-feature seed of a level (decorators.py)."""
+    base = {"6": pp["ruby_dragon_random_seed"], "3": pp["rectangle_random_seed"]}.get(pp["pattern_type"], pp["random_seed"])
+    return {"seed": base + master, "height_seed": pp["plate_height_random_seed"] + master}
+
+
+MASTER = [0]
+
+
 def plating_vals(PD, pp):
     v = dict(PD["defaults"])
     for a, b in MP:
         v[b] = pp[a]
     v.update(pattern=PM.get(pp["pattern_type"], "crisscross"), floor="remove" if pp["remove_grooves"] else "keep",
              rivets=int(pp["use_rivets"]), random_color=0)
+    v.update(level_seeds(pp, MASTER[0]))
     v.pop("group", None)
     return v
 
@@ -166,6 +176,7 @@ def preset_data(PD, GD):
     for f in sorted(glob.glob(BLENDER_PRESETS + "/*.json"), key=lambda x: int(os.path.basename(x).split(".")[0])):
         fn = os.path.basename(f)[:-5]
         d = jload(f)
+        MASTER[0] = d["master_seed"]
         key = re.sub(r"[^A-Za-z0-9]+", "_", fn.split(". ", 1)[1]).strip("_")
         n = len(d["levels"])
         mkey = fn.split(". ", 1)[1].replace(" ", "_").replace("(", "").replace(")", "")   # key of the single-node preset menus

@@ -1,9 +1,23 @@
 // pf_plating_edgegroups.vfl - Detail wrangle. Edge groups for the plate bevels.
-//   _corner : edges between two plate-side faces that turn more than 25 degrees (vertical corners)
+//   _corner : edges between two plate-side faces that turn more than 25 degrees (vertical corners).
+//             No length filter: a plate corner edge is only as long as the plate is high (0.01 for most Blender
+//             presets), and the bevel spreads over the side walls' WIDTH, not along the edge. Per-point `_bs` scales
+//             the bevel offset down where the walls next to the corner are narrower than the radius.
 //   _rim    : edges between a plate top (_part 1) and a plate side (_part 2)
 int nv = nvertices(0);
 int ncorner = 0, nrim = 0;
-float minedge = 1e9;   // shortest vertical-corner edge: caps the corner bevel so tiny facets cannot collapse
+float minedge = 1e9;   // narrowest wall next to a corner edge (diagnostic)
+float rad = max(chf("../corner_radius"), 1e-9);
+float bs[]; resize(bs, npoints(0));
+for (int pt = 0; pt < npoints(0); pt++) bs[pt] = 1.0;
+function float wallwidth(int h){   // shorter of the two edges of h's face that touch the corner edge h
+    int n = primvertexcount(0, hedge_prim(0, h));
+    int a = hedge_next(0, h), b = h;
+    for (int k = 0; k < n - 1; k++) b = hedge_next(0, b);   // b = previous half-edge (b -> src(h))
+    vector a1 = point(0, "P", hedge_dstpoint(0, a)), a0 = point(0, "P", hedge_srcpoint(0, a));
+    vector b1 = point(0, "P", hedge_dstpoint(0, b)), b0 = point(0, "P", hedge_srcpoint(0, b));
+    return min(length(a1 - a0), length(b1 - b0));
+}
 for (int h = 0; h < nv; h++) {
     int e = hedge_nextequiv(0, h);
     if (e == h || h > e) continue;
@@ -15,8 +29,15 @@ for (int h = 0; h < nv; h++) {
         vector n1 = normalize(prim_normal(0, p1, 0.5, 0.5));
         vector n2 = normalize(prim_normal(0, p2, 0.5, 0.5));
         vector ps0 = point(0, "P", s); vector pd0 = point(0, "P", d);
-        if (degrees(acos(clamp(dot(n1, n2), -1.0, 1.0))) > 25.0 && length(ps0 - pd0) > max(1e-4, 1.5 * chf("../corner_radius"))) { ncorner++; setedgegroup(0, "_corner", s, d, 1); vector ps = point(0, "P", s); vector pd = point(0, "P", d); minedge = min(minedge, length(ps - pd)); }
+        if (degrees(acos(clamp(dot(n1, n2), -1.0, 1.0))) > 25.0 && length(ps0 - pd0) > 1e-4) {
+            ncorner++; setedgegroup(0, "_corner", s, d, 1);
+            float w = min(wallwidth(h), wallwidth(e));
+            minedge = min(minedge, w);
+            float k = min(1.0, 0.3 * w / rad);
+            bs[s] = min(bs[s], k); bs[d] = min(bs[d], k);
+        }
     }
 }
+for (int pt = 0; pt < npoints(0); pt++) setpointattrib(0, "_bs", pt, bs[pt], "set");
 f@_minedge = minedge;
 i@_ncorner = ncorner; i@_nrim = nrim;
