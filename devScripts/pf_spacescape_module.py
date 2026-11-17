@@ -106,6 +106,8 @@ def on_created(node):
     """OnCreated: first cook of a fresh node is a finished-looking space scene."""
     if node.parm("layers").eval() == 0 and not node.isInsideLockedHDA():
         apply_preset(node)
+    from polyfactory.spacetools import sky
+    sky.ensure_preview(node)               # a big sphere in /obj showing this sky (GUI only)
 
 
 def _bake_mod():

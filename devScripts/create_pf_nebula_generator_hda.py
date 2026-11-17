@@ -225,7 +225,7 @@ def populate(hda):
     return [(ocl, 0), (ocl, 1)]
 
 
-ON_CREATED = "import polyfactory.spacetools.nebula as nb\nnb.apply_preset(kwargs['node'], 'default')\n"
+ON_CREATED = "import polyfactory.spacetools.nebula as nb\nnb.apply_preset(kwargs['node'], 'default')\nimport polyfactory.spacetools.sky as sk\nsk.ensure_preview(kwargs['node'])\n"
 
 if __name__ == "__main__":
     path = sc.make_cop_hda("pf_nebula_generator", "PF Nebula Generator", OUT, make_ptg(), populate,
