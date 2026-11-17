@@ -19,7 +19,10 @@ def preset_names():
 def apply_preset(node, name, data=None):
     """Set every parm in preset `name` on `node` (a pf_nebula_generator). Parms the preset lacks keep their value."""
     import hou
-    d = (data or load())["presets"]
+    data = data or load()
+    if isinstance(name, int):                                         # menu callback passes parm.eval() = index
+        name = data["order"][name]
+    d = data["presets"]
     # always start from the 'default' preset so a partial preset (e.g. missing Sun) does not inherit the previous look
     for key in ("default", name) if name != "default" else ("default",):
         for k, v in d[key].items():
