@@ -155,6 +155,12 @@ def parm_templates():
     return ptg
 
 
+def level_seeds(pp, master):
+    """Blender adds the preset's master_seed to every per-feature seed of a level (decorators.py)."""
+    base = {"6": pp["ruby_dragon_random_seed"], "3": pp["rectangle_random_seed"]}.get(pp["pattern_type"], pp["random_seed"])
+    return {"seed": base + master, "height_seed": pp["plate_height_random_seed"] + master}
+
+
 def preset_data():
     """Blender level-0 panel presets mapped onto this HDA's parameters."""
     pm = {"0": "crisscross", "2": "triangles", "6": "irregular", "3": "rectangles", "4": "rectangles_cuts"}
@@ -186,6 +192,7 @@ def preset_data():
             "rect_w_max": pp["rectangle_width_max"], "rect_h_min": pp["rectangle_height_min"],
             "rect_h_max": pp["rectangle_height_max"],
         }
+        v.update(level_seeds(pp, d["master_seed"]))
         label = os.path.splitext(fn)[0]
         if len(L) > 1:
             label += "  (level 1 of %d - chain more plating nodes on pf_plate_top; later levels: %s)" % (
@@ -298,7 +305,8 @@ def build():
     eg1 = wr("edges_corner", sw3, vex("pf_plating_edgegroups"), 0)
     bev1 = node("polybevel::3.0", "corner_bevel", eg1, grouptype=2, group="_corner", filletshape=4)
     bev1.parm("divisions").setExpression("ch('../corner_segments')")
-    bev1.parm("offset").setExpression("min(ch('../corner_radius'), 0.3 * detail('../edges_corner', '_minedge', 1))")
+    bev1.parm("offset").setExpression("ch('../corner_radius')")
+    bev1.parm("useoffsetscale").set(1); bev1.parm("pointscaleattr").set("_bs")   # per-corner cap from the wall width (edgegroups)
     sw2 = node("switch", "corner_on", eg1, bev1)
     sw2.parm("input").setExpression("ch('../corner_radius') > 0 && detail('../edges_corner', '_ncorner', 0) > 0")
     fix = wr("corner_fillets_are_sides", sw2, 'if (i@_part == 0) i@_part = 2;', 1)
@@ -331,7 +339,8 @@ def build():
              'setprimgroup(0,"pf_plate_rivet",@primnum,1,"set");\n'
              'i@pf_plate_id = point(0,"_pid",pp); f@pf_plate_height = point(0,"_h",pp); f@pf_plate_area = point(0,"_a",pp);\n'
              'i@_part = 5; i@_plate = i@pf_plate_id; i@_in = 0; f@_zs = 0;', 1)
-    mrg = node("merge", "merge_rivets", fin, rid)
+    rbs = wr("rivet_bs", rid, "f@_bs = 1.0;", 2)   # same point attributes as the plates, so the merge does not warn
+    mrg = node("merge", "merge_rivets", fin, rbs)
     sw5 = node("switch", "rivets_on", fin, mrg)
     sw5.parm("input").setExpression("ch('../rivets')")
     col = wr("plate_color", sw5, 'if (i@_plate < 0 || i@_part <= 0) return; float k = float(i@pf_plate_id) * 0.37 + float(chi("../height_seed")) * 1.7; float cr = rand(k); float cg = rand(k + 7.31); float cb = rand(k + 13.7); v@Cd = set(cr, cg, cb) * 0.8 + 0.2;', 1)

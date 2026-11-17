@@ -89,6 +89,24 @@ function void rectloop(int h0; int W; int H; export int ins[]; export int g[]; e
     if (ok) foreach (int hh; lst) markedge(hh, g, gp);
 }
 
+// first free (plated, not yet in a blob) neighbour of face p, walking its edge slots in `perm` order
+function int free_neighbour(int p; int perm[]; export int ins[]; export int found[]){
+    if (p < -1) { ins[0] = 0; found[0] = 0; }
+    int n = primvertexcount(0, p);
+    int h0 = primhedge(0, p);
+    for (int k = 0; k < 8; k++) {
+        int s = perm[k];
+        if (s >= n) continue;
+        int h = h0;
+        for (int j = 0; j < s; j++) h = hedge_next(0, h);
+        int e = hedge_nextequiv(0, h);
+        if (e == h) continue;
+        int q = hedge_prim(0, e);
+        if (ins[q] && !found[q]) return q;
+    }
+    return -1;
+}
+
 int nedges = 0;
 foreach (int p; sel) {
     int h = primhedge(0, p);
@@ -121,7 +139,14 @@ if (nsel > 0) {
         }
     }
     if (pat == "irregular") {
-        // Blender "Ruby Dragon": blobs of faces, each as large as (100-p)% of all faces
+        // Blender "Ruby Dragon" (plating_functions.ruby_dragon), blob by blob:
+        //  - faces are visited in shuffled order; a not-yet-taken face starts blob i
+        //  - blob i grows by one face per step, steps = (100-pct)% of all faces; the neighbour is the FIRST
+        //    face found when walking the face's edges in a permutation that is the same for every step of
+        //    blob i (the original re-seeds RandomState(seed+i) at every step), so a blob keeps heading the
+        //    same way until blocked and then turns: long strips, spirals ("snake"), not round blobs
+        //  - stuck: jump to one fixed-fraction member (same re-seed again); no free neighbour there = blob ends;
+        //    otherwise the step counter restarts at 0 (so a blob can far exceed `steps`)
         float pct = chf("../irregular_amount");
         int steps = int(nsel * (100.0 - pct) / 100.0);
         int order[] = sel;
@@ -134,35 +159,27 @@ if (nsel > 0) {
         int gid = 0;
         foreach (int f; order) {
             if (found[f]) continue;
-            found[f] = 1; gid++; rg[f] = gid;
+            int bs = seed + gid;                  // the original's random_seed + i
+            gid++;
+            found[f] = 1; rg[f] = gid;
+            int perm[] = array(0, 1, 2, 3, 4, 5, 6, 7);
+            int pc[] = {0};
+            for (int i = 7; i > 0; i--) {
+                int j = int(rn((bs * 31 + 5) % 100003, pc) * (i + 1) * 0.99999);
+                int t = perm[i]; perm[i] = perm[j]; perm[j] = t;
+            }
+            float jump = rn((bs * 31 + 9) % 100003, pc);
             int members[]; append(members, f);
             int cur = f;
             int step = 0;
             int guard = 0;
             while (step < steps && guard++ < 4 * npr + 100) {
-                int cand[];  resize(cand, 0);
-                int hh = primhedge(0, cur);
-                for (int k = 0; k < primvertexcount(0, cur); k++) {
-                    int e = hedge_nextequiv(0, hh);
-                    if (e != hh) {
-                        int q = hedge_prim(0, e);
-                        if (ins[q] && !found[q]) append(cand, q);
-                    }
-                    hh = hedge_next(0, hh);
-                }
-                if (len(cand) > 0) {
-                    int q = cand[int(rn(seed, rc) * len(cand) * 0.99999)];
-                    found[q] = 1; rg[q] = gid; append(members, q); cur = q;
+                int nx = free_neighbour(cur, perm, ins, found);
+                if (nx >= 0) {
+                    found[nx] = 1; rg[nx] = gid; append(members, nx); cur = nx;
                 } else {
-                    cur = members[int(rn(seed, rc) * len(members) * 0.99999)];
-                    int free_ = 0;
-                    int h2 = primhedge(0, cur);
-                    for (int k = 0; k < primvertexcount(0, cur); k++) {
-                        int e = hedge_nextequiv(0, h2);
-                        if (e != h2) { int q = hedge_prim(0, e); if (ins[q] && !found[q]) free_ = 1; }
-                        h2 = hedge_next(0, h2);
-                    }
-                    if (!free_) break;
+                    cur = members[int(jump * len(members) * 0.99999)];
+                    if (free_neighbour(cur, perm, ins, found) < 0) break;
                     step = -1;
                 }
                 step++;

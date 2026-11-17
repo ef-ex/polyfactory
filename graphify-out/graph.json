@@ -11920,7 +11920,7 @@
       "source_location": "L511",
       "_origin": "ast",
       "id": "polychain_array2d_datum_bays",
-      "community": 358,
+      "community": 109,
       "norm_label": "datum_bays()"
     },
     {
@@ -11930,7 +11930,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "polychain_array2d_align_rows",
-      "community": 358,
+      "community": 109,
       "norm_label": "align_rows()"
     },
     {
@@ -12480,7 +12480,7 @@
       "source_location": "L512",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_512",
-      "community": 358,
+      "community": 109,
       "norm_label": "{section index: default-fill piece count} for one row curve.      7.4's own se"
     },
     {
@@ -12490,7 +12490,7 @@
       "source_location": "L543",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_543",
-      "community": 358,
+      "community": 109,
       "norm_label": "d122 aligned, stamped as data: every row but the datum carries the     datum's"
     },
     {
@@ -21240,7 +21240,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_create_button",
-      "community": 299,
+      "community": 42,
       "norm_label": ".create_button()"
     },
     {
@@ -21380,7 +21380,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_147",
-      "community": 299,
+      "community": 42,
       "norm_label": "create a button widget (not bound to parameter)."
     },
     {
@@ -22000,7 +22000,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel",
-      "community": 51,
+      "community": 299,
       "norm_label": "enhancedlabel"
     },
     {
@@ -22010,7 +22010,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_init",
-      "community": 299,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -22020,7 +22020,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_enterevent",
-      "community": 51,
+      "community": 299,
       "norm_label": ".enterevent()"
     },
     {
@@ -22030,7 +22030,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_leaveevent",
-      "community": 51,
+      "community": 299,
       "norm_label": ".leaveevent()"
     },
     {
@@ -22040,7 +22040,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_update_style",
-      "community": 51,
+      "community": 299,
       "norm_label": "._update_style()"
     },
     {
@@ -22050,7 +22050,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_mousepressevent",
-      "community": 51,
+      "community": 299,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -22070,7 +22070,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_init",
-      "community": 299,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -22080,7 +22080,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_enterevent",
-      "community": 51,
+      "community": 299,
       "norm_label": ".enterevent()"
     },
     {
@@ -22090,7 +22090,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_leaveevent",
-      "community": 51,
+      "community": 299,
       "norm_label": ".leaveevent()"
     },
     {
@@ -22100,7 +22100,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_update_hover_style",
-      "community": 51,
+      "community": 299,
       "norm_label": "._update_hover_style()"
     },
     {
@@ -22110,7 +22110,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_eventfilter",
-      "community": 51,
+      "community": 299,
       "norm_label": ".eventfilter()"
     },
     {
@@ -22280,7 +22280,7 @@
       "source_location": "L402",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog",
-      "community": 299,
+      "community": 1,
       "norm_label": "expressiondialog"
     },
     {
@@ -22290,7 +22290,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_init",
-      "community": 299,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -22300,7 +22300,7 @@
       "source_location": "L472",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_get_expression",
-      "community": 299,
+      "community": 1,
       "norm_label": ".get_expression()"
     },
     {
@@ -22320,7 +22320,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_18",
-      "community": 51,
+      "community": 299,
       "norm_label": "enhanced qlabel with houdini parameter polish features:     - hover effects (li"
     },
     {
@@ -22330,7 +22330,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_48",
-      "community": 51,
+      "community": 299,
       "norm_label": "update visual style based on hover state."
     },
     {
@@ -22350,7 +22350,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_128",
-      "community": 51,
+      "community": 299,
       "norm_label": "add hover glow effect."
     },
     {
@@ -22360,7 +22360,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_134",
-      "community": 51,
+      "community": 299,
       "norm_label": "remove hover glow effect."
     },
     {
@@ -22370,7 +22370,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_140",
-      "community": 51,
+      "community": 299,
       "norm_label": "apply or remove hover visual feedback."
     },
     {
@@ -22380,7 +22380,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_170",
-      "community": 51,
+      "community": 299,
       "norm_label": "intercept label interactions."
     },
     {
@@ -22530,7 +22530,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_403",
-      "community": 299,
+      "community": 1,
       "norm_label": "dialog for editing parameter expressions."
     },
     {
@@ -22540,7 +22540,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_473",
-      "community": 299,
+      "community": 1,
       "norm_label": "get expression and language from dialog."
     },
     {
@@ -23750,7 +23750,7 @@
       "source_location": "L501",
       "_origin": "ast",
       "id": "widgets_widgets_parmbutton",
-      "community": 299,
+      "community": 42,
       "norm_label": "parmbutton"
     },
     {
@@ -23930,7 +23930,7 @@
       "source_location": "L502",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_502",
-      "community": 299,
+      "community": 42,
       "norm_label": "button widget (not parameter-bound)."
     },
     {
@@ -43717,7 +43717,7 @@
       "label": "_sec()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L551",
+      "source_location": "L554",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_sec",
       "community": 289,
@@ -43727,7 +43727,7 @@
       "label": "_setv()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L556",
+      "source_location": "L559",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_setv",
       "community": 289,
@@ -43737,7 +43737,7 @@
       "label": "_menu()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L562",
+      "source_location": "L565",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_menu",
       "community": 289,
@@ -43747,7 +43747,7 @@
       "label": "_is_share()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L567",
+      "source_location": "L570",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_is_share",
       "community": 289,
@@ -43757,7 +43757,7 @@
       "label": "ref_chain()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L571",
+      "source_location": "L574",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_ref_chain",
       "community": 289,
@@ -43767,7 +43767,7 @@
       "label": "c_plating_preset_hda()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L650",
+      "source_location": "L655",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_c_plating_preset_hda",
       "community": 289,
@@ -43777,7 +43777,7 @@
       "label": "run_all()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L712",
+      "source_location": "L717",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_run_all",
       "community": 289,
@@ -43787,7 +43787,7 @@
       "label": "sub()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L729",
+      "source_location": "L734",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_sub",
       "community": 289,
@@ -43797,21 +43797,21 @@
       "label": "run_mutations()",
       "file_type": "code",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L771",
+      "source_location": "L776",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_run_mutations",
       "community": 289,
       "norm_label": "run_mutations()"
     },
     {
-      "label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      hyt",
+      "label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      h",
       "file_type": "rationale",
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L1",
       "_origin": "ast",
       "id": "spacetools_run_plating_checks_rationale_1",
       "community": 289,
-      "norm_label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      hyt"
+      "norm_label": "spacetools tool #2 checks: pf::plating_generator + pf::greeble_scatter.      h"
     },
     {
       "label": "(zero-area prims, edges used by >2 prims, boundary edges) with points welded at",
@@ -43857,9 +43857,9 @@
       "label": "The Blender preset levels built as separate pf_plating_generator / pf_greeble_sc",
       "file_type": "rationale",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L572",
+      "source_location": "L575",
       "_origin": "ast",
-      "id": "spacetools_run_plating_checks_rationale_572",
+      "id": "spacetools_run_plating_checks_rationale_575",
       "community": 289,
       "norm_label": "the blender preset levels built as separate pf_plating_generator / pf_greeble_sc"
     },
@@ -45980,7 +45980,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 195,
+      "community": 168,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -46020,7 +46020,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 360,
+      "community": 195,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -46030,7 +46030,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 360,
+      "community": 195,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -46040,7 +46040,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 360,
+      "community": 195,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -46050,7 +46050,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 360,
+      "community": 195,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -46060,7 +46060,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 360,
+      "community": 195,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -46070,7 +46070,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 360,
+      "community": 195,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -46630,7 +46630,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 195,
+      "community": 168,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -46650,7 +46650,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 360,
+      "community": 195,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -143533,9 +143533,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L650",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_c_plating_preset_hda"
     },
     {
       "relation": "contains",
@@ -143603,9 +143603,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L567",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_is_share",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_is_share"
     },
     {
       "relation": "contains",
@@ -143633,9 +143633,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L562",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_menu",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_menu"
     },
     {
       "relation": "contains",
@@ -143693,9 +143693,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L571",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_ref_chain",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_ref_chain"
     },
     {
       "relation": "contains",
@@ -143733,9 +143733,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L551",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_sec",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_sec"
     },
     {
       "relation": "contains",
@@ -143753,9 +143753,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L556",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks",
-      "target": "spacetools_run_plating_checks_setv",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_setv"
     },
     {
       "relation": "contains",
@@ -143990,9 +143990,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L656",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_check",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_check"
     },
     {
       "relation": "calls",
@@ -144210,9 +144210,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L671",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_mk",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_mk"
     },
     {
       "relation": "calls",
@@ -144287,9 +144287,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L682",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_p",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_p"
     },
     {
       "relation": "calls",
@@ -144756,9 +144756,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L697",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_sec",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_sec"
     },
     {
       "relation": "calls",
@@ -144767,9 +144767,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L575",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_ref_chain",
-      "target": "spacetools_run_plating_checks_sec",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_sec"
     },
     {
       "relation": "calls",
@@ -144778,9 +144778,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L616",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_ref_chain",
-      "target": "spacetools_run_plating_checks_setv",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_setv"
     },
     {
       "relation": "calls",
@@ -144789,9 +144789,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L672",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_menu",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_menu"
     },
     {
       "relation": "calls",
@@ -144800,9 +144800,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L608",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_ref_chain",
-      "target": "spacetools_run_plating_checks_menu",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_menu"
     },
     {
       "relation": "calls",
@@ -144811,9 +144811,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L687",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_is_share",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_is_share"
     },
     {
       "relation": "calls",
@@ -144822,9 +144822,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L595",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_ref_chain",
-      "target": "spacetools_run_plating_checks_is_share",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_is_share"
     },
     {
       "relation": "calls",
@@ -144833,17 +144833,17 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L679",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_ref_chain",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_ref_chain"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/spacetools/run_plating_checks.py",
-      "source_location": "L572",
+      "source_location": "L575",
       "weight": 1.0,
-      "source": "spacetools_run_plating_checks_rationale_572",
+      "source": "spacetools_run_plating_checks_rationale_575",
       "target": "spacetools_run_plating_checks_ref_chain",
       "confidence_score": 1.0
     },
@@ -144854,9 +144854,9 @@
       "source_file": "tests/spacetools/run_plating_checks.py",
       "source_location": "L670",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_plating_checks_c_plating_preset_hda",
-      "target": "spacetools_run_plating_checks_sub",
-      "confidence_score": 1.0
+      "target": "spacetools_run_plating_checks_sub"
     },
     {
       "relation": "calls",
@@ -168134,9 +168134,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_plating_greebles_tool_2_pf_plating_generator_pf_greeble_scatter",
-      "target": "ideas_spacetools_preset_menu_with_all_levels_pf_plating_preset_added",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_preset_menu_with_all_levels_pf_plating_preset_added"
     },
     {
       "relation": "contains",
@@ -168853,5 +168853,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "dac257f47c435d6ceaf759f604e8fbb32cb9216c"
+  "built_at_commit": "9058c0b9d5518689c71a5c58be20e51f6fe1d80e"
 }

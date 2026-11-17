@@ -548,6 +548,9 @@ _GM = [("greeble_amount", "amount"), ("coverage_amount", "coverage"), ("greeble_
        ("greeble_max_height", "height_max")]
 
 
+_SEEDBASE = {"6": lambda q: q["ruby_dragon_random_seed"], "3": lambda q: q["rectangle_random_seed"]}
+
+
 def _sec(t):
     import json
     return json.loads(hou.nodeType(hou.sopNodeTypeCategory(), t).definition().sections()["presets.json"].contents())
@@ -612,6 +615,8 @@ def ref_chain(g, hda, d, key, xf):
                 for a, b in _MP:
                     v[b] = pp[a]
                 v.update(pattern=_PM.get(pp["pattern_type"], "crisscross"), floor="remove" if pp["remove_grooves"] else "keep", rivets=int(pp["use_rivets"]))
+                v.update(seed=_SEEDBASE.get(pp["pattern_type"], lambda q: q["random_seed"])(pp) + d["master_seed"],
+                         height_seed=pp["plate_height_random_seed"] + d["master_seed"])
                 v.pop("group", None)
                 _setv(n, v)
         else:
