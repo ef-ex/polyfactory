@@ -150,8 +150,8 @@ def parm_templates():
         V("favour", "Favour", "Which faces are extruded more often: faces looking along an axis with a bigger value are chosen more. "
           "1 1 1 = every face the same; 0.2 1 0.2 grows the shape along Y (spaceship, rifle).", 0.0, 1.0),
         T("prevent_overlap", "Prevent Face Overlaps", "Throw an extrusion away and try again when one of its edges pokes through a face (or the other way round)."),
-        I("overlap_check_limit", "Retry Limit", 0, 100000, "How often one extrusion is retried. 0 = no limit (Blender loops forever when no placement exists; "
-          "here 0 stops at 1000 so Houdini never hangs)."),
+        I("overlap_check_limit", "Retry Limit", 0, 1000, "How often one extrusion is retried. 0 = the maximum, 1000 (Blender loops forever when no placement exists; "
+          "here nothing goes above 1000 so Houdini never hangs)."),
         I("subdivide_edges", "Cut Edges", 0, 10, "Splits every quad into (cuts+1) x (cuts+1) quads before the modifiers (the add-on's Subdivide Edges)."),
         T("flip_normals", "Flip Normals", "Reverses every face."),
     ):

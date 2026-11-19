@@ -158,7 +158,7 @@ void gen_shape(export vector P[]; export int F[]; export int R[]; export int T[]
         int ok = 0, count = 0, exceeded = 0;
         while (!ok && !exceeded) {
             count++;
-            exceeded = limit > 0 ? count > limit : count > MAXTRY;    // Blender loops forever with limit 0; here capped
+            exceeded = count > (limit > 0 ? min(limit, MAXTRY) : MAXTRY);    // Blender loops forever with limit 0; here capped
             vector Q[] = P; int G[] = F;
             int nf = len(G) / 4;
             float thr = maxscore > 0.0 ? uni(R, 0.0, maxscore) : 0.0;

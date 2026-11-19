@@ -8,10 +8,10 @@ CHECKS
   A per-seed parity (no bevel / subsurf): volume and area within 1.5%, booleans: volume only (coplanar merging changes area)
   B aggregate parity (bevel, subsurf, presets): mean volume within 5% (bevel_depth 15%), mean triangle count within 10%, shape count equal
   C invariants on every case: cooks without warnings, no _* attribute / group, outward winding (volume > 0), manifold
-  D look-up: preset menu sets values, pf_level / pf_obj storage is int
+  D preset menu: every preset's callback result equals the add-on's preset values; pf_level / pf_obj storage is int
 CANNOT SEE: Blender's bevel is not Houdini's (corner topology, profile > 0.5, overlap) - B only bounds it; area of boolean results;
   Blender's own non-manifold output (bool_both) is excluded.
---mutations: breaks the asset on purpose (3 ways) and requires each check set to go red.
+--mutations: breaks the asset on purpose (4 ways) and requires each check set to go red.
 """
 import json
 import os
@@ -98,14 +98,32 @@ def run_cases(mutate=None):
     return out
 
 
-def run_misc():
+def run_misc(post=None):
     g = lib.fresh()
     lib.install("pf_shape_generator")
     n = g.createNode("pf_shape_generator")
+    ref = g.createNode("pf_shape_generator")
     cb = n.parm("preset").parmTemplate().scriptCallback()
+    presets = [k for k in n.parm("preset").menuItems() if k != "none"]
+    for name in presets:
+        # D: the menu callback must give what the add-on's own preset values give (Blender radians -> degrees, enums, vectors)
+        if name not in REF:
+            bad("D preset %s has no oracle case" % name)
+            continue
+        for node in (n, ref):
+            for p in node.parms():
+                p.revertToDefaults()
+        apply_blender_params(ref, {k: v for k, v in REF[name]["params"].items() if k != "shade_smooth"})
+        exec(cb, {"kwargs": {"node": n, "script_value": name}})
+        if post:
+            post(n)
+        for p in ref.parms():
+            if p.name() in ("preset", "shade_smooth"):
+                continue
+            a, b = p.eval(), n.parm(p.name()).eval()
+            if a != b and not (isinstance(a, float) and abs(a - b) < 1e-4):
+                bad("D preset %s: %s is %r via the menu callback, %r from the add-on's values" % (name, p.name(), b, a))
     exec(cb, {"kwargs": {"node": n, "script_value": "spaceship_5"}})
-    if n.parm("medium_shape_num").eval() != 3 or abs(n.parmTuple("scale")[1].eval() - 3.0) > 1e-6:
-        bad("D preset spaceship_5 did not set medium_shape_num=3 / scale y=3")
     geo, b = cook(n)
     for a in ("pf_level", "pf_obj"):
         at = geo.findPrimAttrib(a)
@@ -134,6 +152,17 @@ def mut_bevel(n):            # bevel without any limit: runs away on thin shapes
 if __name__ == "__main__":
     if "--mutations" in sys.argv:
         ok = True
+        misc_before = len(fails)
+
+        def radians_left_in(n):      # what a preset table with radians where degrees belong would do (the asset file is never edited)
+            for k in ("rotation", "min_rotation", "max_rotation", "start_rand_rotation", "end_rand_rotation"):
+                t = n.parmTuple(k)
+                t.set([x * 0.0174533 for x in t.eval()])
+        run_misc(radians_left_in)
+        d_hit = [f for f in fails[misc_before:] if f.startswith("D")]
+        print("mutation %-12s -> %d failures of kind D" % ("preset units", len(d_hit)))
+        ok = ok and bool(d_hit)
+        del fails[misc_before:]
         for label, mut, prefix in (("winding", mut_winding, "C"), ("taper", mut_taper, "A"), ("bevel limit", mut_bevel, "B")):
             res = run_cases(mut)
             hit = [r for r in res if r.startswith(prefix)]
