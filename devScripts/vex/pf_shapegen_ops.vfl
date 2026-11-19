@@ -1,0 +1,47 @@
+// pf_shapegen_ops.vfl - Detail wrangle on an EMPTY geometry (input 0) that reads the shapes (input 1). Writes one point per boolean
+// operation, in the order the Blender modifier stacks evaluate them, so ONE feedback loop reproduces the add-on:
+//   1. inside a set (Boolean Within A Set): the main shape against each other shape of the set
+//   2. small shapes against every medium shape (the add-on adds them to big AND medium shapes; a medium shape is used as a cutter
+//      by the big ones in its final state, i.e. after its own small cuts)
+//   3. per big shape: every medium shape, then every small shape
+// Point attrs: t = target pf_obj, o = operand pf_obj, op = Boolean SOP operation (0 union, 1 intersect, 2 subtract), _it = running
+// number, and the target's pf_level / pf_set / pf_setid / pf_shape / _cut so the result can be re-tagged as the target.
+int np = nprimitives(1), maxo = -1;
+for (int i = 0; i < np; i++) maxo = max(maxo, prim(1, "pf_obj", i));
+int lv[], st[], sid[], sh[], cut[];
+resize(lv, maxo + 1); resize(st, maxo + 1); resize(sid, maxo + 1); resize(sh, maxo + 1); resize(cut, maxo + 1);
+for (int i = 0; i < np; i++) {
+    int o = prim(1, "pf_obj", i);
+    lv[o] = prim(1, "pf_level", i); st[o] = prim(1, "pf_set", i); sid[o] = prim(1, "pf_setid", i); sh[o] = prim(1, "pf_shape", i);
+    cut[o] = prim(1, "_cut", i);
+}
+int ncreate = chi("../number_to_create");
+int uihop[] = {1, 0, 2};      // menu: intersect, union, difference  ->  Boolean SOP: union 0, intersect 1, subtract 2
+int nops = 0;
+function void mkop(int t; int o; int op; int lv[]; int st[]; int sid[]; int sh[]; int cut[]; export int nops) {
+    int p = addpoint(0, {0, 0, 0});
+    setpointattrib(0, "t", p, t); setpointattrib(0, "o", p, o); setpointattrib(0, "op", p, op); setpointattrib(0, "_it", p, nops);
+    setpointattrib(0, "tlevel", p, lv[t]); setpointattrib(0, "tset", p, st[t]); setpointattrib(0, "tsetid", p, sid[t]);
+    setpointattrib(0, "tshape", p, sh[t]); setpointattrib(0, "tcut", p, cut[t]);
+    nops++;
+}
+// 1. sets
+if (chi("../is_boolean") && ncreate > 1) {
+    int mi = chi("../boolean_main_obj_index"); if (mi >= ncreate) mi = 0;
+    int mainop = uihop[chi("../main_obj_bool_operation")];
+    for (int t = 0; t <= maxo; t++) {
+        if (sh[t] != mi) continue;
+        for (int o = 0; o <= maxo; o++) if (sid[o] == sid[t] && o != t) mkop(t, o, mainop, lv, st, sid, sh, cut, nops);
+    }
+}
+int medop = uihop[chi("../medium_shape_bool_operation")], smop = uihop[chi("../small_shape_bool_operation")];
+int usem = chi("../use_medium_shape_bool"), uses = chi("../use_small_shape_bool");
+// 2. small shapes cut the medium shapes
+if (uses) for (int t = 0; t <= maxo; t++) if (lv[t] == 1) for (int o = 0; o <= maxo; o++) if (lv[o] == 2) mkop(t, o, smop, lv, st, sid, sh, cut, nops);
+// 3. big shapes: medium shapes, then small shapes
+for (int t = 0; t <= maxo; t++) {
+    if (lv[t] != 0) continue;
+    if (usem) for (int o = 0; o <= maxo; o++) if (lv[o] == 1) mkop(t, o, medop, lv, st, sid, sh, cut, nops);
+    if (uses) for (int o = 0; o <= maxo; o++) if (lv[o] == 2) mkop(t, o, smop, lv, st, sid, sh, cut, nops);
+}
+i@_nops = nops;

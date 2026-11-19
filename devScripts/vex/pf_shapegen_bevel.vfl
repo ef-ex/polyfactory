@@ -1,0 +1,46 @@
+// pf_shapegen_bevel.vfl - Detail wrangle. Edge group `_bev` + per-point bevel distance `_bw` for polybevel (Blender Bevel modifier,
+// limit method ANGLE). Blender measures the width in OBJECT space (the shapes are scaled afterwards): `_os` = object scale.
+//   width methods (Blender): OFFSET d = w; WIDTH d = w / (2 cos(a/2)); DEPTH d = w / sin(a/2) (a = angle between the face normals,
+//   the chamfer is an isosceles triangle with legs d and apex angle 180 - a); PERCENT d = w% of the adjacent edge length.
+int method = chi("../bevel_method");
+float w = chf("../bevel_width");
+float lim = radians(chf("../bevel_angle"));
+int npt = npoints(0);
+float sum[], cnt[];
+resize(sum, npt); resize(cnt, npt);
+int nsel = 0;
+int nv = nvertices(0);
+for (int h = 0; h < nv; h++) {
+    int e = hedge_nextequiv(0, h);
+    if (e == h || h > e) continue;                 // open edge, or the other half of an edge already handled
+    int s = hedge_srcpoint(0, h), d = hedge_dstpoint(0, h);
+    vector n1 = normalize(prim_normal(0, hedge_prim(0, h), 0.5, 0.5));
+    vector n2 = normalize(prim_normal(0, hedge_prim(0, e), 0.5, 0.5));
+    float a = acos(clamp(dot(n1, n2), -1.0, 1.0));
+    if (a <= lim) continue;
+    setedgegroup(0, "_bev", s, d, 1);
+    nsel++;
+    float os0 = point(0, "_os", s), os1 = point(0, "_os", d);
+    float os = 0.5 * (os0 + os1);
+    vector ps = point(0, "P", s), pd = point(0, "P", d);
+    for (int k = 0; k < 2; k++) {
+        int p = k == 0 ? s : d;
+        float v;
+        if (method == 0) v = w * os;
+        else if (method == 1) v = w * os / max(2.0 * cos(a * 0.5), 1e-3);
+        else if (method == 2) v = w * os / max(sin(a * 0.5), 1e-3);
+        else {
+            // percent of the edges that meet the beveled edge at p (the ones it slides along)
+            float tot = 0.0; int n = 0;
+            foreach (int q; neighbours(0, p)) {
+                if (q == (k == 0 ? d : s)) continue;
+                vector pp = point(0, "P", p), pq = point(0, "P", q);
+                tot += distance(pp, pq); n++;
+            }
+            v = w * 0.01 * (n > 0 ? tot / n : distance(ps, pd));
+        }
+        sum[p] += v; cnt[p] += 1.0;
+    }
+}
+for (int p = 0; p < npt; p++) setpointattrib(0, "_bw", p, cnt[p] > 0 ? sum[p] / cnt[p] : 0.0);
+i@_nbev = nsel;
