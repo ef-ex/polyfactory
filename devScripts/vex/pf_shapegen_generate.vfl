@@ -1,0 +1,350 @@
+// pf_shapegen_generate.vfl - Detail wrangle, no input. Port of the Blender add-on "Shape Generator" 1.7.9
+// (utils/generate.py: generate_shapes / add_supporting_shapes / generate_shape_mesh).
+// Emits EVERY shape of every level (big, medium, small) as quad polygons in world space, one execution for all of them.
+//
+// A shape = random box, then `amount` times: pick a face (favour weights), extrude it (depth), taper (uniform scale about the
+// bounding-box centre), tilt about a random tangent through the OLD face centre, slide along a random tangent; the attempt is
+// thrown away and repeated when one of the new faces is pierced by an edge (or pierces another face) - Blender's
+// is_face_overlap_with_edges. Then the mesh transform (scale, translate, rotate XYZ), optional per-face grid subdivision and
+// flip. Big sets 1.. sit on random surface points of the first big set, medium shapes on big shapes, small shapes on big+medium
+// (a random triangle - NOT area weighted, like the add-on - and a random point on it).
+//
+// Random numbers: a real MT19937 in VEX, bit-exact with Python's `random` (shape stream, seeded per set) and numpy's RandomState (random
+// transforms and scatter points), so the same seeds give the add-on's meshes (up to float rounding and degenerate thin-box cases).
+// Per-point `_os` = object scale (bevel offsets are in object space in Blender), prim `pf_level`/`pf_setid`/`pf_obj`.
+#define MAXTRY 1000
+
+// ---- Mersenne Twister (MT19937), bit-exact with Python's `random` and numpy's RandomState ------------------------------------------
+// state = int[625]: 624 words + index. VEX has no unsigned ints: logical shifts are shrz / shl. Python: random.seed(int) = init_by_array([seed]); random.random() / uniform / choice. numpy: RandomState(int) = init_genrand.
+void mt_init(export int mt[]; int s) {
+    resize(mt, 625);
+    mt[0] = s;
+    for (int i = 1; i < 624; i++) mt[i] = 1812433253 * (mt[i - 1] ^ shrz(mt[i - 1], 30)) + i;
+    mt[624] = 624;
+}
+void mt_seed_np(export int mt[]; int s) { mt_init(mt, s); }                  // numpy RandomState(s)
+void mt_seed_py(export int mt[]; int s) {                                   // python random.seed(s), one key word
+    int key = abs(s);
+    mt_init(mt, 19650218);
+    int i = 1;
+    for (int k = 624; k > 0; k--) {
+        mt[i] = (mt[i] ^ ((mt[i - 1] ^ shrz(mt[i - 1], 30)) * 1664525)) + key;
+        i++; if (i >= 624) { mt[0] = mt[623]; i = 1; }
+    }
+    for (int k = 623; k > 0; k--) {
+        mt[i] = (mt[i] ^ ((mt[i - 1] ^ shrz(mt[i - 1], 30)) * 1566083941)) - i;
+        i++; if (i >= 624) { mt[0] = mt[623]; i = 1; }
+    }
+    mt[0] = -2147483647 - 1;
+    mt[624] = 624;
+}
+int mt_next(export int mt[]) {                                              // genrand_int32 (as signed bits)
+    if (mt[624] >= 624) {
+        int up = -2147483647 - 1, mat = -1727483681;
+        for (int kk = 0; kk < 623; kk++) {
+            int y = (mt[kk] & up) | (mt[kk + 1] & 2147483647);
+            int m = kk < 227 ? mt[kk + 397] : mt[kk - 227];
+            mt[kk] = m ^ shrz(y, 1) ^ ((y & 1) ? mat : 0);
+        }
+        int y = (mt[623] & up) | (mt[0] & 2147483647);
+        mt[623] = mt[396] ^ shrz(y, 1) ^ ((y & 1) ? mat : 0);
+        mt[624] = 0;
+    }
+    int y = mt[mt[624]];
+    mt[624] = mt[624] + 1;
+    y = y ^ shrz(y, 11);
+    y = y ^ (shl(y, 7) & -1658038656);
+    y = y ^ (shl(y, 15) & -272236544);
+    y = y ^ shrz(y, 18);
+    return y;
+}
+float mt_real(export int mt[]) {                                            // random.random() / RandomState.random_sample()
+    int a = shrz(mt_next(mt), 5), b = shrz(mt_next(mt), 6);
+    return (float(a) + float(b) / 67108864.0) / 134217728.0;
+}
+int py_below(export int mt[]; int n) {                                      // random._randbelow(n) (choice)
+    int k = 1; while (int(pow(2.0, float(k))) <= n) k++;                    // n.bit_length()
+    int r = shrz(mt_next(mt), 32 - k);
+    while (r >= n) r = shrz(mt_next(mt), 32 - k);
+    return r;
+}
+int np_below(export int mt[]; int n) {                                      // RandomState.choice(range(n)) = randint(0, n), masked rejection
+    int rng = n - 1;
+    if (rng == 0) return 0;
+    int mask = 1; while (mask < rng) mask = mask * 2 + 1;
+    int v = mt_next(mt) & mask;
+    while (v > rng) v = mt_next(mt) & mask;
+    return v;
+}
+
+float uni(export int mt[]; float a; float b) { return a + (b - a) * mt_real(mt); }      // random.uniform / RandomState.uniform
+
+vector fnorm(vector P[]; int F[]; int f) {
+    int o = 4 * f;
+    return normalize(cross(P[F[o + 2]] - P[F[o]], P[F[o + 3]] - P[F[o + 1]]));
+}
+float fscore(vector P[]; int F[]; int f; vector fav) {
+    if (fav.x == fav.y && fav.y == fav.z) return 0.0;
+    vector n = fnorm(P, F, f);
+    return abs(n.x) * fav.x + abs(n.y) * fav.y + abs(n.z) * fav.z;
+}
+// Blender: n.orthogonal() (NOT unit length: 1.22 .. 1.41) rotated by a random angle about n. Its length scales the slide.
+vector rtangent(export int R[]; vector n) {
+    vector an = abs(n);
+    int ax = an.x > an.y ? (an.x > an.z ? 0 : 2) : (an.y > an.z ? 1 : 2);
+    vector t = ax == 0 ? set(-n.y - n.z, n.x, n.x) : ax == 1 ? set(n.y, -n.x - n.z, n.y) : set(n.z, n.z, -n.x - n.y);
+    float a = radians(uni(R, 0.0, 360.0));
+    return t * cos(a) + cross(n, t) * sin(a);
+}
+// does the edge a-b pierce the interior of quad face f (without sharing a vertex with it)? = Blender's per-edge test
+int pierces(vector P[]; int F[]; int f; int a; int b) {
+    int o = 4 * f;
+    for (int k = 0; k < 4; k++) if (F[o + k] == a || F[o + k] == b) return 0;
+    vector c = (P[F[o]] + P[F[o + 1]] + P[F[o + 2]] + P[F[o + 3]]) * 0.25;
+    vector n = fnorm(P, F, f);
+    float da = dot(P[a] - c, n), db = dot(P[b] - c, n);
+    if ((da < 0.0) == (db < 0.0)) return 0;
+    vector q = P[a] + (P[b] - P[a]) * (da / (da - db));
+    vector an = abs(n);
+    int ax = (an.x >= an.y && an.x >= an.z) ? 0 : (an.y >= an.z ? 1 : 2);
+    int iu = ax == 0 ? 1 : 0, iv = ax == 2 ? 1 : 2;
+    float qu = q[iu], qv = q[iv];
+    int inside = 0;
+    for (int k = 0; k < 4; k++) {
+        vector p0 = P[F[o + k]], p1 = P[F[o + (k + 1) % 4]];
+        float u0 = p0[iu], v0 = p0[iv], u1 = p1[iu], v1 = p1[iv];
+        if ((v0 > qv) != (v1 > qv) && qu < (u1 - u0) * (qv - v0) / (v1 - v0) + u0) inside = !inside;
+    }
+    return inside;
+}
+
+vector rotv(vector v; float a; vector ax) { return v * cos(a) + cross(ax, v) * sin(a) + ax * dot(ax, v) * (1.0 - cos(a)); }
+
+// Blender's recalc_face_normals(all faces): the mesh stays consistently wound, so only the global side is decided - the face with
+// the vertex furthest from the bounding-box centre must point away from it (a box with a negative size starts inside out).
+int inside_out(vector P[]; int F[]) {
+    vector lo = P[0], hi = P[0];
+    foreach (vector p; P) { lo = min(lo, p); hi = max(hi, p); }
+    vector c = (lo + hi) * 0.5;
+    float best = -1.0; int bf = 0;
+    for (int f = 0; f < len(F) / 4; f++) for (int k = 0; k < 4; k++) {
+        float d = length2(P[F[4 * f + k]] - c);
+        if (d > best) { best = d; bf = f; }
+    }
+    int o = 4 * bf;
+    vector fc = (P[F[o]] + P[F[o + 1]] + P[F[o + 2]] + P[F[o + 3]]) * 0.25;
+    return dot(fnorm(P, F, bf), fc - c) < 0.0;
+}
+void flip_all(export int F[]) {
+    for (int f = 0; f < len(F) / 4; f++) { int t = F[4 * f + 1]; F[4 * f + 1] = F[4 * f + 3]; F[4 * f + 3] = t; }
+}
+
+// ---- one shape -------------------------------------------------------------
+void gen_shape(export vector P[]; export int F[]; export int R[]; export int T[]) {
+    float mine = chf("../min_extrude"), maxe = chf("../max_extrude");
+    float w = uni(R, mine, maxe), h = uni(R, mine, maxe), d = uni(R, mine, maxe);   // add_box(width=x, height=z, depth=y)
+    P = array(set(.5 * w, .5 * d, -.5 * h), set(.5 * w, -.5 * d, -.5 * h), set(-.5 * w, -.5 * d, -.5 * h), set(-.5 * w, .5 * d, -.5 * h),
+              set(.5 * w, .5 * d, .5 * h), set(.5 * w, -.5 * d, .5 * h), set(-.5 * w, -.5 * d, .5 * h), set(-.5 * w, .5 * d, .5 * h));
+    F = array(0, 1, 2, 3,  4, 7, 6, 5,  0, 4, 5, 1,  1, 5, 6, 2,  2, 6, 7, 3,  4, 0, 3, 7);
+    vector fav = chv("../favour");
+    int amount = chi("../amount");
+    int prevent = chi("../prevent_overlap"), limit = chi("../overlap_check_limit");
+    float mint = chf("../min_taper"), maxt = chf("../max_taper");
+    float minr = chf("../min_rotation"), maxr = chf("../max_rotation");
+    float mins = chf("../min_slide"), maxs = chf("../max_slide");
+    float maxscore = 0.0;
+    for (int f = 0; f < 6; f++) maxscore = max(maxscore, fscore(P, F, f, fav));
+    for (int it = 0; it < amount; it++) {
+        int ok = 0, count = 0, exceeded = 0;
+        while (!ok && !exceeded) {
+            count++;
+            exceeded = count > (limit > 0 ? min(limit, MAXTRY) : MAXTRY);    // Blender loops forever with limit 0; here capped
+            vector Q[] = P; int G[] = F;
+            int nf = len(G) / 4;
+            float thr = maxscore > 0.0 ? uni(R, 0.0, maxscore) : 0.0;
+            int cand[];
+            for (int f = 0; f < nf; f++) if (fscore(Q, G, f, fav) > thr) append(cand, f);
+            int f = len(cand) > 0 ? cand[py_below(R, len(cand))] : py_below(R, nf);
+            int o = 4 * f;
+            vector n = fnorm(Q, G, f);
+            vector c0 = (Q[G[o]] + Q[G[o + 1]] + Q[G[o + 2]] + Q[G[o + 3]]) * 0.25;
+            vector tan = rtangent(R, n);
+            // extrude: new top vertices, f becomes the top, 4 side quads
+            float depth = uni(R, mine, maxe);
+            int old[], nw[];
+            for (int k = 0; k < 4; k++) { old[k] = G[o + k]; nw[k] = len(Q); append(Q, Q[old[k]] + n * depth); }
+            for (int k = 0; k < 4; k++) G[o + k] = nw[k];
+            for (int k = 0; k < 4; k++) { int k1 = (k + 1) % 4; append(G, old[k]); append(G, old[k1]); append(G, nw[k1]); append(G, nw[k]); }
+            // taper about the bounding-box centre of the top
+            float sf = uni(R, mint, maxt);
+            vector lo = Q[nw[0]], hi = Q[nw[0]];
+            for (int k = 1; k < 4; k++) { lo = min(lo, Q[nw[k]]); hi = max(hi, Q[nw[k]]); }
+            vector cb = (lo + hi) * 0.5;
+            for (int k = 0; k < 4; k++) Q[nw[k]] = cb + (Q[nw[k]] - cb) * sf;
+            // tilt about the tangent through the OLD face centre
+            float ang = radians(uni(R, minr, maxr));
+            for (int k = 0; k < 4; k++) Q[nw[k]] = c0 + rotv(Q[nw[k]] - c0, ang, normalize(tan));
+            if (inside_out(Q, G)) flip_all(G);          // recalc_face_normals
+            // slide along a random tangent of the new top
+            vector n2 = fnorm(Q, G, f);
+            vector tan2 = rtangent(R, n2);
+            vector sl = tan2 * uni(R, mins, maxs);
+            for (int k = 0; k < 4; k++) Q[nw[k]] += sl;
+            ok = 1;
+            int chk[] = array(f, nf, nf + 1, nf + 2, nf + 3);
+            if (prevent) {
+                int ea[], eb[];
+                int nfa = len(G) / 4;
+                for (int ff = 0; ff < nfa; ff++) for (int k = 0; k < 4; k++) {
+                    int a = G[4 * ff + k], b = G[4 * ff + (k + 1) % 4];
+                    if (a < b) { append(ea, a); append(eb, b); }
+                }
+                int ne = len(ea);
+                foreach (int f2; chk) {
+                    for (int e = 0; e < ne && ok; e++) if (pierces(Q, G, f2, ea[e], eb[e])) ok = 0;
+                    for (int ff = 0; ff < nfa && ok; ff++) for (int k = 0; k < 4 && ok; k++)
+                        if (pierces(Q, G, ff, G[4 * f2 + k], G[4 * f2 + (k + 1) % 4])) ok = 0;
+                    if (!ok) break;
+                }
+            }
+            if (ok) {
+                foreach (int f2; chk) maxscore = max(maxscore, fscore(Q, G, f2, fav));
+                P = Q; F = G;
+            }
+        }
+    }
+    // mesh transform: scale, translate, rotate (Euler XYZ about the origin) - random values are drawn whether used or not
+    vector loc = chv("../location"), rot = radians(chv("../rotation")), scl = chv("../scale");
+    vector l0 = chv("../start_rand_location"), l1 = chv("../end_rand_location");
+    vector r0 = radians(chv("../start_rand_rotation")), r1 = radians(chv("../end_rand_rotation"));
+    vector s0 = chv("../start_rand_scale"), s1 = chv("../end_rand_scale");
+    vector rl, rr, rsc;
+    for (int k = 0; k < 3; k++) rl[k] = uni(T, l0[k], l1[k]);
+    for (int k = 0; k < 3; k++) rr[k] = uni(T, r0[k], r1[k]);
+    for (int k = 0; k < 3; k++) rsc[k] = uni(T, s0[k], s1[k]);
+    if (chi("../randomize_location")) loc = rl;
+    if (chi("../randomize_rotation")) rot = rr;
+    if (chi("../randomize_scale")) scl = rsc;
+    for (int i = 0; i < len(P); i++) {
+        vector p = P[i] * scl + loc;
+        p = rotv(p, rot.x, {1, 0, 0}); p = rotv(p, rot.y, {0, 1, 0}); p = rotv(p, rot.z, {0, 0, 1});
+        P[i] = p;
+    }
+    // subdivide edges (grid fill): every quad -> (cuts+1)^2 cells, bilinear, points shared along edges
+    int cuts = chi("../subdivide_edges");
+    if (cuts > 0) {
+        int n = cuts + 1;
+        vector Q[] = P; int G[];
+        dict ed = {};
+        int nfa = len(F) / 4;
+        for (int f = 0; f < nfa; f++) {
+            int c[]; for (int k = 0; k < 4; k++) c[k] = F[4 * f + k];
+            int grid[]; resize(grid, (n + 1) * (n + 1));
+            for (int j = 0; j <= n; j++) for (int i = 0; i <= n; i++) {
+                int idx = -1;
+                int onu = (j == 0 || j == n), onv = (i == 0 || i == n);
+                if (onu && onv) idx = c[(j == 0) ? (i == 0 ? 0 : 1) : (i == 0 ? 3 : 2)];
+                else if (onu || onv) {
+                    int a, b, kk;     // walk along edge a->b at step kk
+                    if (j == 0) { a = c[0]; b = c[1]; kk = i; }
+                    else if (j == n) { a = c[3]; b = c[2]; kk = i; }
+                    else if (i == 0) { a = c[0]; b = c[3]; kk = j; }
+                    else { a = c[1]; b = c[2]; kk = j; }
+                    if (a > b) { int t = a; a = b; b = t; kk = n - kk; }
+                    string key = sprintf("%d_%d_%d", a, b, kk);
+                    idx = getcomp(ed, key, -1);
+                    if (idx < 0) { idx = len(Q); append(Q, lerp(P[a], P[b], float(kk) / float(n))); ed[key] = idx; }
+                } else {
+                    float u = float(i) / float(n), v = float(j) / float(n);
+                    idx = len(Q);
+                    append(Q, lerp(lerp(P[c[0]], P[c[1]], u), lerp(P[c[3]], P[c[2]], u), v));
+                }
+                grid[j * (n + 1) + i] = idx;
+            }
+            for (int j = 0; j < n; j++) for (int i = 0; i < n; i++) {
+                append(G, grid[j * (n + 1) + i]); append(G, grid[j * (n + 1) + i + 1]);
+                append(G, grid[(j + 1) * (n + 1) + i + 1]); append(G, grid[(j + 1) * (n + 1) + i]);
+            }
+        }
+        P = Q; F = G;
+    }
+    if (chi("../flip_normals")) {
+        flip_all(F);
+    }
+}
+
+// ---- levels: 0 big, 1 medium, 2 small. Object table: local meshes, world = loc + scale * local ----------
+vector OP[];                 // all local points
+int    OF[];                 // all faces, 4 point ids each (into OP)
+int    op0[], of0[], onf[], olevel[], oset[], osetid[], oshape[];
+vector oloc[];
+float  oscale[];
+int setid = 0;
+int bign = max(chi("../big_shape_num"), 1);
+for (int lv = 0; lv < 3; lv++) {
+    int nsets = lv == 0 ? bign : chi(lv == 1 ? "../medium_shape_num" : "../small_shape_num");
+    if (nsets <= 0) continue;
+    int seed = chi("../random_seed") + chi(lv == 0 ? "../big_random_seed" : lv == 1 ? "../medium_random_seed" : "../small_random_seed");
+    int S[];       // numpy RandomState(scatter seed)
+    mt_seed_np(S, chi(lv == 0 ? "../big_random_scatter_seed" : lv == 1 ? "../medium_random_scatter_seed" : "../small_random_scatter_seed"));
+    float lscale = lv == 0 ? 1.0 : chf(lv == 1 ? "../medium_shape_scale" : "../small_shape_scale");
+    vector spts[];
+    int sub = seed;
+    for (int i = 0; i < nsets; i++) {
+        // scatter points are drawn once, before the first set that needs them: big sets 1.. use set 0 (unscaled), medium/small use everything made so far
+        if (i == (lv == 0 ? 1 : 0)) {
+            int nsrc = len(onf);
+            for (int q = 0; q < (lv == 0 ? nsets - 1 : nsets); q++) {
+                // add-on: rng.choice(objects), rng.choice(triangles of it), two sorted uniforms. bmesh.triangulate(FIXED) lists the
+                // first triangle (v0,v2,v3) of every quad, then the second (v0,v1,v2) of every quad.
+                int k = np_below(S, nsrc);
+                int nq = onf[k];
+                int t = np_below(S, 2 * nq);
+                int qd = t < nq ? t : t - nq;
+                int o = 4 * (of0[k] + qd);
+                int ia = OF[o], ib = OF[o + (t < nq ? 2 : 1)], ic = OF[o + (t < nq ? 3 : 2)];
+                float u = mt_real(S), v = mt_real(S);
+                float ss = min(u, v), tt = max(u, v);
+                append(spts, oloc[k] + oscale[k] * (ss * OP[ia] + (tt - ss) * OP[ib] + (1.0 - tt) * OP[ic]));
+            }
+        }
+        vector loc = (lv == 0 && i == 0) ? {0, 0, 0} : spts[lv == 0 ? i - 1 : i];
+        int sseed = lv == 0 ? seed + i : sub + i;     // big: seed + i; sub-levels: add_supporting_shapes adds i cumulatively
+        if (lv > 0) sub = sseed;
+        int R[], T[];
+        mt_seed_py(R, sseed);                                     // random.seed(seed)
+        mt_seed_np(T, chi("../random_transform_seed"));           // RandomState(random_transform_seed), new for every set
+        for (int sh = 0; sh < chi("../number_to_create"); sh++) {
+            vector P[]; int F[];
+            gen_shape(P, F, R, T);
+            int p0 = len(OP), f0 = len(OF) / 4;
+            foreach (vector p; P) append(OP, p);
+            for (int k = 0; k < len(F); k++) append(OF, F[k] + p0);
+            append(op0, p0); append(of0, f0); append(onf, len(F) / 4);
+            append(olevel, lv); append(oset, i); append(osetid, setid); append(oshape, sh);
+            append(oloc, loc); append(oscale, lscale);
+        }
+        setid++;
+    }
+    if (lv == 0) { float bsc = chf("../big_shape_scale"); for (int k = 0; k < len(onf); k++) oscale[k] *= bsc; }
+}
+
+// ---- emit world-space quads -----------------------------------------------------
+for (int k = 0; k < len(onf); k++) {
+    int np = (k + 1 < len(onf)) ? op0[k + 1] - op0[k] : len(OP) - op0[k];
+    int pts[];
+    for (int i = 0; i < np; i++) {
+        int pt = addpoint(0, oloc[k] + oscale[k] * OP[op0[k] + i]);
+        setpointattrib(0, "_os", pt, oscale[k]);
+        append(pts, pt);
+    }
+    for (int f = 0; f < onf[k]; f++) {
+        int pr = addprim(0, "poly");
+        for (int j = 3; j >= 0; j--) addvertex(0, pr, pts[OF[4 * (of0[k] + f) + j] - op0[k]]);   // Houdini winds outward faces clockwise, Blender counter-clockwise
+        setprimattrib(0, "pf_obj", pr, k);
+        setprimattrib(0, "pf_level", pr, olevel[k]);
+        setprimattrib(0, "pf_set", pr, oset[k]);
+        setprimattrib(0, "pf_setid", pr, osetid[k]);
+        setprimattrib(0, "pf_shape", pr, oshape[k]);
+    }
+}

@@ -130,3 +130,23 @@ def equirect_vs_faces(equi, faces, conv=0):
         diffs.append(np.abs(sample_equirect(equi, d, conv) - faces[f]).ravel())
     diffs = np.concatenate(diffs)
     return float(diffs.mean()), float(np.percentile(diffs, 99.9))
+
+
+def ensure_preview(cop):
+    """GUI only (so hython tests stay clean): make /obj/<cop name>_sky_preview with a pf::sky_preview pointing at `cop`,
+    unless one already points at it. Returns the SOP or None."""
+    import hou
+    if not hou.isUIAvailable() or cop.isInsideLockedHDA() or hou.node("/obj") is None:
+        return None
+    for g in hou.node("/obj").children():
+        for c in g.children():
+            if c.type().name().startswith("pf::sky_preview") and c.parm("cop").eval() == cop.path():
+                return c
+    g = hou.node("/obj").createNode("geo", cop.name() + "_sky_preview")
+    for c in g.children():
+        c.destroy()
+    s = g.createNode("pf::sky_preview", "sky_preview")
+    s.parm("cop").set(cop.path())
+    s.setDisplayFlag(True)
+    s.setRenderFlag(True)
+    return s

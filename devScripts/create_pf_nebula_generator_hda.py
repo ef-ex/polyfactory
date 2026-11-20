@@ -151,7 +151,7 @@ def make_ptg():
     g = hou.ParmTemplateGroup()
     names = PRESETS["order"]
     g.append(hou.MenuParmTemplate("preset", "Preset", menu_items=tuple(names), menu_labels=tuple(n.replace("_", " ").title() for n in names),
-        default_value=0, script_callback="import polyfactory.spacetools.nebula as nb; nb.apply_preset(kwargs['node'], kwargs['parm'].eval())",
+        default_value=0, script_callback="import polyfactory.spacetools.nebula as nb; nb.apply_preset(kwargs['node'], kwargs['parm'].evalAsString())",
         script_callback_language=hou.scriptLanguage.Python,
         help="Looks recreated from the Blender sample .blend files. Choosing one overwrites the parameters below."))
     g.append(sc.layout_parm_folder("Output Layout"))
@@ -225,7 +225,7 @@ def populate(hda):
     return [(ocl, 0), (ocl, 1)]
 
 
-ON_CREATED = "import polyfactory.spacetools.nebula as nb\nnb.apply_preset(kwargs['node'], 'default')\n"
+ON_CREATED = "import polyfactory.spacetools.nebula as nb\nnb.apply_preset(kwargs['node'], 'default')\nimport polyfactory.spacetools.sky as sk\nsk.ensure_preview(kwargs['node'])\n"
 
 if __name__ == "__main__":
     path = sc.make_cop_hda("pf_nebula_generator", "PF Nebula Generator", OUT, make_ptg(), populate,

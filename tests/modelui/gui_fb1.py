@@ -150,13 +150,13 @@ def suite(out):
     QTest.keyClick(win, Qt.Key_A, Qt.AltModifier)
     yield 300
     out["alt_a_starts_align"] = picking()
-    align._end_pick()
+    align.cancel_pick()
     yield 100
     hover()
     QTest.keyClick(win, Qt.Key_N, Qt.AltModifier)
     yield 300
     out["alt_n_starts_normal"] = picking()
-    align._end_pick()
+    align.cancel_pick()
     yield 100
     # fix 2 + 4b: explorer buttons
     ex = explorer.Explorer()
@@ -167,7 +167,7 @@ def suite(out):
         btns["Align"].click()
         yield 200
         out["explorer_align_starts_pick"] = picking()
-        align._end_pick()
+        align.cancel_pick()
     ex.close_down()
     ex.deleteLater()
     # fix 3: drop over the viewer, at a point that is not the look-at point
@@ -238,7 +238,7 @@ def cleanup():
     d = align._state.get("dialog")
     if d is not None:
         _q(d.reject)
-    _q(align._end_pick)
+    _q(align.cancel_pick)
     while QtWidgets.QApplication.overrideCursor() is not None:
         QtWidgets.QApplication.restoreOverrideCursor()
     _q(switch.uninstall)
