@@ -3340,7 +3340,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 304,
+      "community": 302,
       "norm_label": "object"
     },
     {
@@ -5377,7 +5377,7 @@
       "label": "_np()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L42",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "modelui_align_np",
       "community": 315,
@@ -5387,27 +5387,27 @@
       "label": "_pts()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L46",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "modelui_align_pts",
-      "community": 357,
+      "community": 362,
       "norm_label": "_pts()"
     },
     {
       "label": "items()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L52",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "modelui_align_items",
-      "community": 357,
+      "community": 362,
       "norm_label": "items()"
     },
     {
       "label": "item()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L80",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "modelui_align_item",
       "community": 361,
@@ -5417,27 +5417,27 @@
       "label": "world_pivot()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L84",
+      "source_location": "L87",
       "_origin": "ast",
       "id": "modelui_align_world_pivot",
-      "community": 364,
+      "community": 315,
       "norm_label": "world_pivot()"
     },
     {
       "label": "world_box()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L88",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "modelui_align_world_box",
-      "community": 364,
+      "community": 315,
       "norm_label": "world_box()"
     },
     {
       "label": "_pts_world()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L98",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "modelui_align_pts_world",
       "community": 315,
@@ -5447,17 +5447,17 @@
       "label": "value()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L103",
+      "source_location": "L106",
       "_origin": "ast",
       "id": "modelui_align_value",
-      "community": 364,
+      "community": 315,
       "norm_label": "value()"
     },
     {
       "label": "_lin()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L112",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "modelui_align_lin",
       "community": 356,
@@ -5467,7 +5467,7 @@
       "label": "_row()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L117",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "modelui_align_row",
       "community": 356,
@@ -5477,7 +5477,7 @@
       "label": "_keep_pivot()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L121",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "modelui_align_keep_pivot",
       "community": 356,
@@ -5487,7 +5487,7 @@
       "label": "orient()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L126",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "modelui_align_orient",
       "community": 356,
@@ -5497,7 +5497,7 @@
       "label": "match_scale()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L140",
+      "source_location": "L143",
       "_origin": "ast",
       "id": "modelui_align_match_scale",
       "community": 356,
@@ -5507,7 +5507,7 @@
       "label": "aligned()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L152",
+      "source_location": "L155",
       "_origin": "ast",
       "id": "modelui_align_aligned",
       "community": 356,
@@ -5517,37 +5517,37 @@
       "label": "solve()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L163",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "modelui_align_solve",
-      "community": 366,
+      "community": 356,
       "norm_label": "solve()"
     },
     {
       "label": "selection_centre()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L168",
+      "source_location": "L171",
       "_origin": "ast",
       "id": "modelui_align_selection_centre",
-      "community": 364,
+      "community": 315,
       "norm_label": "selection_centre()"
     },
     {
       "label": "quick()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L173",
+      "source_location": "L176",
       "_origin": "ast",
       "id": "modelui_align_quick",
-      "community": 364,
+      "community": 315,
       "norm_label": "quick()"
     },
     {
       "label": "normal_delta()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L181",
+      "source_location": "L184",
       "_origin": "ast",
       "id": "modelui_align_normal_delta",
       "community": 326,
@@ -5557,7 +5557,7 @@
       "label": "_pickable()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L192",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "modelui_align_pickable",
       "community": 363,
@@ -5567,7 +5567,7 @@
       "label": "_ray_box()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L200",
+      "source_location": "L203",
       "_origin": "ast",
       "id": "modelui_align_ray_box",
       "community": 363,
@@ -5577,7 +5577,7 @@
       "label": "hit_ray()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L216",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "modelui_align_hit_ray",
       "community": 363,
@@ -5587,7 +5587,7 @@
       "label": "hit_at()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L265",
+      "source_location": "L268",
       "_origin": "ast",
       "id": "modelui_align_hit_at",
       "community": 363,
@@ -5597,17 +5597,17 @@
       "label": "_snapshot()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L277",
+      "source_location": "L287",
       "_origin": "ast",
       "id": "modelui_align_snapshot",
-      "community": 357,
+      "community": 362,
       "norm_label": "_snapshot()"
     },
     {
       "label": "_restore()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L292",
+      "source_location": "L302",
       "_origin": "ast",
       "id": "modelui_align_restore",
       "community": 362,
@@ -5617,7 +5617,7 @@
       "label": "commit()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L305",
+      "source_location": "L315",
       "_origin": "ast",
       "id": "modelui_align_commit",
       "community": 361,
@@ -5627,37 +5627,37 @@
       "label": "stored()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L311",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "modelui_align_stored",
-      "community": 357,
+      "community": 362,
       "norm_label": "stored()"
     },
     {
       "label": "unstored()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L326",
+      "source_location": "L336",
       "_origin": "ast",
       "id": "modelui_align_unstored",
-      "community": 357,
+      "community": 362,
       "norm_label": "unstored()"
     },
     {
       "label": "_warn_unstored()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L335",
+      "source_location": "L345",
       "_origin": "ast",
       "id": "modelui_align_warn_unstored",
-      "community": 315,
+      "community": 362,
       "norm_label": "_warn_unstored()"
     },
     {
       "label": "Session",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L342",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "modelui_align_session",
       "community": 362,
@@ -5667,27 +5667,27 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L347",
+      "source_location": "L357",
       "_origin": "ast",
       "id": "modelui_align_session_init",
-      "community": 357,
+      "community": 362,
       "norm_label": ".__init__()"
     },
     {
       "label": ".preview()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L355",
+      "source_location": "L365",
       "_origin": "ast",
       "id": "modelui_align_session_preview",
-      "community": 366,
+      "community": 362,
       "norm_label": ".preview()"
     },
     {
       "label": ".apply()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L362",
+      "source_location": "L372",
       "_origin": "ast",
       "id": "modelui_align_session_apply",
       "community": 362,
@@ -5697,7 +5697,7 @@
       "label": ".cancel()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L372",
+      "source_location": "L382",
       "_origin": "ast",
       "id": "modelui_align_session_cancel",
       "community": 362,
@@ -5707,7 +5707,7 @@
       "label": "AlignSession",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L379",
+      "source_location": "L389",
       "_origin": "ast",
       "id": "modelui_align_alignsession",
       "community": 361,
@@ -5717,27 +5717,37 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L380",
+      "source_location": "L390",
       "_origin": "ast",
       "id": "modelui_align_alignsession_init",
       "community": 361,
       "norm_label": ".__init__()"
     },
     {
+      "label": ".set_target()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L394",
+      "_origin": "ast",
+      "id": "modelui_align_alignsession_set_target",
+      "community": 361,
+      "norm_label": ".set_target()"
+    },
+    {
       "label": ".update()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L384",
+      "source_location": "L397",
       "_origin": "ast",
       "id": "modelui_align_alignsession_update",
-      "community": 366,
+      "community": 356,
       "norm_label": ".update()"
     },
     {
       "label": "NormalSession",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L388",
+      "source_location": "L402",
       "_origin": "ast",
       "id": "modelui_align_normalsession",
       "community": 326,
@@ -5747,7 +5757,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L389",
+      "source_location": "L403",
       "_origin": "ast",
       "id": "modelui_align_normalsession_init",
       "community": 326,
@@ -5757,7 +5767,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L393",
+      "source_location": "L407",
       "_origin": "ast",
       "id": "modelui_align_normalsession_update",
       "community": 326,
@@ -5767,7 +5777,7 @@
       "label": "AlignDialog",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L399",
+      "source_location": "L413",
       "_origin": "ast",
       "id": "modelui_align_aligndialog",
       "community": 326,
@@ -5777,7 +5787,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L404",
+      "source_location": "L418",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_init",
       "community": 326,
@@ -5787,7 +5797,7 @@
       "label": "._axes()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L447",
+      "source_location": "L464",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_axes",
       "community": 326,
@@ -5797,7 +5807,7 @@
       "label": ".options()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L459",
+      "source_location": "L476",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_options",
       "community": 326,
@@ -5807,17 +5817,27 @@
       "label": ".refresh()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L465",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_refresh",
       "community": 326,
       "norm_label": ".refresh()"
     },
     {
+      "label": ".set_target()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L485",
+      "_origin": "ast",
+      "id": "modelui_align_aligndialog_set_target",
+      "community": 326,
+      "norm_label": ".set_target()"
+    },
+    {
       "label": ".done()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L468",
+      "source_location": "L496",
       "_origin": "ast",
       "id": "modelui_align_aligndialog_done",
       "community": 362,
@@ -5827,7 +5847,7 @@
       "label": "NormalDialog",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L478",
+      "source_location": "L509",
       "_origin": "ast",
       "id": "modelui_align_normaldialog",
       "community": 326,
@@ -5837,7 +5857,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L481",
+      "source_location": "L512",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_init",
       "community": 326,
@@ -5847,7 +5867,7 @@
       "label": ".values()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L511",
+      "source_location": "L542",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_values",
       "community": 326,
@@ -5857,7 +5877,7 @@
       "label": ".refresh()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L514",
+      "source_location": "L545",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_refresh",
       "community": 326,
@@ -5867,7 +5887,7 @@
       "label": ".done()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L517",
+      "source_location": "L548",
       "_origin": "ast",
       "id": "modelui_align_normaldialog_done",
       "community": 362,
@@ -5877,7 +5897,7 @@
       "label": "_finished()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L527",
+      "source_location": "L558",
       "_origin": "ast",
       "id": "modelui_align_finished",
       "community": 362,
@@ -5887,17 +5907,17 @@
       "label": "_show()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L532",
+      "source_location": "L563",
       "_origin": "ast",
       "id": "modelui_align_show",
-      "community": 361,
+      "community": 315,
       "norm_label": "_show()"
     },
     {
       "label": "_status()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L548",
+      "source_location": "L582",
       "_origin": "ast",
       "id": "modelui_align_status",
       "community": 315,
@@ -5907,7 +5927,7 @@
       "label": "_gesture()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L555",
+      "source_location": "L589",
       "_origin": "ast",
       "id": "modelui_align_gesture",
       "community": 361,
@@ -5917,7 +5937,7 @@
       "label": "_picked()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L586",
+      "source_location": "L620",
       "_origin": "ast",
       "id": "modelui_align_picked",
       "community": 361,
@@ -5927,7 +5947,7 @@
       "label": "_start()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L619",
+      "source_location": "L657",
       "_origin": "ast",
       "id": "modelui_align_start",
       "community": 315,
@@ -5937,7 +5957,7 @@
       "label": "_cursor_tick()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L641",
+      "source_location": "L681",
       "_origin": "ast",
       "id": "modelui_align_cursor_tick",
       "community": 315,
@@ -5947,7 +5967,7 @@
       "label": "_end_pick()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L654",
+      "source_location": "L696",
       "_origin": "ast",
       "id": "modelui_align_end_pick",
       "community": 315,
@@ -5957,7 +5977,7 @@
       "label": "cancel_pick()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L662",
+      "source_location": "L704",
       "_origin": "ast",
       "id": "modelui_align_cancel_pick",
       "community": 315,
@@ -5967,7 +5987,7 @@
       "label": "align()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L668",
+      "source_location": "L713",
       "_origin": "ast",
       "id": "modelui_align_align",
       "community": 315,
@@ -5977,7 +5997,7 @@
       "label": "quick_align()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L673",
+      "source_location": "L718",
       "_origin": "ast",
       "id": "modelui_align_quick_align",
       "community": 315,
@@ -5987,7 +6007,7 @@
       "label": "normal_align()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L677",
+      "source_location": "L722",
       "_origin": "ast",
       "id": "modelui_align_normal_align",
       "community": 315,
@@ -5997,7 +6017,7 @@
       "label": "install()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L682",
+      "source_location": "L727",
       "_origin": "ast",
       "id": "modelui_align_install",
       "community": 315,
@@ -6007,7 +6027,7 @@
       "label": "uninstall()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L687",
+      "source_location": "L732",
       "_origin": "ast",
       "id": "modelui_align_uninstall",
       "community": 315,
@@ -6027,39 +6047,39 @@
       "label": "Every item's world matrix ``m``, its points in its own space ``pts`` (Nx3, None",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L53",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "modelui_align_rationale_53",
-      "community": 357,
+      "id": "modelui_align_rationale_56",
+      "community": 362,
       "norm_label": "every item's world matrix ``m``, its points in its own space ``pts`` (nx3, none"
     },
     {
       "label": "(lo, hi) of the item's points under ``m`` (default its own matrix): the tight wo",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L89",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "modelui_align_rationale_89",
-      "community": 364,
+      "id": "modelui_align_rationale_92",
+      "community": 315,
       "norm_label": "(lo, hi) of the item's points under ``m`` (default its own matrix): the tight wo"
     },
     {
       "label": "The item's Minimum / Center / Pivot Point / Maximum on world axis k.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L104",
+      "source_location": "L107",
       "_origin": "ast",
-      "id": "modelui_align_rationale_104",
-      "community": 364,
+      "id": "modelui_align_rationale_107",
+      "community": 315,
       "norm_label": "the item's minimum / center / pivot point / maximum on world axis k."
     },
     {
       "label": "``lin`` (no translation) with the translation that keeps the local pivot where `",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L122",
+      "source_location": "L125",
       "_origin": "ast",
-      "id": "modelui_align_rationale_122",
+      "id": "modelui_align_rationale_125",
       "community": 356,
       "norm_label": "``lin`` (no translation) with the translation that keeps the local pivot where `"
     },
@@ -6067,9 +6087,9 @@
       "label": "Max's Align Orientation (Local): one axis turns the item the shortest way until",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L127",
+      "source_location": "L130",
       "_origin": "ast",
-      "id": "modelui_align_rationale_127",
+      "id": "modelui_align_rationale_130",
       "community": 356,
       "norm_label": "max's align orientation (local): one axis turns the item the shortest way until"
     },
@@ -6077,9 +6097,9 @@
       "label": "Max's Match Scale: the item's scale on local axis k (world) becomes the target's",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L141",
+      "source_location": "L144",
       "_origin": "ast",
-      "id": "modelui_align_rationale_141",
+      "id": "modelui_align_rationale_144",
       "community": 356,
       "norm_label": "max's match scale: the item's scale on local axis k (world) becomes the target's"
     },
@@ -6087,9 +6107,9 @@
       "label": "The item's new world matrix. ``opts``: {\"pos\": {axis: (current point, target poi",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L153",
+      "source_location": "L156",
       "_origin": "ast",
-      "id": "modelui_align_rationale_153",
+      "id": "modelui_align_rationale_156",
       "community": 356,
       "norm_label": "the item's new world matrix. ``opts``: {\"pos\": {axis: (current point, target poi"
     },
@@ -6097,29 +6117,29 @@
       "label": "{pid: new world matrix} for every item (each on its own, as Max does).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L164",
+      "source_location": "L167",
       "_origin": "ast",
-      "id": "modelui_align_rationale_164",
-      "community": 366,
+      "id": "modelui_align_rationale_167",
+      "community": 356,
       "norm_label": "{pid: new world matrix} for every item (each on its own, as max does)."
     },
     {
       "label": "Quick Align (Max): one item's pivot, or several items' selection centre (their t",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L174",
+      "source_location": "L177",
       "_origin": "ast",
-      "id": "modelui_align_rationale_174",
-      "community": 364,
+      "id": "modelui_align_rationale_177",
+      "community": 315,
       "norm_label": "quick align (max): one item's pivot, or several items' selection centre (their t"
     },
     {
       "label": "World matrix that puts the source face (point ps, normal ns) onto the target fac",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L182",
+      "source_location": "L185",
       "_origin": "ast",
-      "id": "modelui_align_rationale_182",
+      "id": "modelui_align_rationale_185",
       "community": 326,
       "norm_label": "world matrix that puts the source face (point ps, normal ns) onto the target fac"
     },
@@ -6127,9 +6147,9 @@
       "label": "A displayed container or loose geometry object (never the handle's proxy null).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L193",
+      "source_location": "L196",
       "_origin": "ast",
-      "id": "modelui_align_rationale_193",
+      "id": "modelui_align_rationale_196",
       "community": 363,
       "norm_label": "a displayed container or loose geometry object (never the handle's proxy null)."
     },
@@ -6137,9 +6157,9 @@
       "label": "Does the ray o + t d (t >= 0) pass through box ``bb`` (slab test)?",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L201",
+      "source_location": "L204",
       "_origin": "ast",
-      "id": "modelui_align_rationale_201",
+      "id": "modelui_align_rationale_204",
       "community": 363,
       "norm_label": "does the ray o + t d (t >= 0) pass through box ``bb`` (slab test)?"
     },
@@ -6147,9 +6167,9 @@
       "label": "(pid, world point, world normal facing the ray's origin) of the nearest piece or",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L217",
+      "source_location": "L220",
       "_origin": "ast",
-      "id": "modelui_align_rationale_217",
+      "id": "modelui_align_rationale_220",
       "community": 363,
       "norm_label": "(pid, world point, world normal facing the ray's origin) of the nearest piece or"
     },
@@ -6157,9 +6177,9 @@
       "label": "The hit under viewport pixel (x, y): only in the object the viewport draws there",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L266",
+      "source_location": "L269",
       "_origin": "ast",
-      "id": "modelui_align_rationale_266",
+      "id": "modelui_align_rationale_269",
       "community": 363,
       "norm_label": "the hit under viewport pixel (x, y): only in the object the viewport draws there"
     },
@@ -6167,19 +6187,19 @@
       "label": "The stored values the items' transforms live in: a container's whole piece point",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L278",
+      "source_location": "L288",
       "_origin": "ast",
-      "id": "modelui_align_rationale_278",
-      "community": 357,
+      "id": "modelui_align_rationale_288",
+      "community": 362,
       "norm_label": "the stored values the items' transforms live in: a container's whole piece point"
     },
     {
       "label": "{pid: world matrix} as ONE undo step.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L306",
+      "source_location": "L316",
       "_origin": "ast",
-      "id": "modelui_align_rationale_306",
+      "id": "modelui_align_rationale_316",
       "community": 361,
       "norm_label": "{pid: world matrix} as one undo step."
     },
@@ -6187,29 +6207,29 @@
       "label": "{pid: the world matrix the scene holds now}; each container is read once.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L312",
+      "source_location": "L322",
       "_origin": "ast",
-      "id": "modelui_align_rationale_312",
-      "community": 357,
+      "id": "modelui_align_rationale_322",
+      "community": 362,
       "norm_label": "{pid: the world matrix the scene holds now}; each container is read once."
     },
     {
       "label": "The items whose requested world matrix the scene could not hold (an object with",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L327",
+      "source_location": "L337",
       "_origin": "ast",
-      "id": "modelui_align_rationale_327",
-      "community": 357,
+      "id": "modelui_align_rationale_337",
+      "community": 362,
       "norm_label": "the items whose requested world matrix the scene could not hold (an object with"
     },
     {
       "label": "A live preview over the selection: ``preview`` moves the items outside the undo",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L343",
+      "source_location": "L353",
       "_origin": "ast",
-      "id": "modelui_align_rationale_343",
+      "id": "modelui_align_rationale_353",
       "community": 362,
       "norm_label": "a live preview over the selection: ``preview`` moves the items outside the undo"
     },
@@ -6217,19 +6237,29 @@
       "label": "Max's Align Selection dialog; the current and target points are chosen per axis",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L400",
+      "source_location": "L414",
       "_origin": "ast",
-      "id": "modelui_align_rationale_400",
+      "id": "modelui_align_rationale_414",
       "community": 326,
       "norm_label": "max's align selection dialog; the current and target points are chosen per axis"
+    },
+    {
+      "label": "The pick found its target: name it, start the live preview, and from now on bloc",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L486",
+      "_origin": "ast",
+      "id": "modelui_align_rationale_486",
+      "community": 326,
+      "norm_label": "the pick found its target: name it, start the live preview, and from now on bloc"
     },
     {
       "label": "Max's Normal Align dialog: offset along the normal, spin about it, Flip; Apply /",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L479",
+      "source_location": "L510",
       "_origin": "ast",
-      "id": "modelui_align_rationale_479",
+      "id": "modelui_align_rationale_510",
       "community": 326,
       "norm_label": "max's normal align dialog: offset along the normal, spin about it, flip; apply /"
     },
@@ -6237,9 +6267,9 @@
       "label": "While picking: a left click in a viewer is ours (Houdini never sees it) and pick",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L556",
+      "source_location": "L590",
       "_origin": "ast",
-      "id": "modelui_align_rationale_556",
+      "id": "modelui_align_rationale_590",
       "community": 361,
       "norm_label": "while picking: a left click in a viewer is ours (houdini never sees it) and pick"
     },
@@ -6247,9 +6277,9 @@
       "label": "Max's pick cursor: the cross while a pick runs and the cursor (``pos``, default",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L642",
+      "source_location": "L682",
       "_origin": "ast",
-      "id": "modelui_align_rationale_642",
+      "id": "modelui_align_rationale_682",
       "community": 315,
       "norm_label": "max's pick cursor: the cross while a pick runs and the cursor (``pos``, default"
     },
@@ -6257,9 +6287,9 @@
       "label": "Align Selection: pick the target, then the dialog.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L669",
+      "source_location": "L714",
       "_origin": "ast",
-      "id": "modelui_align_rationale_669",
+      "id": "modelui_align_rationale_714",
       "community": 315,
       "norm_label": "align selection: pick the target, then the dialog."
     },
@@ -6267,9 +6297,9 @@
       "label": "Off: a pick ends; an open dialog cancels (everything back as it was).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L688",
+      "source_location": "L733",
       "_origin": "ast",
-      "id": "modelui_align_rationale_688",
+      "id": "modelui_align_rationale_733",
       "community": 315,
       "norm_label": "off: a pick ends; an open dialog cancels (everything back as it was)."
     },
@@ -8827,7 +8857,7 @@
       "label": "get_xform()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L30",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "modelui_pieces_ui_get_xform",
       "community": 23,
@@ -8837,7 +8867,7 @@
       "label": "set_xform()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L37",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "modelui_pieces_ui_set_xform",
       "community": 23,
@@ -8847,7 +8877,7 @@
       "label": "set_xforms()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L45",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "modelui_pieces_ui_set_xforms",
       "community": 23,
@@ -8857,7 +8887,7 @@
       "label": "copy_of()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L58",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "modelui_pieces_ui_copy_of",
       "community": 23,
@@ -8867,7 +8897,7 @@
       "label": "_world_box()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L66",
+      "source_location": "L67",
       "_origin": "ast",
       "id": "modelui_pieces_ui_world_box",
       "community": 23,
@@ -8877,7 +8907,7 @@
       "label": "bounds()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L72",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "modelui_pieces_ui_bounds",
       "community": 23,
@@ -8887,7 +8917,7 @@
       "label": "viewport_at()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L93",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "modelui_pieces_ui_viewport_at",
       "community": 23,
@@ -8897,7 +8927,7 @@
       "label": "_ray_piece()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L106",
+      "source_location": "L107",
       "_origin": "ast",
       "id": "modelui_pieces_ui_ray_piece",
       "community": 23,
@@ -8907,17 +8937,27 @@
       "label": "pick()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L119",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "modelui_pieces_ui_pick",
       "community": 23,
       "norm_label": "pick()"
     },
     {
+      "label": "_viewer_gl()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
+      "source_location": "L151",
+      "_origin": "ast",
+      "id": "modelui_pieces_ui_viewer_gl",
+      "community": 23,
+      "norm_label": "_viewer_gl()"
+    },
+    {
       "label": "_under()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L150",
+      "source_location": "L168",
       "_origin": "ast",
       "id": "modelui_pieces_ui_under",
       "community": 23,
@@ -8927,7 +8967,7 @@
       "label": "_left_alone()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L166",
+      "source_location": "L186",
       "_origin": "ast",
       "id": "modelui_pieces_ui_left_alone",
       "community": 23,
@@ -8937,7 +8977,7 @@
       "label": "_click_gesture()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L173",
+      "source_location": "L193",
       "_origin": "ast",
       "id": "modelui_pieces_ui_click_gesture",
       "community": 23,
@@ -8947,7 +8987,7 @@
       "label": "_band()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L217",
+      "source_location": "L237",
       "_origin": "ast",
       "id": "modelui_pieces_ui_band",
       "community": 23,
@@ -8957,7 +8997,7 @@
       "label": "_band_off()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L231",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "modelui_pieces_ui_band_off",
       "community": 23,
@@ -8967,7 +9007,7 @@
       "label": "_pick_at()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L238",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "modelui_pieces_ui_pick_at",
       "community": 23,
@@ -8977,7 +9017,7 @@
       "label": "piece_centres()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L247",
+      "source_location": "L267",
       "_origin": "ast",
       "id": "modelui_pieces_ui_piece_centres",
       "community": 23,
@@ -8987,7 +9027,7 @@
       "label": "_object_centres()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L260",
+      "source_location": "L280",
       "_origin": "ast",
       "id": "modelui_pieces_ui_object_centres",
       "community": 23,
@@ -8997,7 +9037,7 @@
       "label": "_apply()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L273",
+      "source_location": "L293",
       "_origin": "ast",
       "id": "modelui_pieces_ui_apply",
       "community": 23,
@@ -9007,7 +9047,7 @@
       "label": "_box_at()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L283",
+      "source_location": "L303",
       "_origin": "ast",
       "id": "modelui_pieces_ui_box_at",
       "community": 23,
@@ -9017,7 +9057,7 @@
       "label": "proxy()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L314",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "modelui_pieces_ui_proxy",
       "community": 23,
@@ -9027,7 +9067,7 @@
       "label": "_delete_marked()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L324",
+      "source_location": "L344",
       "_origin": "ast",
       "id": "modelui_pieces_ui_delete_marked",
       "community": 23,
@@ -9037,7 +9077,7 @@
       "label": "_new_proxy()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L340",
+      "source_location": "L360",
       "_origin": "ast",
       "id": "modelui_pieces_ui_new_proxy",
       "community": 23,
@@ -9047,7 +9087,7 @@
       "label": "_proxy_moved()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L357",
+      "source_location": "L377",
       "_origin": "ast",
       "id": "modelui_pieces_ui_proxy_moved",
       "community": 23,
@@ -9057,7 +9097,7 @@
       "label": "_set_rel()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L372",
+      "source_location": "L392",
       "_origin": "ast",
       "id": "modelui_pieces_ui_set_rel",
       "community": 23,
@@ -9067,7 +9107,7 @@
       "label": "_handle_xform()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L381",
+      "source_location": "L401",
       "_origin": "ast",
       "id": "modelui_pieces_ui_handle_xform",
       "community": 23,
@@ -9077,7 +9117,7 @@
       "label": "bind()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L394",
+      "source_location": "L414",
       "_origin": "ast",
       "id": "modelui_pieces_ui_bind",
       "community": 23,
@@ -9087,7 +9127,7 @@
       "label": "_hip_event()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L407",
+      "source_location": "L427",
       "_origin": "ast",
       "id": "modelui_pieces_ui_hip_event",
       "community": 23,
@@ -9097,7 +9137,7 @@
       "label": "_set_containers_selectable()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L423",
+      "source_location": "L443",
       "_origin": "ast",
       "id": "modelui_pieces_ui_set_containers_selectable",
       "community": 23,
@@ -9107,7 +9147,7 @@
       "label": "_draw()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L429",
+      "source_location": "L449",
       "_origin": "ast",
       "id": "modelui_pieces_ui_draw",
       "community": 23,
@@ -9117,7 +9157,7 @@
       "label": "_scene_changed()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L457",
+      "source_location": "L477",
       "_origin": "ast",
       "id": "modelui_pieces_ui_scene_changed",
       "community": 23,
@@ -9127,7 +9167,7 @@
       "label": "_follow_selection()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L461",
+      "source_location": "L481",
       "_origin": "ast",
       "id": "modelui_pieces_ui_follow_selection",
       "community": 23,
@@ -9137,7 +9177,7 @@
       "label": "_plane_point()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L501",
+      "source_location": "L521",
       "_origin": "ast",
       "id": "modelui_pieces_ui_plane_point",
       "community": 23,
@@ -9147,7 +9187,7 @@
       "label": "_grid_step()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L515",
+      "source_location": "L535",
       "_origin": "ast",
       "id": "modelui_pieces_ui_grid_step",
       "community": 23,
@@ -9157,7 +9197,7 @@
       "label": "_key_gesture()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L532",
+      "source_location": "L552",
       "_origin": "ast",
       "id": "modelui_pieces_ui_key_gesture",
       "community": 23,
@@ -9167,7 +9207,7 @@
       "label": "_ray_object()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L540",
+      "source_location": "L560",
       "_origin": "ast",
       "id": "modelui_pieces_ui_ray_object",
       "community": 23,
@@ -9177,7 +9217,7 @@
       "label": "_drag_gesture()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L555",
+      "source_location": "L575",
       "_origin": "ast",
       "id": "modelui_pieces_ui_drag_gesture",
       "community": 23,
@@ -9187,7 +9227,7 @@
       "label": "_revert_preview()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L642",
+      "source_location": "L662",
       "_origin": "ast",
       "id": "modelui_pieces_ui_revert_preview",
       "community": 23,
@@ -9197,7 +9237,7 @@
       "label": "_commit_drag()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L651",
+      "source_location": "L671",
       "_origin": "ast",
       "id": "modelui_pieces_ui_commit_drag",
       "community": 23,
@@ -9207,7 +9247,7 @@
       "label": "install()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L667",
+      "source_location": "L687",
       "_origin": "ast",
       "id": "modelui_pieces_ui_install",
       "community": 23,
@@ -9217,7 +9257,7 @@
       "label": "uninstall()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L692",
+      "source_location": "L712",
       "_origin": "ast",
       "id": "modelui_pieces_ui_uninstall",
       "community": 23,
@@ -9237,9 +9277,9 @@
       "label": "{pid: world matrix}: one stash edit per container, objects one by one.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L46",
+      "source_location": "L47",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_46",
+      "id": "modelui_pieces_ui_rationale_47",
       "community": 23,
       "norm_label": "{pid: world matrix}: one stash edit per container, objects one by one."
     },
@@ -9247,9 +9287,9 @@
       "label": "World bounding box of a piece or an object's display geometry, or None.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L73",
+      "source_location": "L74",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_73",
+      "id": "modelui_pieces_ui_rationale_74",
       "community": 23,
       "norm_label": "world bounding box of a piece or an object's display geometry, or none."
     },
@@ -9257,9 +9297,9 @@
       "label": "(viewport, x, y): the viewport of ``sv`` under global Qt point ``gpos`` in its o",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L94",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_94",
+      "id": "modelui_pieces_ui_rationale_95",
       "community": 23,
       "norm_label": "(viewport, x, y): the viewport of ``sv`` under global qt point ``gpos`` in its o"
     },
@@ -9267,19 +9307,29 @@
       "label": "Select the piece or object under viewport pixel (x, y): mode \"replace\" (nothing",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L120",
+      "source_location": "L121",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_120",
+      "id": "modelui_pieces_ui_rationale_121",
       "community": 23,
       "norm_label": "select the piece or object under viewport pixel (x, y): mode \"replace\" (nothing"
+    },
+    {
+      "label": "The GL widget that draws viewer ``sv``'s viewports: the largest visible QOpenGLW",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
+      "source_location": "L152",
+      "_origin": "ast",
+      "id": "modelui_pieces_ui_rationale_152",
+      "community": 23,
+      "norm_label": "the gl widget that draws viewer ``sv``'s viewports: the largest visible qopenglw"
     },
     {
       "label": "(viewport, x, y, object under the point) for global point ``g`` in viewer ``sv``",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L151",
+      "source_location": "L169",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_151",
+      "id": "modelui_pieces_ui_rationale_169",
       "community": 23,
       "norm_label": "(viewport, x, y, object under the point) for global point ``g`` in viewer ``sv``"
     },
@@ -9287,9 +9337,9 @@
       "label": "A left press we may take: over a viewer that is not in a view state (Space+LMB t",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L167",
+      "source_location": "L187",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_167",
+      "id": "modelui_pieces_ui_rationale_187",
       "community": 23,
       "norm_label": "a left press we may take: over a viewer that is not in a view state (space+lmb t"
     },
@@ -9297,9 +9347,9 @@
       "label": "A plain LMB click over a viewer. On a container it is ours: Houdini never sees i",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L174",
+      "source_location": "L194",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_174",
+      "id": "modelui_pieces_ui_rationale_194",
       "community": 23,
       "norm_label": "a plain lmb click over a viewer. on a container it is ours: houdini never sees i"
     },
@@ -9307,9 +9357,9 @@
       "label": "The rubber band of a box that Houdini never sees (it started on a piece).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L218",
+      "source_location": "L238",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_218",
+      "id": "modelui_pieces_ui_rationale_238",
       "community": 23,
       "norm_label": "the rubber band of a box that houdini never sees (it started on a piece)."
     },
@@ -9317,9 +9367,9 @@
       "label": "Pick at global point ``g`` in viewer ``sv``.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L239",
+      "source_location": "L259",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_239",
+      "id": "modelui_pieces_ui_rationale_259",
       "community": 23,
       "norm_label": "pick at global point ``g`` in viewer ``sv``."
     },
@@ -9327,9 +9377,9 @@
       "label": "{pid: (x, y) viewport pixel} of every piece's bounding-box centre.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L248",
+      "source_location": "L268",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_248",
+      "id": "modelui_pieces_ui_rationale_268",
       "community": 23,
       "norm_label": "{pid: (x, y) viewport pixel} of every piece's bounding-box centre."
     },
@@ -9337,9 +9387,9 @@
       "label": "{object id: (x, y) viewport pixel} of every displayed loose object's bounding-bo",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L261",
+      "source_location": "L281",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_261",
+      "id": "modelui_pieces_ui_rationale_281",
       "community": 23,
       "norm_label": "{object id: (x, y) viewport pixel} of every displayed loose object's bounding-bo"
     },
@@ -9347,9 +9397,9 @@
       "label": "A box selection. Houdini's own (it started on empty space): its object result st",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L284",
+      "source_location": "L304",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_284",
+      "id": "modelui_pieces_ui_rationale_304",
       "community": 23,
       "norm_label": "a box selection. houdini's own (it started on empty space): its object result st"
     },
@@ -9357,9 +9407,9 @@
       "label": "The live proxy null of the bound piece, or None.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L315",
+      "source_location": "L335",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_315",
+      "id": "modelui_pieces_ui_rationale_335",
       "community": 23,
       "norm_label": "the live proxy null of the bound piece, or none."
     },
@@ -9367,9 +9417,9 @@
       "label": "Every handle null (or only ``sids``). Houdini refuses while it cooks (a timer ca",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L325",
+      "source_location": "L345",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_325",
+      "id": "modelui_pieces_ui_rationale_345",
       "community": 23,
       "norm_label": "every handle null (or only ``sids``). houdini refuses while it cooks (a timer ca"
     },
@@ -9377,9 +9427,9 @@
       "label": "Every driven item's offset to the null (they follow it).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L373",
+      "source_location": "L393",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_373",
+      "id": "modelui_pieces_ui_rationale_393",
       "community": 23,
       "norm_label": "every driven item's offset to the null (they follow it)."
     },
@@ -9387,9 +9437,9 @@
       "label": "Where the handle sits: on one piece its own transform; on a selection the centre",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L382",
+      "source_location": "L402",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_382",
+      "id": "modelui_pieces_ui_rationale_402",
       "community": 23,
       "norm_label": "where the handle sits: on one piece its own transform; on a selection the centre"
     },
@@ -9397,9 +9447,9 @@
       "label": "Bind Houdini's handle to piece ``pid`` (a new proxy at ``m``, default the piece)",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L395",
+      "source_location": "L415",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_395",
+      "id": "modelui_pieces_ui_rationale_415",
       "community": 23,
       "norm_label": "bind houdini's handle to piece ``pid`` (a new proxy at ``m``, default the piece)"
     },
@@ -9407,9 +9457,9 @@
       "label": "One box per selected piece; ``shown_box`` records the bound piece's box (for too",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L430",
+      "source_location": "L450",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_430",
+      "id": "modelui_pieces_ui_rationale_450",
       "community": 23,
       "norm_label": "one box per selected piece; ``shown_box`` records the bound piece's box (for too"
     },
@@ -9417,9 +9467,9 @@
       "label": "Where the ray through pixel (x, y) meets the plane, or None: parallel, behind th",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L502",
+      "source_location": "L522",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_502",
+      "id": "modelui_pieces_ui_rationale_522",
       "community": 23,
       "norm_label": "where the ray through pixel (x, y) meets the plane, or none: parallel, behind th"
     },
@@ -9427,9 +9477,9 @@
       "label": "Ctrl's step: the cell of the grid the user sees (Houdini's handle Translate Step",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L516",
+      "source_location": "L536",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_516",
+      "id": "modelui_pieces_ui_rationale_536",
       "community": 23,
       "norm_label": "ctrl's step: the cell of the grid the user sees (houdini's handle translate step"
     },
@@ -9437,9 +9487,9 @@
       "label": "Remembers the transform mode (W/E/R, Houdini's handle keys) for body drags; neve",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L533",
+      "source_location": "L553",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_533",
+      "id": "modelui_pieces_ui_rationale_553",
       "community": 23,
       "norm_label": "remembers the transform mode (w/e/r, houdini's handle keys) for body drags; neve"
     },
@@ -9447,9 +9497,9 @@
       "label": "World point where the ray through pixel (x, y) hits object ``n``'s display geome",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L541",
+      "source_location": "L561",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_541",
+      "id": "modelui_pieces_ui_rationale_561",
       "community": 23,
       "norm_label": "world point where the ray through pixel (x, y) hits object ``n``'s display geome"
     },
@@ -9457,9 +9507,9 @@
       "label": "The start state back, outside the undo history (the preview never was an undo en",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L643",
+      "source_location": "L663",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_643",
+      "id": "modelui_pieces_ui_rationale_663",
       "community": 23,
       "norm_label": "the start state back, outside the undo history (the preview never was an undo en"
     },
@@ -9467,9 +9517,9 @@
       "label": "Undo the preview, then (on a release) copy + move of every dragged item as one u",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L652",
+      "source_location": "L672",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_652",
+      "id": "modelui_pieces_ui_rationale_672",
       "community": 23,
       "norm_label": "undo the preview, then (on a release) copy + move of every dragged item as one u"
     },
@@ -9477,9 +9527,9 @@
       "label": "Idempotent: a second install replaces the first (one watcher, one drawable).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L668",
+      "source_location": "L688",
       "_origin": "ast",
-      "id": "modelui_pieces_ui_rationale_668",
+      "id": "modelui_pieces_ui_rationale_688",
       "community": 23,
       "norm_label": "idempotent: a second install replaces the first (one watcher, one drawable)."
     },
@@ -11140,7 +11190,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "polychain_init_sub",
-      "community": 186,
+      "community": 131,
       "norm_label": "_sub()"
     },
     {
@@ -11150,7 +11200,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "polychain_init_norm",
-      "community": 186,
+      "community": 131,
       "norm_label": "_norm()"
     },
     {
@@ -11160,7 +11210,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "polychain_init_unit",
-      "community": 186,
+      "community": 131,
       "norm_label": "_unit()"
     },
     {
@@ -11880,7 +11930,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "polychain_array2d_row_as_dict",
-      "community": 145,
+      "community": 109,
       "norm_label": ".as_dict()"
     },
     {
@@ -11980,7 +12030,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_array2d_row_loops",
-      "community": 145,
+      "community": 109,
       "norm_label": "row_loops()"
     },
     {
@@ -12310,7 +12360,7 @@
       "source_location": "L1191",
       "_origin": "ast",
       "id": "polychain_array2d_area_rows",
-      "community": 145,
+      "community": 109,
       "norm_label": "area_rows()"
     },
     {
@@ -12530,7 +12580,7 @@
       "source_location": "L634",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_634",
-      "community": 145,
+      "community": 109,
       "norm_label": "[(points, closed, attrs)] - one entry per row, ready for the adapter.      the"
     },
     {
@@ -12750,7 +12800,7 @@
       "source_location": "L1193",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1193",
-      "community": 145,
+      "community": 109,
       "norm_label": "[(points, closed, attrs)] - the row curves of a clipped area.      each row is"
     },
     {
@@ -12840,7 +12890,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "polychain_conform_probe_s",
-      "community": 305,
+      "community": 110,
       "norm_label": "_probe_s()"
     },
     {
@@ -12910,7 +12960,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "polychain_conform_conformpath",
-      "community": 305,
+      "community": 110,
       "norm_label": "conformpath"
     },
     {
@@ -12920,7 +12970,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_init",
-      "community": 305,
+      "community": 110,
       "norm_label": ".__init__()"
     },
     {
@@ -12930,7 +12980,7 @@
       "source_location": "L406",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_plan_keys",
-      "community": 305,
+      "community": 110,
       "norm_label": ".plan_keys()"
     },
     {
@@ -12940,7 +12990,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_prefetch",
-      "community": 305,
+      "community": 110,
       "norm_label": ".prefetch()"
     },
     {
@@ -12950,7 +13000,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_at",
-      "community": 305,
+      "community": 110,
       "norm_label": "._at()"
     },
     {
@@ -12970,7 +13020,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_normal",
-      "community": 305,
+      "community": 110,
       "norm_label": ".normal()"
     },
     {
@@ -12980,7 +13030,7 @@
       "source_location": "L489",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_interior_vertices",
-      "community": 305,
+      "community": 110,
       "norm_label": ".interior_vertices()"
     },
     {
@@ -12990,7 +13040,7 @@
       "source_location": "L494",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_missed",
-      "community": 305,
+      "community": 110,
       "norm_label": ".missed()"
     },
     {
@@ -13050,7 +13100,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "polychain_conform_rationale_103",
-      "community": 305,
+      "community": 110,
       "norm_label": "where to sample [sa, sb] - the piece's own stations when it has them.      d71"
     },
     {
@@ -13100,7 +13150,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "polychain_conform_rationale_382",
-      "community": 305,
+      "community": 110,
       "norm_label": "a `place.path` seen through the surface. same interface, draped answers."
     },
     {
@@ -13110,7 +13160,7 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "polychain_conform_rationale_407",
-      "community": 305,
+      "community": 110,
       "norm_label": "`[(key, s, forward)]` - the drops this curve's plan can name.          `spans`"
     },
     {
@@ -13120,7 +13170,7 @@
       "source_location": "L460",
       "_origin": "ast",
       "id": "polychain_conform_rationale_460",
-      "community": 305,
+      "community": 110,
       "norm_label": "this curve's keys, on their own. `prefetch_all` is what `build`         calls;"
     },
     {
@@ -13130,7 +13180,7 @@
       "source_location": "L495",
       "_origin": "ast",
       "id": "polychain_conform_rationale_495",
-      "community": 305,
+      "community": 110,
       "norm_label": "did any station across [sa, sb] fall off the surface?          `fracs` is the"
     },
     {
@@ -13180,7 +13230,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "polychain_corner_add",
-      "community": 61,
+      "community": 153,
       "norm_label": "_add()"
     },
     {
@@ -13190,7 +13240,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "polychain_corner_sub",
-      "community": 61,
+      "community": 153,
       "norm_label": "_sub()"
     },
     {
@@ -13200,7 +13250,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "polychain_corner_mul",
-      "community": 61,
+      "community": 153,
       "norm_label": "_mul()"
     },
     {
@@ -13210,7 +13260,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "polychain_corner_dot",
-      "community": 61,
+      "community": 153,
       "norm_label": "_dot()"
     },
     {
@@ -13220,7 +13270,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "polychain_corner_len",
-      "community": 61,
+      "community": 153,
       "norm_label": "_len()"
     },
     {
@@ -13230,7 +13280,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "polychain_corner_cross",
-      "community": 61,
+      "community": 153,
       "norm_label": "_cross()"
     },
     {
@@ -13240,7 +13290,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "polychain_corner_unit",
-      "community": 61,
+      "community": 153,
       "norm_label": "_unit()"
     },
     {
@@ -13250,7 +13300,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "polychain_corner_rotate",
-      "community": 61,
+      "community": 153,
       "norm_label": "_rotate()"
     },
     {
@@ -13270,7 +13320,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "polychain_corner_bevel_init",
-      "community": 61,
+      "community": 153,
       "norm_label": ".__init__()"
     },
     {
@@ -13280,7 +13330,7 @@
       "source_location": "L257",
       "_origin": "ast",
       "id": "polychain_corner_bevel_e_for",
-      "community": 153,
+      "community": 61,
       "norm_label": ".e_for()"
     },
     {
@@ -13350,7 +13400,7 @@
       "source_location": "L341",
       "_origin": "ast",
       "id": "polychain_corner_half_width",
-      "community": 153,
+      "community": 61,
       "norm_label": "_half_width()"
     },
     {
@@ -13360,7 +13410,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "polychain_corner_fillet",
-      "community": 61,
+      "community": 153,
       "norm_label": "fillet()"
     },
     {
@@ -13400,7 +13450,7 @@
       "source_location": "L569",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece",
-      "community": 192,
+      "community": 61,
       "norm_label": "cornerpiece"
     },
     {
@@ -13410,7 +13460,7 @@
       "source_location": "L575",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece_init",
-      "community": 192,
+      "community": 61,
       "norm_label": ".__init__()"
     },
     {
@@ -13420,7 +13470,7 @@
       "source_location": "L586",
       "_origin": "ast",
       "id": "polychain_corner_assembly",
-      "community": 153,
+      "community": 321,
       "norm_label": "assembly"
     },
     {
@@ -13440,7 +13490,7 @@
       "source_location": "L607",
       "_origin": "ast",
       "id": "polychain_corner_assembly_symmetry",
-      "community": 153,
+      "community": 321,
       "norm_label": ".symmetry()"
     },
     {
@@ -13460,7 +13510,7 @@
       "source_location": "L632",
       "_origin": "ast",
       "id": "polychain_corner_build_assembly",
-      "community": 153,
+      "community": 61,
       "norm_label": "build_assembly()"
     },
     {
@@ -13470,7 +13520,7 @@
       "source_location": "L716",
       "_origin": "ast",
       "id": "polychain_corner_displacement",
-      "community": 153,
+      "community": 61,
       "norm_label": "displacement()"
     },
     {
@@ -13540,7 +13590,7 @@
       "source_location": "L917",
       "_origin": "ast",
       "id": "polychain_corner_piece_span",
-      "community": 61,
+      "community": 153,
       "norm_label": "_piece_span()"
     },
     {
@@ -13550,7 +13600,7 @@
       "source_location": "L929",
       "_origin": "ast",
       "id": "polychain_corner_wrap_local",
-      "community": 61,
+      "community": 153,
       "norm_label": "_wrap_local()"
     },
     {
@@ -13560,7 +13610,7 @@
       "source_location": "L942",
       "_origin": "ast",
       "id": "polychain_corner_assembly_placements",
-      "community": 61,
+      "community": 153,
       "norm_label": "_assembly_placements()"
     },
     {
@@ -13600,7 +13650,7 @@
       "source_location": "L1154",
       "_origin": "ast",
       "id": "polychain_corner_apply_cuts",
-      "community": 153,
+      "community": 61,
       "norm_label": "_apply_cuts()"
     },
     {
@@ -13610,7 +13660,7 @@
       "source_location": "L1177",
       "_origin": "ast",
       "id": "polychain_corner_overflow",
-      "community": 153,
+      "community": 61,
       "norm_label": "_overflow()"
     },
     {
@@ -13630,7 +13680,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "polychain_corner_rationale_175",
-      "community": 61,
+      "community": 153,
       "norm_label": "rodrigues. used only by the fillet, to walk the arc."
     },
     {
@@ -13690,7 +13740,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "polychain_corner_rationale_342",
-      "community": 153,
+      "community": 61,
       "norm_label": "the module's across half-extent (d20: +z is across).      a kit that leaves `p"
     },
     {
@@ -13700,7 +13750,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "polychain_corner_rationale_359",
-      "community": 61,
+      "community": 153,
       "norm_label": "round every corner of `curve` by `params.fillet_radius`. never raises.      re"
     },
     {
@@ -13730,7 +13780,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "polychain_corner_rationale_570",
-      "community": 192,
+      "community": 61,
       "norm_label": "one module of the composed corner run, already resolved onto a leg."
     },
     {
@@ -13740,7 +13790,7 @@
       "source_location": "L587",
       "_origin": "ast",
       "id": "polychain_corner_rationale_587",
-      "community": 153,
+      "community": 321,
       "norm_label": "the whole corner: its pieces, what each leg lends it, and its warnings."
     },
     {
@@ -13750,7 +13800,7 @@
       "source_location": "L608",
       "_origin": "ast",
       "id": "polychain_corner_rationale_608",
-      "community": 153,
+      "community": 321,
       "norm_label": "|reserve_in - reserve_out|: 0 for an odd compose, l for an even one         (d3"
     },
     {
@@ -13770,7 +13820,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_corner_rationale_633",
-      "community": 153,
+      "community": 61,
       "norm_label": "d38's layout. `mods` in compose order; returns an `assembly`.      leg coordin"
     },
     {
@@ -13780,7 +13830,7 @@
       "source_location": "L717",
       "_origin": "ast",
       "id": "polychain_corner_rationale_717",
-      "community": 153,
+      "community": 61,
       "norm_label": "d40, revised - the overhang of the default module's boundary piece.      the f"
     },
     {
@@ -13830,7 +13880,7 @@
       "source_location": "L918",
       "_origin": "ast",
       "id": "polychain_corner_rationale_918",
-      "community": 61,
+      "community": 153,
       "norm_label": "(t_far, t_near) after d44's squeeze, scaled about the plane contact.      the"
     },
     {
@@ -13840,7 +13890,7 @@
       "source_location": "L930",
       "_origin": "ast",
       "id": "polychain_corner_rationale_930",
-      "community": 61,
+      "community": 153,
       "norm_label": "section-local metres, folded into (-total/2, +total/2] on a closed     curve. a"
     },
     {
@@ -13850,7 +13900,7 @@
       "source_location": "L944",
       "_origin": "ast",
       "id": "polychain_corner_rationale_944",
-      "community": 61,
+      "community": 153,
       "norm_label": "the assembly's own `placement`s, anchored on their legs (d38).      `bases` is"
     },
     {
@@ -13890,7 +13940,7 @@
       "source_location": "L1155",
       "_origin": "ast",
       "id": "polychain_corner_rationale_1155",
-      "community": 153,
+      "community": 61,
       "norm_label": "hand the miter plane to every default piece whose geometry can cross it."
     },
     {
@@ -13900,7 +13950,7 @@
       "source_location": "L1178",
       "_origin": "ast",
       "id": "polychain_corner_rationale_1178",
-      "community": 153,
+      "community": 61,
       "norm_label": "a default piece cut by a corner it was supposed to stop short of.      with no"
     },
     {
@@ -14070,7 +14120,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "polychain_decompose_turn_deg",
-      "community": 61,
+      "community": 131,
       "norm_label": "_turn_deg()"
     },
     {
@@ -14210,7 +14260,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "polychain_decompose_rationale_192",
-      "community": 61,
+      "community": 131,
       "norm_label": "deviation from straight at `b`, in degrees. 0 = collinear."
     },
     {
@@ -18290,7 +18340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 421,
+      "community": 34,
       "norm_label": "__init__.py"
     },
     {
@@ -18300,7 +18350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 421,
+      "community": 34,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -18550,7 +18600,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 156,
+      "community": 255,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -18560,7 +18610,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 156,
+      "community": 255,
       "norm_label": "ui_mainpages"
     },
     {
@@ -18570,7 +18620,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 156,
+      "community": 255,
       "norm_label": ".setupui()"
     },
     {
@@ -18580,7 +18630,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 156,
+      "community": 255,
       "norm_label": ".retranslateui()"
     },
     {
@@ -18820,7 +18870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 51,
+      "community": 391,
       "norm_label": "__init__.py"
     },
     {
@@ -18900,7 +18950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_init",
-      "community": 414,
+      "community": 391,
       "norm_label": "__init__.py"
     },
     {
@@ -18910,7 +18960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits",
-      "community": 414,
+      "community": 391,
       "norm_label": "py_credits.py"
     },
     {
@@ -18920,7 +18970,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits",
-      "community": 414,
+      "community": 391,
       "norm_label": "pycredits"
     },
     {
@@ -18930,7 +18980,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_init",
-      "community": 414,
+      "community": 391,
       "norm_label": ".__init__()"
     },
     {
@@ -18940,7 +18990,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_setup_ui",
-      "community": 414,
+      "community": 391,
       "norm_label": ".setup_ui()"
     },
     {
@@ -20020,7 +20070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 51,
+      "community": 391,
       "norm_label": "__init__.py"
     },
     {
@@ -20030,7 +20080,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 51,
+      "community": 391,
       "norm_label": "py_push_button.py"
     },
     {
@@ -20060,7 +20110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 51,
+      "community": 391,
       "norm_label": "__init__.py"
     },
     {
@@ -20070,7 +20120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 51,
+      "community": 391,
       "norm_label": "py_slider.py"
     },
     {
@@ -20080,7 +20130,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 51,
+      "community": 391,
       "norm_label": "pyslider"
     },
     {
@@ -20090,7 +20140,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 51,
+      "community": 391,
       "norm_label": "qslider"
     },
     {
@@ -20100,7 +20150,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 51,
+      "community": 391,
       "norm_label": ".__init__()"
     },
     {
@@ -20180,7 +20230,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_init",
-      "community": 255,
+      "community": 391,
       "norm_label": "__init__.py"
     },
     {
@@ -22140,7 +22190,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_set_expression_color",
-      "community": 254,
+      "community": 35,
       "norm_label": ".set_expression_color()"
     },
     {
@@ -22410,7 +22460,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_201",
-      "community": 254,
+      "community": 35,
       "norm_label": "set background color for expression state."
     },
     {
@@ -29380,7 +29430,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_viewer",
-      "community": 304,
+      "community": 302,
       "norm_label": "_viewer"
     },
     {
@@ -29390,7 +29440,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_viewer_setpromptmessage",
-      "community": 304,
+      "community": 302,
       "norm_label": ".setpromptmessage()"
     },
     {
@@ -29400,7 +29450,7 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_viewer_clearpromptmessage",
-      "community": 304,
+      "community": 302,
       "norm_label": ".clearpromptmessage()"
     },
     {
@@ -29410,7 +29460,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_viewer_curviewport",
-      "community": 304,
+      "community": 302,
       "norm_label": ".curviewport()"
     },
     {
@@ -29420,7 +29470,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_viewer_draw",
-      "community": 304,
+      "community": 302,
       "norm_label": ".draw()"
     },
     {
@@ -29430,7 +29480,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable",
-      "community": 411,
+      "community": 302,
       "norm_label": "_drawable"
     },
     {
@@ -29440,7 +29490,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable_init",
-      "community": 411,
+      "community": 302,
       "norm_label": ".__init__()"
     },
     {
@@ -29450,7 +29500,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable_draw",
-      "community": 411,
+      "community": 302,
       "norm_label": ".draw()"
     },
     {
@@ -29460,7 +29510,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable_show",
-      "community": 411,
+      "community": 302,
       "norm_label": ".show()"
     },
     {
@@ -29470,7 +29520,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable_setgeometry",
-      "community": 411,
+      "community": 302,
       "norm_label": ".setgeometry()"
     },
     {
@@ -29480,7 +29530,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_drawable_settransform",
-      "community": 411,
+      "community": 302,
       "norm_label": ".settransform()"
     },
     {
@@ -29490,7 +29540,7 @@
       "source_location": "L402",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_template",
-      "community": 304,
+      "community": 302,
       "norm_label": "_template"
     },
     {
@@ -29500,7 +29550,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_template_init",
-      "community": 304,
+      "community": 302,
       "norm_label": ".__init__()"
     },
     {
@@ -29510,7 +29560,7 @@
       "source_location": "L406",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_template_getattr",
-      "community": 304,
+      "community": 302,
       "norm_label": ".__getattr__()"
     },
     {
@@ -29520,7 +29570,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_hou",
-      "community": 304,
+      "community": 302,
       "norm_label": "_hou"
     },
     {
@@ -29530,7 +29580,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_hou_getattr",
-      "community": 304,
+      "community": 302,
       "norm_label": ".__getattr__()"
     },
     {
@@ -29540,7 +29590,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev",
-      "community": 334,
+      "community": 302,
       "norm_label": "_dev"
     },
     {
@@ -29550,7 +29600,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev_init",
-      "community": 334,
+      "community": 302,
       "norm_label": ".__init__()"
     },
     {
@@ -29560,7 +29610,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev_mousex",
-      "community": 334,
+      "community": 302,
       "norm_label": ".mousex()"
     },
     {
@@ -29570,7 +29620,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev_mousey",
-      "community": 334,
+      "community": 302,
       "norm_label": ".mousey()"
     },
     {
@@ -29580,7 +29630,7 @@
       "source_location": "L428",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev_isaltkey",
-      "community": 334,
+      "community": 302,
       "norm_label": ".isaltkey()"
     },
     {
@@ -29590,7 +29640,7 @@
       "source_location": "L431",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_dev_isctrlkey",
-      "community": 334,
+      "community": 302,
       "norm_label": ".isctrlkey()"
     },
     {
@@ -29600,7 +29650,7 @@
       "source_location": "L435",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_event",
-      "community": 334,
+      "community": 302,
       "norm_label": "_event"
     },
     {
@@ -29610,7 +29660,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_event_init",
-      "community": 334,
+      "community": 302,
       "norm_label": ".__init__()"
     },
     {
@@ -29620,7 +29670,7 @@
       "source_location": "L446",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_event_reason",
-      "community": 334,
+      "community": 302,
       "norm_label": ".reason()"
     },
     {
@@ -29630,7 +29680,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_event_device",
-      "community": 334,
+      "community": 302,
       "norm_label": ".device()"
     },
     {
@@ -29640,7 +29690,7 @@
       "source_location": "L452",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_event_ray",
-      "community": 334,
+      "community": 302,
       "norm_label": ".ray()"
     },
     {
@@ -29750,7 +29800,7 @@
       "source_location": "L436",
       "_origin": "ast",
       "id": "hda_run_mesh_view_checks_rationale_436",
-      "community": 334,
+      "community": 302,
       "norm_label": "reason at screen x over piece k: the ray comes straight down (in the object's sp"
     },
     {
@@ -33410,7 +33460,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "modelui_gui_f1_log",
-      "community": 108,
+      "community": 390,
       "norm_label": "log()"
     },
     {
@@ -33430,7 +33480,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "modelui_gui_f1_probe",
-      "community": 415,
+      "community": 108,
       "norm_label": "probe"
     },
     {
@@ -33440,7 +33490,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "modelui_gui_f1_probe_init",
-      "community": 415,
+      "community": 108,
       "norm_label": ".__init__()"
     },
     {
@@ -33450,7 +33500,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "modelui_gui_f1_probe_eventfilter",
-      "community": 415,
+      "community": 108,
       "norm_label": ".eventfilter()"
     },
     {
@@ -33550,7 +33600,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "modelui_gui_f1_visible_on_screen",
-      "community": 108,
+      "community": 390,
       "norm_label": "visible_on_screen()"
     },
     {
@@ -33560,7 +33610,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "modelui_gui_f1_off_screen",
-      "community": 108,
+      "community": 390,
       "norm_label": "off_screen()"
     },
     {
@@ -33590,7 +33640,7 @@
       "source_location": "L662",
       "_origin": "ast",
       "id": "modelui_gui_f1_restore_keys",
-      "community": 108,
+      "community": 390,
       "norm_label": "restore_keys()"
     },
     {
@@ -33630,7 +33680,7 @@
       "source_location": "L814",
       "_origin": "ast",
       "id": "modelui_gui_f1_pump",
-      "community": 108,
+      "community": 390,
       "norm_label": "pump()"
     },
     {
@@ -33640,7 +33690,7 @@
       "source_location": "L831",
       "_origin": "ast",
       "id": "modelui_gui_f1_finish",
-      "community": 108,
+      "community": 390,
       "norm_label": "finish()"
     },
     {
@@ -33650,7 +33700,7 @@
       "source_location": "L840",
       "_origin": "ast",
       "id": "modelui_gui_f1_guard",
-      "community": 108,
+      "community": 390,
       "norm_label": "guard()"
     },
     {
@@ -33660,7 +33710,7 @@
       "source_location": "L850",
       "_origin": "ast",
       "id": "modelui_gui_f1_start",
-      "community": 108,
+      "community": 390,
       "norm_label": "start()"
     },
     {
@@ -33690,7 +33740,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "modelui_gui_f1_rationale_66",
-      "community": 415,
+      "community": 108,
       "norm_label": "object filter: runs after every application filter, so it sees what was not swal"
     },
     {
@@ -33700,7 +33750,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "modelui_gui_f1_rationale_134",
-      "community": 108,
+      "community": 390,
       "norm_label": "every visible window to x < -5000 (floating panes ignore the position they are c"
     },
     {
@@ -33710,7 +33760,7 @@
       "source_location": "L663",
       "_origin": "ast",
       "id": "modelui_gui_f1_rationale_663",
-      "community": 108,
+      "community": 390,
       "norm_label": "back to the hotkeys of the session start: a mutation run may leave them changed"
     },
     {
@@ -33720,7 +33770,7 @@
       "source_location": "L841",
       "_origin": "ast",
       "id": "modelui_gui_f1_rationale_841",
-      "community": 108,
+      "community": 390,
       "norm_label": "every 200 ms: every visible window off screen, else stop the run (never input on"
     },
     {
@@ -34357,7 +34407,7 @@
       "label": "log()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L38",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "modelui_gui_f2d_log",
       "community": 20,
@@ -34367,7 +34417,7 @@
       "label": "visible_on_screen()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "modelui_gui_f2d_visible_on_screen",
       "community": 20,
@@ -34377,7 +34427,7 @@
       "label": "off_screen()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L46",
+      "source_location": "L47",
       "_origin": "ast",
       "id": "modelui_gui_f2d_off_screen",
       "community": 20,
@@ -34387,7 +34437,7 @@
       "label": "viewer()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L58",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "modelui_gui_f2d_viewer",
       "community": 20,
@@ -34397,7 +34447,7 @@
       "label": "screen_point()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L65",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "modelui_gui_f2d_screen_point",
       "community": 20,
@@ -34407,7 +34457,7 @@
       "label": "L()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L73",
+      "source_location": "L74",
       "_origin": "ast",
       "id": "modelui_gui_f2d_l",
       "community": 20,
@@ -34417,7 +34467,7 @@
       "label": "raw()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L77",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "modelui_gui_f2d_raw",
       "community": 20,
@@ -34427,7 +34477,7 @@
       "label": "_Probe",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L90",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe",
       "community": 20,
@@ -34437,7 +34487,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L91",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe_init",
       "community": 20,
@@ -34447,17 +34497,57 @@
       "label": ".eventFilter()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L95",
+      "source_location": "L96",
       "_origin": "ast",
       "id": "modelui_gui_f2d_probe_eventfilter",
       "community": 20,
       "norm_label": ".eventfilter()"
     },
     {
+      "label": "_Lines",
+      "file_type": "code",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L101",
+      "_origin": "ast",
+      "id": "modelui_gui_f2d_lines",
+      "community": 20,
+      "norm_label": "_lines"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L102",
+      "_origin": "ast",
+      "id": "modelui_gui_f2d_lines_init",
+      "community": 20,
+      "norm_label": ".__init__()"
+    },
+    {
+      "label": ".emit()",
+      "file_type": "code",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L106",
+      "_origin": "ast",
+      "id": "modelui_gui_f2d_lines_emit",
+      "community": 20,
+      "norm_label": ".emit()"
+    },
+    {
+      "label": "no_target()",
+      "file_type": "code",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "modelui_gui_f2d_no_target",
+      "community": 20,
+      "norm_label": "no_target()"
+    },
+    {
       "label": "picking()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L100",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "modelui_gui_f2d_picking",
       "community": 20,
@@ -34467,7 +34557,7 @@
       "label": "pick_clean()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L104",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "modelui_gui_f2d_pick_clean",
       "community": 20,
@@ -34477,7 +34567,7 @@
       "label": "suite()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L110",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "modelui_gui_f2d_suite",
       "community": 20,
@@ -34487,7 +34577,7 @@
       "label": "undo_open()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L392",
+      "source_location": "L502",
       "_origin": "ast",
       "id": "modelui_gui_f2d_undo_open",
       "community": 20,
@@ -34497,7 +34587,7 @@
       "label": "_q()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L404",
+      "source_location": "L514",
       "_origin": "ast",
       "id": "modelui_gui_f2d_q",
       "community": 20,
@@ -34507,7 +34597,7 @@
       "label": "cleanup()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L411",
+      "source_location": "L521",
       "_origin": "ast",
       "id": "modelui_gui_f2d_cleanup",
       "community": 20,
@@ -34517,7 +34607,7 @@
       "label": "mutate()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L432",
+      "source_location": "L545",
       "_origin": "ast",
       "id": "modelui_gui_f2d_mutate",
       "community": 20,
@@ -34527,7 +34617,7 @@
       "label": "driver()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L482",
+      "source_location": "L613",
       "_origin": "ast",
       "id": "modelui_gui_f2d_driver",
       "community": 20,
@@ -34537,7 +34627,7 @@
       "label": "pump()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L506",
+      "source_location": "L637",
       "_origin": "ast",
       "id": "modelui_gui_f2d_pump",
       "community": 20,
@@ -34547,7 +34637,7 @@
       "label": "finish()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L519",
+      "source_location": "L650",
       "_origin": "ast",
       "id": "modelui_gui_f2d_finish",
       "community": 20,
@@ -34557,7 +34647,7 @@
       "label": "guard()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L528",
+      "source_location": "L659",
       "_origin": "ast",
       "id": "modelui_gui_f2d_guard",
       "community": 20,
@@ -34567,7 +34657,7 @@
       "label": "start()",
       "file_type": "code",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L537",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "modelui_gui_f2d_start",
       "community": 20,
@@ -34587,19 +34677,29 @@
       "label": "Stored values bit for bit: container stash points, object transform parameters.",
       "file_type": "rationale",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L78",
+      "source_location": "L79",
       "_origin": "ast",
-      "id": "modelui_gui_f2d_rationale_78",
+      "id": "modelui_gui_f2d_rationale_79",
       "community": 20,
       "norm_label": "stored values bit for bit: container stash points, object transform parameters."
+    },
+    {
+      "label": "Align's dialog (open during the pick) has not got its target.",
+      "file_type": "rationale",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L111",
+      "_origin": "ast",
+      "id": "modelui_gui_f2d_rationale_111",
+      "community": 20,
+      "norm_label": "align's dialog (open during the pick) has not got its target."
     },
     {
       "label": "No pick running: the gesture is gone and the cross cursor too.",
       "file_type": "rationale",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L105",
+      "source_location": "L121",
       "_origin": "ast",
-      "id": "modelui_gui_f2d_rationale_105",
+      "id": "modelui_gui_f2d_rationale_121",
       "community": 20,
       "norm_label": "no pick running: the gesture is gone and the cross cursor too."
     },
@@ -34920,7 +35020,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "modelui_gui_fb1_probe",
-      "community": 420,
+      "community": 193,
       "norm_label": "_probe"
     },
     {
@@ -34930,7 +35030,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "modelui_gui_fb1_probe_init",
-      "community": 420,
+      "community": 193,
       "norm_label": ".__init__()"
     },
     {
@@ -34940,7 +35040,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "modelui_gui_fb1_probe_eventfilter",
-      "community": 420,
+      "community": 193,
       "norm_label": ".eventfilter()"
     },
     {
@@ -35560,7 +35660,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "polychain_cases_setup_env",
-      "community": 22,
+      "community": 413,
       "norm_label": "setup_env()"
     },
     {
@@ -35670,7 +35770,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "polychain_cases_camber_z",
-      "community": 413,
+      "community": 22,
       "norm_label": "camber_z()"
     },
     {
@@ -35680,7 +35780,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "polychain_cases_tent",
-      "community": 413,
+      "community": 22,
       "norm_label": "tent()"
     },
     {
@@ -35780,7 +35880,7 @@
       "source_location": "L373",
       "_origin": "ast",
       "id": "polychain_cases_corner_style",
-      "community": 54,
+      "community": 22,
       "norm_label": "corner_style()"
     },
     {
@@ -35930,7 +36030,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "polychain_cases_rationale_18",
-      "community": 22,
+      "community": 413,
       "norm_label": "hython has not loaded the polyfactory package, so scripts/python is not     on"
     },
     {
@@ -36000,7 +36100,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "polychain_cases_rationale_210",
-      "community": 413,
+      "community": 22,
       "norm_label": "cross-fall: the surface tilts across the run, which is what camber is.     a ru"
     },
     {
@@ -36010,7 +36110,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "polychain_cases_rationale_223",
-      "community": 413,
+      "community": 22,
       "norm_label": "two facets and a crease - the surface coarser than the pieces (d56).      peak"
     },
     {
@@ -36080,7 +36180,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "polychain_cases_rationale_377",
-      "community": 54,
+      "community": 22,
       "norm_label": "the pc-g1 fence, with 4.3's parms exposed. same kit, same rules.      `evenly`"
     },
     {
@@ -36680,7 +36780,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "polychain_checks_attrs",
-      "community": 123,
+      "community": 159,
       "norm_label": "_attrs()"
     },
     {
@@ -36690,7 +36790,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "polychain_checks_elements",
-      "community": 123,
+      "community": 159,
       "norm_label": "elements()"
     },
     {
@@ -37330,7 +37430,7 @@
       "source_location": "L1945",
       "_origin": "ast",
       "id": "polychain_checks_cells",
-      "community": 418,
+      "community": 123,
       "norm_label": "_cells()"
     },
     {
@@ -37340,7 +37440,7 @@
       "source_location": "L1980",
       "_origin": "ast",
       "id": "polychain_checks_clip_stamp",
-      "community": 418,
+      "community": 123,
       "norm_label": "clip_stamp()"
     },
     {
@@ -37350,7 +37450,7 @@
       "source_location": "L2012",
       "_origin": "ast",
       "id": "polychain_checks_pip",
-      "community": 123,
+      "community": 159,
       "norm_label": "_pip()"
     },
     {
@@ -37380,7 +37480,7 @@
       "source_location": "L2047",
       "_origin": "ast",
       "id": "polychain_checks_centre",
-      "community": 123,
+      "community": 159,
       "norm_label": "_centre()"
     },
     {
@@ -37400,7 +37500,7 @@
       "source_location": "L2084",
       "_origin": "ast",
       "id": "polychain_checks_row_closure",
-      "community": 123,
+      "community": 159,
       "norm_label": "row_closure()"
     },
     {
@@ -37410,7 +37510,7 @@
       "source_location": "L2114",
       "_origin": "ast",
       "id": "polychain_checks_payload_meta_warns",
-      "community": 111,
+      "community": 352,
       "norm_label": "payload_meta_warns()"
     },
     {
@@ -37460,7 +37560,7 @@
       "source_location": "L2278",
       "_origin": "ast",
       "id": "polychain_checks_clip_nesting",
-      "community": 123,
+      "community": 159,
       "norm_label": "clip_nesting()"
     },
     {
@@ -37520,7 +37620,7 @@
       "source_location": "L2494",
       "_origin": "ast",
       "id": "polychain_checks_elem_cols",
-      "community": 417,
+      "community": 123,
       "norm_label": "_elem_cols()"
     },
     {
@@ -37540,7 +37640,7 @@
       "source_location": "L2548",
       "_origin": "ast",
       "id": "polychain_checks_bay_alignment",
-      "community": 417,
+      "community": 123,
       "norm_label": "bay_alignment()"
     },
     {
@@ -37560,7 +37660,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "polychain_checks_rationale_102",
-      "community": 123,
+      "community": 159,
       "norm_label": "[{attrs..., world: [x,y,z...], local: [...]}], one per pc_elem_id.      packed"
     },
     {
@@ -38090,7 +38190,7 @@
       "source_location": "L1946",
       "_origin": "ast",
       "id": "polychain_checks_rationale_1946",
-      "community": 418,
+      "community": 123,
       "norm_label": "[{pc_cell, pc_yclass, pc_array, pc_row, pc_elem_id, ...}] per element."
     },
     {
@@ -38100,7 +38200,7 @@
       "source_location": "L1981",
       "_origin": "ast",
       "id": "polychain_checks_rationale_1981",
-      "community": 418,
+      "community": 123,
       "norm_label": "7.3.3's `pc_clipped` (0/1): [elements on a clipped row, total]. under     d137"
     },
     {
@@ -38110,7 +38210,7 @@
       "source_location": "L2013",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2013",
-      "community": 123,
+      "community": 159,
       "norm_label": "even-odd point-in-polygon, written here on purpose. `clip_nesting`     judges t"
     },
     {
@@ -38140,7 +38240,7 @@
       "source_location": "L2085",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2085",
-      "community": 123,
+      "community": 159,
       "norm_label": "pc-g5 condition 2: [worst metres between one row's top and the next     row's b"
     },
     {
@@ -38150,7 +38250,7 @@
       "source_location": "L2116",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2116",
-      "community": 111,
+      "community": 352,
       "norm_label": "d300 - [names `style.read` raised on a payload with an unknown top-level     `p"
     },
     {
@@ -38200,7 +38300,7 @@
       "source_location": "L2279",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2279",
-      "community": 123,
+      "community": 159,
       "norm_label": "pc-g6 condition 5: [elements centred in the hole, elements centred on     the i"
     },
     {
@@ -38260,7 +38360,7 @@
       "source_location": "L2495",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2495",
-      "community": 417,
+      "community": 123,
       "norm_label": "{name: [value per element]} - bulk reads, deduped by `pc_elem_id`.      one `p"
     },
     {
@@ -38280,7 +38380,7 @@
       "source_location": "L2549",
       "_origin": "ast",
       "id": "polychain_checks_rationale_2549",
-      "community": 417,
+      "community": 123,
       "norm_label": "pc-g5 condition 3: [rows whose bay boundaries differ from the datum's,     rows"
     },
     {
@@ -46430,7 +46530,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "unit_test_polychain_testsections_test_a_pc_section_change_at_the_last_point_makes_no_phantom_section",
-      "community": 168,
+      "community": 195,
       "norm_label": ".test_a_pc_section_change_at_the_last_point_makes_no_phantom_section()"
     },
     {
@@ -46470,7 +46570,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput",
-      "community": 195,
+      "community": 305,
       "norm_label": "testdegenerateinput"
     },
     {
@@ -46480,7 +46580,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_an_empty_curve_yields_nothing",
-      "community": 195,
+      "community": 305,
       "norm_label": ".test_an_empty_curve_yields_nothing()"
     },
     {
@@ -46490,7 +46590,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_single_point_yields_nothing",
-      "community": 195,
+      "community": 305,
       "norm_label": ".test_a_single_point_yields_nothing()"
     },
     {
@@ -46500,7 +46600,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_curve_of_coincident_points_yields_nothing",
-      "community": 195,
+      "community": 305,
       "norm_label": ".test_a_curve_of_coincident_points_yields_nothing()"
     },
     {
@@ -46510,7 +46610,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_two_point_curve_has_no_interior_vertex_to_corner",
-      "community": 195,
+      "community": 305,
       "norm_label": ".test_a_two_point_curve_has_no_interior_vertex_to_corner()"
     },
     {
@@ -46520,7 +46620,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "unit_test_polychain_testdegenerateinput_test_a_closed_two_point_curve_does_not_explode",
-      "community": 195,
+      "community": 305,
       "norm_label": ".test_a_closed_two_point_curve_does_not_explode()"
     },
     {
@@ -47080,7 +47180,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_244",
-      "community": 168,
+      "community": 195,
       "norm_label": "the corner rules already exclude an open curve's endpoints; the         section"
     },
     {
@@ -47100,7 +47200,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "unit_test_polychain_rationale_286",
-      "community": 195,
+      "community": 305,
       "norm_label": "warn-never-block: none of these may raise, and none may hang."
     },
     {
@@ -47210,7 +47310,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_kit_of",
-      "community": 399,
+      "community": 54,
       "norm_label": "kit_of()"
     },
     {
@@ -47220,7 +47320,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_inside_xz",
-      "community": 410,
+      "community": 399,
       "norm_label": "_inside_xz()"
     },
     {
@@ -47240,7 +47340,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary",
-      "community": 419,
+      "community": 407,
       "norm_label": "testvocabulary"
     },
     {
@@ -47250,7 +47350,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary_test_bottom_row_is_the_phase_1_slot_list",
-      "community": 419,
+      "community": 407,
       "norm_label": ".test_bottom_row_is_the_phase_1_slot_list()"
     },
     {
@@ -47270,7 +47370,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 380,
+      "community": 399,
       "norm_label": "testfallbackchain"
     },
     {
@@ -47280,7 +47380,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 380,
+      "community": 399,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -47290,7 +47390,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 380,
+      "community": 399,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -47510,7 +47610,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testyprofile_test_the_profile_offset_is_read_and_not_yet_applied",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_the_profile_offset_is_read_and_not_yet_applied()"
     },
     {
@@ -47530,7 +47630,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint",
-      "community": 410,
+      "community": 399,
       "norm_label": "testcanonicalfootprint"
     },
     {
@@ -47540,7 +47640,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_the_across_axis_points_out_of_the_building",
-      "community": 410,
+      "community": 399,
       "norm_label": ".test_the_across_axis_points_out_of_the_building()"
     },
     {
@@ -47550,7 +47650,7 @@
       "source_location": "L345",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_an_open_run_is_left_exactly_as_authored",
-      "community": 410,
+      "community": 399,
       "norm_label": ".test_an_open_run_is_left_exactly_as_authored()"
     },
     {
@@ -47650,7 +47750,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 399,
+      "community": 54,
       "norm_label": "testkernelextensions"
     },
     {
@@ -47660,7 +47760,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -47670,7 +47770,7 @@
       "source_location": "L448",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_rules_for_without_a_class_is_the_phase_1_call",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_rules_for_without_a_class_is_the_phase_1_call()"
     },
     {
@@ -47680,7 +47780,7 @@
       "source_location": "L454",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded()"
     },
     {
@@ -47690,7 +47790,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -47700,7 +47800,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -47710,7 +47810,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -47720,7 +47820,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -47730,7 +47830,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 399,
+      "community": 54,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -47780,7 +47880,7 @@
       "source_location": "L525",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_teststylesplit_test_an_unknown_axis_is_an_x_rule",
-      "community": 330,
+      "community": 54,
       "norm_label": ".test_an_unknown_axis_is_an_x_rule()"
     },
     {
@@ -47870,7 +47970,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_40",
-      "community": 399,
+      "community": 54,
       "norm_label": "one module per role, each 3 m wide and named after its role."
     },
     {
@@ -47880,7 +47980,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_50",
-      "community": 410,
+      "community": 399,
       "norm_label": "even-odd point-in-polygon in the plan, for the winding assertion."
     },
     {
@@ -47890,7 +47990,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_70",
-      "community": 419,
+      "community": 407,
       "norm_label": "7.2 / d116 - the 20 rc slice pieces are a 5 x 4 product table."
     },
     {
@@ -47900,7 +48000,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_73",
-      "community": 419,
+      "community": 407,
       "norm_label": "the compatibility claim, and it is checkable: a phase-1 kit is a         valid"
     },
     {
@@ -47920,7 +48020,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_101",
-      "community": 380,
+      "community": 399,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -48040,7 +48140,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_291",
-      "community": 399,
+      "community": 54,
       "norm_label": "d128 is p2-8. the offset must be read now - a number nothing uses         is st"
     },
     {
@@ -48050,7 +48150,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_309",
-      "community": 410,
+      "community": 399,
       "norm_label": "d124 - ids survive re-authoring, or 12.7's identity rule is a wish."
     },
     {
@@ -48060,7 +48160,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_315",
-      "community": 410,
+      "community": 399,
       "norm_label": "d141 - the sign, measured as the thing it decides.          `place._frame` bui"
     },
     {
@@ -48080,7 +48180,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_439",
-      "community": 399,
+      "community": 54,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -48320,7 +48420,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge",
-      "community": 159,
+      "community": 186,
       "norm_label": "testmerge"
     },
     {
@@ -48330,7 +48430,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_sections",
-      "community": 159,
+      "community": 186,
       "norm_label": ".sections()"
     },
     {
@@ -48340,7 +48440,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_bend_welds_an_l_into_one_run",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_bend_welds_an_l_into_one_run()"
     },
     {
@@ -48350,7 +48450,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_miter_leaves_them_alone",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_miter_leaves_them_alone()"
     },
     {
@@ -48360,7 +48460,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_a_closed_ring_welds_to_one_closed_section",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_a_closed_ring_welds_to_one_closed_section()"
     },
     {
@@ -48370,7 +48470,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_a_pc_section_limit_is_never_welded",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_a_pc_section_limit_is_never_welded()"
     },
     {
@@ -48380,7 +48480,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_a_degenerate_corner_welds_in_miter_mode_too",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_a_degenerate_corner_welds_in_miter_mode_too()"
     },
     {
@@ -48390,7 +48490,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_testmerge_test_the_weld_keeps_the_first_index",
-      "community": 159,
+      "community": 186,
       "norm_label": ".test_the_weld_keeps_the_first_index()"
     },
     {
@@ -48830,7 +48930,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "unit_test_polychain_corner_rationale_122",
-      "community": 159,
+      "community": 186,
       "norm_label": "d36/d46 - bend welds, miter does not, and a degenerate corner welds     whateve"
     },
     {
@@ -51090,7 +51190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
-      "community": 149,
+      "community": 133,
       "norm_label": "claude.md"
     },
     {
@@ -51100,7 +51200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_polyfactory_project_instructions",
-      "community": 149,
+      "community": 346,
       "norm_label": "polyfactory \u2014 project instructions"
     },
     {
@@ -51110,7 +51210,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "claude_non_negotiable_working_rules",
-      "community": 149,
+      "community": 346,
       "norm_label": "non-negotiable working rules"
     },
     {
@@ -51120,7 +51220,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "claude_multi_agent_shared_branch_rules",
-      "community": 149,
+      "community": 346,
       "norm_label": "multi-agent / shared-branch rules"
     },
     {
@@ -51130,7 +51230,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "claude_testing",
-      "community": 149,
+      "community": 346,
       "norm_label": "testing"
     },
     {
@@ -51140,7 +51240,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "claude_docs",
-      "community": 149,
+      "community": 346,
       "norm_label": "docs"
     },
     {
@@ -52830,7 +52930,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_artist_ui_6b_the_study_applied_across_every_polyfactory_tool_audit_of_the_other_studies",
-      "community": 296,
+      "community": 174,
       "norm_label": "6b. the study applied across every polyfactory tool \u2014 audit of the other studies"
     },
     {
@@ -52840,7 +52940,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "ideas_artist_ui_streets_citygen_streets_md_citygen_streets_md_in_build",
-      "community": 296,
+      "community": 174,
       "norm_label": "streets \u2014 [`citygen_streets.md`](citygen_streets.md), in build"
     },
     {
@@ -52850,7 +52950,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "ideas_artist_ui_buildings_citygen_buildings_md_citygen_buildings_md_research_only",
-      "community": 296,
+      "community": 174,
       "norm_label": "buildings \u2014 [`citygen_buildings.md`](citygen_buildings.md), research only"
     },
     {
@@ -52860,7 +52960,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "ideas_artist_ui_traffic_crowds_citygen_simulation_md_citygen_simulation_md_design_spec_v0",
-      "community": 296,
+      "community": 174,
       "norm_label": "traffic / crowds \u2014 [`citygen_simulation.md`](citygen_simulation.md), design spec v0"
     },
     {
@@ -52870,7 +52970,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "ideas_artist_ui_terrain_presets_terrain_presets_md_terrain_presets_md_parked",
-      "community": 296,
+      "community": 174,
       "norm_label": "terrain presets \u2014 [`terrain_presets.md`](terrain_presets.md), parked"
     },
     {
@@ -52880,7 +52980,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_artist_ui_foliage_foliage_md_foliage_md_design_complete_parked",
-      "community": 296,
+      "community": 174,
       "norm_label": "foliage \u2014 [`foliage.md`](foliage.md), design complete, parked"
     },
     {
@@ -52890,7 +52990,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "ideas_artist_ui_fabric_polyknit_fabric_md_fabric_md_design_complete_parked",
-      "community": 296,
+      "community": 174,
       "norm_label": "fabric / polyknit \u2014 [`fabric.md`](fabric.md), design complete, parked"
     },
     {
@@ -52900,7 +53000,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "ideas_artist_ui_hair_grooming_hair_grooming_md_hair_grooming_md_research_parked",
-      "community": 296,
+      "community": 174,
       "norm_label": "hair grooming \u2014 [`hair_grooming.md`](hair_grooming.md), research, parked"
     },
     {
@@ -52910,7 +53010,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_artist_ui_asset_library_kitbash_asset_library_redesign_md_asset_library_redesign_md_planning",
-      "community": 296,
+      "community": 174,
       "norm_label": "asset library / kitbash \u2014 [`asset_library_redesign.md`](asset_library_redesign.md), planning"
     },
     {
@@ -52920,7 +53020,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_artist_ui_the_cross_study_observation",
-      "community": 296,
+      "community": 174,
       "norm_label": "the cross-study observation"
     },
     {
@@ -53140,7 +53240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_build_retrospective",
-      "community": 149,
+      "community": 133,
       "norm_label": "build_retrospective.md"
     },
     {
@@ -53760,7 +53860,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_2_the_paper_map",
-      "community": 64,
+      "community": 354,
       "norm_label": "2. the paper map"
     },
     {
@@ -53770,7 +53870,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_1_grammars_2001_2014_the_canon_still_what_production_runs_on",
-      "community": 64,
+      "community": 354,
       "norm_label": "era 1 \u2014 grammars (2001\u20132014). the canon; still what production runs on."
     },
     {
@@ -53780,7 +53880,7 @@
       "source_location": "L506",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_2_layout_optimisation_2010_2020_interiors_and_floor_plans",
-      "community": 64,
+      "community": 354,
       "norm_label": "era 2 \u2014 layout & optimisation (2010\u20132020). interiors and floor plans."
     },
     {
@@ -53790,7 +53890,7 @@
       "source_location": "L515",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_3_neural_hybrid_llm_2023_2026_watch_don_t_adopt",
-      "community": 64,
+      "community": 354,
       "norm_label": "era 3 \u2014 neural / hybrid / llm (2023\u20132026). watch, don't adopt."
     },
     {
@@ -53800,7 +53900,7 @@
       "source_location": "L537",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3_the_tool_landscape",
-      "community": 412,
+      "community": 64,
       "norm_label": "3. the tool landscape"
     },
     {
@@ -53810,7 +53910,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3a_text_grammar",
-      "community": 412,
+      "community": 64,
       "norm_label": "3a. text grammar"
     },
     {
@@ -53820,7 +53920,7 @@
       "source_location": "L548",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3b_node_graph_parametric_artist_facing",
-      "community": 412,
+      "community": 64,
       "norm_label": "3b. node graph / parametric, artist-facing"
     },
     {
@@ -53830,7 +53930,7 @@
       "source_location": "L559",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3c_bespoke_in_house_hda_toolsets_the_closest_analogues_to_what_we_re_building",
-      "community": 412,
+      "community": 64,
       "norm_label": "3c. bespoke in-house hda toolsets \u2014 the closest analogues to what we're building"
     },
     {
@@ -53840,7 +53940,7 @@
       "source_location": "L569",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3d_discrete_tile_based_a_genuinely_different_family",
-      "community": 412,
+      "community": 64,
       "norm_label": "3d. discrete / tile-based \u2014 a genuinely different family"
     },
     {
@@ -53850,7 +53950,7 @@
       "source_location": "L580",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3e_asset_library_and_ai_adjacents_not_building_generators",
-      "community": 412,
+      "community": 64,
       "norm_label": "3e. asset-library and ai adjacents \u2014 not building generators"
     },
     {
@@ -58030,7 +58130,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "ideas_foliage_6_the_growth_loop_one_tick",
-      "community": 346,
+      "community": 58,
       "norm_label": "6. the growth loop (one tick)"
     },
     {
@@ -58040,7 +58140,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_foliage_6_0_initialise_first_tick_only",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.0 initialise (first tick only)"
     },
     {
@@ -58050,7 +58150,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "ideas_foliage_6_1_bud_inventory",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.1 bud inventory"
     },
     {
@@ -58060,7 +58160,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "ideas_foliage_6_2_light_exposure",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.2 light exposure"
     },
     {
@@ -58070,7 +58170,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "ideas_foliage_6_3_vigor_gather_down_allocate_up_the_hormone_core",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.3 vigor: gather down, allocate up (the hormone core)"
     },
     {
@@ -58080,7 +58180,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "ideas_foliage_6_4_auxin_suppression",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.4 auxin suppression"
     },
     {
@@ -58090,7 +58190,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "ideas_foliage_6_5_bud_fate",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.5 bud fate"
     },
     {
@@ -58100,7 +58200,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "ideas_foliage_6_6_shoot_construction_energy_ledger",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.6 shoot construction + energy ledger"
     },
     {
@@ -58110,7 +58210,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "ideas_foliage_6_7_direction_integrator",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.7 direction integrator"
     },
     {
@@ -58120,7 +58220,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_foliage_6_8_secondary_growth",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.8 secondary growth"
     },
     {
@@ -58130,7 +58230,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "ideas_foliage_6_9_shadowed_branch_shoot_out_epicormic",
-      "community": 346,
+      "community": 58,
       "norm_label": "6.9 shadowed-branch shoot-out (epicormic)"
     },
     {
@@ -58470,7 +58570,7 @@
       "source_location": "L337",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_the_five_gaps_what_houdini_does_not_have",
-      "community": 229,
+      "community": 334,
       "norm_label": "3. the five gaps \u2014 what houdini does not have"
     },
     {
@@ -58480,7 +58580,7 @@
       "source_location": "L341",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_1_volume_tube_sculpting_with_a_persistent_hierarchy_and_a_length_preserving_deformer",
-      "community": 229,
+      "community": 334,
       "norm_label": "3.1 \u2b50 volume/tube sculpting with a persistent hierarchy and a length-preserving deformer"
     },
     {
@@ -58490,7 +58590,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_2_full_density_direct_manipulation_clone_stamp_and_mirror",
-      "community": 229,
+      "community": 334,
       "norm_label": "3.2 \u2b50 full-density direct manipulation, clone stamp and mirror"
     },
     {
@@ -58500,7 +58600,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_3_wetness_and_flexibility_as_a_spatial_volume_query",
-      "community": 229,
+      "community": 334,
       "norm_label": "3.3 wetness and flexibility as a spatial volume query"
     },
     {
@@ -58510,7 +58610,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_4_cage_mode_skinning",
-      "community": 229,
+      "community": 334,
       "norm_label": "3.4 cage-mode skinning"
     },
     {
@@ -58520,7 +58620,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "ideas_hair_grooming_3_5_intersector_clipping_with_frame_caching",
-      "community": 229,
+      "community": 334,
       "norm_label": "3.5 intersector clipping with frame caching"
     },
     {
@@ -58734,10 +58834,20 @@
       "norm_label": "feedback round 1 (2026-11-10, branch `modelui-fb1`)"
     },
     {
-      "label": "F12 feedback (branch `modelui-feedback`; implemented, unverified by an audit)",
+      "label": "Feedback round 2 (2026-11-11, branch `modelui-fb1`)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
       "source_location": "L300",
+      "_origin": "ast",
+      "id": "ideas_modelui_feedback_round_2_2026_11_11_branch_modelui_fb1",
+      "community": 184,
+      "norm_label": "feedback round 2 (2026-11-11, branch `modelui-fb1`)"
+    },
+    {
+      "label": "F12 feedback (branch `modelui-feedback`; implemented, unverified by an audit)",
+      "file_type": "document",
+      "source_file": "ideas/modelui.md",
+      "source_location": "L319",
       "_origin": "ast",
       "id": "ideas_modelui_f12_feedback_branch_modelui_feedback_implemented_unverified_by_an_audit",
       "community": 184,
@@ -58747,7 +58857,7 @@
       "label": "F2a measurements (`tests/modelui/bench_f2a.py` in the GUI; `check_containers.py` headless; all 605 library files)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L342",
+      "source_location": "L361",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_measurements_tests_modelui_bench_f2a_py_in_the_gui_check_containers_py_headless_all_605_library_files",
       "community": 184,
@@ -58757,7 +58867,7 @@
       "label": "F2a design: pieces packed in container objects (Hannes' choice: mixed backend)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L361",
+      "source_location": "L380",
       "_origin": "ast",
       "id": "ideas_modelui_f2a_design_pieces_packed_in_container_objects_hannes_choice_mixed_backend",
       "community": 184,
@@ -58767,7 +58877,7 @@
       "label": "F2c modifier stack (Modify panel; branch `modelui-stack`)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L390",
+      "source_location": "L409",
       "_origin": "ast",
       "id": "ideas_modelui_f2c_modifier_stack_modify_panel_branch_modelui_stack",
       "community": 184,
@@ -58777,7 +58887,7 @@
       "label": "Resume pointer (F1 framework core: done; F2 next)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L545",
+      "source_location": "L564",
       "_origin": "ast",
       "id": "ideas_modelui_resume_pointer_f1_framework_core_done_f2_next",
       "community": 184,
@@ -58787,7 +58897,7 @@
       "label": "F1 findings (2026-11-05, Houdini 22.0.442, Windows)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L610",
+      "source_location": "L629",
       "_origin": "ast",
       "id": "ideas_modelui_f1_findings_2026_11_05_houdini_22_0_442_windows",
       "community": 184,
@@ -58797,7 +58907,7 @@
       "label": "Decisions (Hannes, 2026-11-05)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L657",
+      "source_location": "L676",
       "_origin": "ast",
       "id": "ideas_modelui_decisions_hannes_2026_11_05",
       "community": 184,
@@ -58807,7 +58917,7 @@
       "label": "Decision log (house rule 2: why Python)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L678",
+      "source_location": "L697",
       "_origin": "ast",
       "id": "ideas_modelui_decision_log_house_rule_2_why_python",
       "community": 184,
@@ -58817,7 +58927,7 @@
       "label": "Framework (layers shared by every mode)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L693",
+      "source_location": "L712",
       "_origin": "ast",
       "id": "ideas_modelui_framework_layers_shared_by_every_mode",
       "community": 184,
@@ -58827,7 +58937,7 @@
       "label": "Mapping to Houdini",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L706",
+      "source_location": "L725",
       "_origin": "ast",
       "id": "ideas_modelui_mapping_to_houdini",
       "community": 184,
@@ -58837,7 +58947,7 @@
       "label": "Feature list",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L718",
+      "source_location": "L737",
       "_origin": "ast",
       "id": "ideas_modelui_feature_list",
       "community": 184,
@@ -58847,7 +58957,7 @@
       "label": "Measurements: one object per piece (2026-11-05, Houdini 22.0.442, Windows, Hannes' kitbash library)",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L736",
+      "source_location": "L755",
       "_origin": "ast",
       "id": "ideas_modelui_measurements_one_object_per_piece_2026_11_05_houdini_22_0_442_windows_hannes_kitbash_library",
       "community": 184,
@@ -58857,7 +58967,7 @@
       "label": "References",
       "file_type": "document",
       "source_file": "ideas/modelui.md",
-      "source_location": "L760",
+      "source_location": "L779",
       "_origin": "ast",
       "id": "ideas_modelui_references",
       "community": 184,
@@ -59360,7 +59470,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 354,
+      "community": 144,
       "norm_label": "3. data contracts"
     },
     {
@@ -59370,7 +59480,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 354,
+      "community": 144,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -59380,7 +59490,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 354,
+      "community": 144,
       "norm_label": "3.2 kit format"
     },
     {
@@ -59390,7 +59500,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 354,
+      "community": 144,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -59400,7 +59510,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 354,
+      "community": 144,
       "norm_label": "3.3 style payload"
     },
     {
@@ -59410,7 +59520,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 354,
+      "community": 144,
       "norm_label": "3.4 output"
     },
     {
@@ -59420,7 +59530,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "ideas_polychain_4_the_kernel_phase_1_algorithms",
-      "community": 144,
+      "community": 296,
       "norm_label": "4. the kernel \u2014 phase 1 algorithms"
     },
     {
@@ -59430,7 +59540,7 @@
       "source_location": "L328",
       "_origin": "ast",
       "id": "ideas_polychain_4_1_decompose",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.1 decompose"
     },
     {
@@ -59440,7 +59550,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_polychain_4_2_plan_the_fitting_solve_pure_math_no_geometry_yet",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.2 plan (the fitting solve \u2014 pure math, no geometry yet)"
     },
     {
@@ -59450,7 +59560,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "ideas_polychain_4_3_corners",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.3 corners"
     },
     {
@@ -59460,7 +59570,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "ideas_polychain_4_4_place_deform",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.4 place + deform"
     },
     {
@@ -59470,7 +59580,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "ideas_polychain_4_5_surface_conform_input_4",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.5 surface conform (input 4)"
     },
     {
@@ -59480,7 +59590,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "ideas_polychain_4_6_finalize",
-      "community": 144,
+      "community": 296,
       "norm_label": "4.6 finalize"
     },
     {
@@ -63870,7 +63980,7 @@
       "source_location": "L14772",
       "_origin": "ast",
       "id": "ideas_polychain_32_native_network_build_log_cycle_c5v_the_c5_audit_worked_through",
-      "community": 376,
+      "community": 144,
       "norm_label": "32. native network build log \u2014 cycle c5v (the c5 audit, worked through)"
     },
     {
@@ -63880,7 +63990,7 @@
       "source_location": "L14782",
       "_origin": "ast",
       "id": "ideas_polychain_32_1_d336_a_bend_weld_renumbered_every_section_after_it_the_audit_s_finding_1",
-      "community": 376,
+      "community": 144,
       "norm_label": "32.1 d336 \u2014 a bend weld renumbered every section after it (the audit's finding 1)"
     },
     {
@@ -63890,7 +64000,7 @@
       "source_location": "L14850",
       "_origin": "ast",
       "id": "ideas_polychain_32_2_the_two_guard_holes_findings_2_and_3",
-      "community": 376,
+      "community": 144,
       "norm_label": "32.2 the two guard holes (findings 2 and 3)"
     },
     {
@@ -63900,7 +64010,7 @@
       "source_location": "L14880",
       "_origin": "ast",
       "id": "ideas_polychain_32_3_d337_the_budget_is_at_1_0000x_with_zero_headroom_and_that_is_a_standing_cost",
-      "community": 376,
+      "community": 144,
       "norm_label": "32.3 d337 \u2014 the budget is at 1.0000x with zero headroom, and that is a standing cost"
     },
     {
@@ -63910,7 +64020,7 @@
       "source_location": "L14903",
       "_origin": "ast",
       "id": "ideas_polychain_32_4_the_python_share_per_build_class_the_number_that_closes_the_language_law",
-      "community": 376,
+      "community": 144,
       "norm_label": "32.4 the python share, per build class \u2014 the number that closes the language law"
     },
     {
@@ -63920,7 +64030,7 @@
       "source_location": "L14936",
       "_origin": "ast",
       "id": "ideas_polychain_32_5_what_the_c5v_gate_reads",
-      "community": 376,
+      "community": 144,
       "norm_label": "32.5 what the c5v gate reads"
     },
     {
@@ -65280,7 +65390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 397,
+      "community": 149,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -65290,7 +65400,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 397,
+      "community": 149,
       "norm_label": "the five pieces"
     },
     {
@@ -65300,7 +65410,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 397,
+      "community": 149,
       "norm_label": "what stays from v1"
     },
     {
@@ -65310,7 +65420,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 397,
+      "community": 149,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -65320,7 +65430,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 397,
+      "community": 149,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -65330,7 +65440,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 397,
+      "community": 149,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -65340,7 +65450,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 397,
+      "community": 149,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -65350,7 +65460,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 397,
+      "community": 149,
       "norm_label": "the v2 commands"
     },
     {
@@ -65515,7 +65625,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 421,
+      "community": 34,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -65551,7 +65661,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_credits_bar/__init__.py",
       "source_location": "L1",
-      "community": 414,
+      "community": 391,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_credits_bar_init_py"
     },
@@ -65614,7 +65724,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 51,
+      "community": 391,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -65623,7 +65733,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 51,
+      "community": 391,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -76440,11 +76550,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L53",
+      "source_location": "L56",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_53",
-      "target": "modelui_align_items"
+      "source": "modelui_align_rationale_56",
+      "target": "modelui_align_items",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76495,6 +76605,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L395",
+      "weight": 1.0,
+      "source": "modelui_align_alignsession_set_target",
+      "target": "modelui_align_item",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
       "source_location": "L613",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -76538,11 +76659,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L89",
+      "source_location": "L92",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_89",
-      "target": "modelui_align_world_box"
+      "source": "modelui_align_rationale_92",
+      "target": "modelui_align_world_box",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76603,11 +76724,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L104",
+      "source_location": "L107",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_104",
-      "target": "modelui_align_value"
+      "source": "modelui_align_rationale_107",
+      "target": "modelui_align_value",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76679,11 +76800,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L122",
+      "source_location": "L125",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_122",
-      "target": "modelui_align_keep_pivot"
+      "source": "modelui_align_rationale_125",
+      "target": "modelui_align_keep_pivot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76700,11 +76821,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L127",
+      "source_location": "L130",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_127",
-      "target": "modelui_align_orient"
+      "source": "modelui_align_rationale_130",
+      "target": "modelui_align_orient",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76721,21 +76842,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_141",
-      "target": "modelui_align_match_scale"
+      "source": "modelui_align_rationale_144",
+      "target": "modelui_align_match_scale",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L153",
+      "source_location": "L156",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_153",
-      "target": "modelui_align_aligned"
+      "source": "modelui_align_rationale_156",
+      "target": "modelui_align_aligned",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76763,11 +76884,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L164",
+      "source_location": "L167",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_164",
-      "target": "modelui_align_solve"
+      "source": "modelui_align_rationale_167",
+      "target": "modelui_align_solve",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76795,11 +76916,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L174",
+      "source_location": "L177",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_174",
-      "target": "modelui_align_quick"
+      "source": "modelui_align_rationale_177",
+      "target": "modelui_align_quick",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76816,11 +76937,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L182",
+      "source_location": "L185",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_182",
-      "target": "modelui_align_normal_delta"
+      "source": "modelui_align_rationale_185",
+      "target": "modelui_align_normal_delta",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76848,11 +76969,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L193",
+      "source_location": "L196",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_193",
-      "target": "modelui_align_pickable"
+      "source": "modelui_align_rationale_196",
+      "target": "modelui_align_pickable",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76869,11 +76990,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L201",
+      "source_location": "L204",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_201",
-      "target": "modelui_align_ray_box"
+      "source": "modelui_align_rationale_204",
+      "target": "modelui_align_ray_box",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76890,11 +77011,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L217",
+      "source_location": "L220",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_217",
-      "target": "modelui_align_hit_ray"
+      "source": "modelui_align_rationale_220",
+      "target": "modelui_align_hit_ray",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76911,21 +77032,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L266",
+      "source_location": "L269",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_266",
-      "target": "modelui_align_hit_at"
+      "source": "modelui_align_rationale_269",
+      "target": "modelui_align_hit_at",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L278",
+      "source_location": "L288",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_278",
-      "target": "modelui_align_snapshot"
+      "source": "modelui_align_rationale_288",
+      "target": "modelui_align_snapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76975,11 +77096,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L306",
+      "source_location": "L316",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_306",
-      "target": "modelui_align_commit"
+      "source": "modelui_align_rationale_316",
+      "target": "modelui_align_commit",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76996,11 +77117,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L312",
+      "source_location": "L322",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_312",
-      "target": "modelui_align_stored"
+      "source": "modelui_align_rationale_322",
+      "target": "modelui_align_stored",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77017,11 +77138,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L327",
+      "source_location": "L337",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_327",
-      "target": "modelui_align_unstored"
+      "source": "modelui_align_rationale_337",
+      "target": "modelui_align_unstored",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77102,11 +77223,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L343",
+      "source_location": "L353",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_343",
-      "target": "modelui_align_session"
+      "source": "modelui_align_rationale_353",
+      "target": "modelui_align_session",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -77228,6 +77349,16 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L394",
+      "weight": 1.0,
+      "source": "modelui_align_alignsession",
+      "target": "modelui_align_alignsession_set_target",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
       "source_location": "L384",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -77244,6 +77375,17 @@
       "confidence_score": 1.0,
       "source": "modelui_align_picked",
       "target": "modelui_align_alignsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L675",
+      "weight": 1.0,
+      "source": "modelui_align_start",
+      "target": "modelui_align_alignsession",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77371,6 +77513,16 @@
       "target": "modelui_align_aligndialog_refresh"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L485",
+      "weight": 1.0,
+      "source": "modelui_align_aligndialog",
+      "target": "modelui_align_aligndialog_set_target",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -77385,11 +77537,22 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L400",
+      "source_location": "L414",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_400",
-      "target": "modelui_align_aligndialog"
+      "source": "modelui_align_rationale_414",
+      "target": "modelui_align_aligndialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L675",
+      "weight": 1.0,
+      "source": "modelui_align_start",
+      "target": "modelui_align_aligndialog",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77445,6 +77608,49 @@
       "confidence_score": 1.0,
       "source": "modelui_align_aligndialog_refresh",
       "target": "modelui_align_aligndialog_options"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L491",
+      "weight": 1.0,
+      "source": "modelui_align_aligndialog_set_target",
+      "target": "modelui_align_normaldialog_refresh",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L649",
+      "weight": 1.0,
+      "source": "modelui_align_picked",
+      "target": "modelui_align_aligndialog_set_target",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L486",
+      "weight": 1.0,
+      "source": "modelui_align_rationale_486",
+      "target": "modelui_align_aligndialog_set_target",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L497",
+      "weight": 1.0,
+      "source": "modelui_align_aligndialog_done",
+      "target": "modelui_align_end_pick",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77523,11 +77729,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L479",
+      "source_location": "L510",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_479",
-      "target": "modelui_align_normaldialog"
+      "source": "modelui_align_rationale_510",
+      "target": "modelui_align_normaldialog",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77600,6 +77806,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
+      "source_location": "L675",
+      "weight": 1.0,
+      "source": "modelui_align_start",
+      "target": "modelui_align_show",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
       "source_location": "L665",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -77643,11 +77860,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L556",
+      "source_location": "L590",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_556",
-      "target": "modelui_align_gesture"
+      "source": "modelui_align_rationale_590",
+      "target": "modelui_align_gesture",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77719,11 +77936,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L642",
+      "source_location": "L682",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_642",
-      "target": "modelui_align_cursor_tick"
+      "source": "modelui_align_rationale_682",
+      "target": "modelui_align_cursor_tick",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -77762,21 +77979,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L669",
+      "source_location": "L714",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_669",
-      "target": "modelui_align_align"
+      "source": "modelui_align_rationale_714",
+      "target": "modelui_align_align",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/align.py",
-      "source_location": "L688",
+      "source_location": "L733",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_align_rationale_688",
-      "target": "modelui_align_uninstall"
+      "source": "modelui_align_rationale_733",
+      "target": "modelui_align_uninstall",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -82422,6 +82639,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "modelui_pieces_ui",
+      "target": "modelui_pieces_ui_viewer_gl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
       "source_location": "L67",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -82573,11 +82800,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L46",
+      "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_46",
-      "target": "modelui_pieces_ui_set_xforms"
+      "source": "modelui_pieces_ui_rationale_47",
+      "target": "modelui_pieces_ui_set_xforms",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82660,11 +82887,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L73",
+      "source_location": "L74",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_73",
-      "target": "modelui_pieces_ui_bounds"
+      "source": "modelui_pieces_ui_rationale_74",
+      "target": "modelui_pieces_ui_bounds",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82681,11 +82908,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L94",
+      "source_location": "L95",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_94",
-      "target": "modelui_pieces_ui_viewport_at"
+      "source": "modelui_pieces_ui_rationale_95",
+      "target": "modelui_pieces_ui_viewport_at",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82735,11 +82962,32 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L120",
+      "source_location": "L121",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_120",
-      "target": "modelui_pieces_ui_pick"
+      "source": "modelui_pieces_ui_rationale_121",
+      "target": "modelui_pieces_ui_pick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
+      "source_location": "L152",
+      "weight": 1.0,
+      "source": "modelui_pieces_ui_rationale_152",
+      "target": "modelui_pieces_ui_viewer_gl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
+      "source_location": "L172",
+      "weight": 1.0,
+      "source": "modelui_pieces_ui_under",
+      "target": "modelui_pieces_ui_viewer_gl",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82789,11 +83037,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L151",
+      "source_location": "L169",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_151",
-      "target": "modelui_pieces_ui_under"
+      "source": "modelui_pieces_ui_rationale_169",
+      "target": "modelui_pieces_ui_under",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82821,11 +83069,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L167",
+      "source_location": "L187",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_167",
-      "target": "modelui_pieces_ui_left_alone"
+      "source": "modelui_pieces_ui_rationale_187",
+      "target": "modelui_pieces_ui_left_alone",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82875,21 +83123,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L174",
+      "source_location": "L194",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_174",
-      "target": "modelui_pieces_ui_click_gesture"
+      "source": "modelui_pieces_ui_rationale_194",
+      "target": "modelui_pieces_ui_click_gesture",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L218",
+      "source_location": "L238",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_218",
-      "target": "modelui_pieces_ui_band"
+      "source": "modelui_pieces_ui_rationale_238",
+      "target": "modelui_pieces_ui_band",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82906,11 +83154,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L239",
+      "source_location": "L259",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_239",
-      "target": "modelui_pieces_ui_pick_at"
+      "source": "modelui_pieces_ui_rationale_259",
+      "target": "modelui_pieces_ui_pick_at",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82927,11 +83175,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L248",
+      "source_location": "L268",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_248",
-      "target": "modelui_pieces_ui_piece_centres"
+      "source": "modelui_pieces_ui_rationale_268",
+      "target": "modelui_pieces_ui_piece_centres",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82948,11 +83196,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L261",
+      "source_location": "L281",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_261",
-      "target": "modelui_pieces_ui_object_centres"
+      "source": "modelui_pieces_ui_rationale_281",
+      "target": "modelui_pieces_ui_object_centres",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -82969,11 +83217,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L284",
+      "source_location": "L304",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_284",
-      "target": "modelui_pieces_ui_box_at"
+      "source": "modelui_pieces_ui_rationale_304",
+      "target": "modelui_pieces_ui_box_at",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83023,11 +83271,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L315",
+      "source_location": "L335",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_315",
-      "target": "modelui_pieces_ui_proxy"
+      "source": "modelui_pieces_ui_rationale_335",
+      "target": "modelui_pieces_ui_proxy",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83055,11 +83303,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L325",
+      "source_location": "L345",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_325",
-      "target": "modelui_pieces_ui_delete_marked"
+      "source": "modelui_pieces_ui_rationale_345",
+      "target": "modelui_pieces_ui_delete_marked",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83109,11 +83357,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L373",
+      "source_location": "L393",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_373",
-      "target": "modelui_pieces_ui_set_rel"
+      "source": "modelui_pieces_ui_rationale_393",
+      "target": "modelui_pieces_ui_set_rel",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83141,11 +83389,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L382",
+      "source_location": "L402",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_382",
-      "target": "modelui_pieces_ui_handle_xform"
+      "source": "modelui_pieces_ui_rationale_402",
+      "target": "modelui_pieces_ui_handle_xform",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83184,11 +83432,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L395",
+      "source_location": "L415",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_395",
-      "target": "modelui_pieces_ui_bind"
+      "source": "modelui_pieces_ui_rationale_415",
+      "target": "modelui_pieces_ui_bind",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83238,11 +83486,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L430",
+      "source_location": "L450",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_430",
-      "target": "modelui_pieces_ui_draw"
+      "source": "modelui_pieces_ui_rationale_450",
+      "target": "modelui_pieces_ui_draw",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83259,11 +83507,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L502",
+      "source_location": "L522",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_502",
-      "target": "modelui_pieces_ui_plane_point"
+      "source": "modelui_pieces_ui_rationale_522",
+      "target": "modelui_pieces_ui_plane_point",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83280,21 +83528,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L516",
+      "source_location": "L536",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_516",
-      "target": "modelui_pieces_ui_grid_step"
+      "source": "modelui_pieces_ui_rationale_536",
+      "target": "modelui_pieces_ui_grid_step",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L533",
+      "source_location": "L553",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_533",
-      "target": "modelui_pieces_ui_key_gesture"
+      "source": "modelui_pieces_ui_rationale_553",
+      "target": "modelui_pieces_ui_key_gesture",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83311,11 +83559,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L541",
+      "source_location": "L561",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_541",
-      "target": "modelui_pieces_ui_ray_object"
+      "source": "modelui_pieces_ui_rationale_561",
+      "target": "modelui_pieces_ui_ray_object",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83343,11 +83591,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L643",
+      "source_location": "L663",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_643",
-      "target": "modelui_pieces_ui_revert_preview"
+      "source": "modelui_pieces_ui_rationale_663",
+      "target": "modelui_pieces_ui_revert_preview",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -83364,21 +83612,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L652",
+      "source_location": "L672",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_652",
-      "target": "modelui_pieces_ui_commit_drag"
+      "source": "modelui_pieces_ui_rationale_672",
+      "target": "modelui_pieces_ui_commit_drag",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/modelui/pieces_ui.py",
-      "source_location": "L668",
+      "source_location": "L688",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_pieces_ui_rationale_668",
-      "target": "modelui_pieces_ui_install"
+      "source": "modelui_pieces_ui_rationale_688",
+      "target": "modelui_pieces_ui_install",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -128951,6 +129199,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d",
+      "target": "modelui_gui_f2d_lines",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
       "source_location": "L38",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -128966,6 +129224,16 @@
       "confidence_score": 1.0,
       "source": "modelui_gui_f2d",
       "target": "modelui_gui_f2d_mutate"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d",
+      "target": "modelui_gui_f2d_no_target",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -129276,11 +129544,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L78",
+      "source_location": "L79",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_gui_f2d_rationale_78",
-      "target": "modelui_gui_f2d_raw"
+      "source": "modelui_gui_f2d_rationale_79",
+      "target": "modelui_gui_f2d_raw",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -129329,6 +129597,69 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_probe_init",
+      "target": "modelui_gui_f2d_lines_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_lines",
+      "target": "modelui_gui_f2d_lines_emit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_lines",
+      "target": "modelui_gui_f2d_lines_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L441",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_suite",
+      "target": "modelui_gui_f2d_lines",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_rationale_111",
+      "target": "modelui_gui_f2d_no_target",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
+      "source_location": "L283",
+      "weight": 1.0,
+      "source": "modelui_gui_f2d_suite",
+      "target": "modelui_gui_f2d_no_target",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/modelui/gui_f2d.py",
       "source_location": "L176",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -129339,11 +129670,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/modelui/gui_f2d.py",
-      "source_location": "L105",
+      "source_location": "L121",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modelui_gui_f2d_rationale_105",
-      "target": "modelui_gui_f2d_pick_clean"
+      "source": "modelui_gui_f2d_rationale_121",
+      "target": "modelui_gui_f2d_pick_clean",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -145769,9 +146100,9 @@
       "source_file": "tests/spacetools/run_shapegen_checks.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "spacetools_run_shapegen_checks",
-      "target": "spacetools_run_shapegen_checks_radians_left_in",
-      "confidence_score": 1.0
+      "target": "spacetools_run_shapegen_checks_radians_left_in"
     },
     {
       "relation": "contains",
@@ -163443,6 +163774,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/modelui.md",
+      "source_location": "L300",
+      "weight": 1.0,
+      "source": "ideas_modelui_modelui_comfortable_direct_modeling_with_houdini_as_the_engine",
+      "target": "ideas_modelui_feedback_round_2_2026_11_11_branch_modelui_fb1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/modelui.md",
       "source_location": "L42",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -169325,9 +169666,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L302",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_shape_generator_tool_6_pf_shape_generator_sop_no_input",
-      "target": "ideas_spacetools_audit_independent_sonnet_2026_11_19_f_cache_shapegen_audit_report_md",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_audit_independent_sonnet_2026_11_19_f_cache_shapegen_audit_report_md"
     },
     {
       "relation": "contains",
@@ -169355,9 +169696,9 @@
       "source_file": "ideas/spacetools.md",
       "source_location": "L305",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_spacetools_shape_generator_tool_6_pf_shape_generator_sop_no_input",
-      "target": "ideas_spacetools_known_gaps_later_305",
-      "confidence_score": 1.0
+      "target": "ideas_spacetools_known_gaps_later_305"
     },
     {
       "relation": "contains",
@@ -170094,5 +170435,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2aaaa216d026f640e3291b804cefbee40c970a8b"
+  "built_at_commit": "631d0e2bcad5d3f43b3f8ba1d7b05d551065f326"
 }

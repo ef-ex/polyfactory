@@ -297,6 +297,25 @@ Checks: `tests/modelui/gui_fb1.py` (13 mutations, each seen red). Unverified: a 
 exception of the old drop in a GUI session (the cause is from reading the code and a headless createNode), Alt+A with a
 real keyboard (QTest key events only).
 
+## Feedback round 2 (2026-11-11, branch `modelui-fb1`)
+
+Hannes: Alt+A / the Align buttons do nothing when he clicks an object (status bar only shows the prompt), no Max-like
+cursor, no options. **Cause of "does nothing": not reproduced.** His scene (shelf box / torus / tube objects, tube
+selected, state "select") run through the GUI test (`gui_f2d.py`, "shelf" block) picks the box, previews and cancels
+correctly on the old code; the shelf's primitive tube/sphere intersect fine (`Geometry.intersect` returns the prim).
+Only one real fragility was found and fixed (suspect c): `pieces_ui._under` took the pixel origin from the widget under
+the click and stopped at the first visible top-level window containing the point; a transparent widget over the viewer
+(or another window) gives a wrong pixel. It now takes the viewer's own largest QOpenGLWidget (`_viewer_gl`). Test:
+`pick_under_overlay_widget` (an overlay widget over the viewer; red with the old code via its mutation). Whether this was
+his cause is unknown. **Diagnostics:** every missed pick logs one line to `polyfactory.modelui` (nothing drawn under the
+pixel / not pickable: node, type, display flag / ray found no face / hit is in the selection / no viewport) and the status
+bar says it, so the next F12 `state.json` "log" names the reason. **Options on entering:** Alt+A / Align opens the
+Align dialog at once (non-modal, top right of the main window, "Target: click an object in the viewport", Apply
+disabled); the pick runs with the cross cursor (not over the dialog); the picked name fills the label, the preview starts
+and the dialog turns modal; Cancel / Esc / right click during the pick close everything. Quick and Normal Align are as
+before. Unverified in a real session: Hannes' cause, the cross cursor on a real mouse (checked as the real override
+cursor with a point), the dialog's position on his screen.
+
 ## F12 feedback (branch `modelui-feedback`; implemented, unverified by an audit)
 
 Press F12 anywhere in Houdini's main window while modelUI is on (or polyfactory > Send feedback (F12) any time): the
