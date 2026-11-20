@@ -489,6 +489,7 @@ class AlignDialog(QtWidgets.QDialog):
         self.setWindowTitle("Align Selection (%s)" % name)
         self.apply_button.setEnabled(True)
         self.refresh()
+        self.hide()   # Qt applies a modality change to a visible window only after hide + show
         self.setWindowModality(Qt.ApplicationModal)
         self.show()
 
